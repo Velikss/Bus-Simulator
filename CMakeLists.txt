@@ -11,9 +11,14 @@ enable_testing()
 
 add_subdirectory(googletest)
 
-set(Headers ${PROJECT_SOURCE_DIR}/src/pch.hpp)
-set(Sources ${PROJECT_SOURCE_DIR}/src/main.cpp)
+set(Headers 
+    ${PROJECT_SOURCE_DIR}/src/pch.hpp
+)
+set(Sources 
+    ${PROJECT_SOURCE_DIR}/src/main.cpp
+)
 
 add_library(${This} STATIC ${Sources} ${Headers})
+add_executable(${This}-bin ${Sources} ${Headers})
 
 add_subdirectory(test)
