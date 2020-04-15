@@ -10,7 +10,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 enable_testing()
 
 add_subdirectory(googletest)
-add_subdirectory(server)
 
 set(Headers 
     ${PROJECT_SOURCE_DIR}/src/pch.hpp

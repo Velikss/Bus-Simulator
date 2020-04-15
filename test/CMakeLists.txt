@@ -19,17 +19,16 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(Headers
-        Server-Tests/ServerHttpTests.hpp)
+        )
 set(Sources
-        test.cpp
-        Server-Tests/ServerHttpTests.hpp)
+        main_test.cpp
+)
 
 add_executable(${This} ${Sources} ${Headers})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(${This} PUBLIC
     gtest_main
     GameProject
-    server
 )
 
 add_test(
