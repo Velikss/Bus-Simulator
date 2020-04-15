@@ -1,12 +1,24 @@
 pipeline {
     agent any
     stages {
-        stage('Build') {
+        stage('Init') {
             steps {
                 script {
                     sh 'git submodule update --init --recursive'
+                }
+            }
+        }
+        stage('Build') {
+            steps {
+                script {
                     sh 'cmake .'
                     sh 'cmake --build .'
+                }
+            }
+        }
+        stage('Test') {
+            steps {
+                script {
                     sh '/usr/bin/ctest -T test --output-on-failure'
                 }
             }
