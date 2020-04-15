@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15.5)
+cmake_minimum_required(VERSION 3.13.4)
 
 set(This GameProject)
 project(${This} C CXX)
@@ -18,6 +18,7 @@ set(Sources
     ${PROJECT_SOURCE_DIR}/src/main.cpp
 )
 
+include_directories( ${PROJECT_SOURCE_DIR}/src )
 add_library(${This} STATIC ${Sources} ${Headers})
 add_executable(${This}-bin ${Sources} ${Headers})
 
