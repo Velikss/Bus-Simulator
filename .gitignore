@@ -1,2 +1,4 @@
 build/
 googletest/
+.vscode/
+.idea/
