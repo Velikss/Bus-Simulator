@@ -13,8 +13,11 @@ IF ( CMAKE_COMPILER_IS_MSVC )
     )
 ENDIF ( CMAKE_COMPILER_IS_MSVC )
 
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 set(Headers
-        ${PROJECT_SOURCE_DIR}/src/pch.hpp
         Server-Tests/ServerHttpTests.hpp)
 set(Sources
         test.cpp
