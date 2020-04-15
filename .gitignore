@@ -2,3 +2,4 @@ build/
 googletest/
 .vscode/
 .idea/
+cmake-build-debug/
