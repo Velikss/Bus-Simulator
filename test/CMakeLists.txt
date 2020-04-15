@@ -19,10 +19,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(Headers
-    ExampleTests.cpp
+        )
+set(Sources
+        main_test.cpp
 )
 
-add_executable(${This} ${Sources})
+add_executable(${This} ${Sources} ${Headers})
 target_link_libraries(${This} PUBLIC
     gtest_main
     GameProject
