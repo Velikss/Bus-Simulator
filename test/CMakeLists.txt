@@ -13,12 +13,15 @@ IF ( CMAKE_COMPILER_IS_MSVC )
     )
 ENDIF ( CMAKE_COMPILER_IS_MSVC )
 
+set(Headers
+        ${PROJECT_SOURCE_DIR}/src/pch.hpp
+        Server-Tests/ServerHttpTests.hpp)
 set(Sources
-    ExampleTests.cpp
-        )
+        test.cpp
+        Server-Tests/ServerHttpTests.hpp)
 
-add_executable(${This} ${Sources})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src)
+add_executable(${This} ${Sources} ${Headers})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(${This} PUBLIC
     gtest_main
     GameProject
