@@ -16,7 +16,7 @@ protected:
 	{
 		UP, DOWN
 	};
-	bool keys[256];
+	bool keys[256] = {false};
 	// mouse input cache.
 	glm::vec2 screenCenter;
 	int screenCenter_X, screenCenter_Y;
