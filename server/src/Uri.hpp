@@ -29,7 +29,10 @@ public:
     std::vector<string> pasPath;
     std::map<string, string> pasParameters;
     bool IsValidUri() const { return valid; }
+
     static cUri ParseFromString(string in);
+
+    string ToString();
 };
 
 cUri cUri::ParseFromString(string in)
@@ -157,5 +160,26 @@ cUri cUri::ParseFromString(string in)
 
     oUri.valid = true;
     return oUri;
+}
+
+string cUri::ToString()
+{
+    string sUri = psProtocol + "://" + psHost;
+    if (C_PROTOCOL_PORT.at(psProtocol) != pusPort) sUri += ":" + std::to_string(pusPort);
+    for(auto& sSubPath : pasPath)
+        sUri += "/" + sSubPath;
+    if (pasParameters.size() > 0)
+    {
+        bool bFirst = true;
+        for (auto& [sKey, sValue] : pasParameters)
+            if (bFirst)
+            {
+                sUri += "?" + sKey + "=" + sValue;
+                bFirst = false;
+            }
+            else
+                sUri += "&" + sKey + "=" + sValue;
+    }
+    return sUri;
 }
 

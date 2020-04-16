@@ -119,3 +119,16 @@ TEST(UriTests, ParseFromString)
         }
     }
 }
+
+TEST(UriTests, ToString)
+{
+    cUri oUri;
+    oUri.psProtocol = "https";
+    oUri.psHost     = "google.com";
+    oUri.pusPort    = 443;
+    oUri.pasPath.push_back("test");
+    oUri.pasPath.push_back("framework");
+    oUri.pasParameters.insert({"testParam", "1"});
+    oUri.pasParameters.insert({"tester", "false"});
+    EXPECT_EQ(oUri.ToString(), "https://google.com/test/framework?testParam=1&tester=false");
+}
