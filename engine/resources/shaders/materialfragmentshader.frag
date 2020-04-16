@@ -1,4 +1,7 @@
-#version 330 core
+#version 430 core
+
+layout(location = 0) in vec3 FragPos;
+layout(location = 2) in vec3 Normal;
 out vec4 FragColor;
 
 struct Material {
@@ -17,9 +20,6 @@ struct Light {
 	
     float radius;
 };
-
-in vec3 FragPos;  
-in vec3 Normal;  
   
 uniform vec3 viewPos;
 uniform Material material;
