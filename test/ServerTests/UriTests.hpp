@@ -17,20 +17,20 @@ struct tUriTestCompositon
 TEST(UriTests, ParseFromString)
 {
     std::vector<tUriTestCompositon> atUris = {
-            {"https://google.com",                  "https",    "google.com",       443,    {},    {},    true},
-            {"http://google.com",                   "http",     "google.com",       80,     {},    {},    true},
-            {"http://google.com:8080",              "http",     "google.com",       8080,   {},    {},    true},
-            {"http://google.com:8080/",             "http",     "google.com",       8080,   {},    {},    true},
-            {"http://google.com:8080/test",         "http",     "google.com",       8080,
+            {"https://google.com",                      "https",    "google.com",       443,    {},    {},    true},
+            {"http://google.com",                       "http",     "google.com",       80,     {},    {},    true},
+            {"http://google.com:8080",                  "http",     "google.com",       8080,   {},    {},    true},
+            {"http://google.com:8080/",                 "http",     "google.com",       8080,   {},    {},    true},
+            {"http://google.com:8080/test",             "http",     "google.com",       8080,
                     {
                             "test"
                     },    {},    true},
-            {"http://google.com:8080/test/kaas",    "http",     "google.com",       8080,
+            {"http://google.com:8080/test/kaas",        "http",     "google.com",       8080,
                     {
                             "test",
                             "kaas"
                     },    {},    true},
-            {"http://google.com:8080/test/kaas?h=k","http",     "google.com",       8080,
+            {"http://google.com:8080/test/kaas?h=k",    "http",     "google.com",       8080,
                     {
                             "test",
                             "kaas"
@@ -38,7 +38,7 @@ TEST(UriTests, ParseFromString)
                     {
                             {"h", "k"}
                     },    true},
-            {"http://google.com:8080/t/k?h=k&c=g",  "http",     "google.com",       8080,
+            {"http://google.com:8080/t/k?h=k&c=g",      "http",     "google.com",       8080,
                     {
                             "t",
                             "k"
@@ -47,27 +47,50 @@ TEST(UriTests, ParseFromString)
                             {"h", "k"},
                             {"c", "g"}
                     },    true},
-            {"http://google.com?hallo=hallo",       "http",     "google.com",       80,     {},
+            {"http://google.com?hallo=hallo",           "http",     "google.com",       80,     {},
                     {
                             {"hallo", "hallo"}
                     }, true},
-            {"http://google.com/?hallo=hallo",       "http",     "google.com",       80,    {},
+            {"http://google.com/kaas?hallo=hallo",      "http",     "google.com",       80,
+                    {
+                            "kaas"
+                    },
                     {
                             {"hallo", "hallo"}
                     }, true},
-            {"http://google.com?hallo=hallo&ik=ben", "http",     "google.com",       80,    {},
+            {"http://google.com/k/s?hallo=hallo",       "http",     "google.com",       80,
+                    {
+                            "k",
+                            "s"
+                    },
+                    {
+                            {"hallo", "hallo"}
+                    }, true},
+            {"http://google.com/k/s/?hallo=hallo",       "http",     "google.com",       80,
+                    {
+                            "k",
+                            "s"
+                    },
+                    {
+                            {"hallo", "hallo"}
+                    }, true},
+            {"http://google.com/?hallo=hallo",          "http",     "google.com",       80,    {},
+                    {
+                            {"hallo", "hallo"}
+                    }, true},
+            {"http://google.com?hallo=hallo&ik=ben",    "http",     "google.com",       80,    {},
                     {
                             {"hallo", "hallo"},
                             {"ik", "ben"}
                     }, true},
-            {"http://google.com/?hallo=hallo&ik=ben", "http",     "google.com",       80,    {},
+            {"http://google.com/?hallo=hallo&ik=ben",   "http",     "google.com",       80,    {},
                     {
                             {"hallo", "hallo"},
                             {"ik", "ben"}
                     }, true},
-            {"http://google.com:/",                 "http",     "",                 0,      {},    {},    false},
-            {"http://google.com:",                  "http",     "",                 0,      {},    {},    false},
-            {"realestate://google.com",             "",         "",                 0,      {},    {},    false},
+            {"http://google.com:/",                     "http",     "",                 0,      {},    {},    false},
+            {"http://google.com:",                      "http",     "",                 0,      {},    {},    false},
+            {"realestate://google.com",                 "",         "",                 0,      {},    {},    false},
     };
     for (auto& tUri : atUris)
     {
