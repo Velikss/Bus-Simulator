@@ -7,7 +7,6 @@
 const uint C_MAX_URI_SIZE = 131072; // 128 kB
 const uint C_MAX_PROTOCOL_CHAR_SIZE = 6;
 const uint C_MAX_PORT_CHAR_SIZE = 5;
-const uint C_MAX_PORT_SIZE = 65535;
 std::map<string, ushort> C_PROTOCOL_PORT = {
         {"https", 443},
         {"http", 80}
@@ -24,6 +23,7 @@ public:
     string psProtocol = "";
     string psHost = "";
     ushort pusPort = 0;
+    std::map<string, string> pasParameters;
     bool IsValidUri() const { return valid; }
     static cUri ParseFromString(string in);
 };
@@ -56,7 +56,7 @@ cUri cUri::ParseFromString(string in)
     size_t uiPortLastIndex = string::npos;
 
     // Check if there is a GET parameter.
-    const size_t uiGetParamIndex = in.find('?');
+    size_t uiGetParamIndex = in.find('?');
 
     if (uiPortIndex != string::npos)
     {
@@ -65,13 +65,23 @@ cUri cUri::ParseFromString(string in)
         if (uiPortLastIndex == string::npos) uiPortLastIndex = in.size();
         if (uiPortLastIndex - uiPortIndex > C_MAX_PORT_CHAR_SIZE) return oUri;
 
+        // Check for http://google.com:
+        if (uiPortLastIndex - uiPortIndex <= 1) return oUri;
+
         // Check whether there is still a ':' in the uri, this invalidates the uri.
         if (in.find(':', uiPortLastIndex + 1) != string::npos) return oUri;
 
         // Parse Port
         const cstring pBegin = &in[uiPortIndex] + 1;
         cstring pEnd = &in[uiPortLastIndex];
-        oUri.pusPort = (ushort) std::strtoul(pBegin, &pEnd, 0);
+        try
+        {
+            oUri.pusPort = (ushort) std::strtoul(pBegin, &pEnd, 0);
+        }
+        catch (std::exception & ex) // Should the value be too high.
+        {
+            return oUri;
+        }
 
         uiHostNameEnd = uiPortIndex;
     }
@@ -79,15 +89,41 @@ cUri cUri::ParseFromString(string in)
     {
         oUri.pusPort = C_PROTOCOL_PORT.at(sProtocol);
         uiHostNameEnd = in.find('/', uiHostName);
+
+        /*
+         * Should the uri be like http://google.com?test=test in which case there is no trailing /
+         * Then we can set the ending of the hostname to the first ranked delimiter 1. get, 2. state.
+         */
+        if (uiHostNameEnd == string::npos)
+        {
+            if (uiGetParamIndex != string::npos)
+                uiHostNameEnd = uiGetParamIndex;
+            else
+                uiHostNameEnd = in.size();
+        }
     }
 
     oUri.psHost = in.substr(uiHostName, uiHostNameEnd - uiHostName);
 
-/*    // Try to find any GET parameters
+    // Try to find any GET parameters
     if(uiGetParamIndex != string::npos)
     {
-        if (uiGetParamIndex < uiHostNameEnd)
-    }*/
+        if (uiGetParamIndex < uiHostNameEnd) return oUri;
+        do
+        {
+            auto uiCurrentGetParamIndex = uiGetParamIndex;
+            uiGetParamIndex = in.find('&', uiGetParamIndex + 1);
+            if (uiGetParamIndex == string::npos)
+                uiGetParamIndex = in.size();
+            if (uiCurrentGetParamIndex == uiGetParamIndex)
+                break;
+
+            string sParam = in.substr(uiCurrentGetParamIndex + 1, uiGetParamIndex - uiCurrentGetParamIndex - 1);
+            const size_t uiEqualsIndex = sParam.find('=');
+            oUri.pasParameters.insert({(string)sParam.substr(0, uiEqualsIndex), (string)sParam.substr(uiEqualsIndex + 1, sParam.size() - uiEqualsIndex)});
+        }
+        while (uiGetParamIndex < in.size());
+    }
 
     oUri.valid = true;
     return oUri;
