@@ -45,9 +45,6 @@ public:
 		screenCenter_X = screen_Width / 2;
 		screenCenter_Y = screen_Height / 2;
 		screenCenter = glm::vec2(screenCenter_X, screenCenter_Y);
-
-		//glutSetCursor(GLUT_CURSOR_NONE);
-		//glutWarpPointer(screenCenter_X, screenCenter_Y);
 	}
 
 	virtual void Update()

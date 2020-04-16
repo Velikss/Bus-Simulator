@@ -11,6 +11,7 @@ enable_testing()
 
 add_subdirectory(googletest)
 add_subdirectory(engine)
+add_subdirectory(engine/glfw)
 
 set(Headers 
     ${PROJECT_SOURCE_DIR}/src/pch.hpp
@@ -19,7 +20,7 @@ set(Sources
     ${PROJECT_SOURCE_DIR}/src/main.cpp
 )
 
-include_directories( ${PROJECT_SOURCE_DIR}/src )
+include_directories( ${PROJECT_SOURCE_DIR}/src ${GLUT_INCLUDE_DIRS})
 add_library(${This} STATIC ${Sources} ${Headers})
 add_executable(${This}-bin ${Sources} ${Headers})
 
