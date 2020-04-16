@@ -6,6 +6,7 @@
 #include <scenes/Camera.hpp>
 #include <animations/Animation.hpp>
 //#include <animations/Animation.hpp>
+#include <GLFW/glfw3.h>
 
 class Scene
 {
@@ -45,8 +46,8 @@ public:
 		screenCenter_Y = screen_Height / 2;
 		screenCenter = glm::vec2(screenCenter_X, screenCenter_Y);
 
-		glutSetCursor(GLUT_CURSOR_NONE);
-		glutWarpPointer(screenCenter_X, screenCenter_Y);
+		//glutSetCursor(GLUT_CURSOR_NONE);
+		//glutWarpPointer(screenCenter_X, screenCenter_Y);
 	}
 
 	virtual void Update()
@@ -90,10 +91,10 @@ public:
 
 	virtual void MoveMouse(int x, int y)
 	{
-		glm::vec2 mouse_delta = glm::vec2(x, y) - screenCenter;
+        const float sensitivity = 2.5f;
+        x *= sensitivity;
+        y *= sensitivity;
 
-		camera.LookMouseDiff(mouse_delta.x, mouse_delta.y);
-
-		glutWarpPointer(screenCenter_X, screenCenter_Y);
+		camera.LookMouseDiff(x, y);
 	}
 };

@@ -1,12 +1,12 @@
 #include <pch.hpp>
 #include <iostream>
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 #include <scenes/Scene.hpp>
 #include <scenes/MyStreetScene.hpp>
 #include <scenes/TestScene.hpp>
+#include <GLFW/glfw3.h>
 
-const int WIDTH = 800, HEIGHT = 600;
+const int WIDTH = 1080, HEIGHT = 720;
 unsigned const int DELTA_TIME = 1;
 
 Scene* activeScene = nullptr;
@@ -55,44 +55,119 @@ void changeSize(int w, int h)
     activeScene->camera.aspectRatio = ratio;
 }
 
-void idle(void)
+GLFWwindow* window;
+
+void InitGLFW(void)
 {
-    // Force GLUT to render the scene
-    glutPostRedisplay();
+    if (! glfwInit())
+        return;
+
+    window = glfwCreateWindow(WIDTH, HEIGHT, "Hello World", NULL, NULL);
+    if (! window)
+    {
+        glfwTerminate();
+        return;
+    }
+    glfwMakeContextCurrent(window);
+
+    GLenum err = glewInit();
+    if (GLEW_OK != err)
+    {
+        std::cerr << "Error: " << glewGetErrorString(err) << std::endl;
+        glfwTerminate();
+        return;
+    }
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    char keyChar = 0;
+    switch (key) {
+        case GLFW_KEY_W:
+            keyChar = 'w';
+            break;
+        case GLFW_KEY_A:
+            keyChar = 'a';
+            break;
+        case GLFW_KEY_S:
+            keyChar = 's';
+            break;
+        case GLFW_KEY_D:
+            keyChar = 'd';
+            break;
+        case GLFW_KEY_ESCAPE:
+            keyChar = 27;
+            break;
+    }
+    if (keyChar != 0) {
+        if (action == GLFW_PRESS) keyDown(keyChar, 0, 0);
+        if (action == GLFW_RELEASE) keyUp(keyChar, 0, 0);
+    }
+}
+
+static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+{
+    static bool firstMouse = true;
+    static float lastX = WIDTH, lastY = HEIGHT;
+
+    if(firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = ypos - lastY;
+    lastX = xpos;
+    lastY = ypos;
+
+    mouseMove(xoffset, yoffset);
+}
+
+void window_size_callback(GLFWwindow* window, int width, int height)
+{
+    changeSize(width, height);
 }
 
 int main(int argc, char** argv)
 {
     std::cout << "hello from engine." << std::endl;
 
-    glutInit(&argc, argv);
+    InitGLFW();
 
+    /*glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_MULTISAMPLE);
     glutInitWindowSize(WIDTH, HEIGHT);
-    glutCreateWindow("Loading...");
+    glutCreateWindow("Loading...");*/
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glEnable(GL_MULTISAMPLE_ARB);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // setup render.
-    glutDisplayFunc(Render);
-    glutTimerFunc(DELTA_TIME, Render, 0);
+    //glutDisplayFunc(Render);
+    //glutTimerFunc(DELTA_TIME, Render, 0);
 
-    glewInit();
+    //glewInit();
 
     // first we initialize the scene.
     activeScene = new MyStreetScene(WIDTH, HEIGHT);
     // load all resources.
     activeScene->Load();
 
-    glutKeyboardFunc(keyDown);
+    /*glutKeyboardFunc(keyDown);
     glutKeyboardUpFunc(keyUp);
     glutSpecialFunc(SpecialKeyDown);
     glutSpecialUpFunc(SpecialKeyUp);
     glutPassiveMotionFunc(mouseMove);
-    glutReshapeFunc(changeSize);
-    glutIdleFunc(idle);
+    glutReshapeFunc(changeSize);*/
+
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    glfwSetKeyCallback(window, key_callback);
+    glfwSetCursorPosCallback(window, cursor_position_callback);
+    glfwSetWindowSizeCallback(window, window_size_callback);
 
     // detect current anti aliasing settings
     GLint iMultiSample = 0;
@@ -100,11 +175,25 @@ int main(int argc, char** argv)
     glGetIntegerv(GL_SAMPLE_BUFFERS, &iMultiSample);
     glGetIntegerv(GL_SAMPLES, &iNumSamples);
     string Title = "Scene: " + activeScene->name + ", Anti-aliasing: " + (iMultiSample == 1 ? "on" : "off") + ", MSAA: " + std::to_string(iNumSamples) + "x";
-    glutSetWindowTitle(Title.c_str());
+    //glutSetWindowTitle(Title.c_str());
 
-    glutFullScreen();
+    //glutFullScreen();
 
-    glutMainLoop();
+    //glutMainLoop();
+
+    while (!glfwWindowShouldClose(window))
+    {
+        glClearColor(0.0, 0.0, 0.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        activeScene->Update();
+        activeScene->Render();
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    glfwTerminate();
 
     return 0;
 }
