@@ -14,6 +14,9 @@ std::map<string, ushort> C_PROTOCOL_PORT = {
 
 /*
  * This class provides parsing of uri strings. It can be used in the server for clear drilldown-references.
+ * Supports:
+ * - PATHs
+ * - GET Parameters non-escaped.
  */
 class cUri
 {
@@ -23,6 +26,7 @@ public:
     string psProtocol = "";
     string psHost = "";
     ushort pusPort = 0;
+    std::vector<string> pasPath;
     std::map<string, string> pasParameters;
     bool IsValidUri() const { return valid; }
     static cUri ParseFromString(string in);
@@ -105,18 +109,44 @@ cUri cUri::ParseFromString(string in)
 
     oUri.psHost = in.substr(uiHostName, uiHostNameEnd - uiHostName);
 
+    // Try to find a path
+    if (uiGetParamIndex != uiHostNameEnd && uiHostNameEnd < in.size())
+    {
+        size_t uiBegin = uiHostNameEnd;
+        size_t uiEnd = string::npos;
+
+        if (in[uiBegin] != '/') uiBegin = in.find('/', uiBegin);
+
+        if (uiBegin != string::npos)
+        {
+            // Set end of the maximum path
+            if (uiGetParamIndex == string::npos) uiEnd = in.size();
+            else uiEnd = uiGetParamIndex;
+
+            do
+            {
+                const size_t uiCurrentBegin = uiBegin + 1;
+                uiBegin = in.find('/', uiBegin + 1);
+                if (uiCurrentBegin >= uiEnd) break;
+                if (uiBegin == string::npos) uiBegin = uiEnd;
+                string sParam = in.substr(uiCurrentBegin, uiBegin - uiCurrentBegin);
+                if (sParam.size() > 0) oUri.pasPath.push_back(sParam);
+            }
+            while (uiBegin < uiEnd);
+        }
+    }
+
     // Try to find any GET parameters
     if(uiGetParamIndex != string::npos)
     {
         if (uiGetParamIndex < uiHostNameEnd) return oUri;
         do
         {
+            // Find whether there is another parameters.
             auto uiCurrentGetParamIndex = uiGetParamIndex;
             uiGetParamIndex = in.find('&', uiGetParamIndex + 1);
-            if (uiGetParamIndex == string::npos)
-                uiGetParamIndex = in.size();
-            if (uiCurrentGetParamIndex == uiGetParamIndex)
-                break;
+            // If not set the end index to the end of the input.
+            if (uiGetParamIndex == string::npos) uiGetParamIndex = in.size();
 
             string sParam = in.substr(uiCurrentGetParamIndex + 1, uiGetParamIndex - uiCurrentGetParamIndex - 1);
             const size_t uiEqualsIndex = sParam.find('=');
