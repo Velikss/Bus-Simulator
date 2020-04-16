@@ -30,7 +30,7 @@ uniform int lightsSize;
 
 void main()
 {
-	vec3 result;
+	vec3 result = vec3(0, 0, 0);
 	for(int i = 0; i < NR_POINT_LIGHTS; i++)
 	{
         // ambient
@@ -46,13 +46,13 @@ void main()
         vec3 viewDir = normalize(viewPos - FragPos);
         vec3 reflectDir = reflect(-lightDir, norm);  
         float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-        vec3 specular = lights[i].specular * (spec * material.specular);  
+        vec3 specular = lights[i].specular * (spec * material.specular);
             
 		float distance    = length(lights[i].position - FragPos);
 		float attenuation = clamp(1.0 - distance*distance/(lights[i].radius*lights[i].radius), 0.0, 1.0); attenuation *= attenuation;
 		ambient *= attenuation;
 		diffuse  *= attenuation;
-		specular *= attenuation;  
+		specular *= attenuation;
 		vec3 calcLight = (ambient + diffuse + specular);
 		if(calcLight.x > 0)
 			result += calcLight;

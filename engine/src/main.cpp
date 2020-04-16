@@ -4,6 +4,7 @@
 #include <GL/freeglut.h>
 #include <scenes/Scene.hpp>
 #include <scenes/MyStreetScene.hpp>
+#include <scenes/TestScene.hpp>
 
 const int WIDTH = 800, HEIGHT = 600;
 unsigned const int DELTA_TIME = 1;
@@ -54,6 +55,12 @@ void changeSize(int w, int h)
     activeScene->camera.aspectRatio = ratio;
 }
 
+void idle(void)
+{
+    // Force GLUT to render the scene
+    glutPostRedisplay();
+}
+
 int main(int argc, char** argv)
 {
     std::cout << "hello from engine." << std::endl;
@@ -85,6 +92,17 @@ int main(int argc, char** argv)
     glutSpecialUpFunc(SpecialKeyUp);
     glutPassiveMotionFunc(mouseMove);
     glutReshapeFunc(changeSize);
+    glutIdleFunc(idle);
+
+    // detect current anti aliasing settings
+    GLint iMultiSample = 0;
+    GLint iNumSamples = 0;
+    glGetIntegerv(GL_SAMPLE_BUFFERS, &iMultiSample);
+    glGetIntegerv(GL_SAMPLES, &iNumSamples);
+    string Title = "Scene: " + activeScene->name + ", Anti-aliasing: " + (iMultiSample == 1 ? "on" : "off") + ", MSAA: " + std::to_string(iNumSamples) + "x";
+    glutSetWindowTitle(Title.c_str());
+
+    glutFullScreen();
 
     glutMainLoop();
 

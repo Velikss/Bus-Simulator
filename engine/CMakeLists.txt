@@ -33,6 +33,12 @@ set(Headers
     ${PROJECT_SOURCE_DIR}/src/scenes/Scene.hpp
     ${PROJECT_SOURCE_DIR}/src/scenes/Camera.hpp
     ${PROJECT_SOURCE_DIR}/src/scenes/MyStreetScene.hpp
+    ${PROJECT_SOURCE_DIR}/src/animations/Animation.hpp
+    ${PROJECT_SOURCE_DIR}/src/animations/FireWehrAnimation.hpp
+    ${PROJECT_SOURCE_DIR}/src/animations/LightObjectBindingAnimation.hpp
+    ${PROJECT_SOURCE_DIR}/src/animations/MoonLightAnimation.hpp
+    ${PROJECT_SOURCE_DIR}/src/animations/OrbitalAnimation.hpp
+    ${PROJECT_SOURCE_DIR}/src/scenes/TestScene.hpp
 )
 set(Sources 
     ${PROJECT_SOURCE_DIR}/src/main.cpp

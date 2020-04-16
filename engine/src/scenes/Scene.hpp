@@ -4,6 +4,7 @@
 #include <objects/BaseObject.hpp>
 #include <objects/Light.hpp>
 #include <scenes/Camera.hpp>
+#include <animations/Animation.hpp>
 //#include <animations/Animation.hpp>
 
 class Scene
@@ -31,7 +32,7 @@ public:
 
 	// all objects & corresponding in the scene.
 	std::map<string, BaseObject*> objects;
-	//std::vector<Animation*> animations;
+	std::vector<Animation*> animations;
 
 	// Lighting and background.
 	std::vector<Light*> lights;
@@ -51,8 +52,8 @@ public:
 	virtual void Update()
 	{
 		camera.ProcessUpdates();
-		/*for (auto& animation : animations)
-			animation->Update();*/
+		for (auto& animation : animations)
+			animation->Update();
 	}
 
 	virtual void Load() = 0;

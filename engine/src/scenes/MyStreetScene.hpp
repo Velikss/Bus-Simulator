@@ -4,8 +4,8 @@
 #include <geometries/SkyBoxGeometry.hpp>
 #include <scenes/Scene.hpp>
 #include <objects/ObjectGroup.hpp>
-//#include <animations/MoonLightAnimation.hpp>
-//#include <animations/FireWehrAnimation.hpp>
+#include <animations/MoonLightAnimation.hpp>
+#include <animations/FireWehrAnimation.hpp>
 
 /*
 This scene is based on the week 1 scene.
@@ -145,7 +145,7 @@ public:
         Light* moon = new Light(meshes.at("moon"), true);
         moon->SetScale(2.0);
         moon->SetPos(0, 0, 0);
-        //animations.push_back(new MoonLightAnimation(moon, 150, 0.1, OrbitAngle::xy));
+        animations.push_back(new MoonLightAnimation(moon, 150, 0.1, OrbitAngle::xy));
         lights.push_back(moon);
 
         // create a street or plane from the street model.
@@ -182,7 +182,7 @@ public:
         carAlarm->specular = glm::vec3(1.0, 1.0, 1.0);
         carAlarm->SetScale(0.2);
         carAlarm->SetPositionalHeigth(2.65);
-        //animations.push_back(new FireWehrAnimation(car, carAlarm));
+        animations.push_back(new FireWehrAnimation(car, carAlarm));
         carAlarm->radius = 25;
         lights.push_back(carAlarm);
         objects.insert({ "car", car });

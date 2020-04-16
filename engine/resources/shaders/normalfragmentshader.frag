@@ -15,7 +15,7 @@ struct Light {
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
-	
+
     float radius;
 };
 
@@ -31,7 +31,7 @@ void main()
 {
 	vec3 endColor;
 	if (useTexture && useColor)
-		endColor = texture(otexture, TexCoords).rgb *objectColor;
+		endColor = texture(otexture, TexCoords).rgb * objectColor;
 	else if (useTexture)
 		endColor = texture(otexture, TexCoords).rgb;
 	else if (useColor)
@@ -39,22 +39,23 @@ void main()
 
 	if (useLighting)
 	{
-		vec3 result;
+		vec3 result = vec3(0, 0, 0);
 		for(int i = 0; i < NR_POINT_LIGHTS; i++)
 		{
 			float ambientStrength = 0.1;
 			vec3 ambient = ambientStrength * lights[i].ambient;
 			vec3 norm = normalize(Normal);
-			vec3 lightDir = normalize(lights[i].position - FragPos);  
+			vec3 lightDir = normalize(lights[i].position - FragPos);
 			float diff = max(dot(norm, lightDir), 0.0);
 			vec3 diffuse = diff * lights[i].ambient;
 
 			float specularStrength = 0.2;
 			vec3 viewDir = normalize(viewPos - FragPos);
-			vec3 reflectDir = reflect(-lightDir, norm);  
+			vec3 reflectDir = reflect(-lightDir, norm);
 			float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
 			vec3 specular = specularStrength * spec * lights[i].ambient;
 			float distance    = length(lights[i].position - FragPos);
+
 			float attenuation = clamp(1.0 - distance*distance/(lights[i].radius*lights[i].radius), 0.0, 1.0); attenuation *= attenuation;
 			ambient *= attenuation;
 			diffuse  *= attenuation;
