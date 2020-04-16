@@ -4,6 +4,8 @@
 #include <scenes/Scene.hpp>
 #include <scenes/MyStreetScene.hpp>
 #include <GLFW/glfw3.h>
+#include <vulkan/vulkan.h>
+#include "Engine.hpp"
 
 const int WIDTH = 1080, HEIGHT = 720;
 
@@ -32,6 +34,8 @@ void changeSize(int w, int h)
 
 void InitGLFW(void)
 {
+
+
     if (! glfwInit())
         return;
 
@@ -105,7 +109,18 @@ void window_size_callback(GLFWwindow* window, int width, int height)
 
 int main(int argc, char** argv)
 {
-    std::cout << "hello from engine." << std::endl;
+    Engine engine;
+
+    try {
+        engine.Run();
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+
+    /*std::cout << "hello from engine." << std::endl;
 
     InitGLFW();
 
@@ -137,8 +152,9 @@ int main(int argc, char** argv)
         glfwPollEvents();
     }
 
+    glfwDestroyWindow(window);
     glfwTerminate();
 
-    return 0;
+    return 0;*/
 }
 

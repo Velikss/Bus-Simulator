@@ -4,3 +4,6 @@
 [submodule "engine/glfw"]
 	path = engine/glfw
 	url = https://github.com/glfw/glfw.git
+[submodule "engine/vulkan-sdk"]
+	path = engine/vulkan-sdk
+	url = https://github.com/ARM-software/vulkan-sdk.git
