@@ -8,13 +8,9 @@ set(Headers
 set(Sources
     ExampleTests.cpp)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-add_executable(${This} ${Sources})
-target_link_libraries(${This} PUBLIC
-    gtest_main
-    GameProject
-        engine
-)
+add_executable(${This} ${Sources} ${Headers})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../)
+target_link_libraries(${This} PUBLIC gtest_main)
 
 add_test(
     NAME ${This}
