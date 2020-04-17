@@ -58,7 +58,7 @@ public:
 		if (numAliveSockets++ == 0) NetInit();
 		this->settings = settings;
 
-		std::memset(&addr, 0, sizeof(sockaddr_in));
+		memset(&addr, 0, sizeof(sockaddr_in));
 
 		addr.sin_family = settings->ipversion == IPVersion::v4 ? AF_INET : AF_INET6;
 		addr.sin_addr.s_addr = (settings->address.size() == 0) ? INADDR_ANY : inet_addr(settings->address.c_str());

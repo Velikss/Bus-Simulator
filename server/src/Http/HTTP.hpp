@@ -45,38 +45,42 @@ namespace HTTP
 	{
 		switch (version)
 		{
-		case Version::HTTP_1_0:
-			return "HTTP/1.0";
-		case Version::HTTP_1_1:
-			return "HTTP/1.1";
-		case Version::HTTP_2_0:
-			return "HTTP/2.0";
+            case Version::HTTP_2_0:
+                return "HTTP/2.0";
+            case Version::HTTP_1_1:
+                return "HTTP/1.1";
+            case Version::HTTP_1_0:
+                return "HTTP/1.0";
+		    default:
+                return "HTTP/1.0";
 		}
 	}
 
 	string to_string(Method method)
 	{
 		switch (method)
-		{
-		case Method::GET:
-			return "GET";
-		case Method::HEAD:
-			return "HEAD";
-		case Method::POST:
-			return "POST";
-		case Method::PUT:
-			return "PUT";
-		case Method::DEL:
-			return "DELETE";
-		case Method::TRACE:
-			return "TRACE";
-		case Method::OPTIONS:
-			return "OPTIONS";
-		case Method::CONNECT:
-			return "CONNECT";
-		case Method::PATCH:
-			return "PATCH";
-		}
+        {
+            case Method::GET:
+                return "GET";
+            case Method::HEAD:
+                return "HEAD";
+            case Method::POST:
+                return "POST";
+            case Method::PUT:
+                return "PUT";
+            case Method::DEL:
+                return "DELETE";
+            case Method::TRACE:
+                return "TRACE";
+            case Method::OPTIONS:
+                return "OPTIONS";
+            case Method::CONNECT:
+                return "CONNECT";
+            case Method::PATCH:
+                return "PATCH";
+            default:
+                return "GET";
+        }
 	}
 
 	Method method_from_string(const string& method)

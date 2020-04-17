@@ -49,8 +49,9 @@ int main()
     Utf8 utftoHTMLconv;
 
     FILE* f = nullptr;
-    if (fopen_s(&f, "./wwwroot/index.html", "rb"))
+    if ((f = fopen("./wwwroot/index.html", "rb")) == NULL)
     {
+        std::cout << f << std::endl;
         std::cout << "file does not exist." << std::endl;
         return -1;
     }
