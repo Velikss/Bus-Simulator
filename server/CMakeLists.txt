@@ -13,7 +13,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/DirectoryWatcher.hpp
         src/BenchMarking.hpp
         vendor/Json.hpp
-        vendor/Utf8.hpp src/NetworkAbstractions.hpp)
+        vendor/Utf8.hpp src/NetworkAbstractions.hpp src/SslHelper.hpp)
 set(Sources 
     ${PROJECT_SOURCE_DIR}/src/main.cpp
 )

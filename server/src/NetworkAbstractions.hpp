@@ -40,8 +40,8 @@ public:
 void cNetworkAbstractions::NetInit()
 {
 #if defined(WINDOWS)
-    WSADATA wsa_data;
-    WSAStartup(MAKEWORD(1, 1), &wsa_data);
+    WSADATA tWSA_DATA;
+    WSAStartup(MAKEWORD(1, 1), &tWSA_DATA);
 #endif
 }
 
@@ -55,8 +55,8 @@ void cNetworkAbstractions::NetShutdown()
 void cNetworkAbstractions::SetBlocking(NET_SOCK oSock, bool bBlocking)
 {
 #if defined(WINDOWS)
-    u_long arg = (bBlocking) ? 0 : 1;
-    ioctlsocket(oSock, FIONBIO, &arg);
+    u_long ulArgument = (bBlocking) ? 0 : 1;
+    ioctlsocket(oSock, FIONBIO, &ulArgument);
 #else
     fcntl(oSock, F_SETFL, (bBlocking) ? O_BLOCK : O_NONBLOCK);
 #endif
@@ -64,13 +64,13 @@ void cNetworkAbstractions::SetBlocking(NET_SOCK oSock, bool bBlocking)
 
 int cNetworkAbstractions::CloseSocket(NET_SOCK & oSock)
 {
-    int result = -1;
+    int iResult = -1;
 #if defined(WINDOWS)
-    result = closesocket(oSock);
+    iResult = closesocket(oSock);
 #else
     result = close(oSock);
 #endif
     oSock = NET_INVALID_SOCKET_ID;
-    return result;
+    return iResult;
 }
 

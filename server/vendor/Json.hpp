@@ -2312,7 +2312,7 @@ json.exception.invalid_iterator.201 | iterators are not compatible | The iterato
 json.exception.invalid_iterator.202 | iterator does not fit current value | In an erase or insert function, the passed iterator @a pos does not belong to the JSON value for which the function was called. It hence does not define a valid position for the deletion/insertion.
 json.exception.invalid_iterator.203 | iterators do not fit current value | Either iterator passed to function @ref erase(IteratorType first, IteratorType last) does not belong to the JSON value from which values shall be erased. It hence does not define a valid range to delete values from.
 json.exception.invalid_iterator.204 | iterators out of range | When an iterator range for a primitive type (number, boolean, or string) is passed to a constructor or an erase function, this range has to be exactly (@ref begin(), @ref end()), because this is the only way the single stored value is expressed. All other ranges are invalid.
-json.exception.invalid_iterator.205 | iterator out of range | When an iterator for a primitive type (number, boolean, or string) is passed to an erase function, the iterator has to be the @ref begin() iterator, because it is the only way to address the stored value. All other iterators are invalid.
+json.exception.invalid_iterator.205 | iterator out of range | When an iterator for a primitive type (number, boolean, or string) is passed to an erase function, the iterator has to be the @ref begin() iterator, because it is the only way to sAddress the stored value. All other iterators are invalid.
 json.exception.invalid_iterator.206 | cannot construct with iterators from null | The iterators passed to constructor @ref basic_json(InputIT first, InputIT last) belong to a JSON null value and hence to not define a valid range.
 json.exception.invalid_iterator.207 | cannot use key() for non-object iterators | The key() member function can only be used on iterators belonging to a JSON object, because other types do not have a concept of a key.
 json.exception.invalid_iterator.208 | cannot use operator[] for object iterators | The operator[] to specify a concrete offset cannot be used on iterators belonging to a JSON object, because JSON objects are unordered.
@@ -4627,12 +4627,12 @@ class input_adapter
         const auto len = static_cast<size_t>(std::distance(first, last));
         if (JSON_HEDLEY_LIKELY(len > 0))
         {
-            // there is at least one element: use the address of first
+            // there is at least one element: use the sAddress of first
             ia = std::make_shared<input_buffer_adapter>(reinterpret_cast<const char*>(&(*first)), len);
         }
         else
         {
-            // the address of first cannot be used: use nullptr
+            // the sAddress of first cannot be used: use nullptr
             ia = std::make_shared<input_buffer_adapter>(nullptr, len);
         }
     }
@@ -5654,7 +5654,7 @@ class binary_reader
                 assert(false);  // LCOV_EXCL_LINE
         }
 
-        // strict mode: next byte must be EOF
+        // strict eMode: next byte must be EOF
         if (result and strict)
         {
             if (format == input_format_t::ubjson)
@@ -9471,7 +9471,7 @@ class parser
             sax_parse_internal(&sdp);
             result.assert_invariant();
 
-            // in strict mode, input must be completely read
+            // in strict eMode, input must be completely read
             if (strict and (get_token() != token_type::end_of_input))
             {
                 sdp.parse_error(m_lexer.get_position(),
@@ -9500,7 +9500,7 @@ class parser
             sax_parse_internal(&sdp);
             result.assert_invariant();
 
-            // in strict mode, input must be completely read
+            // in strict eMode, input must be completely read
             if (strict and (get_token() != token_type::end_of_input))
             {
                 sdp.parse_error(m_lexer.get_position(),
@@ -9537,7 +9537,7 @@ class parser
         (void)detail::is_sax_static_asserts<SAX, BasicJsonType> {};
         const bool result = sax_parse_internal(sax);
 
-        // strict mode: next byte must be EOF
+        // strict eMode: next byte must be EOF
         if (result and strict and (get_token() != token_type::end_of_input))
         {
             return sax->parse_error(m_lexer.get_position(),
@@ -17031,7 +17031,7 @@ class basic_json
 
     @param[in] type_deduction internal parameter; when set to `true`, the type
     of the JSON value is deducted from the initializer list @a init; when set
-    to `false`, the type provided via @a manual_type is forced. This mode is
+    to `false`, the type provided via @a manual_type is forced. This eMode is
     used by the functions @ref array(initializer_list_t) and
     @ref object(initializer_list_t).
 
