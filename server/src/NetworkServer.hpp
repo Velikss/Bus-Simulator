@@ -6,21 +6,22 @@ class NetworkServer : public NetworkConnection
 public:
 	NetworkServer(NetworkConnection::NetworkInitializationSettings* settings) : NetworkConnection(settings)
 	{
-		if ((last_status = bind(sock, (const sockaddr*)&addr, sizeof(addr))) != 0)
-		{
-			Close();
-			throw std::runtime_error("Failed to bind to host " + settings->address +
-				" at port #" + std::to_string(settings->port));
-		}
-		std::cout << last_status << std::endl;
-		if ((last_status = listen(sock, SOMAXCONN)) != 0)
-		{
-			Close();
-			throw std::runtime_error("Failed to bind to host " + settings->address +
-				" at port #" + std::to_string(settings->port));
-		}
-        std::cout << last_status << std::endl;
 	}
+
+	bool Start()
+    {
+        if ((last_status = bind(sock, (const sockaddr*)&addr, sizeof(addr))) != 0)
+        {
+            Close();
+            return false;
+        }
+        if ((last_status = listen(sock, SOMAXCONN)) != 0)
+        {
+            Close();
+            return false;
+        }
+        return true;
+    }
 
 	NetworkConnection* AcceptConnection(bool setnonblocking = false) const
 	{

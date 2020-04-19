@@ -10,7 +10,10 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(Headers 
     ${PROJECT_SOURCE_DIR}/src/pch.hpp
         ${PROJECT_SOURCE_DIR}/src/Uri.hpp
-        ${PROJECT_SOURCE_DIR}/src/DirectoryWatcher.hpp)
+        ${PROJECT_SOURCE_DIR}/src/DirectoryWatcher.hpp
+        src/BenchMarking.hpp
+        vendor/Json.hpp
+        vendor/Utf8.hpp)
 set(Sources 
     ${PROJECT_SOURCE_DIR}/src/main.cpp
 )
