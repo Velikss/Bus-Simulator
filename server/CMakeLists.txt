@@ -18,6 +18,11 @@ set(Sources
     ${PROJECT_SOURCE_DIR}/src/main.cpp
 )
 
-include_directories( ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/src )
+set(OPENSSL_USE_STATIC_LIBS TRUE)
+find_package(OpenSSL REQUIRED)
+
+include_directories( ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/src ${OPENSSL_INCLUDE_DIR} )
 add_library(${This} STATIC ${Sources} ${Headers})
 add_executable(${This}-bin ${Sources} ${Headers})
+target_link_libraries(${This} PUBLIC OpenSSL::SSL OpenSSL::Crypto)
+target_link_libraries(${This}-bin PUBLIC OpenSSL::SSL OpenSSL::Crypto)

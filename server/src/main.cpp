@@ -6,6 +6,8 @@
 #include <DirectoryWatcher.hpp>
 #include <vendor/Json.hpp>
 
+#include <openssl/sha.h>
+
 static string resp_str;
 
 void RequestHandler(NetworkConnection* connection)
@@ -46,6 +48,17 @@ void RequestHandler(NetworkConnection* connection)
 std::vector<std::thread*> threads;
 int main()
 {
+    unsigned char ibuf[] = "compute sha1";
+    unsigned char obuf[20];
+
+    SHA1(ibuf, sizeof(ibuf), obuf);
+
+    int i;
+    for (i = 0; i < 20; i++) {
+        printf("%02x ", obuf[i]);
+    }
+    printf("\n");
+
     Utf8 utftoHTMLconv;
 
     std::ifstream oHtmlStream("./wwwroot/index.html");
@@ -104,7 +117,7 @@ int main()
     {
         std::cout << "starting using standard settings..." << std::endl;
         settings.address = "0.0.0.0";
-        settings.address = 8080;
+        settings.port = 8080;
     }
     else
     {
