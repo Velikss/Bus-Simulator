@@ -58,7 +58,8 @@ void cNetworkAbstractions::SetBlocking(NET_SOCK oSock, bool bBlocking)
     u_long ulArgument = (bBlocking) ? 0 : 1;
     ioctlsocket(oSock, FIONBIO, &ulArgument);
 #else
-    fcntl(oSock, F_SETFL, (bBlocking) ? O_BLOCK : O_NONBLOCK);
+    const int flags = fcntl(oSock, F_GETFL, 0);
+    fcntl(oSock, F_SETFL, bBlocking ? flags ^ O_NONBLOCK : flags | O_NONBLOCK);
 #endif
 }
 
@@ -68,7 +69,7 @@ int cNetworkAbstractions::CloseSocket(NET_SOCK & oSock)
 #if defined(WINDOWS)
     iResult = closesocket(oSock);
 #else
-    result = close(oSock);
+    iResult = close(oSock);
 #endif
     oSock = NET_INVALID_SOCKET_ID;
     return iResult;

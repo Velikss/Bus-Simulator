@@ -52,14 +52,20 @@ public:
 	void Close();
 
 	// Read and write bytes to the socket stream:
-	long ReceiveBytes(byte* pBuffer, size_t uiNumBytes) const
+	long ReceiveBytes(byte* pBuffer, size_t uiNumBytes)
     {
+	    if(ppConnectionSSL)
+	        return SSL_read(ppConnectionSSL, (char*)pBuffer, uiNumBytes); /* get request */
         return recv(poSock, (char*)pBuffer, uiNumBytes, 0);
     }
 
-	void SendBytes(const byte* pBuffer, size_t uiNumBytes) const
+	void SendBytes(const byte* pBuffer, size_t uiNumBytes)
     {
-        long lResult = send(poSock, (char*)pBuffer, uiNumBytes, 0);
+        long lResult = 0;
+        if (ppConnectionSSL)
+            lResult = SSL_write(ppConnectionSSL, pBuffer, uiNumBytes);
+        else
+            lResult = send(poSock, (char *) pBuffer, uiNumBytes, 0);
         if (lResult == NET_SOCKET_ERROR)
             throw std::runtime_error("Failed to 'send()' bytes! NET_SOCKET_ERROR!");
         else if (static_cast<size_t>(lResult) != uiNumBytes)
@@ -101,6 +107,8 @@ cNetworkConnection::cNetworkConnection(cNetworkConnection::tNetworkInitializatio
 
 void cNetworkConnection::Close()
 {
+    if (ppConnectionSSL)
+        SSL_free(ppConnectionSSL);
     if (poSock != NET_INVALID_SOCKET_ID)
     {
         if (cNetworkAbstractions::CloseSocket(poSock) != 0)

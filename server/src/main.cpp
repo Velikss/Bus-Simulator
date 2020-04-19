@@ -6,63 +6,36 @@
 #include <DirectoryWatcher.hpp>
 #include <vendor/Json.hpp>
 #include <streambuf>
-
 #include <SslHelper.hpp>
 
 static string resp_str;
 
 void RequestHandler(cNetworkConnection* connection)
 {
-    if (connection->ppConnectionSSL)
+    pollfd fdarray = {0};
+    fdarray.fd = connection->poSock;
+    fdarray.events = POLLRDNORM;;
+    fdarray.revents = POLLRDNORM;
+    while (fdarray.revents & POLLRDNORM)
     {
-        std::cout << "use ssl" << std::endl;
-        char buf[1024];
-        int accept = SSL_accept(connection->ppConnectionSSL);
-        if ( accept < 0 )
-            ERR_print_errors_fp(stderr);
-        else
-        {
-            cSSLHelper::PrintCertificates(connection->ppConnectionSSL);       /* get any certificates */
-            int bytes = SSL_read(connection->ppConnectionSSL, buf, sizeof(buf)); /* get request */
-            std::cout << string(buf, bytes) << std::endl;
-            if (bytes > 0)
-                SSL_write(connection->ppConnectionSSL, resp_str.c_str(), resp_str.size()); /* send reply */
-            else
-                ERR_print_errors_fp(stderr);
-            SSL_free(connection->ppConnectionSSL);
-        }
-    }
-    else
-    {
-        pollfd fdarray = {0};
-        fdarray.fd = connection->poSock;
-        fdarray.events = POLLRDNORM;;
-        fdarray.revents = POLLRDNORM;
-
-        while (fdarray.revents & POLLRDNORM)
-        {
 #ifdef _WIN32
-            if (WSAPoll(&fdarray, 1, -1) > 0)
+        if (WSAPoll(&fdarray, 1, -1) > 0)
 #else
-                if (poll(&fdarray, 1, -1) > 0)
+        if (poll(&fdarray, 1, -1) > 0)
 #endif
-            {
-                char buffer[8192];
-                const long size = connection->ReceiveBytes((byte *) &buffer[0], 8192);
-                if (size <= 0) continue;
-                if (size == 0) std::cout << "disconnected" << std::endl;
+        {
+            char buffer[8192];
+            const long size = connection->ReceiveBytes((byte *) &buffer[0], 8192);
+            if (size < 0) continue;
+            if (size == 0) break;
+            const string req_str = string(buffer, size);
+            HTTP::Request req = HTTP::Request::deserialize(req_str);
+            connection->SendBytes((const byte *) resp_str.c_str(), resp_str.size());
 
-                const string req_str = string(buffer, size);
-                HTTP::Request req = HTTP::Request::deserialize(req_str);
-
-                connection->SendBytes((const byte *) resp_str.c_str(), resp_str.size());
-
-                string Connection = HTTP::GetValueFromHeader(req.get_headers(), "connection");
-                if (Connection != "keep-alive")
-                    break;
-            }
-            sleep(1);
+            if (HTTP::GetValueFromHeader(req.get_headers(), "connection") != "keep-alive")
+                break;
         }
+        sleep(1);
     }
     connection->Close();
     std::cout << "disconnected." << std::endl;
@@ -103,7 +76,6 @@ int main()
         else
             sHtmlEncoded += "&#" + std::to_string(point) + ";";
     }
-    std::cout << sHtmlEncoded << std::endl;
 
     std::vector<HTTP::Header> headers;
     HTTP::Response resp(HTTP::OK, headers, sHtmlEncoded);
@@ -139,8 +111,8 @@ int main()
     std::ifstream oConfigStream("./config.json");
     if (oConfigStream.is_open())
         oConfigStream >> oConfig;
-    // initialize server.
 
+    // initialize server.
     std::cout << "starting...." << std::endl;
     cNetworkConnection::tNetworkInitializationSettings tNetworkSettings;
     if (oConfig.empty())

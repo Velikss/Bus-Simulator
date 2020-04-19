@@ -36,7 +36,7 @@ public:
     // Server
     static SSL_CTX* CreateServerCtx()
     {
-        const SSL_METHOD* method = TLSv1_2_server_method();
+        const SSL_METHOD* method = TLS_server_method();
         SSL_CTX* ctx = SSL_CTX_new(method);
         if ( ctx == NULL )
         {

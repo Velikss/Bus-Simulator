@@ -36,7 +36,6 @@ cNetworkConnection *cNetworkServer::AcceptConnection(bool bBlockingSocket) const
                                   &iClientAddrLength);
 
     if (oSock == -1) return nullptr;
-    if (!bBlockingSocket) cNetworkAbstractions::SetBlocking(oSock, bBlockingSocket);
 
     auto oNewConnection = new cNetworkConnection(oSock, tClientAddr);
 
@@ -44,7 +43,12 @@ cNetworkConnection *cNetworkServer::AcceptConnection(bool bBlockingSocket) const
     {
         oNewConnection->ppConnectionSSL = SSL_new(ppSSLContext);
         SSL_set_fd(oNewConnection->ppConnectionSSL, oSock);
+
+        int iReturn = SSL_accept(oNewConnection->ppConnectionSSL);
+        if (iReturn < 0) return nullptr;
     }
+
+    if (!bBlockingSocket) cNetworkAbstractions::SetBlocking(oSock, bBlockingSocket);
 
     return oNewConnection;
 }
