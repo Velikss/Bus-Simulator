@@ -35,12 +35,12 @@ public:
 			return nullptr;
 		if (setnonblocking)
 		{
-#ifdef _WIN32
+#if defined(WINDOWS)
 			u_long arg = 1;
 			ioctlsocket(newSocket, FIONBIO, &arg);
-#else // !_WIN32
+#else
 			fcntl(newSocket, F_SETFL, O_NONBLOCK);
-#endif // _WIN32
+#endif
 		}
 		return new NetworkConnection(newSocket, client_addr);
 	}

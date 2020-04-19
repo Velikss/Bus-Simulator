@@ -6,7 +6,8 @@
 #include <DirectoryWatcher.hpp>
 #include <vendor/Json.hpp>
 
-#include <openssl/sha.h>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 
 static string resp_str;
 
@@ -48,7 +49,7 @@ void RequestHandler(NetworkConnection* connection)
 std::vector<std::thread*> threads;
 int main()
 {
-    unsigned char ibuf[] = "compute sha1";
+/*    unsigned char ibuf[] = "compute sha1";
     unsigned char obuf[20];
 
     SHA1(ibuf, sizeof(ibuf), obuf);
@@ -57,7 +58,7 @@ int main()
     for (i = 0; i < 20; i++) {
         printf("%02x ", obuf[i]);
     }
-    printf("\n");
+    printf("\n");*/
 
     Utf8 utftoHTMLconv;
 
