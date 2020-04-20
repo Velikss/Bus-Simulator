@@ -1,6 +1,10 @@
 {
   "server-settings": {
     "ip": "0.0.0.0",
-    "port": 8080
+    "port": 8080,
+    "ssl": {
+      "cert": "C:/dev/SSL/19-4-2020.cert",
+      "key": "C:/dev/SSL/19-4-2020.key"
+    }
   }
 }

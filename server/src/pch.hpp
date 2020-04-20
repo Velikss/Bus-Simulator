@@ -9,8 +9,6 @@
 #include <set>
 #include <tuple>
 #include <iterator>
-#include <filesystem>
-namespace fs = std::filesystem;
 #include <fstream>
 #include <iomanip>
 #include <chrono>
@@ -47,6 +45,12 @@ typedef unsigned int uint;
 typedef long long int64;
 typedef unsigned long long uint64;
 typedef unsigned char byte;
+
+bool is_file_exist(string fileName)
+{
+    std::ifstream infile(fileName);
+    return infile.good();
+}
 
 void toLower(string& str)
 {

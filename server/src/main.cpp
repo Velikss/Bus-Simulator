@@ -7,6 +7,7 @@
 #include <vendor/Json.hpp>
 #include <streambuf>
 #include <SslHelper.hpp>
+#include <filesystem>
 
 static string resp_str;
 
@@ -67,6 +68,7 @@ int main()
     }
     std::string sUTFHtml((std::istreambuf_iterator<char>(oHtmlStream)),
                          std::istreambuf_iterator<char>());
+
     auto ex = oUTF8ToHtmlConverter.Decode(sUTFHtml);
     string sHtmlEncoded;
     for (auto& point : ex)
@@ -126,13 +128,31 @@ int main()
         std::cout << "starting using config..." << std::endl;
         tNetworkSettings.sAddress = oConfig["server-settings"]["ip"];
         tNetworkSettings.usPort = oConfig["server-settings"]["port"];
+        if(oConfig["server-settings"].find("ssl") != oConfig["server-settings"].end())
+        {
+            if (oConfig["server-settings"]["ssl"].find("cert") != oConfig["server-settings"]["ssl"].end() &&
+                oConfig["server-settings"]["ssl"].find("key") != oConfig["server-settings"]["ssl"].end())
+            {
+                if (is_file_exist(oConfig["server-settings"]["ssl"]["cert"]) &&
+                    is_file_exist(oConfig["server-settings"]["ssl"]["key"]))
+                {
+                    tNetworkSettings.bUseSSL = true;
+                    tNetworkSettings.sCertFile = oConfig["server-settings"]["ssl"]["cert"];
+                    tNetworkSettings.sKeyFile = oConfig["server-settings"]["ssl"]["key"];
+                    std::cout << "security: ssl-enabled." << std::endl;
+                }
+                else
+                    std::cout << "security: no-ssl, one of the files did not exist." << std::endl;
+            }
+            else
+                std::cout << "security: no-ssl, there was a config failure." << std::endl;
+        }
+        else
+            std::cout << "security: no-ssl." << std::endl;
     }
     tNetworkSettings.eIPVersion = cNetworkConnection::cIPVersion::eV4;
     tNetworkSettings.eConnectionType = cNetworkConnection::cConnectionType::eTCP;
     tNetworkSettings.eMode = cNetworkConnection::cMode::eBlocking;
-    tNetworkSettings.bUseSSL = true;
-    tNetworkSettings.sCertFile = "C:/dev/SSL/19-4-2020.cert";
-    tNetworkSettings.sKeyFile = "C:/dev/SSL/19-4-2020.key";
 
     cNetworkServer server(&tNetworkSettings);
     if (server.Listen())
