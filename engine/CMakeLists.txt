@@ -10,7 +10,6 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)
-find_package(glm REQUIRED)
 
 add_subdirectory(vulkan-sdk)
 
@@ -46,7 +45,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/animations/MoonLightAnimation.hpp
         ${PROJECT_SOURCE_DIR}/src/animations/OrbitalAnimation.hpp
         ${PROJECT_SOURCE_DIR}/src/scenes/TestScene.hpp
-        ${PROJECT_SOURCE_DIR}/src/Engine.hpp src/EngineDebugger.hpp)
+        ${PROJECT_SOURCE_DIR}/src/Engine.hpp)
 set(Sources 
         ${PROJECT_SOURCE_DIR}/src/main.cpp
 )
