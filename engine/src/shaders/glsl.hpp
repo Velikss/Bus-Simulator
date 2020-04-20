@@ -1,7 +1,6 @@
 #pragma once
 #include <pch.hpp>
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 
 /*
 Sorry Eltjo but I like hpp files, I know I know....

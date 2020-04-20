@@ -48,7 +48,7 @@ public:
             camera.LookRight();
 
         // Move the car with a certains peed.
-        const float speed = 0.6;
+        /*const float speed = 0.6;
         const float angle_diff = 6.0;
         if (keys[128 + GLUT_KEY_UP])
             objects.at("car")->MoveForward(speed);
@@ -61,7 +61,7 @@ public:
         if (keys[128 + GLUT_KEY_LEFT] && keys[128 + GLUT_KEY_DOWN])
             objects.at("car")->MoveLeft(-angle_diff);
         if (keys[128 + GLUT_KEY_RIGHT] && keys[128 + GLUT_KEY_DOWN])
-            objects.at("car")->MoveRight(-angle_diff);
+            objects.at("car")->MoveRight(-angle_diff);*/
 
         // if godmode is enabled with space and c one is able to fly.
         if (keys[' '] && !camera.lockHeight)
