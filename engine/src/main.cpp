@@ -4,6 +4,7 @@
 #include <scenes/Scene.hpp>
 #include <scenes/MyStreetScene.hpp>
 #include <GLFW/glfw3.h>
+#include <scripting/cScriptingEngine.hpp>
 
 const int WIDTH = 1080, HEIGHT = 720;
 
@@ -107,38 +108,41 @@ int main(int argc, char** argv)
 {
     std::cout << "hello from engine." << std::endl;
 
-    InitGLFW();
+    cScriptingEngine engine = cScriptingEngine();
+    engine.RunFile("src/scripting/script.js");
 
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glEnable(GL_MULTISAMPLE_ARB);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    // first we initialize the scene.
-    activeScene = new MyStreetScene(WIDTH, HEIGHT);
-    // load all resources.
-    activeScene->Load();
-
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    glfwSetKeyCallback(window, key_callback);
-    glfwSetCursorPosCallback(window, cursor_position_callback);
-    glfwSetWindowSizeCallback(window, window_size_callback);
-
-    while (!glfwWindowShouldClose(window))
-    {
-        glClearColor(0.0, 0.0, 0.0, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        activeScene->Update();
-        activeScene->Render();
-
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
-
-    glfwTerminate();
-
-    return 0;
+//    InitGLFW();
+//
+//    glEnable(GL_DEPTH_TEST);
+//    glEnable(GL_BLEND);
+//    glEnable(GL_MULTISAMPLE_ARB);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//
+//    // first we initialize the scene.
+//    activeScene = new MyStreetScene(WIDTH, HEIGHT);
+//    // load all resources.
+//    activeScene->Load();
+//
+//    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+//
+//    glfwSetKeyCallback(window, key_callback);
+//    glfwSetCursorPosCallback(window, cursor_position_callback);
+//    glfwSetWindowSizeCallback(window, window_size_callback);
+//
+//    while (!glfwWindowShouldClose(window))
+//    {
+//        glClearColor(0.0, 0.0, 0.0, 1.0);
+//        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//
+//        activeScene->Update();
+//        activeScene->Render();
+//
+//        glfwSwapBuffers(window);
+//        glfwPollEvents();
+//    }
+//
+//    glfwTerminate();
+//
+//    return 0;
 }
 
