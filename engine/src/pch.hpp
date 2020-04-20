@@ -6,6 +6,8 @@
 #include <vector>
 #include <map>
 #include <stack>
+#include <cassert>
+#include <set>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -17,7 +19,7 @@ typedef long long int64;
 typedef unsigned long long uint64;
 typedef unsigned char byte;
 
-namespace str
+/*namespace str
 {
     template <class Container>
     void split(const std::string& str, Container& cont,
@@ -32,4 +34,4 @@ namespace str
         }
         cont.push_back(str.substr(previous, current - previous));
     }
-}
+}*/

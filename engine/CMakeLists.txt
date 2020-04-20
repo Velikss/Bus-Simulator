@@ -17,7 +17,7 @@ set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(Headers 
+set(Headers
         ${PROJECT_SOURCE_DIR}/src/pch.hpp
         ${PROJECT_SOURCE_DIR}/src/shaders/glsl.hpp
         ${PROJECT_SOURCE_DIR}/src/shaders/shader.hpp
@@ -45,10 +45,15 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/animations/MoonLightAnimation.hpp
         ${PROJECT_SOURCE_DIR}/src/animations/OrbitalAnimation.hpp
         ${PROJECT_SOURCE_DIR}/src/scenes/TestScene.hpp
-        ${PROJECT_SOURCE_DIR}/src/Engine.hpp)
-set(Sources 
-        ${PROJECT_SOURCE_DIR}/src/main.cpp
-)
+        ${PROJECT_SOURCE_DIR}/src/Engine.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/Window.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/VulkanInstance.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/PhysicalDevice.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/LogicalDevice.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/Surface.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/SwapChain.hpp src/vulkan/GraphicsPipeline.hpp src/vulkan/RenderPass.hpp)
+set(Sources
+        ${PROJECT_SOURCE_DIR}/src/main.cpp)
 
 include_directories(${PROJECT_SOURCE_DIR}/src ${GLEW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/vulkan-sdk/include)
 add_library(${This} STATIC ${Sources} ${Headers})

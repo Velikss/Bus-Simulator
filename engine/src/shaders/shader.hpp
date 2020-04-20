@@ -26,7 +26,7 @@ inline Shader Shader::fromFile(string fileName)
 	Shader shader;
 	shader.filename = fileName;
 	std::vector<std::string> words;
-	str::split(fileName, words, ".");
+	//str::split(fileName, words, ".");
 	if (words.back() == "vert")
 		shader.type = glsl::shaderType::SHADER_VERTEX;
 	else if (words.back() == "frag")
