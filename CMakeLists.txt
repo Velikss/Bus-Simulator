@@ -20,7 +20,7 @@ set(Sources
     ${PROJECT_SOURCE_DIR}/src/main.cpp
 )
 
-include_directories( ${PROJECT_SOURCE_DIR}/src ${GLUT_INCLUDE_DIRS})
+include_directories(${PROJECT_SOURCE_DIR}/src)
 add_library(${This} STATIC ${Sources} ${Headers})
 add_executable(${This}-bin ${Sources} ${Headers})
 

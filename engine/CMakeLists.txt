@@ -8,15 +8,11 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 find_package(OpenGL REQUIRED)
-find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)
-find_package(glm REQUIRED)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-#add_subdirectory(glfw)
 
 set(Headers 
     ${PROJECT_SOURCE_DIR}/src/pch.hpp
