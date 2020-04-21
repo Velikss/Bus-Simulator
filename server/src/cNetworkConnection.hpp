@@ -50,22 +50,6 @@ public:
 
 	void Close();
 
-    bool IsConnected()
-    {
-        pollfd fdarray = { 0 };
-        fdarray.fd = poSock;
-        fdarray.events = POLLRDNORM;;
-        fdarray.revents = POLLRDNORM;
-#ifdef _WIN32
-        int poll = WSAPoll(&fdarray, 1, 1000);
-#else
-        int poll = poll(&fdarray, 1, 1000);
-#endif
-        if (!(fdarray.revents & POLLRDNORM))
-            return false;
-        return true;
-    }
-
 	// Read and write bytes to the socket stream:
 	long ReceiveBytes(byte* pBuffer, size_t uiNumBytes)
     {
