@@ -76,11 +76,11 @@ bool cScriptingEngine::CompileJavaScriptFile(const char *pstrFilename)
                                std::istreambuf_iterator<char>());
 
     // Compile JavaScript to bytecode
-    if (duk_pcompile_string(poContext, 0, strFileContent.c_str()) != 0)
+    if (duk_pcompile_string(ppoContext, 0, strFileContent.c_str()) != 0)
     {
         // Error during compiling
         std::cout << "JS compile failed" << std::endl;
-        std::cout << duk_safe_to_string(poContext, -1);
+        std::cout << duk_safe_to_string(ppoContext, -1);
     }
     else
     {

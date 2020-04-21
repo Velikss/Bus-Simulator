@@ -1,8 +1,14 @@
 function execute(entity, entities)
 {
+    // Receive variables
     var x = GetEntityX(entity);
     println("Value received: ");
     print(x);
+
+    // Do behaviour logic
+
+    // Return values (set function that applies the modified values to the entity
+
 }
 
 /*
