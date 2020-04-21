@@ -29,6 +29,9 @@ public:
 
     bool AllocateCommandBuffers(VkCommandBufferAllocateInfo* pAllocateInfo,
                                 VkCommandBuffer* pCommandBuffers);
+    void FreeCommandBuffers(VkCommandPool& oCommandPool,
+                            uint uiCommandBufferCount,
+                            VkCommandBuffer* pCommandBuffers);
 
     bool CreateCommandPool(VkCommandPoolCreateInfo* pCreateInfo,
                            VkAllocationCallbacks* pAllocator,
@@ -79,6 +82,8 @@ public:
     bool GraphicsQueueSubmit(uint uiSubmitCount,
                              VkSubmitInfo* ptSubmitInfo,
                              VkFence& oFence);
+    void GraphicsQueueWaitIdle(void);
+
     void QueuePresent(VkPresentInfoKHR* ptPresentInfo);
 
     void WaitForFences(uint uiFenceCount,
@@ -189,6 +194,11 @@ VkDevice& cLogicalDevice::GetDevice()
 bool cLogicalDevice::GraphicsQueueSubmit(uint uiSubmitCount, VkSubmitInfo* ptSubmitInfo, VkFence& oFence)
 {
     return vkQueueSubmit(poGraphicsQueue, uiSubmitCount, ptSubmitInfo, oFence) == VK_SUCCESS;
+}
+
+void cLogicalDevice::GraphicsQueueWaitIdle(void)
+{
+    vkQueueWaitIdle(poGraphicsQueue);
 }
 
 void cLogicalDevice::QueuePresent(VkPresentInfoKHR* ptPresentInfo)
@@ -306,4 +316,11 @@ void cLogicalDevice::MapMemory(VkDeviceMemory& oMemory,
 void cLogicalDevice::UnmapMemory(VkDeviceMemory& oDeviceMemory)
 {
     vkUnmapMemory(poDevice, oDeviceMemory);
+}
+
+void cLogicalDevice::FreeCommandBuffers(VkCommandPool& oCommandPool,
+                                        uint uiCommandBufferCount,
+                                        VkCommandBuffer* pCommandBuffers)
+{
+    vkFreeCommandBuffers(poDevice, oCommandPool, uiCommandBufferCount, pCommandBuffers);
 }

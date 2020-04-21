@@ -5,20 +5,20 @@
 #include <vulkan/PhysicalDevice.hpp>
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/SwapChain.hpp>
-#include "RenderPass.hpp"
-#include "GraphicsPipeline.hpp"
-#include "VertexBuffer.hpp"
+#include <vulkan/RenderPass.hpp>
+#include <vulkan/GraphicsPipeline.hpp>
+#include <vulkan/VertexBuffer.hpp>
 
 class cCommandHandler
 {
 private:
     cLogicalDevice* ppLogicalDevice;
 
-    VkCommandPool poCommandPool;
-
     std::vector<VkCommandBuffer> paoCommandBuffers;
 
 public:
+    VkCommandPool poCommandPool; // TODO: make private
+
     cCommandHandler(cPhysicalDevice* pPhysicalDevice,
                     cLogicalDevice* pLogicalDevice);
     ~cCommandHandler(void);
@@ -49,6 +49,9 @@ cCommandHandler::cCommandHandler(cPhysicalDevice* pPhysicalDevice,
 
 cCommandHandler::~cCommandHandler(void)
 {
+    ppLogicalDevice->FreeCommandBuffers(poCommandPool,
+                                        paoCommandBuffers.size(),
+                                        paoCommandBuffers.data());
     ppLogicalDevice->DestroyCommandPool(poCommandPool, NULL);
 }
 
@@ -121,13 +124,7 @@ void cCommandHandler::RecordCommandBuffers(cRenderPass* pRenderPass,
         // Used for secondary buffers, specifies which state to inherit
         tBeginInfo.pInheritanceInfo = NULL;
 
-        // Begin recording the command buffer
-        if (vkBeginCommandBuffer(paoCommandBuffers[i], &tBeginInfo) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to begin recording command buffer!");
-        }
-
-        // We want to start with a BeginRenderPass command
+        // Struct with information about our render pass
         VkRenderPassBeginInfo tRenderPassInfo = {};
         tRenderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 
@@ -143,6 +140,12 @@ void cCommandHandler::RecordCommandBuffers(cRenderPass* pRenderPass,
         VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f}; // black with 100% opacity
         tRenderPassInfo.clearValueCount = 1;
         tRenderPassInfo.pClearValues = &clearColor;
+
+        // Begin recording the command buffer
+        if (vkBeginCommandBuffer(paoCommandBuffers[i], &tBeginInfo) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to begin recording command buffer!");
+        }
 
         // Command buffer recording
         {
