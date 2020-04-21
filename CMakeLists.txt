@@ -12,6 +12,7 @@ enable_testing()
 add_subdirectory(googletest)
 add_subdirectory(engine)
 add_subdirectory(engine/glfw)
+add_subdirectory(engine/vulkan-sdk)
 
 set(Headers 
     ${PROJECT_SOURCE_DIR}/src/pch.hpp
