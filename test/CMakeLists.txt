@@ -26,8 +26,13 @@ set(Sources
 
 add_executable(${This} ${Sources} ${Headers})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../)
-target_link_libraries(${This} PUBLIC gtest_main)
 
+IF (WIN32)
+    find_package(GTest CONFIG REQUIRED)
+    target_link_libraries(${This} PUBLIC GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
+ELSE()
+    target_link_libraries(${This} PUBLIC gtest gtest_main gmock gmock_main)
+ENDIF()
 add_test(
     NAME ${This}
     COMMAND ${This}

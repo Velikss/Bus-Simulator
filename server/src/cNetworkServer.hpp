@@ -2,9 +2,6 @@
 #include <cNetworkConnection.hpp>
 #include <Http/HTTP.hpp>
 #include <vendor/Utf8.hpp>
-#if defined(LINUX)
-#include <errno.h>
-#endif
 
 class cNetworkServer : public cNetworkConnection
 {
@@ -108,15 +105,15 @@ void cNetworkServer::OnRecieveLoop()
 
 #if defined(WINDOWS)
             if (WSAGetLastError() == WSAECONNRESET)
+#else
+            if (size == 0)
+#endif
             {
                 aConnections.erase(aConnections.begin() + i);
                 std::cout << "disconnected." << std::endl;
                 i--;
                 continue;
             }
-#else
-            fprintf(stderr, "recv: %s (%d)\n", strerror(errno), errno);
-#endif
 
             if (size <= 0) continue;
             const std::string_view req_str((char*)buffer, size);
