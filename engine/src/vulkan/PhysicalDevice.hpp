@@ -50,6 +50,8 @@ public:
                              VkAllocationCallbacks* pAllocator,
                              VkDevice* pDevice);
 
+    void GetPhysicalMemoryProperties(VkPhysicalDeviceMemoryProperties* pMemoryProperties);
+
 private:
     void SelectPhysicalDevice(void);
 
@@ -235,4 +237,11 @@ bool cPhysicalDevice::CreateLogicalDevice(VkDeviceCreateInfo* pCreateInfo,
     assert(pLogicalDevice != NULL);
 
     return vkCreateDevice(poPhysicalDevice, pCreateInfo, pAllocator, pLogicalDevice) == VK_SUCCESS;
+}
+
+void cPhysicalDevice::GetPhysicalMemoryProperties(VkPhysicalDeviceMemoryProperties* pMemoryProperties)
+{
+    assert(pMemoryProperties != NULL);
+
+    vkGetPhysicalDeviceMemoryProperties(poPhysicalDevice, pMemoryProperties);
 }

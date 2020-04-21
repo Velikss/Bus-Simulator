@@ -51,7 +51,12 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/PhysicalDevice.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/LogicalDevice.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/Surface.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/SwapChain.hpp src/vulkan/GraphicsPipeline.hpp src/vulkan/RenderPass.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/SwapChain.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/GraphicsPipeline.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/RenderPass.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/CommandHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/RenderHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/Vertex.hpp src/vulkan/VertexBuffer.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 

@@ -8,6 +8,7 @@
 #include <stack>
 #include <cassert>
 #include <set>
+#include <array>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>

@@ -25,6 +25,70 @@ public:
 
     VkDevice& GetDevice(void);
 
+    void WaitUntilIdle(void);
+
+    bool AllocateCommandBuffers(VkCommandBufferAllocateInfo* pAllocateInfo,
+                                VkCommandBuffer* pCommandBuffers);
+
+    bool CreateCommandPool(VkCommandPoolCreateInfo* pCreateInfo,
+                           VkAllocationCallbacks* pAllocator,
+                           VkCommandPool* pCommandPool);
+    void DestroyCommandPool(VkCommandPool& oCommandPool,
+                            VkAllocationCallbacks* pAllocator);
+
+    bool CreateShaderModule(VkShaderModuleCreateInfo* pCreateInfo,
+                            VkAllocationCallbacks* pAllocator,
+                            VkShaderModule* pShaderModule);
+    void DestroyShaderModule(VkShaderModule& oShaderModule,
+                             VkAllocationCallbacks* pAllocator);
+
+    bool CreatePipelineLayout(VkPipelineLayoutCreateInfo* pCreateInfo,
+                              VkAllocationCallbacks* pAllocator,
+                              VkPipelineLayout* pPipelineLayout);
+    void DestroyPipelineLayout(VkPipelineLayout& oPipelineLayout,
+                               VkAllocationCallbacks* pAllocator);
+
+    bool CreateGraphicsPipeline(uint uiCreateInfoCount,
+                                VkGraphicsPipelineCreateInfo* pCreateInfos,
+                                VkPipeline* pPipelines);
+    void DestroyPipeline(VkPipeline& oPipeline,
+                         VkAllocationCallbacks* pAllocator);
+
+    bool CreateBuffer(VkBufferCreateInfo* pCreateInfo,
+                      VkAllocationCallbacks* pAllocator,
+                      VkBuffer* pBuffer);
+    void DestroyBuffer(VkBuffer& oBuffer,
+                       VkAllocationCallbacks* pAllocator);
+
+    bool AllocateMemory(VkMemoryAllocateInfo* pAllocateInfo,
+                        VkAllocationCallbacks* pAllocator,
+                        VkDeviceMemory* pMemory);
+    void FreeMemory(VkDeviceMemory& oMemory,
+                    VkAllocationCallbacks* pAllocator);
+    void BindBufferMemory(VkBuffer& oBuffer,
+                          VkDeviceMemory& oMemory,
+                          VkDeviceSize ulMemoryOffset);
+
+    void MapMemory(VkDeviceMemory& oMemory,
+                   VkDeviceSize ulOffset,
+                   VkDeviceSize ulSize,
+                   VkMemoryMapFlags uiFlags,
+                   void** ppData);
+    void UnmapMemory(VkDeviceMemory& oDeviceMemory);
+
+    bool GraphicsQueueSubmit(uint uiSubmitCount,
+                             VkSubmitInfo* ptSubmitInfo,
+                             VkFence& oFence);
+    void QueuePresent(VkPresentInfoKHR* ptPresentInfo);
+
+    void WaitForFences(uint uiFenceCount,
+                       VkFence* pFences,
+                       VkBool32 bWaitAll,
+                       uint64 ulTimeout);
+    void ResetFences(uint uiFenceCount,
+                     VkFence* pFences);
+
+
 private:
     VkDeviceQueueCreateInfo GetQueueCreateInfo(uint uiQueueFamily);
     VkDeviceCreateInfo GetDeviceCreateInfo(std::vector<VkDeviceQueueCreateInfo>& atQueueCreateInfos,
@@ -120,4 +184,126 @@ VkDeviceCreateInfo cLogicalDevice::GetDeviceCreateInfo(std::vector<VkDeviceQueue
 VkDevice& cLogicalDevice::GetDevice()
 {
     return poDevice;
+}
+
+bool cLogicalDevice::GraphicsQueueSubmit(uint uiSubmitCount, VkSubmitInfo* ptSubmitInfo, VkFence& oFence)
+{
+    return vkQueueSubmit(poGraphicsQueue, uiSubmitCount, ptSubmitInfo, oFence) == VK_SUCCESS;
+}
+
+void cLogicalDevice::QueuePresent(VkPresentInfoKHR* ptPresentInfo)
+{
+    vkQueuePresentKHR(poPresentQueue, ptPresentInfo);
+}
+
+void cLogicalDevice::WaitForFences(uint uiFenceCount, VkFence* pFences, VkBool32 bWaitAll, uint64 ulTimeout)
+{
+    vkWaitForFences(poDevice, uiFenceCount, pFences, bWaitAll, ulTimeout);
+}
+
+void cLogicalDevice::ResetFences(uint uiFenceCount, VkFence* pFences)
+{
+    vkResetFences(poDevice, uiFenceCount, pFences);
+}
+
+void cLogicalDevice::WaitUntilIdle(void)
+{
+    vkDeviceWaitIdle(poDevice);
+}
+
+bool cLogicalDevice::AllocateCommandBuffers(VkCommandBufferAllocateInfo* pAllocateInfo,
+                                            VkCommandBuffer* pCommandBuffers)
+{
+    return vkAllocateCommandBuffers(poDevice, pAllocateInfo, pCommandBuffers) == VK_SUCCESS;
+}
+
+bool cLogicalDevice::CreateCommandPool(VkCommandPoolCreateInfo* pCreateInfo,
+                                       VkAllocationCallbacks* pAllocator,
+                                       VkCommandPool* pCommandPool)
+{
+    return vkCreateCommandPool(poDevice, pCreateInfo, pAllocator, pCommandPool) == VK_SUCCESS;
+}
+
+void cLogicalDevice::DestroyCommandPool(VkCommandPool& oCommandPool, VkAllocationCallbacks* pAllocator)
+{
+    vkDestroyCommandPool(poDevice, oCommandPool, pAllocator);
+}
+
+bool cLogicalDevice::CreateShaderModule(VkShaderModuleCreateInfo* pCreateInfo,
+                                        VkAllocationCallbacks* pAllocator,
+                                        VkShaderModule* pShaderModule)
+{
+    return vkCreateShaderModule(poDevice, pCreateInfo, pAllocator, pShaderModule) == VK_SUCCESS;
+}
+
+void cLogicalDevice::DestroyShaderModule(VkShaderModule& oShaderModule,
+                                         VkAllocationCallbacks* pAllocator)
+{
+    vkDestroyShaderModule(poDevice, oShaderModule, pAllocator);
+}
+
+bool cLogicalDevice::CreatePipelineLayout(VkPipelineLayoutCreateInfo* pCreateInfo,
+                                          VkAllocationCallbacks* pAllocator,
+                                          VkPipelineLayout* pPipelineLayout)
+{
+    return vkCreatePipelineLayout(poDevice, pCreateInfo, pAllocator, pPipelineLayout) == VK_SUCCESS;
+}
+
+void cLogicalDevice::DestroyPipelineLayout(VkPipelineLayout& oPipelineLayout, VkAllocationCallbacks* pAllocator)
+{
+    vkDestroyPipelineLayout(poDevice, oPipelineLayout, pAllocator);
+}
+
+bool cLogicalDevice::CreateGraphicsPipeline(uint uiCreateInfoCount,
+                                            VkGraphicsPipelineCreateInfo* pCreateInfos,
+                                            VkPipeline* pPipelines)
+{
+    return vkCreateGraphicsPipelines(poDevice, VK_NULL_HANDLE, uiCreateInfoCount, pCreateInfos, NULL, pPipelines)
+           == VK_SUCCESS;
+}
+
+void cLogicalDevice::DestroyPipeline(VkPipeline& oPipeline, VkAllocationCallbacks* pAllocator)
+{
+    vkDestroyPipeline(poDevice, oPipeline, pAllocator);
+}
+
+bool cLogicalDevice::CreateBuffer(VkBufferCreateInfo* pCreateInfo, VkAllocationCallbacks* pAllocator, VkBuffer* pBuffer)
+{
+    return vkCreateBuffer(poDevice, pCreateInfo, pAllocator, pBuffer) == VK_SUCCESS;
+}
+
+void cLogicalDevice::DestroyBuffer(VkBuffer& oBuffer, VkAllocationCallbacks* pAllocator)
+{
+    vkDestroyBuffer(poDevice, oBuffer, pAllocator);
+}
+
+bool cLogicalDevice::AllocateMemory(VkMemoryAllocateInfo* pAllocateInfo,
+                                    VkAllocationCallbacks* pAllocator,
+                                    VkDeviceMemory* pMemory)
+{
+    return vkAllocateMemory(poDevice, pAllocateInfo, pAllocator, pMemory) == VK_SUCCESS;
+}
+
+void cLogicalDevice::FreeMemory(VkDeviceMemory& oMemory, VkAllocationCallbacks* pAllocator)
+{
+    vkFreeMemory(poDevice, oMemory, pAllocator);
+}
+
+void cLogicalDevice::BindBufferMemory(VkBuffer& oBuffer, VkDeviceMemory& oMemory, VkDeviceSize ulMemoryOffset)
+{
+    vkBindBufferMemory(poDevice, oBuffer, oMemory, ulMemoryOffset);
+}
+
+void cLogicalDevice::MapMemory(VkDeviceMemory& oMemory,
+                               VkDeviceSize ulOffset,
+                               VkDeviceSize ulSize,
+                               VkMemoryMapFlags uiFlags,
+                               void** ppData)
+{
+    vkMapMemory(poDevice, oMemory, ulOffset, ulSize, uiFlags, ppData);
+}
+
+void cLogicalDevice::UnmapMemory(VkDeviceMemory& oDeviceMemory)
+{
+    vkUnmapMemory(poDevice, oDeviceMemory);
 }

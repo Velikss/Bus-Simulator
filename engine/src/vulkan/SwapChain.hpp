@@ -11,12 +11,14 @@ class cSwapChain
 private:
     cLogicalDevice* ppLogicalDevice;
 
-    VkSwapchainKHR poSwapChain;
 
     std::vector<VkImage> paoSwapChainImages;
     std::vector<VkImageView> paoSwapChainImageViews;
+    std::vector<VkFramebuffer> paoSwapChainFramebuffers;
 
 public:
+    VkSwapchainKHR poSwapChain; // TODO: Remove public access
+
     VkExtent2D ptSwapChainExtent;
     VkFormat peSwapChainImageFormat;
 
@@ -25,6 +27,16 @@ public:
                cWindow* pWindow,
                cSurface* pSurface);
     ~cSwapChain(void);
+
+    void CreateFramebuffers(VkRenderPass& oRenderPass);
+
+    uint GetFramebufferSize(void);
+    VkFramebuffer& GetFramebuffer(uint index);
+
+    void AcquireNextImage(int64 ulTimeout,
+                          VkSemaphore& oSemaphore,
+                          VkFence& oFence,
+                          uint* puiImageIndex);
 
 private:
     VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& atAvailableFormats);
@@ -57,11 +69,18 @@ cSwapChain::cSwapChain(cPhysicalDevice* pPhysicalDevice,
 
 cSwapChain::~cSwapChain()
 {
-    // Destroy all the image views
     VkDevice& oDevice = ppLogicalDevice->GetDevice();
+
+    // Destroy all the framebuffers
+    for (VkFramebuffer framebuffer : paoSwapChainFramebuffers)
+    {
+        vkDestroyFramebuffer(oDevice, framebuffer, NULL);
+    }
+
+    // Destroy all the image views
     for (VkImageView imageView : paoSwapChainImageViews)
     {
-        vkDestroyImageView(oDevice, imageView, nullptr);
+        vkDestroyImageView(oDevice, imageView, NULL);
     }
 
     // Destroy the swap chain
@@ -273,4 +292,58 @@ void cSwapChain::CreateImageViews(void)
             throw std::runtime_error("failed to create image view!");
         }
     }
+}
+
+void cSwapChain::CreateFramebuffers(VkRenderPass& oRenderPass)
+{
+    // Resize the framebuffers list to fit the image views
+    paoSwapChainFramebuffers.resize(paoSwapChainImageViews.size());
+
+    for (size_t i = 0; i < paoSwapChainImageViews.size(); i++)
+    {
+        VkImageView attachments[] = {
+                paoSwapChainImageViews[i]
+        };
+
+        // Struct with information about the framebuffer
+        VkFramebufferCreateInfo framebufferInfo = {};
+        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+
+        // Render pass we want to use
+        framebufferInfo.renderPass = oRenderPass;
+
+        // Which attachments want to bind
+        framebufferInfo.attachmentCount = 1;
+        framebufferInfo.pAttachments = attachments;
+
+        // With, height and number of layers
+        framebufferInfo.width = ptSwapChainExtent.width;
+        framebufferInfo.height = ptSwapChainExtent.height;
+        framebufferInfo.layers = 1;
+
+        // Create the framebuffer
+        if (vkCreateFramebuffer(ppLogicalDevice->GetDevice(), &framebufferInfo, NULL,
+                                &paoSwapChainFramebuffers[i]) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create framebuffer!");
+        }
+    }
+}
+
+uint cSwapChain::GetFramebufferSize(void)
+{
+    return paoSwapChainFramebuffers.size();
+}
+
+VkFramebuffer& cSwapChain::GetFramebuffer(uint index)
+{
+    return paoSwapChainFramebuffers[index];
+}
+
+void cSwapChain::AcquireNextImage(int64 ulTimeout,
+                                  VkSemaphore& oSemaphore,
+                                  VkFence& oFence,
+                                  uint* pImageIndex)
+{
+    vkAcquireNextImageKHR(ppLogicalDevice->GetDevice(), poSwapChain, ulTimeout, oSemaphore, oFence, pImageIndex);
 }
