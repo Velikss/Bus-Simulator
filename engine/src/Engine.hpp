@@ -36,29 +36,8 @@ private:
     cVertexBuffer* ppVertexBuffer;
 
 public:
-    // Window size
-    const uint WIDTH = 800;
-    const uint HEIGHT = 600;
-
-    // Validation layers are hooks inside of Vulkan that can be used for debugging
-    const std::vector<const char *> VALIDATION_LAYERS = {
-    };
-
-    // Disable validation layers when not debugging
-#ifdef NDEBUG
-    const bool ENABLE_VALIDATION_LAYERS = false;
-#else
-    const bool ENABLE_VALIDATION_LAYERS = true;
-#endif
-
     // Initializes and starts the engine and all of it's sub-components
-    void Run()
-    {
-        InitWindow();
-        InitVulkan();
-        MainLoop();
-        Cleanup();
-    }
+    void Run(void);
 
 private:
     void CreateWindow(void);
