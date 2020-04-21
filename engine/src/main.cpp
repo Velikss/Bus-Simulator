@@ -8,18 +8,21 @@
 
 const int WIDTH = 1080, HEIGHT = 720;
 
-Scene* activeScene = nullptr;
-GLFWwindow* window;
+Scene *activeScene = nullptr;
+GLFWwindow *window;
 
 void keyDown(unsigned char k, int a, int b)
 {
     activeScene->KeyDown(k, a, b);
 }
+
 void keyUp(unsigned char k, int a, int b)
 {
     activeScene->KeyUp(k, a, b);
 }
-void mouseMove(int mx, int my) {
+
+void mouseMove(int mx, int my)
+{
 
     activeScene->MoveMouse(mx, my);
 }
@@ -33,11 +36,11 @@ void changeSize(int w, int h)
 
 void InitGLFW(void)
 {
-    if (! glfwInit())
+    if (!glfwInit())
         return;
 
     window = glfwCreateWindow(WIDTH, HEIGHT, "Hello World", NULL, NULL);
-    if (! window)
+    if (!window)
     {
         glfwTerminate();
         return;
@@ -53,10 +56,11 @@ void InitGLFW(void)
     }
 }
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
     char keyChar = 0;
-    switch (key) {
+    switch (key)
+    {
         case GLFW_KEY_W:
             keyChar = 'w';
             break;
@@ -73,18 +77,19 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             keyChar = 27;
             break;
     }
-    if (keyChar != 0) {
+    if (keyChar != 0)
+    {
         if (action == GLFW_PRESS) keyDown(keyChar, 0, 0);
         if (action == GLFW_RELEASE) keyUp(keyChar, 0, 0);
     }
 }
 
-static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos)
 {
     static bool firstMouse = true;
     static float lastX = WIDTH, lastY = HEIGHT;
 
-    if(firstMouse)
+    if (firstMouse)
     {
         lastX = xpos;
         lastY = ypos;
@@ -99,50 +104,18 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
     mouseMove(xoffset, yoffset);
 }
 
-void window_size_callback(GLFWwindow* window, int width, int height)
+void window_size_callback(GLFWwindow *window, int width, int height)
 {
     changeSize(width, height);
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-    std::cout << "hello from engine." << std::endl;
-
     cScriptingEngine engine = cScriptingEngine();
-    engine.RunFile("src/scripting/script.js");
 
-//    InitGLFW();
-//
-//    glEnable(GL_DEPTH_TEST);
-//    glEnable(GL_BLEND);
-//    glEnable(GL_MULTISAMPLE_ARB);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//
-//    // first we initialize the scene.
-//    activeScene = new MyStreetScene(WIDTH, HEIGHT);
-//    // load all resources.
-//    activeScene->Load();
-//
-//    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-//
-//    glfwSetKeyCallback(window, key_callback);
-//    glfwSetCursorPosCallback(window, cursor_position_callback);
-//    glfwSetWindowSizeCallback(window, window_size_callback);
-//
-//    while (!glfwWindowShouldClose(window))
-//    {
-//        glClearColor(0.0, 0.0, 0.0, 1.0);
-//        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//
-//        activeScene->Update();
-//        activeScene->Render();
-//
-//        glfwSwapBuffers(window);
-//        glfwPollEvents();
-//    }
-//
-//    glfwTerminate();
-//
-//    return 0;
+    cEntity en = cEntity(glm::vec3(5.0f, 2.0f, 3.0f));
+    std::vector<cEntity *> entities = std::vector<cEntity *>();
+
+    engine.ExecuteBehaviour("src/scripting/seperation.js", &en, entities);
 }
 

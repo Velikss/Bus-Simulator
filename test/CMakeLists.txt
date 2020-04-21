@@ -6,7 +6,8 @@ find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
 set(Headers
-        EngineTests/BufferTests.hpp)
+        EngineTests/BufferTests.hpp
+        EngineTests/ScriptingTests.hpp)
 
 set(Sources
         ExampleTests.cpp)
