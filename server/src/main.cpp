@@ -11,35 +11,16 @@
 
 static string resp_str;
 
-void RequestHandler(cNetworkConnection* connection)
+bool OnRecieve(cNetworkConnection* connection)
 {
-    pollfd fdarray = {0};
-    fdarray.fd = connection->poSock;
-    fdarray.events = POLLRDNORM;;
-    fdarray.revents = POLLRDNORM;
-    while (fdarray.revents & POLLRDNORM)
-    {
-#ifdef _WIN32
-        if (WSAPoll(&fdarray, 1, -1) > 0)
-#else
-        if (poll(&fdarray, 1, -1) > 0)
-#endif
-        {
-            char buffer[8192];
-            const long size = connection->ReceiveBytes((byte *) &buffer[0], 8192);
-            if (size < 0) continue;
-            if (size == 0) break;
-            const string req_str = string(buffer, size);
-            HTTP::Request req = HTTP::Request::deserialize(req_str);
-            connection->SendBytes((const byte *) resp_str.c_str(), resp_str.size());
+    return true;
+}
 
-            if (HTTP::GetValueFromHeader(req.get_headers(), "connection") != "keep-alive")
-                break;
-        }
-        sleep(1);
-    }
-    connection->Close();
-    std::cout << "disconnected." << std::endl;
+bool OnConnect(cNetworkConnection* connection)
+{
+    std::cout << "New connection from " << inet_ntoa(connection->ptAddress.sin_addr) << ":"
+              << ntohs(connection->ptAddress.sin_port) << std::endl;
+    return true;
 }
 
 std::vector<std::thread*> threads;
@@ -155,22 +136,14 @@ int main()
     tNetworkSettings.eMode = cNetworkConnection::cMode::eBlocking;
 
     cNetworkServer server(&tNetworkSettings);
-    if (server.Listen())
-    {
+    server.SetUpEvents(OnConnect, OnRecieve);
+    if (!server.Listen())
+        std::cout << "failed to start the server, is the port open?" << std::endl;
+    else
         std::cout << "started on: " << tNetworkSettings.sAddress << ":" << tNetworkSettings.usPort << std::endl;
-
-        while (true)
-        {
-            cNetworkConnection *incoming = nullptr;
-            if ((incoming = server.AcceptConnection(true)) != nullptr)
-            {
-                std::cout << "New connection from " << inet_ntoa(incoming->ptAddress.sin_addr) << ":"
-                          << ntohs(incoming->ptAddress.sin_port) << std::endl;
-                threads.push_back(new std::thread(RequestHandler, incoming));
-            }
-            sleep(1);
-        }
+    while(true)
+    {
+        sleep(1000);
     }
-    std::cout << "failed to start the server, is the port open?" << std::endl;
     return 0;
 }

@@ -42,7 +42,6 @@ public:
 
     virtual ~cNetworkConnection()
     {
-        std::cout << "destruct poSock" << std::endl;
         if (ppSSLContext) SSL_CTX_free(ppSSLContext);
         Close();
     }
@@ -51,12 +50,31 @@ public:
 
 	void Close();
 
+    bool IsConnected()
+    {
+        pollfd fdarray = { 0 };
+        fdarray.fd = poSock;
+        fdarray.events = POLLRDNORM;;
+        fdarray.revents = POLLRDNORM;
+#ifdef _WIN32
+        int poll = WSAPoll(&fdarray, 1, 1000);
+#else
+        int poll = poll(&fdarray, 1, 1000);
+#endif
+        if (!(fdarray.revents & POLLRDNORM))
+            return false;
+        return true;
+    }
+
 	// Read and write bytes to the socket stream:
 	long ReceiveBytes(byte* pBuffer, size_t uiNumBytes)
     {
+        long size = 0;
 	    if(ppConnectionSSL)
-	        return SSL_read(ppConnectionSSL, (char*)pBuffer, uiNumBytes); /* get request */
-        return recv(poSock, (char*)pBuffer, uiNumBytes, 0);
+            size = SSL_read(ppConnectionSSL, (char *) pBuffer, uiNumBytes);
+        else
+	        size = recv(poSock, (char*)pBuffer, uiNumBytes, 0);
+        return size;
     }
 
 	void SendBytes(const byte* pBuffer, size_t uiNumBytes)
