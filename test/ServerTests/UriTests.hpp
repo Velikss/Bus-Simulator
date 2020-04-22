@@ -88,10 +88,6 @@ TEST(UriTests, ParseFromString)
                             {"hallo", "hallo"},
                             {"ik", "ben"}
                     }, true},
-            {"http://google.com/?hallo=hallo%2",        "http",     "google.com",       80,    {},
-                    {
-                            {"hallo", "hallo "},
-                    }, true},
             {"http://google.com:/",                     "http",     "",                 0,      {},    {},    false},
             {"http://google.com:",                      "http",     "",                 0,      {},    {},    false},
             {"realestate://google.com",                 "",         "",                 0,      {},    {},    false},

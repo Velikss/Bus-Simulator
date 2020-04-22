@@ -22,10 +22,6 @@ class cUri
 {
 protected:
     bool valid = false;
-
-    // Used to encode in for example ' ' in '%2'.
-    static std::string encode(const std::string &value) noexcept;
-    static std::string decode(const std::string &value) noexcept;
 public:
     string psProtocol = "";
     string psHost = "";
@@ -42,8 +38,6 @@ public:
 cUri cUri::ParseFromString(string in)
 {
     cUri oUri;
-    
-    in = decode(in);
 
     // Unsupported '\'
     if (in.find('\\') != string::npos) return oUri;
@@ -186,47 +180,6 @@ string cUri::ToString()
             else
                 sUri += "&" + sKey + "=" + sValue;
     }
-    return encode(sUri);
-}
-
-std::string cUri::encode(const string &value) noexcept
-{
-    static auto hex_chars = "0123456789ABCDEF";
-
-    std::string result;
-    result.reserve(value.size()); // Minimum size of result
-
-    for(auto &chr : value) {
-        if(chr == ' ')
-            result += '+';
-        else if(chr == '!' || chr == '#' || chr == '$' || (chr >= '&' && chr <= ',') || (chr >= '/' && chr <= ';') || chr == '=' || chr == '?' || chr == '@' || chr == '[' || chr == ']')
-            result += std::string("%") + hex_chars[chr >> 4] + hex_chars[chr & 15];
-        else
-            result += chr;
-    }
-
-    return result;
-}
-
-std::string cUri::decode(const string &value) noexcept
-{
-    std::string result;
-    result.reserve(value.size() / 3 + (value.size() % 3)); // Minimum size of result
-
-    for(std::size_t i = 0; i < value.size(); ++i) {
-        auto &chr = value[i];
-        if(chr == '%' && i + 2 < value.size()) {
-            auto hex = value.substr(i + 1, 2);
-            auto decoded_chr = static_cast<char>(std::strtol(hex.c_str(), nullptr, 16));
-            result += decoded_chr;
-            i += 2;
-        }
-        else if(chr == '+')
-            result += ' ';
-        else
-            result += chr;
-    }
-
-    return result;
+    return sUri;
 }
 
