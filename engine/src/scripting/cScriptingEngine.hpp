@@ -32,7 +32,7 @@ public:
 
     bool CompileJavaScriptFile(const char *filename);
 
-    bool RunJavaScriptFunction(duk_context *poContext, const char *pstrFunctionName, void *pArga, void *pArgb);
+    bool RunJavaScriptFunction(const char *pstrFunctionName, void *pArga, void *pArgb);
 
 };
 
@@ -84,29 +84,29 @@ bool cScriptingEngine::CompileJavaScriptFile(const char *pstrFilename)
     return bSucces;
 }
 
-bool cScriptingEngine::RunJavaScriptFunction(duk_context *poContext, const char *pstrFunctionName, void *pArga, void *pArgb)
+bool cScriptingEngine::RunJavaScriptFunction(const char *pstrFunctionName, void *pArga, void *pArgb)
 {
     bool bReturnVal;
 
     // Get a reference to the named JS function
-    if (duk_get_global_string(poContext, pstrFunctionName))
+    if (duk_get_global_string(ppoContext, pstrFunctionName))
     {
         // Function found, push the args
 
-        duk_push_pointer(poContext, pArga);
-        duk_push_pointer(poContext, pArgb);
+        duk_push_pointer(ppoContext, pArga);
+        duk_push_pointer(ppoContext, pArgb);
 
         // Use pcall - this lets you catch and handle any errors
-        if (duk_pcall(poContext, 2) != DUK_EXEC_SUCCESS)
+        if (duk_pcall(ppoContext, 2) != DUK_EXEC_SUCCESS)
         {
             // An error occurred - display a stack trace
-            duk_get_prop_string(poContext, -1, "stack");
-            printf(duk_safe_to_string(poContext, -1));
+            duk_get_prop_string(ppoContext, -1, "stack");
+            printf(duk_safe_to_string(ppoContext, -1));
         }
         else
         {
             // function executed successfully - get result
-            bReturnVal = duk_get_boolean(poContext, -1);
+            bReturnVal = duk_get_boolean(ppoContext, -1);
         }
     }
     else
@@ -115,7 +115,7 @@ bool cScriptingEngine::RunJavaScriptFunction(duk_context *poContext, const char 
         bReturnVal = false;
     }
 
-    duk_pop(poContext); // pop result
+    duk_pop(ppoContext); // pop result
 
     return bReturnVal;
 }

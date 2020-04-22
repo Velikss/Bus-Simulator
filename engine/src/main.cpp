@@ -5,6 +5,7 @@
 #include <scenes/MyStreetScene.hpp>
 #include <GLFW/glfw3.h>
 #include <scripting/cScriptingEngine.hpp>
+#include <entities/cEntity.hpp>
 
 const int WIDTH = 1080, HEIGHT = 720;
 
@@ -111,13 +112,15 @@ void window_size_callback(GLFWwindow *window, int width, int height)
 
 int main(int argc, char **argv)
 {
-    cScriptingEngine engine = cScriptingEngine();
+    cScriptingEngine engine;
 
-    cEntity en = cEntity(nullptr);
-    en.SetPos(2.0f, 3.0f, 4.0f);
-    std::cout << en.pos[0];
-    std::vector<cEntity *> entities = std::vector<cEntity *>();
+    cEntity en(nullptr);
+    en.SetPosition(2.0f, 3.0f);
 
-    //engine.ExecuteBehaviour("src/scripting/seperation.js", &en, entities);
+    cBehaviourHandler::AddBehaviour("seperation", "src/scripting/seperation.js");
+    cBehaviourHandler *cb = new cBehaviourHandler("seperation");
+    en.AddBehaviour(cb);
+
+    en.Update();
 }
 

@@ -2,7 +2,6 @@
 
 #include <pch.hpp>
 #include <scripting/duktape.h>
-#include <entities/cEntity.hpp>
 
 namespace JavaScriptBaseFunctions
 {
@@ -44,7 +43,7 @@ namespace JavaScriptBaseFunctions
         void *p = duk_get_pointer(poContext, 0);
 
         // Cast pointer to Entity pointer
-        cEntity *poEntity = static_cast<cEntity *>(p);
+        BaseObject *poEntity = static_cast<BaseObject *>(p);
 
         // Return value
         duk_push_int(poContext, poEntity->pos[0]);

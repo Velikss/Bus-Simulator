@@ -1,6 +1,5 @@
 #pragma once
 #include <pch.hpp>
-class cScriptingEngine;
 #include <scripting/cScriptingEngine.hpp>
 #include <objects/BaseObject.hpp>
 
@@ -10,10 +9,7 @@ protected:
     static std::map<std::string, cScriptingEngine*> poBehaviours;
     std::string psBehaviourName;
 public:
-    static void AddBehaviour(std::string sBehaviourName, std::string sFileName);
-    static void Update(std::string sBehaviourName, std::string sFileName);
-
-    cBehaviourHandler(std::string sBehaviourName)
+     cBehaviourHandler(std::string sBehaviourName)
     {
         if(poBehaviours.find(sBehaviourName) == poBehaviours.end())
         {
@@ -23,23 +19,26 @@ public:
         psBehaviourName = sBehaviourName;
     }
 
-    virtual void Update(BaseObject &oEntity)
-    {
-        oEntity.Update();
-    }
-//
-//    void ExecuteBehaviour(const char *pstrBehaviourScript, cEntity *poEntity, std::vector<cEntity *> Entities);
-//
-//
-//    void cScriptingEngine::ExecuteBehaviour(const char *pstrBehaviourScript, cEntity *poEntity, std::vector<cEntity *> Entities)
-//    {
-//
-//        CompileJavaScriptFile(pstrBehaviourScript);
-//
-//        RunJavaScriptFunction(ppoContext, "execute", poEntity, &Entities);
-//
-//    }
+    virtual void Update(BaseObject* oEntity);
 
+    static void AddBehaviour(std::string sBehaviourName, std::string sFileName);
+
+    static void UpdateEngine(std::string sBehaviourName, std::string sFileName);
 };
 
-static std::map<std::string, cScriptingEngine*> poBehaviours;
+std::map<std::string, cScriptingEngine*> cBehaviourHandler::poBehaviours;
+
+void cBehaviourHandler::AddBehaviour(std::string sBehaviourName, std::string sFileName)
+{
+    cScriptingEngine *poBehaviourScript = new cScriptingEngine();
+
+    if(poBehaviourScript->CompileJavaScriptFile(sFileName.c_str()))
+        cBehaviourHandler::poBehaviours.insert({ sBehaviourName, poBehaviourScript});
+}
+
+void cBehaviourHandler::Update(BaseObject* oEntity)
+{
+    poBehaviours.at(psBehaviourName)->RunJavaScriptFunction("execute", oEntity, nullptr);
+}
+
+
