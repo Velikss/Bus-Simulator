@@ -47,7 +47,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/scenes/TestScene.hpp
         ${PROJECT_SOURCE_DIR}/src/scripting/cScriptingEngine.hpp
         ${PROJECT_SOURCE_DIR}/src/scripting/duktape.h
-        ${PROJECT_SOURCE_DIR}/src/scripting/functions/JavaScriptBaseFunctions.hpp)
+        ${PROJECT_SOURCE_DIR}/src/scripting/functions/JavaScriptBaseFunctions.hpp src/scripting/functions/JavaScriptGameFunctions.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp
         ${PROJECT_SOURCE_DIR}/src/scripting/duktape.c

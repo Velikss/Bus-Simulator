@@ -2,8 +2,8 @@
 
 #include <pch.hpp>
 #include <scripting/duktape.h>
-#include <scripting/functions/JavaScriptBaseFunctions.hpp>
 #include <fstream>
+#include <scripting/functions/JavaScriptBaseFunctions.hpp>
 
 class cScriptingEngine
 {
@@ -29,27 +29,29 @@ public:
 
     void Init();
 
+    void RegisterFunction(duk_c_function, duk_idx_t, const char *psKey);
 
     bool CompileJavaScriptFile(const char *filename);
 
-    bool RunJavaScriptFunction(const char *pstrFunctionName, void *pArga, void *pArgb);
+    bool RunJavaScriptFunction(const char *psFunctionName, void *pArga, void *pArgb);
 
 };
 
 void cScriptingEngine::Init()
 {
     // Link all the C functions to use in javascript
-
     duk_push_c_function(ppoContext, JavaScriptBaseFunctions::print, 1);
     duk_put_global_string(ppoContext, "print");
 
     duk_push_c_function(ppoContext, JavaScriptBaseFunctions::println, 1);
     duk_put_global_string(ppoContext, "println");
-
-    duk_push_c_function(ppoContext, JavaScriptBaseFunctions::GetEntityX, 1);
-    duk_put_global_string(ppoContext, "GetEntityX");
 }
 
+void cScriptingEngine::RegisterFunction(duk_c_function func, duk_idx_t args, const char *psKey)
+{
+    duk_push_c_function(ppoContext, func, args);
+    duk_put_global_string(ppoContext, psKey);
+}
 
 bool cScriptingEngine::CompileJavaScriptFile(const char *pstrFilename)
 {
@@ -84,12 +86,12 @@ bool cScriptingEngine::CompileJavaScriptFile(const char *pstrFilename)
     return bSucces;
 }
 
-bool cScriptingEngine::RunJavaScriptFunction(const char *pstrFunctionName, void *pArga, void *pArgb)
+bool cScriptingEngine::RunJavaScriptFunction(const char *psFunctionName, void *pArga, void *pArgb)
 {
     bool bReturnVal;
 
     // Get a reference to the named JS function
-    if (duk_get_global_string(ppoContext, pstrFunctionName))
+    if (duk_get_global_string(ppoContext, psFunctionName))
     {
         // Function found, push the args
 
