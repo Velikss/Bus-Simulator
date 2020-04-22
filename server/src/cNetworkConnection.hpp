@@ -63,7 +63,17 @@ public:
 
     bool IsConnected()
     {
-	    return cNetworkAbstractions::IsConnected(poSock);
+	    return (cNetworkAbstractions::IsConnected(poSock) == cNetworkAbstractions::cConnectionStatus::eCONNECTED);
+    }
+
+    bool Available()
+    {
+        return (cNetworkAbstractions::IsConnected(poSock) == cNetworkAbstractions::cConnectionStatus::eAVAILABLE);
+    }
+
+    cNetworkAbstractions::cConnectionStatus Status()
+    {
+        return cNetworkAbstractions::IsConnected(poSock);
     }
 
 	void SendBytes(const byte* pBuffer, size_t uiNumBytes)

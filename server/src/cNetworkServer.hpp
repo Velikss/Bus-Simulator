@@ -100,52 +100,54 @@ void cNetworkServer::OnRecieveLoop()
     {
         for (uint i = 0; i < aConnections.size(); i++)
         {
-            byte buffer[8192]{ 0 };
-            const long size = aConnections[i]->ReceiveBytes((byte*)&buffer[0], 8192);
+            auto status = aConnections[i]->Status();
+            if (status == cNetworkAbstractions::cConnectionStatus::eAVAILABLE)
+            {
+                byte buffer[8192]{0};
+                const long size = aConnections[i]->ReceiveBytes((byte *) &buffer[0], 8192);
+                if (size <= 0) continue;
+                const std::string_view req_str((char*)buffer, size);
+                cHttp::cRequest req = cHttp::cRequest::Deserialize((string) req_str);
 
-            if (!aConnections[i]->IsConnected())
+                Utf8 oUTF8ToHtmlConverter;
+                std::ifstream oHtmlStream("./wwwroot/index.html");
+                if (!oHtmlStream.is_open())
+                {
+                    std::cout << "index.html could not be found." << std::endl;
+                    break;
+                }
+                std::string sUTFHtml((std::istreambuf_iterator<char>(oHtmlStream)),
+                                     std::istreambuf_iterator<char>());
+
+                auto ex = oUTF8ToHtmlConverter.Decode(sUTFHtml);
+                string sHtmlEncoded;
+                for (auto& point : ex)
+                {
+                    if (point < 128)
+                        sHtmlEncoded += (byte)point;
+                    else
+                        sHtmlEncoded += "&#" + std::to_string(point) + ";";
+                }
+
+                std::vector<cHttp::cHeader> headers;
+                cHttp::cResponse resp;
+                resp.SetResponseCode(cHttp::C_OK);
+                resp.SetHeaders(headers);
+                resp.SetBody(sHtmlEncoded);
+                string resp_str = resp.Serialize();
+
+                aConnections[i]->SendBytes((const byte*)resp_str.c_str(), resp_str.size());
+
+                if (cHttp::GetValueFromHeader(req.GetHeaders(), "connection") != "keep-alive")
+                    break;
+            }
+            else if (status == cNetworkAbstractions::cConnectionStatus::eDISCONNECTED)
             {
                 aConnections.erase(aConnections.begin() + i);
                 std::cout << "disconnected." << std::endl;
                 i--;
                 continue;
             }
-
-            if (size <= 0) continue;
-            const std::string_view req_str((char*)buffer, size);
-            cHttp::cRequest req = cHttp::cRequest::Deserialize((string) req_str);
-
-            Utf8 oUTF8ToHtmlConverter;
-            std::ifstream oHtmlStream("./wwwroot/index.html");
-            if (!oHtmlStream.is_open())
-            {
-                std::cout << "index.html could not be found." << std::endl;
-                break;
-            }
-            std::string sUTFHtml((std::istreambuf_iterator<char>(oHtmlStream)),
-                std::istreambuf_iterator<char>());
-
-            auto ex = oUTF8ToHtmlConverter.Decode(sUTFHtml);
-            string sHtmlEncoded;
-            for (auto& point : ex)
-            {
-                if (point < 128)
-                    sHtmlEncoded += (byte)point;
-                else
-                    sHtmlEncoded += "&#" + std::to_string(point) + ";";
-            }
-
-            std::vector<cHttp::cHeader> headers;
-            cHttp::cResponse resp;
-            resp.SetResponseCode(cHttp::C_OK);
-            resp.SetHeaders(headers);
-            resp.SetBody(sHtmlEncoded);
-            string resp_str = resp.Serialize();
-
-            aConnections[i]->SendBytes((const byte*)resp_str.c_str(), resp_str.size());
-
-            if (cHttp::GetValueFromHeader(req.GetHeaders(), "connection") != "keep-alive")
-                break;
         }
         sleep(1);
     }

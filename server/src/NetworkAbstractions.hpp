@@ -28,13 +28,20 @@ typedef int NET_SOCK;
 class cNetworkAbstractions
 {
 public:
+    enum class cConnectionStatus
+    {
+        eDISCONNECTED,
+        eCONNECTED,
+        eAVAILABLE
+    };
+
     // Shared states management.
     // Network is initialized when the fist socket is created
     // and terminated when the last connection is closed.
     static void NetInit();
     static void NetShutdown();
     static void SetBlocking(NET_SOCK oSock, bool bBlocking = true);
-    static bool IsConnected(NET_SOCK oSock);
+    static cConnectionStatus IsConnected(NET_SOCK oSock);
     static int CloseSocket(NET_SOCK & oSock);
 };
 
@@ -76,14 +83,17 @@ int cNetworkAbstractions::CloseSocket(NET_SOCK & oSock)
     return iResult;
 }
 
-bool cNetworkAbstractions::IsConnected(NET_SOCK oSock)
+
+
+cNetworkAbstractions::cConnectionStatus cNetworkAbstractions::IsConnected(NET_SOCK oSock)
 {
     char pBuffer;
     long size = recv(oSock, &pBuffer, 1, MSG_PEEK);
 #if defined(WINDOWS)
-    return (WSAGetLastError() != WSAECONNRESET);
+    if (WSAGetLastError() == WSAECONNRESET) return cNetworkAbstractions::cConnectionStatus::eDISCONNECTED;
 #else
-    return (size != 0);
+    if (size == 0) return cNetworkAbstractions::cConnectionStatus::eDISCONNECTED;
 #endif
+    else if (size > 0) return cNetworkAbstractions::cConnectionStatus::eAVAILABLE;
+    else return cNetworkAbstractions::cConnectionStatus::eCONNECTED;
 }
-
