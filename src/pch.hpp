@@ -7,4 +7,4 @@ typedef long long int64;
 typedef unsigned long long uint64;
 typedef unsigned short ushort;
 typedef char* cstring;
-typedef unsigned char* byte;
+typedef unsigned char byte;
