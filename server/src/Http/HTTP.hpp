@@ -1,336 +1,318 @@
 #pragma once
 #include <pch.hpp>
 
-namespace HTTP
+namespace cHttp
 {
-	const string LINE_END = "\r\n";
-	enum class Method
-	{
-		GET,
-		HEAD,
-		POST,
-		PUT,
-		DEL,
-		TRACE,
-		OPTIONS,
-		CONNECT,
-		PATCH
-	};
-	enum class Version
-	{
-		HTTP_1_0,
-		HTTP_1_1,
-		HTTP_2_0
-	};
-	template<typename T, typename R>
-	std::map<R, T> create_reverse_map(R(*forward_func)(T), T first, T last)
-	{
-		using int_t = std::underlying_type_t<T>;
-		std::map<R, T> m;
-		auto insert = [forward_func, &m](int i) {
-			auto t = T(i);
-			auto r = forward_func(t);
-			auto p = m.insert({ r, t });
-			if (!p.second) {
-				std::cerr << "Duplicate ignored:" << int_t(p.first->second) << "<=" << r << "=>" << i << '\n';
-			}
-		};
+    const string C_LINE_END = "\r\n";
+    enum class cMethod
+    {
+        eGET,
+        eHEAD,
+        ePOST,
+        ePUT,
+        eDEL,
+        eTRACE,
+        eOPTIONS,
+        eCONNECT,
+        ePATCH
+    };
+    enum class cVersion
+    {
+        eHTTP_1_0,
+        eHTTP_1_1,
+        eHTTP_2_0
+    };
+    std::map<cVersion, string> aVersionToVersionStr
+            {
+                    {cVersion::eHTTP_2_0, "HTTP/2.0"},
+                    {cVersion::eHTTP_1_1, "HTTP/1.1"},
+                    {cVersion::eHTTP_1_0, "HTTP/1.0"},
+            };
+    std::map<string, cVersion> aVersionStrToVersion
+            {
+                    {"HTTP/2.0", cVersion::eHTTP_2_0},
+                    {"HTTP/1.1", cVersion::eHTTP_1_1},
+                    {"HTTP/1.0", cVersion::eHTTP_1_0},
+            };
+    std::map<cMethod, string> aMethodToMethodStr
+            {
+                    {cMethod::eGET,     "GET"},
+                    {cMethod::eHEAD,    "HEAD"},
+                    {cMethod::ePOST,    "POST"},
+                    {cMethod::ePUT,     "PUT"},
+                    {cMethod::eDEL,     "DELETE"},
+                    {cMethod::eTRACE,   "TRACE"},
+                    {cMethod::eOPTIONS, "OPTIONS"},
+                    {cMethod::eCONNECT, "CONNECT"},
+                    {cMethod::ePATCH,   "PATCH"},
+            };
+    std::map<string, cMethod> aMethodStrToMethod
+            {
+                    {"GET",     cMethod::eGET},
+                    {"HEAD",    cMethod::eHEAD},
+                    {"POST",    cMethod::ePOST},
+                    {"PUT",     cMethod::ePUT},
+                    {"DELETE",  cMethod::eDEL},
+                    {"TRACE",   cMethod::eTRACE},
+                    {"OPTIONS", cMethod::eOPTIONS},
+                    {"CONNECT", cMethod::eCONNECT},
+                    {"PATCH",   cMethod::ePATCH},
+            };
 
-		for (int i = int_t(first); i <= int_t(last); ++i) {
-			insert(i);
-		}
-		return m;
-	}
-	string to_string(Version version)
-	{
-		switch (version)
-		{
-            case Version::HTTP_2_0:
-                return "HTTP/2.0";
-            case Version::HTTP_1_1:
-                return "HTTP/1.1";
-            case Version::HTTP_1_0:
-                return "HTTP/1.0";
-		    default:
-                return "HTTP/1.0";
-		}
-	}
+    static unsigned short C_OK                      = 200;
+    static unsigned short C_CREATED                 = 201;
+    static unsigned short C_ACCEPTED                = 202;
+    static unsigned short C_NO_CONTENT              = 203;
+    static unsigned short C_MOVED                   = 301;
+    static unsigned short C_REDIRECT                = 307;
+    static unsigned short C_BAD_REQUEST             = 400;
+    static unsigned short C_FORBIDDEN               = 403;
+    static unsigned short C_NOT_FOUND               = 404;
+    static unsigned short C_REQUEST_TIMEOUT         = 408;
+    static unsigned short C_INTERNAL_SERVER_ERROR   = 500;
+    static unsigned short C_BAD_GATEWAY             = 502;
+    static unsigned short C_SERVICE_UNAVAILABLE     = 503;
 
-	string to_string(Method method)
-	{
-		switch (method)
+    class cHeader
+    {
+        string psKey;
+        string psValue;
+    public:
+        cHeader(const string &sKey, const string &sValue) noexcept: psKey(sKey), psValue(sValue)
         {
-            case Method::GET:
-                return "GET";
-            case Method::HEAD:
-                return "HEAD";
-            case Method::POST:
-                return "POST";
-            case Method::PUT:
-                return "PUT";
-            case Method::DEL:
-                return "DELETE";
-            case Method::TRACE:
-                return "TRACE";
-            case Method::OPTIONS:
-                return "OPTIONS";
-            case Method::CONNECT:
-                return "CONNECT";
-            case Method::PATCH:
-                return "PATCH";
-            default:
-                return "GET";
         }
-	}
 
-	Method method_from_string(const string& method)
-	{
-		string(*f)(Method) = to_string;
-		static auto const m = create_reverse_map(f, Method::GET, Method::PATCH);
-		auto it = m.find(method);
-		return it == m.end() ? Method::GET : it->second;
-	}
+        void SetValue(const string &sValue) noexcept
+        {
+            this->psValue = sValue;
+        }
 
-	Version version_from_string(const string& version)
-	{
-		string(*f)(Version) = to_string;
-		static auto const m = create_reverse_map(f, Version::HTTP_1_0, Version::HTTP_2_0);
-		auto it = m.find(version);
-		return it == m.end() ? Version::HTTP_1_0 : it->second;
-	}
+        const string &GetValue() const noexcept
+        {
+            return this->psValue;
+        }
 
-	class Header
-	{
-		string key;
-		string value;
-	public:
-		Header(const string& key, const string& value) noexcept : key(key), value(value)
-		{
-		}
+        void SetKey(const string &sKey) noexcept
+        {
+            this->psKey = sKey;
+        }
 
-		void set_value(const string& value) noexcept
-		{
-			this->value = value;
-		}
+        const string &GetKey() noexcept
+        {
+            return this->psKey;
+        }
 
-		const string& get_key() const noexcept
-		{
-			return this->key;
-		}
+        string Serialize() const noexcept
+        {
+            string sHeader;
+            sHeader += this->psKey;
+            sHeader += ": ";
+            sHeader += this->psValue;
+            sHeader += C_LINE_END;
 
-		const string& get_value() const noexcept
-		{
-			return this->value;
-		}
+            return sHeader;
+        }
 
-		string serialize() const noexcept
-		{
-			string header;
-			header += this->key;
-			header += ": ";
-			header += this->value;
-			header += LINE_END;
+        static cHeader Deserialize(const string &sHeader)
+        {
+            size_t uiPos = sHeader.find(':');
+            if (uiPos == string::npos)
+            {
+                std::cout << "invalid header" << std::endl;;
+                return cHeader("", "");
+            }
+            string sKey(sHeader.substr(0, uiPos));
+            toLower(sKey);
 
-			return header;
-		}
+            size_t uiFirst = sHeader.find_first_not_of(" \t", uiPos + 1);
+            size_t uiLast = sHeader.find_last_not_of(" \t");
+            string sValue(sHeader.substr(uiFirst, uiLast - uiFirst + 1));
+            toLower(sValue);
 
-		static Header deserialize(const string& header)
-		{
-			std::size_t  pos = header.find(':');
-			if (pos == string::npos) {
-				std::cout << "invalid header" << std::endl;;
-				return Header("", "");
-			}
-			string key(header.substr(0, pos));
-			toLower(key);
+            return cHeader(sKey, sValue);
+        }
+    };
 
-			std::size_t  first = header.find_first_not_of(" \t", pos + 1);
-			std::size_t  last = header.find_last_not_of(" \t");
-			string value(header.substr(first, last - first + 1));
-			toLower(value);
+    string GetValueFromHeader(std::vector<cHeader> &aHeaders, const string &sKey)
+    {
+        for (auto &header : aHeaders)
+            if (header.GetKey() == sKey)
+                return header.GetValue();
+        return "";
+    }
 
-			return Header(key, value);
-		}
-	};
+    class cHttpMessage
+    {
+    protected:
+        cVersion peVersion = cVersion::eHTTP_1_1;
+        std::vector<cHeader> paHeaders;
+        string psBody;
+    public:
+        std::vector<cHeader> &GetHeaders()
+        {
+            return this->paHeaders;
+        }
+        void SetHeaders(std::vector<cHeader> &aHeaders)
+        {
+            this->paHeaders = aHeaders;
+        }
 
-	string GetValueFromHeader(std::vector<Header>& headers, const string & key)
-	{
-		for (auto& header : headers)
-			if (header.get_key() == key)
-				return header.get_value();
-		return "";
-	}
+        const string &GetBody()
+        {
+            return this->psBody;
+        }
+        void SetBody(string &sBody)
+        {
+            this->psBody = sBody;
+        }
 
-	class Request
-	{
-	private:
-		Version version;
-		Method method;
-		string resource;
-		std::vector<Header> headers;
+        const cVersion &GetVersion()
+        {
+            return this->peVersion;
+        }
+        void SetVersion(cVersion &eVersion)
+        {
+            this->peVersion = eVersion;
+        }
 
-	public:
-		Request(Method method, const string& resource, const std::vector<Header>& headers, Version version = Version::HTTP_1_1) noexcept : version(version), method(method), resource(resource), headers(headers)
-		{
-		}
+        string Serialize()
+        {
+            string sMessage;
+            SerializeMeta(sMessage);
+            SerializeContent(sMessage);
+            return sMessage;
+        }
 
-		std::vector<Header>& get_headers()
-		{
-			return this->headers;
-		}
+        virtual void SerializeMeta(string & sTarget)
+        {
+            // Stub
+        }
 
-		string& get_resource()
-		{
-			return this->resource;
-		}
+        void SerializeContent(string& sTarget)
+        {
+            for (auto &oHeader : this->paHeaders)
+                sTarget += oHeader.Serialize();
+            if (psBody.size())
+                sTarget += cHeader("content-length", std::to_string(psBody.size())).Serialize();
 
-		string serialize() const noexcept
-		{
-			string request;
-			request += to_string(this->method);
-			request += " ";
-			request += this->resource;
-			request += " ";
-			request += to_string(this->version);
-			request += LINE_END;
+            sTarget += C_LINE_END;
+            if (psBody.size() > 0)
+                sTarget += psBody;
+        }
+    };
 
-			for (auto& header : this->headers)
-			{
-				request += header.serialize();
-			}
+    class cRequest : public cHttpMessage
+    {
+        string psResource;
+        cMethod peMethod = cMethod::eGET;
+    public:
+        string &GetResource()
+        {
+            return this->psResource;
+        }
+        void SetResource(string &sResource)
+        {
+            this->psResource = sResource;
+        }
 
-			request += LINE_END;
-			return request;
-		}
+        const cMethod& GetMethod()
+        {
+            return this->peMethod;
+        }
+        void SetMethod(cMethod& eMethod)
+        {
+            this->peMethod = eMethod;
+        }
 
-		static Request deserialize(const string& request)
-		{
-			std::vector<string> lines = split(request, string(LINE_END));
+        virtual void SerializeMeta(string & sTarget) override
+        {
+            sTarget += aMethodToMethodStr.at(this->peMethod);
+            sTarget += " ";
+            sTarget += this->psResource;
+            sTarget += " ";
+            sTarget += aVersionToVersionStr.at(this->peVersion);
+            sTarget += C_LINE_END;
+        }
 
-			if (lines.size() < 1)
-			{
-				throw std::runtime_error("HTTP Request ('" + string(request) + "') consisted of " + std::to_string(lines.size()) + " lines, should be >= 1.");
-			}
+        static cRequest Deserialize(const string &sRequest)
+        {
+            std::vector<string> aSections = split(sRequest, C_LINE_END + C_LINE_END);
+            std::vector<string> aLines = split(aSections[0], C_LINE_END);
 
-			std::vector<string> segments = split(lines[0], " ");
+            std::vector<string> aMetaSegments = split(aLines[0], " ");
 
-			if (segments.size() != 3)
-			{
-				throw std::runtime_error("First line of HTTP request ('" + string(request) + "') consisted of " + std::to_string(segments.size()) + " space separated segments, should be 3.");
-			}
+            cMethod eMethod = aMethodStrToMethod.at(aMetaSegments[0]);
+            string sResource = aMetaSegments[1];
+            cVersion eVersion = aVersionStrToVersion.at(aMetaSegments[2]);
 
-			const Method method = method_from_string(segments[0]);
-			const string resource = segments[1];
-			const Version version = version_from_string(segments[2]);
+            std::vector<cHeader> aHeaders;
+            for (size_t i = 1; i < aLines.size(); i++)
+                aHeaders.push_back(cHeader::Deserialize(aLines[i]));
 
-			std::vector<Header> headers;
+            string sBody;
+            if(aSections.size() > 1)
+                sBody = concat(aSections, C_LINE_END + C_LINE_END, 1);
 
-			for (std::size_t i = 1; i < lines.size(); i++)
-			{
-				if (lines[i].size() > 0)
-					headers.push_back(Header::deserialize(lines[i]));
-			}
+            cRequest oRequest;
+            oRequest.SetMethod(eMethod);
+            oRequest.SetResource(sResource);
+            oRequest.SetHeaders(aHeaders);
+            oRequest.SetVersion(eVersion);
+            oRequest.SetBody(sBody);
 
-			return Request(method, resource, headers, version);
-		}
-	};
+            return oRequest;
+        }
+    };
 
-	static string OK = "200";
-	static string CREATED = "201";
-	static string ACCEPTED = "202";
-	static string NO_CONTENT = "203";
-	static string MOVED = "301";
-	static string REDIRECT = "307";
-	static string BAD_REQUEST = "400";
-	static string FORBIDDEN = "403";
-	static string NOT_FOUND = "404";
-	static string REQUEST_TIMEOUT = "408";
-	static string INTERNAL_SERVER_ERROR = "500";
-	static string BAD_GATEWAY = "502";
-	static string SERVICE_UNAVAILABLE = "503";
+    class cResponse : public cHttpMessage
+    {
+        unsigned short pusResponseCode;
+    public:
+        const unsigned short &GetResponseCode()
+        {
+            return this->pusResponseCode;
+        }
+        void SetResponseCode(unsigned short &usResponseCode)
+        {
+            this->pusResponseCode = usResponseCode;
+        }
 
-	class Response
-	{
-		string responseCode;
-		Version version;
-		std::vector<Header> headers;
-		string body;
-	public:
-		Response(int responseCode, const std::vector<Header>& headers, const string& body, Version version = Version::HTTP_2_0)
-		{
-			this->responseCode = std::to_string(responseCode);
-			this->version = version;
-			this->headers = headers;
-			this->body = body;
-		}
-		Response(const string& responseCode, const std::vector<Header>& headers, const string& body, Version version = Version::HTTP_2_0)
-		{
-			this->responseCode = responseCode;
-			this->version = version;
-			this->headers = headers;
-			this->body = body;
-		}
+        virtual void SerializeMeta(string & sTarget) override
+        {
+            sTarget += aVersionToVersionStr.at(this->peVersion);
+            sTarget += " ";
+            sTarget += std::to_string(this->pusResponseCode);
+            sTarget += C_LINE_END;
+        }
 
-		const string& get_response_code() const noexcept
-		{
-			return this->responseCode;
-		}
+        static cResponse Deserialize(const string &sResponse)
+        {
+            std::vector<string> aSections = split(sResponse, C_LINE_END + C_LINE_END);
+            std::vector<string> aLines = split(aSections[0], C_LINE_END);
 
-		const string& get_body() const noexcept
-		{
-			return this->body;
-		}
+            std::vector<string> aMetaSegments = split(aLines[0], " ");
+            cVersion eVersion = aVersionStrToVersion.at(aMetaSegments[0]);
 
-		const std::vector<Header> get_headers() const noexcept
-		{
-			return this->headers;
-		}
+            std::vector<cHeader> aHeaders;
+            for (size_t i = 1; i < aLines.size(); i++)
+                aHeaders.push_back(cHeader::Deserialize(aLines[i]));
 
-		string serialize(bool auto_content = true) const noexcept
-		{
-			string request;
-			request += to_string(this->version);
-			request += " ";
-			request += this->responseCode;
-			request += LINE_END;
+            string sBody;
+            if(aSections.size() > 1)
+                sBody = concat(aSections, "", 1);
 
-			for (auto& header : this->headers)
-				request += header.serialize();
-			if (auto_content)
-				request += Header("Content-Length", std::to_string(body.size())).serialize();
+            unsigned short usResponseCode = 0;
+            const char* pBegin = aMetaSegments[1].c_str();
+            char* pEnd = (char*)aMetaSegments[1].c_str() + aMetaSegments[1].size() - 1;
+            usResponseCode = (unsigned short) std::strtoul(pBegin, &pEnd, 0);
 
-			request += LINE_END;
-			if (body.size() > 0)
-				request += body;
+            cResponse oResponse;
+            oResponse.SetResponseCode(usResponseCode);
+            oResponse.SetHeaders(aHeaders);
+            oResponse.SetVersion(eVersion);
+            oResponse.SetBody(sBody);
 
-			return request;
-		}
-
-		static Response deserialize(const string& response) noexcept
-		{
-			std::vector<string> segments = split(response, string(LINE_END) + string(LINE_END));
-
-			string headerSegment = segments[0];
-			segments.erase(segments.begin());
-
-			string body = concat(segments);
-
-			std::vector<string> headerLines = split(headerSegment, string(LINE_END));
-
-			const string& responseCodeLine = headerLines[0];
-
-			std::vector<string> responseCodeSegments = split(responseCodeLine, " ");
-
-			Version version = version_from_string(responseCodeSegments[0]);
-
-			headerLines.erase(headerLines.begin());
-
-			std::vector<Header> headers;
-
-			for (const string& line : headerLines)
-				headers.push_back(Header::deserialize(line));
-
-			return Response(responseCodeSegments[1], headers, body, version);
-		}
-	};
+            return oResponse;
+        }
+    };
 }

@@ -103,11 +103,7 @@ void cNetworkServer::OnRecieveLoop()
             byte buffer[8192]{ 0 };
             const long size = aConnections[i]->ReceiveBytes((byte*)&buffer[0], 8192);
 
-#if defined(WINDOWS)
-            if (WSAGetLastError() == WSAECONNRESET)
-#else
-            if (size == 0)
-#endif
+            if (!aConnections[i]->IsConnected())
             {
                 aConnections.erase(aConnections.begin() + i);
                 std::cout << "disconnected." << std::endl;
@@ -117,11 +113,9 @@ void cNetworkServer::OnRecieveLoop()
 
             if (size <= 0) continue;
             const std::string_view req_str((char*)buffer, size);
-            HTTP::Request req = HTTP::Request::deserialize((string)req_str);
-            std::cout << req_str << std::endl;
+            cHttp::cRequest req = cHttp::cRequest::Deserialize((string) req_str);
 
             Utf8 oUTF8ToHtmlConverter;
-
             std::ifstream oHtmlStream("./wwwroot/index.html");
             if (!oHtmlStream.is_open())
             {
@@ -141,12 +135,16 @@ void cNetworkServer::OnRecieveLoop()
                     sHtmlEncoded += "&#" + std::to_string(point) + ";";
             }
 
-            std::vector<HTTP::Header> headers;
-            HTTP::Response resp(HTTP::OK, headers, sHtmlEncoded);
-            string resp_str = resp.serialize();
+            std::vector<cHttp::cHeader> headers;
+            cHttp::cResponse resp;
+            resp.SetResponseCode(cHttp::C_OK);
+            resp.SetHeaders(headers);
+            resp.SetBody(sHtmlEncoded);
+            string resp_str = resp.Serialize();
+
             aConnections[i]->SendBytes((const byte*)resp_str.c_str(), resp_str.size());
 
-            if (HTTP::GetValueFromHeader(req.get_headers(), "connection") != "keep-alive")
+            if (cHttp::GetValueFromHeader(req.GetHeaders(), "connection") != "keep-alive")
                 break;
         }
         sleep(1);

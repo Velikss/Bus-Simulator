@@ -55,10 +55,15 @@ public:
     {
         long size = 0;
 	    if(ppConnectionSSL)
-            size = SSL_read(ppConnectionSSL, (char *) pBuffer, uiNumBytes);
+            size = SSL_read(ppConnectionSSL, (char*) pBuffer, uiNumBytes);
         else
 	        size = recv(poSock, (char*)pBuffer, uiNumBytes, 0);
         return size;
+    }
+
+    bool IsConnected()
+    {
+	    return cNetworkAbstractions::IsConnected(poSock);
     }
 
 	void SendBytes(const byte* pBuffer, size_t uiNumBytes)

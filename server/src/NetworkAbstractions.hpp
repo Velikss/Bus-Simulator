@@ -34,6 +34,7 @@ public:
     static void NetInit();
     static void NetShutdown();
     static void SetBlocking(NET_SOCK oSock, bool bBlocking = true);
+    static bool IsConnected(NET_SOCK oSock);
     static int CloseSocket(NET_SOCK & oSock);
 };
 
@@ -73,5 +74,16 @@ int cNetworkAbstractions::CloseSocket(NET_SOCK & oSock)
 #endif
     oSock = NET_INVALID_SOCKET_ID;
     return iResult;
+}
+
+bool cNetworkAbstractions::IsConnected(NET_SOCK oSock)
+{
+    char pBuffer;
+    long size = recv(oSock, &pBuffer, 1, MSG_PEEK);
+#if defined(WINDOWS)
+    return (WSAGetLastError() != WSAECONNRESET);
+#else
+    return (size != 0);
+#endif
 }
 

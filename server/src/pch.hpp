@@ -104,10 +104,10 @@ std::vector<string> split(string str, string delim) noexcept
     return result;
 }
 
-string concat(const std::vector<string>& strings, const string& delim = "") noexcept
+string concat(const std::vector<string>& strings, const string& delim = "", uint from = 0) noexcept
 {
     string s;
-    for (unsigned int i = 0; i < strings.size(); i++)
+    for (unsigned int i = from; i < strings.size(); i++)
     {
         if (i == strings.size() - 1)
             s += strings[i];

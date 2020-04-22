@@ -16,7 +16,7 @@ std::map<string, ushort> C_PROTOCOL_PORT = {
  * This class provides parsing of uri strings. It can be used in the server for clear drilldown-references.
  * Supports:
  * - PATHs
- * - GET Parameters non-escaped.
+ * - eGET Parameters non-escaped.
  */
 class cUri
 {
@@ -62,7 +62,7 @@ cUri cUri::ParseFromString(string in)
     const size_t uiPortIndex = in.find(':', uiProtocolLastIndex + 1);
     size_t uiPortLastIndex = string::npos;
 
-    // Check if there is a GET parameter.
+    // Check if there is a eGET parameter.
     size_t uiGetParamIndex = in.find('?');
 
     if (uiPortIndex != string::npos)
@@ -139,7 +139,7 @@ cUri cUri::ParseFromString(string in)
         }
     }
 
-    // Try to find any GET parameters
+    // Try to find any eGET parameters
     if(uiGetParamIndex != string::npos)
     {
         if (uiGetParamIndex < uiHostNameEnd) return oUri;

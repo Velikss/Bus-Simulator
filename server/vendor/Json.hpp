@@ -23912,7 +23912,7 @@ class basic_json
     /*!
     @brief applies a JSON Merge Patch
 
-    The merge patch format is primarily intended for use with the HTTP PATCH
+    The merge patch format is primarily intended for use with the cHttp ePATCH
     method as a means of describing a set of modifications to a target
     resource's content. This function applies a merge patch to the current
     JSON value.

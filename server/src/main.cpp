@@ -1,13 +1,11 @@
 #include <pch.hpp>
-#include "cNetworkClient.hpp"
-#include "cNetworkServer.hpp"
+#include <cNetworkClient.hpp>
+#include <cNetworkServer.hpp>
 #include <DirectoryWatcher.hpp>
 #include <vendor/Json.hpp>
 #include <streambuf>
 #include <SslHelper.hpp>
 #include <filesystem>
-
-static string resp_str;
 
 bool OnRecieve(cNetworkConnection* connection)
 {
@@ -21,7 +19,6 @@ bool OnConnect(cNetworkConnection* connection)
     return true;
 }
 
-std::vector<std::thread*> threads;
 int main()
 {
     cSSLHelper oSSLHelper;
@@ -37,33 +34,8 @@ int main()
     }
     printf("\n");*/
 
-    Utf8 oUTF8ToHtmlConverter;
-
-    std::ifstream oHtmlStream("./wwwroot/index.html");
-    if (!oHtmlStream.is_open())
-    {
-        std::cout << "index.html could not be found." << std::endl;
-        return -1;
-    }
-    std::string sUTFHtml((std::istreambuf_iterator<char>(oHtmlStream)),
-                         std::istreambuf_iterator<char>());
-
-    auto ex = oUTF8ToHtmlConverter.Decode(sUTFHtml);
-    string sHtmlEncoded;
-    for (auto& point : ex)
-    {
-        if (point < 128)
-            sHtmlEncoded += (byte)point;
-        else
-            sHtmlEncoded += "&#" + std::to_string(point) + ";";
-    }
-
-    std::vector<HTTP::Header> headers;
-    HTTP::Response resp(HTTP::OK, headers, sHtmlEncoded);
-    resp_str = resp.serialize();
-
     cDirectoryWatcher oDirectoryListener("wwwroot/", std::chrono::milliseconds(5000));
-    threads.push_back(new std::thread([&] {
+    new std::thread([&] {
         oDirectoryListener.Start([&](std::string path_to_watch, cDirectoryWatcher::FileStatus status) -> void {
             // Process only regular files, all other file types are ignored
             if (!std::filesystem::is_regular_file(std::filesystem::path(path_to_watch)) &&
@@ -85,7 +57,7 @@ int main()
                     std::cout << "Error! Unknown file status.\n";
             };
         });
-    }));
+    });
 
     // Load config.
     nlohmann::json oConfig;
