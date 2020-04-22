@@ -6,7 +6,7 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #pragma comment(lib, "Ws2_32.lib")
-typedef SOCKET NET_SOCK;
+typedef int NET_SOCK;
 #define NET_INVALID_SOCKET_ID INVALID_SOCKET
 #define NET_SOCKET_ERROR      SOCKET_ERROR
 #elif defined(LINUX)

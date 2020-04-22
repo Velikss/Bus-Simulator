@@ -5,21 +5,41 @@
 
 class cNetworkServer : public cNetworkConnection
 {
-    std::vector<std::thread> threads;
+    bool pbShutdown = false;
+
+    std::map<string, std::thread> threads;
     std::vector<cNetworkConnection*> aConnections;
 
     std::function<bool(cNetworkConnection *)> OnConnect = nullptr;
     std::function<bool(cNetworkConnection *)> OnRecieve = nullptr;
+    std::function<void(cNetworkConnection *)> OnDisconnect = nullptr;
 public:
 	cNetworkServer(cNetworkConnection::tNetworkInitializationSettings* ptNetworkSettings) : cNetworkConnection(ptNetworkSettings)
 	{
-	}
+    }
 
-	void SetUpEvents(const std::function<bool(cNetworkConnection *)> &OnConnect,
-	                 const std::function<bool(cNetworkConnection *)> &OnRecieve)
+	~cNetworkServer()
+    {
+        std::cout << "stopping server..." << std::endl;
+	    pbShutdown = true;
+	    for(auto& [name, t] : threads)
+	        t.join();
+	    std::cout << "stopped server." << std::endl;
+    }
+
+	void SetOnConnectEvent(const std::function<bool(cNetworkConnection *)> &OnConnect)
     {
 	    this->OnConnect = OnConnect;
-	    this->OnRecieve = OnRecieve;
+    }
+
+    void SetOnRecieveEvent(const std::function<bool(cNetworkConnection *)> &OnRecieve)
+    {
+        this->OnRecieve = OnRecieve;
+    }
+
+    void SetOnDisconnectEvent(const std::function<void(cNetworkConnection *)> &OnDisconnect)
+    {
+        this->OnDisconnect = OnDisconnect;
     }
 
 	bool Listen();
@@ -43,10 +63,13 @@ cNetworkConnection *cNetworkServer::AcceptConnection(bool bBlockingSocket) const
 
     if (pptNetworkSettings->bUseSSL)
     {
+        cNetworkAbstractions::SetBlocking(oSock, true);
+
         oNewConnection->ppConnectionSSL = SSL_new(ppSSLContext);
         SSL_set_fd(oNewConnection->ppConnectionSSL, oSock);
 
         int iReturn = SSL_accept(oNewConnection->ppConnectionSSL);
+
         if (iReturn < 0)
         {
             delete oNewConnection;
@@ -71,17 +94,21 @@ bool cNetworkServer::Listen()
         Close();
         return false;
     }
-    threads.push_back(std::thread(&cNetworkServer::OnConnectLoop, this));
-    threads.push_back(std::thread(&cNetworkServer::OnRecieveLoop, this));
+    threads.insert({"recieve", std::thread(&cNetworkServer::OnRecieveLoop, this)});
+    if (pptNetworkSettings->eMode == cNetworkConnection::cMode::eBlocking)
+        OnConnectLoop();
+    else
+        threads.insert({"connect", std::thread(&cNetworkServer::OnConnectLoop, this)});
     return true;
 }
 
 void cNetworkServer::OnConnectLoop()
 {
-    while (true)
+    const bool bBlocking = pptNetworkSettings->eMode == cNetworkConnection::cMode::eBlocking;
+    while (!pbShutdown)
     {
-        cNetworkConnection *incoming = nullptr;
-        if ((incoming = AcceptConnection(false)) != nullptr)
+        cNetworkConnection *incoming;
+        if ((incoming = AcceptConnection(bBlocking)) != nullptr)
         {
             bool bPass = true;
             if(OnConnect) bPass = OnConnect(incoming);
@@ -90,61 +117,31 @@ void cNetworkServer::OnConnectLoop()
             else
                 delete incoming;
         }
-        sleep(1);
+        if (!bBlocking) sleep(1);
     }
 }
 
 void cNetworkServer::OnRecieveLoop()
 {
-    while (true)
+    while (!pbShutdown)
     {
         for (uint i = 0; i < aConnections.size(); i++)
         {
             auto status = aConnections[i]->Status();
             if (status == cNetworkAbstractions::cConnectionStatus::eAVAILABLE)
             {
-                byte buffer[8192]{0};
-                const long size = aConnections[i]->ReceiveBytes((byte *) &buffer[0], 8192);
-                if (size <= 0) continue;
-                const std::string_view req_str((char*)buffer, size);
-                cHttp::cRequest req = cHttp::cRequest::Deserialize((string) req_str);
-
-                Utf8 oUTF8ToHtmlConverter;
-                std::ifstream oHtmlStream("./wwwroot/index.html");
-                if (!oHtmlStream.is_open())
-                {
-                    std::cout << "index.html could not be found." << std::endl;
-                    break;
-                }
-                std::string sUTFHtml((std::istreambuf_iterator<char>(oHtmlStream)),
-                                     std::istreambuf_iterator<char>());
-
-                auto ex = oUTF8ToHtmlConverter.Decode(sUTFHtml);
-                string sHtmlEncoded;
-                for (auto& point : ex)
-                {
-                    if (point < 128)
-                        sHtmlEncoded += (byte)point;
-                    else
-                        sHtmlEncoded += "&#" + std::to_string(point) + ";";
-                }
-
-                std::vector<cHttp::cHeader> headers;
-                cHttp::cResponse resp;
-                resp.SetResponseCode(cHttp::C_OK);
-                resp.SetHeaders(headers);
-                resp.SetBody(sHtmlEncoded);
-                string resp_str = resp.Serialize();
-
-                aConnections[i]->SendBytes((const byte*)resp_str.c_str(), resp_str.size());
-
-                if (cHttp::GetValueFromHeader(req.GetHeaders(), "connection") != "keep-alive")
-                    break;
+                if (OnRecieve)
+                    if(!OnRecieve(aConnections[i]))
+                    {
+                        aConnections.erase(aConnections.begin() + i);
+                        i--;
+                        continue;
+                    }
             }
             else if (status == cNetworkAbstractions::cConnectionStatus::eDISCONNECTED)
             {
+                if (OnDisconnect) OnDisconnect(aConnections[i]);
                 aConnections.erase(aConnections.begin() + i);
-                std::cout << "disconnected." << std::endl;
                 i--;
                 continue;
             }

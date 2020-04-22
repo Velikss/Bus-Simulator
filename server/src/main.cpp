@@ -7,9 +7,24 @@
 #include <SslHelper.hpp>
 #include <filesystem>
 
+string resp_str;
+
 bool OnRecieve(cNetworkConnection* connection)
 {
-    return true;
+    byte buffer[8192]{0};
+    const long size = connection->ReceiveBytes((byte *) &buffer[0], 8192);
+    const std::string_view req_str((char*)buffer, size);
+    cHttp::cRequest req = cHttp::cRequest::Deserialize((string) req_str);
+
+    connection->SendBytes((const byte*)resp_str.c_str(), resp_str.size());
+
+    return !(cHttp::GetValueFromHeader(req.GetHeaders(), "connection") != "keep-alive");
+}
+
+void OnDisConnect(cNetworkConnection* connection)
+{
+    std::cout << inet_ntoa(connection->ptAddress.sin_addr) << ":"
+              << ntohs(connection->ptAddress.sin_port) << ", disconnected." << std::endl;
 }
 
 bool OnConnect(cNetworkConnection* connection)
@@ -65,6 +80,34 @@ int main()
     if (oConfigStream.is_open())
         oConfigStream >> oConfig;
 
+    //init response
+    Utf8 oUTF8ToHtmlConverter;
+    std::ifstream oHtmlStream("./wwwroot/index.html");
+    if (!oHtmlStream.is_open())
+    {
+        std::cout << "index.html could not be found." << std::endl;
+        return false;
+    }
+    std::string sUTFHtml((std::istreambuf_iterator<char>(oHtmlStream)),
+                         std::istreambuf_iterator<char>());
+
+    auto ex = oUTF8ToHtmlConverter.Decode(sUTFHtml);
+    string sHtmlEncoded;
+    for (auto& point : ex)
+    {
+        if (point < 128)
+            sHtmlEncoded += (byte)point;
+        else
+            sHtmlEncoded += "&#" + std::to_string(point) + ";";
+    }
+
+    std::vector<cHttp::cHeader> headers;
+    cHttp::cResponse resp;
+    resp.SetResponseCode(cHttp::C_OK);
+    resp.SetHeaders(headers);
+    resp.SetBody(sHtmlEncoded);
+    resp_str = resp.Serialize();
+
     // initialize server.
     std::cout << "starting...." << std::endl;
     cNetworkConnection::tNetworkInitializationSettings tNetworkSettings;
@@ -106,14 +149,12 @@ int main()
     tNetworkSettings.eMode = cNetworkConnection::cMode::eBlocking;
 
     cNetworkServer server(&tNetworkSettings);
-    server.SetUpEvents(OnConnect, OnRecieve);
+    server.SetOnConnectEvent(OnConnect);
+    server.SetOnRecieveEvent(OnRecieve);
+    server.SetOnDisconnectEvent(OnDisConnect);
     if (!server.Listen())
         std::cout << "failed to start the server, is the port open?" << std::endl;
     else
         std::cout << "started on: " << tNetworkSettings.sAddress << ":" << tNetworkSettings.usPort << std::endl;
-    while(true)
-    {
-        sleep(1000);
-    }
     return 0;
 }
