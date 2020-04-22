@@ -10,6 +10,7 @@
 
 #include <chrono>
 #include "vulkan/GraphicsPipeline.hpp"
+#include "TextureHandler.hpp"
 
 struct tUniformBufferObject
 {
@@ -36,7 +37,7 @@ public:
     cUniformHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
     ~cUniformHandler(void);
 
-    void SetupUniformBuffers(void);
+    void SetupUniformBuffers();
     void UpdateUniformBuffers(uint uiImageIndex);
 
     uint GetDescriptorSetLayoutCount(void);
@@ -47,10 +48,11 @@ public:
 private:
     void CreateUniformBuffers(void);
     void CreateDescriptorPool(void);
-    void CreateDescriptorSets(void);
+    void CreateDescriptorSets();
 };
 
-cUniformHandler::cUniformHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain)
+cUniformHandler::cUniformHandler(cLogicalDevice* pLogicalDevice,
+                                 cSwapChain* pSwapChain)
 {
     ppLogicalDevice = pLogicalDevice;
     ppSwapChain = pSwapChain;
@@ -59,15 +61,21 @@ cUniformHandler::cUniformHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSw
     tUBOLayoutBinding.binding = 0;
     tUBOLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     tUBOLayoutBinding.descriptorCount = 1;
-
     tUBOLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-
     tUBOLayoutBinding.pImmutableSamplers = nullptr;
 
+    VkDescriptorSetLayoutBinding tSamplerLayoutBinding = {};
+    tSamplerLayoutBinding.binding = 1;
+    tSamplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    tSamplerLayoutBinding.descriptorCount = 1;
+    tSamplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    tSamplerLayoutBinding.pImmutableSamplers = nullptr;
+
+    std::array<VkDescriptorSetLayoutBinding, 2> atBindings = {tUBOLayoutBinding, tSamplerLayoutBinding};
     VkDescriptorSetLayoutCreateInfo tLayoutInfo = {};
     tLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    tLayoutInfo.bindingCount = 1;
-    tLayoutInfo.pBindings = &tUBOLayoutBinding;
+    tLayoutInfo.bindingCount = atBindings.size();
+    tLayoutInfo.pBindings = atBindings.data();
 
     if (!pLogicalDevice->CreateDescriptorSetLayout(&tLayoutInfo, nullptr, &poDescriptorSetLayout))
     {
@@ -88,7 +96,7 @@ cUniformHandler::~cUniformHandler()
     ppLogicalDevice->DestroyDescriptorPool(poDescriptorPool, nullptr);
 }
 
-void cUniformHandler::SetupUniformBuffers(void)
+void cUniformHandler::SetupUniformBuffers()
 {
     CreateUniformBuffers();
     CreateDescriptorPool();
@@ -150,14 +158,16 @@ void cUniformHandler::UpdateUniformBuffers(uint uiImageIndex)
 
 void cUniformHandler::CreateDescriptorPool(void)
 {
-    VkDescriptorPoolSize tPoolSize = {};
-    tPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    tPoolSize.descriptorCount = paoUniformBuffers.size();
+    std::array<VkDescriptorPoolSize, 2> atPoolSizes = {};
+    atPoolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    atPoolSizes[0].descriptorCount = paoUniformBuffers.size();
+    atPoolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    atPoolSizes[1].descriptorCount = paoUniformBuffers.size();
 
-    VkDescriptorPoolCreateInfo tPoolInfo{};
+    VkDescriptorPoolCreateInfo tPoolInfo = {};
     tPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    tPoolInfo.poolSizeCount = 1;
-    tPoolInfo.pPoolSizes = &tPoolSize;
+    tPoolInfo.poolSizeCount = atPoolSizes.size();
+    tPoolInfo.pPoolSizes = atPoolSizes.data();
 
     tPoolInfo.maxSets = paoUniformBuffers.size();
 
@@ -167,7 +177,7 @@ void cUniformHandler::CreateDescriptorPool(void)
     }
 }
 
-void cUniformHandler::CreateDescriptorSets(void)
+void cUniformHandler::CreateDescriptorSets()
 {
     std::vector<VkDescriptorSetLayout> aoLayouts(paoUniformBuffers.size(), poDescriptorSetLayout);
 
@@ -191,18 +201,31 @@ void cUniformHandler::CreateDescriptorSets(void)
         tBufferInfo.offset = 0;
         tBufferInfo.range = sizeof(tUniformBufferObject);
 
-        VkWriteDescriptorSet tDescriptorWrite = {};
-        tDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        tDescriptorWrite.dstSet = paoDescriptorSets[i];
-        tDescriptorWrite.dstBinding = 0;
-        tDescriptorWrite.dstArrayElement = 0;
+        VkDescriptorImageInfo tImageInfo = {};
+        tImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        tImageInfo.imageView = cTextureHandler::poTextureImageView;
+        tImageInfo.sampler = cTextureHandler::poTextureSampler;
 
-        tDescriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        tDescriptorWrite.descriptorCount = 1;
+        std::array<VkWriteDescriptorSet, 2> atDescriptorWrites = {};
 
-        tDescriptorWrite.pBufferInfo = &tBufferInfo;
+        atDescriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        atDescriptorWrites[0].dstSet = paoDescriptorSets[i];
+        atDescriptorWrites[0].dstBinding = 0;
+        atDescriptorWrites[0].dstArrayElement = 0;
+        atDescriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        atDescriptorWrites[0].descriptorCount = 1;
+        atDescriptorWrites[0].pBufferInfo = &tBufferInfo;
 
-        ppLogicalDevice->UpdateDescriptorSets(1, &tDescriptorWrite, 0, nullptr);
+        atDescriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        atDescriptorWrites[1].dstSet = paoDescriptorSets[i];
+        atDescriptorWrites[1].dstBinding = 1;
+        atDescriptorWrites[1].dstArrayElement = 0;
+        atDescriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        atDescriptorWrites[1].descriptorCount = 1;
+        atDescriptorWrites[1].pImageInfo = &tImageInfo;
+
+        ppLogicalDevice->UpdateDescriptorSets(atDescriptorWrites.size(), atDescriptorWrites.data(),
+                                              0, nullptr);
     }
 }
 

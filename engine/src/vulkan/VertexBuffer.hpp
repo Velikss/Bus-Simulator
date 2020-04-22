@@ -5,6 +5,7 @@
 #include <vulkan/Vertex.hpp>
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/BufferHelper.hpp>
+#include "CommandHelper.hpp"
 
 class cVertexBuffer
 {
@@ -78,6 +79,8 @@ void cVertexBuffer::LoadModel(void)
         throw std::runtime_error(sError);
     }
 
+    std::unordered_map<Vertex, uint> mUniqueVertices = {};
+
     for (const auto& tShape : atShapes)
     {
         for (const auto& index : tShape.mesh.indices)
@@ -90,16 +93,19 @@ void cVertexBuffer::LoadModel(void)
                     tAttrib.vertices[3 * index.vertex_index + 2]
             };
 
-            // TODO: Add texture support
-            /*tVertex.texCoord = {
-                    attrib.texcoords[2 * index.texcoord_index + 0],
-                    attrib.texcoords[2 * index.texcoord_index + 1]
-            };*/
+            tVertex.texCoord = {
+                    tAttrib.texcoords[2 * index.texcoord_index + 0],
+                    1.0f - tAttrib.texcoords[2 * index.texcoord_index + 1]
+            };
 
             tVertex.color = {1.0f, 1.0f, 1.0f};
 
-            patVertices.push_back(tVertex);
-            paiIndices.push_back(paiIndices.size());
+            if (mUniqueVertices.count(tVertex) == 0)
+            {
+                mUniqueVertices[tVertex] = patVertices.size();
+                patVertices.push_back(tVertex);
+            }
+            paiIndices.push_back(mUniqueVertices[tVertex]);
         }
     }
 }
@@ -187,50 +193,18 @@ void cVertexBuffer::CopyBuffer(cLogicalDevice* pLogicalDevice,
                                VkDeviceSize ulSize,
                                VkCommandPool& oCommandPool)
 {
-    // Struct with information on how to allocate the command buffer
-    VkCommandBufferAllocateInfo tAllocInfo = {};
-    tAllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    tAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    tAllocInfo.commandPool = oCommandPool;
-    tAllocInfo.commandBufferCount = 1;
-
-    // Allocate the command buffer
-    VkCommandBuffer oCommandBuffer;
-    pLogicalDevice->AllocateCommandBuffers(&tAllocInfo, &oCommandBuffer);
-
-    // Struct with details about the usage of this buffer
-    VkCommandBufferBeginInfo tBeginInfo = {};
-    tBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    tBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT; // we just want to use it once
-
     // Struct with information about the copy operation
     VkBufferCopy tCopyRegion = {};
     tCopyRegion.srcOffset = 0;
     tCopyRegion.dstOffset = 0;
     tCopyRegion.size = ulSize;
 
-    // Begin recording the command buffer
-    vkBeginCommandBuffer(oCommandBuffer, &tBeginInfo);
+    VkCommandBuffer oCommandBuffer = cCommandHelper::BeginSingleTimeCommands(ppLogicalDevice);
     {
         // Copy Buffer operation
         vkCmdCopyBuffer(oCommandBuffer, oSrcBuffer, oDstBuffer, 1, &tCopyRegion);
     }
-    // End recording the command buffer
-    vkEndCommandBuffer(oCommandBuffer);
-
-    // Struct with information about the buffer we want to submit
-    VkSubmitInfo tSubmitInfo = {};
-    tSubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    tSubmitInfo.commandBufferCount = 1;
-    tSubmitInfo.pCommandBuffers = &oCommandBuffer;
-
-    // Submit the command buffer and wait until it finishes
-    VkFence oFence = VK_NULL_HANDLE;
-    pLogicalDevice->GraphicsQueueSubmit(1, &tSubmitInfo, oFence);
-    pLogicalDevice->GraphicsQueueWaitIdle();
-
-    // Free the command buffer once we're done
-    pLogicalDevice->FreeCommandBuffers(oCommandPool, 1, &oCommandBuffer);
+    cCommandHelper::EndSingleTimeCommands(ppLogicalDevice, oCommandBuffer);
 }
 
 uint cVertexBuffer::GetVertexCount(void)

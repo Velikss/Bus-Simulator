@@ -16,6 +16,9 @@
 #include <set>
 #include <array>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <vendor/stb_image.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>

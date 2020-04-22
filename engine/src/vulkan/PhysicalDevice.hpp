@@ -136,7 +136,7 @@ bool cPhysicalDevice::IsDeviceSuitable(VkPhysicalDevice& oDevice)
 
     // Here we can check if the device is suitable and has the features we need
     // Right now we only care about a supported QueueFamily
-    return indices.IsComplete() && bExtensionsSupported && swapChainAdequate;
+    return indices.IsComplete() && bExtensionsSupported && swapChainAdequate && tDeviceFeatures.samplerAnisotropy;
 }
 
 tQueueFamilyIndices cPhysicalDevice::FindQueueFamilies(VkPhysicalDevice& oDevice)

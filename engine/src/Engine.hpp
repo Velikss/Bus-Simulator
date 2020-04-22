@@ -32,6 +32,7 @@ private:
     cRenderPass* ppRenderPass;
 
     cCommandHandler* ppCommandHandler;
+    cTextureHandler* ppTextureHandler;
     cRenderHandler* ppRenderHandler;
     cVertexBuffer* ppVertexBuffer;
 
@@ -91,13 +92,15 @@ void Engine::InitVulkan(void)
     // Create the command handler. This deals with the commands that tell Vulkan what to do
     ppCommandHandler = new cCommandHandler(ppLogicalDevice);
 
+    ppTextureHandler = new cTextureHandler(ppLogicalDevice);
+
     ppSwapChain->CreateDepthResources();
 
     // Create the framebuffers for the swap chain
     ppSwapChain->CreateFramebuffers(ppRenderPass->poRenderPass);
 
     // Create the vertex buffer. This stores the vertex data and handles copying it to the GPU memory
-    ppVertexBuffer = new cVertexBuffer(ppLogicalDevice, ppCommandHandler->poCommandPool);
+    ppVertexBuffer = new cVertexBuffer(ppLogicalDevice, cCommandHelper::poCommandPool);
 
     ppUniformHandler->SetupUniformBuffers();
 

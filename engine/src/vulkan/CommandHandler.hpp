@@ -8,6 +8,7 @@
 #include <vulkan/RenderPass.hpp>
 #include <vulkan/GraphicsPipeline.hpp>
 #include <vulkan/VertexBuffer.hpp>
+#include "CommandHelper.hpp"
 
 class cCommandHandler
 {
@@ -17,8 +18,6 @@ private:
     std::vector<VkCommandBuffer> paoCommandBuffers;
 
 public:
-    VkCommandPool poCommandPool; // TODO: make private
-
     cCommandHandler(cLogicalDevice* pLogicalDevice);
     ~cCommandHandler(void);
 
@@ -31,7 +30,6 @@ public:
     VkCommandBuffer& GetCommandBuffer(uint index);
 
 private:
-    void CreateCommandPool(void);
     void CreateCommandBuffers(cSwapChain* pSwapChain);
     void RecordCommandBuffers(cRenderPass* pRenderPass,
                               cSwapChain* pSwapChain,
@@ -44,15 +42,15 @@ cCommandHandler::cCommandHandler(cLogicalDevice* pLogicalDevice)
 {
     ppLogicalDevice = pLogicalDevice;
 
-    CreateCommandPool();
+    cCommandHelper::SetupCommandPool(pLogicalDevice);
 }
 
 cCommandHandler::~cCommandHandler(void)
 {
-    ppLogicalDevice->FreeCommandBuffers(poCommandPool,
+    ppLogicalDevice->FreeCommandBuffers(cCommandHelper::poCommandPool,
                                         paoCommandBuffers.size(),
                                         paoCommandBuffers.data());
-    ppLogicalDevice->DestroyCommandPool(poCommandPool, nullptr);
+    ppLogicalDevice->DestroyCommandPool(cCommandHelper::poCommandPool, nullptr);
 }
 
 void cCommandHandler::CreateCommandBuffers(cSwapChain* pSwapChain,
@@ -65,24 +63,6 @@ void cCommandHandler::CreateCommandBuffers(cSwapChain* pSwapChain,
     RecordCommandBuffers(pRenderPass, pSwapChain, pGraphicsPipeline, pVertexBuffer, pUniformHandler);
 }
 
-void cCommandHandler::CreateCommandPool()
-{
-    // Find the supported queue families from the physical device
-    tQueueFamilyIndices queueFamilyIndices = cPhysicalDevice::GetInstance()->FindQueueFamilies();
-
-    // Struct with information about the command pool
-    VkCommandPoolCreateInfo tPoolInfo = {};
-    tPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    tPoolInfo.queueFamilyIndex = queueFamilyIndices.oulGraphicsFamily.value();
-    tPoolInfo.flags = 0;
-
-    // Create the command pool
-    if (!ppLogicalDevice->CreateCommandPool(&tPoolInfo, nullptr, &poCommandPool))
-    {
-        throw std::runtime_error("failed to create command pool!");
-    }
-}
-
 void cCommandHandler::CreateCommandBuffers(cSwapChain* pSwapChain)
 {
     // Make the command buffer list the same size as the framebuffer list
@@ -93,7 +73,7 @@ void cCommandHandler::CreateCommandBuffers(cSwapChain* pSwapChain)
     tAllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 
     // Set the command pool
-    tAllocInfo.commandPool = poCommandPool;
+    tAllocInfo.commandPool = cCommandHelper::poCommandPool;
 
     // Specify if the allocated buffers should be primary or secondary command buffers
     tAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;

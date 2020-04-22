@@ -128,6 +128,12 @@ public:
                          VkAllocationCallbacks* pAllocator,
                          VkImageView* pView);
 
+    bool CreateSampler(VkSamplerCreateInfo* pCreateInfo,
+                       VkAllocationCallbacks* pAllocator,
+                       VkSampler* pSampler);
+    void DestroySampler(VkSampler& oSampler,
+                        VkAllocationCallbacks* pAllocator);
+
 
 private:
     VkDeviceQueueCreateInfo GetQueueCreateInfo(uint uiQueueFamily);
@@ -151,6 +157,7 @@ cLogicalDevice::cLogicalDevice()
 
     // Struct with information about the physical device features we want to enable
     VkPhysicalDeviceFeatures tDeviceFeatures = {};
+    tDeviceFeatures.samplerAnisotropy = VK_TRUE;
 
     for (uint uiQueueFamily : uniqueQueueFamilies)
     {
@@ -427,6 +434,19 @@ bool cLogicalDevice::CreateImageView(VkImageViewCreateInfo* pCreateInfo,
                                      VkImageView* pView)
 {
     return vkCreateImageView(poDevice, pCreateInfo, pAllocator, pView) == VK_SUCCESS;
+}
+
+bool cLogicalDevice::CreateSampler(VkSamplerCreateInfo* pCreateInfo,
+                                   VkAllocationCallbacks* pAllocator,
+                                   VkSampler* pSampler)
+{
+    return vkCreateSampler(poDevice, pCreateInfo, pAllocator, pSampler) == VK_SUCCESS;
+}
+
+void cLogicalDevice::DestroySampler(VkSampler& oSampler,
+                                    VkAllocationCallbacks* pAllocator)
+{
+    vkDestroySampler(poDevice, oSampler, pAllocator);
 }
 
 

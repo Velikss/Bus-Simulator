@@ -1,9 +1,6 @@
 #pragma once
 
-#define STB_IMAGE_IMPLEMENTATION
-
 #include <pch.hpp>
-#include <vendor/stb_image.h>
 #include <GL/glew.h>
 
 

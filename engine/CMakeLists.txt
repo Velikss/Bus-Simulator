@@ -61,7 +61,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/VertexBuffer.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/UniformHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/BufferHelper.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/ImageHelper.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/ImageHelper.hpp src/vulkan/TextureHandler.hpp src/vulkan/CommandHelper.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 
