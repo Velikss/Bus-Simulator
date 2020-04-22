@@ -5,6 +5,7 @@
 #include <vulkan/Window.hpp>
 #include <vulkan/PhysicalDevice.hpp>
 #include <vulkan/LogicalDevice.hpp>
+#include <vulkan/ImageHelper.hpp>
 
 class cSwapChain
 {
@@ -16,19 +17,23 @@ private:
     std::vector<VkImageView> paoSwapChainImageViews;
     std::vector<VkFramebuffer> paoSwapChainFramebuffers;
 
+    VkImage poDepthImage;
+    VkDeviceMemory poDepthImageMemory;
+    VkImageView poDepthImageView;
+
 public:
     VkSwapchainKHR poSwapChain; // TODO: Remove public access
 
     VkExtent2D ptSwapChainExtent;
     VkFormat peSwapChainImageFormat;
 
-    cSwapChain(cPhysicalDevice* pPhysicalDevice,
-               cLogicalDevice* pLogicalDevice,
+    cSwapChain(cLogicalDevice* pLogicalDevice,
                cWindow* pWindow,
                cSurface* pSurface);
     ~cSwapChain(void);
 
     void CreateFramebuffers(VkRenderPass& oRenderPass);
+    void CreateDepthResources(void);
 
     uint GetFramebufferSize(void);
     VkFramebuffer& GetFramebuffer(uint index);
@@ -52,39 +57,42 @@ private:
                                                     cPhysicalDevice* pPhysicalDevice,
                                                     tSwapChainSupportDetails& tSwapChainSupport);
 
-    void CreateSwapChain(cPhysicalDevice* pPhysicalDevice, cWindow* pWindow, cSurface* pSurface);
+    void CreateSwapChain(cWindow* pWindow, cSurface* pSurface);
     void CreateImageViews(void);
 };
 
-cSwapChain::cSwapChain(cPhysicalDevice* pPhysicalDevice,
-                       cLogicalDevice* pLogicalDevice,
+cSwapChain::cSwapChain(cLogicalDevice* pLogicalDevice,
                        cWindow* pWindow,
                        cSurface* pSurface)
 {
     ppLogicalDevice = pLogicalDevice;
 
-    CreateSwapChain(pPhysicalDevice, pWindow, pSurface);
+    CreateSwapChain(pWindow, pSurface);
     CreateImageViews();
 }
 
 cSwapChain::~cSwapChain()
 {
-    VkDevice& oDevice = ppLogicalDevice->GetDevice();
+    VkDevice& oDevice = ppLogicalDevice->GetDevice(); // TODO: Use internal cLogicalDevice methods
+
+    vkDestroyImageView(oDevice, poDepthImageView, nullptr);
+    vkDestroyImage(oDevice, poDepthImage, nullptr);
+    ppLogicalDevice->FreeMemory(poDepthImageMemory, nullptr);
 
     // Destroy all the framebuffers
     for (VkFramebuffer framebuffer : paoSwapChainFramebuffers)
     {
-        vkDestroyFramebuffer(oDevice, framebuffer, NULL);
+        vkDestroyFramebuffer(oDevice, framebuffer, nullptr);
     }
 
     // Destroy all the image views
     for (VkImageView imageView : paoSwapChainImageViews)
     {
-        vkDestroyImageView(oDevice, imageView, NULL);
+        vkDestroyImageView(oDevice, imageView, nullptr);
     }
 
     // Destroy the swap chain
-    vkDestroySwapchainKHR(ppLogicalDevice->GetDevice(), poSwapChain, NULL);
+    vkDestroySwapchainKHR(ppLogicalDevice->GetDevice(), poSwapChain, nullptr);
 }
 
 VkSurfaceFormatKHR cSwapChain::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& atAvailableFormats)
@@ -196,7 +204,7 @@ VkSwapchainCreateInfoKHR cSwapChain::GetSwapChainCreateInfo(VkSurfaceFormatKHR& 
         // have to specify the the queue families in advance
         tCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
         tCreateInfo.queueFamilyIndexCount = 0; // Optional
-        tCreateInfo.pQueueFamilyIndices = NULL; // Optional
+        tCreateInfo.pQueueFamilyIndices = nullptr; // Optional
     }
 
     // Here we can define a transform that should be applied to the images
@@ -212,14 +220,15 @@ VkSwapchainCreateInfoKHR cSwapChain::GetSwapChainCreateInfo(VkSurfaceFormatKHR& 
     tCreateInfo.clipped = VK_TRUE;
 
     // Needs to be used when re-creating the swap chain, for example when the window gets resized
-    // For now, just setting this to NULL
+    // For now, just setting this to nullptr
     tCreateInfo.oldSwapchain = VK_NULL_HANDLE;
 
     return tCreateInfo;
 }
 
-void cSwapChain::CreateSwapChain(cPhysicalDevice* pPhysicalDevice, cWindow* pWindow, cSurface* pSurface)
+void cSwapChain::CreateSwapChain(cWindow* pWindow, cSurface* pSurface)
 {
+    cPhysicalDevice* pPhysicalDevice = cPhysicalDevice::GetInstance();
     VkDevice& oDevice = ppLogicalDevice->GetDevice();
 
     // Get the swap chain support details
@@ -242,13 +251,13 @@ void cSwapChain::CreateSwapChain(cPhysicalDevice* pPhysicalDevice, cWindow* pWin
     );
 
     // Create the swap chain
-    if (vkCreateSwapchainKHR(oDevice, &tCreateInfo, NULL, &poSwapChain) != VK_SUCCESS)
+    if (vkCreateSwapchainKHR(oDevice, &tCreateInfo, nullptr, &poSwapChain) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create swap chain!");
     }
 
     // Get the swap chain image handles
-    vkGetSwapchainImagesKHR(oDevice, poSwapChain, &uiImageCount, NULL);
+    vkGetSwapchainImagesKHR(oDevice, poSwapChain, &uiImageCount, nullptr);
     paoSwapChainImages.resize(uiImageCount);
     vkGetSwapchainImagesKHR(oDevice, poSwapChain, &uiImageCount, paoSwapChainImages.data());
 }
@@ -262,35 +271,10 @@ void cSwapChain::CreateImageViews(void)
 
     for (size_t i = 0; i < paoSwapChainImages.size(); i++)
     {
-        // Struct with information for creating an image view
-        VkImageViewCreateInfo tCreateInfo{};
-        tCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-
-        // Set the swap chain image
-        tCreateInfo.image = paoSwapChainImages[i];
-
-        // Set the type to 2D and the format to our swap chain image format
-        tCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        tCreateInfo.format = peSwapChainImageFormat;
-
-        // Allows you to swizzle color channels around. We're just using the defaults
-        tCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-        tCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-        tCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-        tCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
-        // Allows you to specify the purpose of this image. We just want simple color targets
-        tCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        tCreateInfo.subresourceRange.baseMipLevel = 0;
-        tCreateInfo.subresourceRange.levelCount = 1;
-        tCreateInfo.subresourceRange.baseArrayLayer = 0;
-        tCreateInfo.subresourceRange.layerCount = 1;
-
-        // Create the image view
-        if (vkCreateImageView(oDevice, &tCreateInfo, nullptr, &paoSwapChainImageViews[i]) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create image view!");
-        }
+        cImageHelper::CreateImageView(paoSwapChainImages[i],
+                                      peSwapChainImageFormat, ppLogicalDevice,
+                                      &paoSwapChainImageViews[i],
+                                      VK_IMAGE_ASPECT_COLOR_BIT);
     }
 }
 
@@ -301,9 +285,6 @@ void cSwapChain::CreateFramebuffers(VkRenderPass& oRenderPass)
 
     for (size_t i = 0; i < paoSwapChainImageViews.size(); i++)
     {
-        VkImageView attachments[] = {
-                paoSwapChainImageViews[i]
-        };
 
         // Struct with information about the framebuffer
         VkFramebufferCreateInfo framebufferInfo = {};
@@ -313,8 +294,9 @@ void cSwapChain::CreateFramebuffers(VkRenderPass& oRenderPass)
         framebufferInfo.renderPass = oRenderPass;
 
         // Which attachments want to bind
-        framebufferInfo.attachmentCount = 1;
-        framebufferInfo.pAttachments = attachments;
+        std::array<VkImageView, 2> aoAttachments = {paoSwapChainImageViews[i], poDepthImageView};
+        framebufferInfo.attachmentCount = aoAttachments.size();
+        framebufferInfo.pAttachments = aoAttachments.data();
 
         // With, height and number of layers
         framebufferInfo.width = ptSwapChainExtent.width;
@@ -322,12 +304,27 @@ void cSwapChain::CreateFramebuffers(VkRenderPass& oRenderPass)
         framebufferInfo.layers = 1;
 
         // Create the framebuffer
-        if (vkCreateFramebuffer(ppLogicalDevice->GetDevice(), &framebufferInfo, NULL,
+        if (vkCreateFramebuffer(ppLogicalDevice->GetDevice(), &framebufferInfo, nullptr,
                                 &paoSwapChainFramebuffers[i]) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create framebuffer!");
         }
     }
+}
+
+void cSwapChain::CreateDepthResources(void)
+{
+    VkFormat eDepthFormat = cImageHelper::FindDepthFormat();
+
+    cImageHelper::CreateImage(ptSwapChainExtent.width, ptSwapChainExtent.height,
+                              eDepthFormat, VK_IMAGE_TILING_OPTIMAL,
+                              VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                              poDepthImage, poDepthImageMemory, ppLogicalDevice);
+
+    cImageHelper::CreateImageView(poDepthImage, eDepthFormat,
+                                  ppLogicalDevice, &poDepthImageView,
+                                  VK_IMAGE_ASPECT_DEPTH_BIT);
 }
 
 uint cSwapChain::GetFramebufferSize(void)

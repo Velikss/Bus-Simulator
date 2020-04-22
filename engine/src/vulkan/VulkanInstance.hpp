@@ -30,7 +30,7 @@ cVulkanInstance::cVulkanInstance(void)
     VkInstanceCreateInfo tCreateInfo = GetCreateInfo(tAppInfo);
 
     // Create the Vulkan instance, and throw an error on failure
-    if (vkCreateInstance(&tCreateInfo, NULL, &poInstance) != VK_SUCCESS)
+    if (vkCreateInstance(&tCreateInfo, nullptr, &poInstance) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create instance!");
     }
@@ -39,7 +39,7 @@ cVulkanInstance::cVulkanInstance(void)
 cVulkanInstance::~cVulkanInstance(void)
 {
     // Destroy the Vulkan instance
-    vkDestroyInstance(poInstance, NULL);
+    vkDestroyInstance(poInstance, nullptr);
 }
 
 VkApplicationInfo cVulkanInstance::GetApplicationInfo(void)

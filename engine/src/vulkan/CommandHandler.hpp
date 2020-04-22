@@ -19,32 +19,32 @@ private:
 public:
     VkCommandPool poCommandPool; // TODO: make private
 
-    cCommandHandler(cPhysicalDevice* pPhysicalDevice,
-                    cLogicalDevice* pLogicalDevice);
+    cCommandHandler(cLogicalDevice* pLogicalDevice);
     ~cCommandHandler(void);
 
     void CreateCommandBuffers(cSwapChain* pSwapChain,
                               cRenderPass* pRenderPass,
                               cGraphicsPipeline* pGraphicsPipeline,
-                              cVertexBuffer* pVertexBuffer);
+                              cVertexBuffer* pVertexBuffer,
+                              cUniformHandler* pUniformHandler);
 
     VkCommandBuffer& GetCommandBuffer(uint index);
 
 private:
-    void CreateCommandPool(cPhysicalDevice* pPhysicalDevice);
+    void CreateCommandPool(void);
     void CreateCommandBuffers(cSwapChain* pSwapChain);
     void RecordCommandBuffers(cRenderPass* pRenderPass,
                               cSwapChain* pSwapChain,
                               cGraphicsPipeline* pGraphicsPipeline,
-                              cVertexBuffer* pVertexBuffer);
+                              cVertexBuffer* pVertexBuffer,
+                              cUniformHandler* pUniformHandler);
 };
 
-cCommandHandler::cCommandHandler(cPhysicalDevice* pPhysicalDevice,
-                                 cLogicalDevice* pLogicalDevice)
+cCommandHandler::cCommandHandler(cLogicalDevice* pLogicalDevice)
 {
     ppLogicalDevice = pLogicalDevice;
 
-    CreateCommandPool(pPhysicalDevice);
+    CreateCommandPool();
 }
 
 cCommandHandler::~cCommandHandler(void)
@@ -52,22 +52,23 @@ cCommandHandler::~cCommandHandler(void)
     ppLogicalDevice->FreeCommandBuffers(poCommandPool,
                                         paoCommandBuffers.size(),
                                         paoCommandBuffers.data());
-    ppLogicalDevice->DestroyCommandPool(poCommandPool, NULL);
+    ppLogicalDevice->DestroyCommandPool(poCommandPool, nullptr);
 }
 
 void cCommandHandler::CreateCommandBuffers(cSwapChain* pSwapChain,
                                            cRenderPass* pRenderPass,
                                            cGraphicsPipeline* pGraphicsPipeline,
-                                           cVertexBuffer* pVertexBuffer)
+                                           cVertexBuffer* pVertexBuffer,
+                                           cUniformHandler* pUniformHandler)
 {
     CreateCommandBuffers(pSwapChain);
-    RecordCommandBuffers(pRenderPass, pSwapChain, pGraphicsPipeline, pVertexBuffer);
+    RecordCommandBuffers(pRenderPass, pSwapChain, pGraphicsPipeline, pVertexBuffer, pUniformHandler);
 }
 
-void cCommandHandler::CreateCommandPool(cPhysicalDevice* pPhysicalDevice)
+void cCommandHandler::CreateCommandPool()
 {
     // Find the supported queue families from the physical device
-    tQueueFamilyIndices queueFamilyIndices = pPhysicalDevice->FindQueueFamilies();
+    tQueueFamilyIndices queueFamilyIndices = cPhysicalDevice::GetInstance()->FindQueueFamilies();
 
     // Struct with information about the command pool
     VkCommandPoolCreateInfo tPoolInfo = {};
@@ -76,7 +77,7 @@ void cCommandHandler::CreateCommandPool(cPhysicalDevice* pPhysicalDevice)
     tPoolInfo.flags = 0;
 
     // Create the command pool
-    if (!ppLogicalDevice->CreateCommandPool(&tPoolInfo, NULL, &poCommandPool))
+    if (!ppLogicalDevice->CreateCommandPool(&tPoolInfo, nullptr, &poCommandPool))
     {
         throw std::runtime_error("failed to create command pool!");
     }
@@ -110,7 +111,8 @@ void cCommandHandler::CreateCommandBuffers(cSwapChain* pSwapChain)
 void cCommandHandler::RecordCommandBuffers(cRenderPass* pRenderPass,
                                            cSwapChain* pSwapChain,
                                            cGraphicsPipeline* pGraphicsPipeline,
-                                           cVertexBuffer* pVertexBuffer)
+                                           cVertexBuffer* pVertexBuffer,
+                                           cUniformHandler* pUniformHandler)
 {
     for (size_t i = 0; i < paoCommandBuffers.size(); i++)
     {
@@ -122,7 +124,7 @@ void cCommandHandler::RecordCommandBuffers(cRenderPass* pRenderPass,
         tBeginInfo.flags = 0;
 
         // Used for secondary buffers, specifies which state to inherit
-        tBeginInfo.pInheritanceInfo = NULL;
+        tBeginInfo.pInheritanceInfo = nullptr;
 
         // Struct with information about our render pass
         VkRenderPassBeginInfo tRenderPassInfo = {};
@@ -137,9 +139,11 @@ void cCommandHandler::RecordCommandBuffers(cRenderPass* pRenderPass,
         tRenderPassInfo.renderArea.extent = pSwapChain->ptSwapChainExtent;
 
         // Defines the clear color value to use
-        VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f}; // black with 100% opacity
-        tRenderPassInfo.clearValueCount = 1;
-        tRenderPassInfo.pClearValues = &clearColor;
+        std::array<VkClearValue, 2> aoClearValues = {};
+        aoClearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f}; // black with 100% opacity
+        aoClearValues[1].depthStencil = {1.0f, 0}; // furthest possible depth
+        tRenderPassInfo.clearValueCount = aoClearValues.size();
+        tRenderPassInfo.pClearValues = aoClearValues.data();
 
         // Begin recording the command buffer
         if (vkBeginCommandBuffer(paoCommandBuffers[i], &tBeginInfo) != VK_SUCCESS)
@@ -159,8 +163,13 @@ void cCommandHandler::RecordCommandBuffers(cRenderPass* pRenderPass,
             // Bind the vertex buffers
             pVertexBuffer->CmdBindVertexBuffer(paoCommandBuffers[i]);
 
+            // Bind the index buffers
+            pVertexBuffer->CmdBindIndexBuffer(paoCommandBuffers[i]);
+
+            pUniformHandler->CmdBindDescriptorSets(paoCommandBuffers[i], pGraphicsPipeline->poPipelineLayout, i);
+
             // Draw the vertices
-            vkCmdDraw(paoCommandBuffers[i], pVertexBuffer->GetVertexCount(), 1, 0, 0);
+            vkCmdDrawIndexed(paoCommandBuffers[i], pVertexBuffer->GetIndexCount(), 1, 0, 0, 0);
 
             // End the render pass
             vkCmdEndRenderPass(paoCommandBuffers[i]);

@@ -14,6 +14,7 @@ private:
     cLogicalDevice* ppLogicalDevice;
     cSwapChain* ppSwapChain;
     cCommandHandler* ppCommandHandler;
+    cUniformHandler* ppUniformHandler;
 
     std::vector<VkSemaphore> aoImageAvailableSemaphores;
     std::vector<VkSemaphore> aoRenderFinishedSemaphores;
@@ -24,7 +25,8 @@ private:
 public:
     cRenderHandler(cLogicalDevice* pLogicalDevice,
                    cSwapChain* pSwapChain,
-                   cCommandHandler* pCommandHandler);
+                   cCommandHandler* pCommandHandler,
+                   cUniformHandler* pUniformHandler);
     ~cRenderHandler(void);
 
     void CreateSemaphores(void);
@@ -34,11 +36,13 @@ public:
 
 cRenderHandler::cRenderHandler(cLogicalDevice* pLogicalDevice,
                                cSwapChain* pSwapChain,
-                               cCommandHandler* pCommandHandler)
+                               cCommandHandler* pCommandHandler,
+                               cUniformHandler* pUniformHandler)
 {
     ppLogicalDevice = pLogicalDevice;
     ppSwapChain = pSwapChain;
     ppCommandHandler = pCommandHandler;
+    ppUniformHandler = pUniformHandler;
 
     CreateSemaphores();
 }
@@ -48,9 +52,9 @@ cRenderHandler::~cRenderHandler()
     VkDevice& oDevice = ppLogicalDevice->GetDevice();
     for (uint i = 0; i < uiMAX_FRAMES_IN_FLIGHT; i++)
     {
-        vkDestroySemaphore(oDevice, aoRenderFinishedSemaphores[i], NULL);
-        vkDestroySemaphore(oDevice, aoImageAvailableSemaphores[i], NULL);
-        vkDestroyFence(oDevice, aoInFlightFences[i], NULL);
+        vkDestroySemaphore(oDevice, aoRenderFinishedSemaphores[i], nullptr);
+        vkDestroySemaphore(oDevice, aoImageAvailableSemaphores[i], nullptr);
+        vkDestroyFence(oDevice, aoInFlightFences[i], nullptr);
     }
 }
 
@@ -75,9 +79,9 @@ void cRenderHandler::CreateSemaphores()
     for (uint i = 0; i < uiMAX_FRAMES_IN_FLIGHT; i++)
     {
         // For every frame, create the two semaphores and the fence
-        if (vkCreateSemaphore(oDevice, &tSemaphoreInfo, NULL, &aoImageAvailableSemaphores[i]) != VK_SUCCESS ||
-            vkCreateSemaphore(oDevice, &tSemaphoreInfo, NULL, &aoRenderFinishedSemaphores[i]) != VK_SUCCESS ||
-            vkCreateFence(oDevice, &tFenceInfo, NULL, &aoInFlightFences[i]) != VK_SUCCESS)
+        if (vkCreateSemaphore(oDevice, &tSemaphoreInfo, nullptr, &aoImageAvailableSemaphores[i]) != VK_SUCCESS ||
+            vkCreateSemaphore(oDevice, &tSemaphoreInfo, nullptr, &aoRenderFinishedSemaphores[i]) != VK_SUCCESS ||
+            vkCreateFence(oDevice, &tFenceInfo, nullptr, &aoInFlightFences[i]) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create semaphores for a frame!");
         }
@@ -94,6 +98,8 @@ void cRenderHandler::DrawFrame(void)
     uint uiImageIndex;
     VkFence oAqcuireFence = VK_NULL_HANDLE;
     ppSwapChain->AcquireNextImage(UINT64_MAX, aoImageAvailableSemaphores[uiCurrentFrame], oAqcuireFence, &uiImageIndex);
+
+    ppUniformHandler->UpdateUniformBuffers(uiImageIndex);
 
     // Struct with information about the command buffer we want to submit to the queue
     VkSubmitInfo tSubmitInfo = {};
@@ -136,7 +142,7 @@ void cRenderHandler::DrawFrame(void)
     tPresentInfo.pImageIndices = &uiImageIndex;
 
     // Optional, allows you to get a result for every individual swap chain presentation
-    tPresentInfo.pResults = NULL;
+    tPresentInfo.pResults = nullptr;
 
     // Queue the image for presentation
     ppLogicalDevice->QueuePresent(&tPresentInfo);

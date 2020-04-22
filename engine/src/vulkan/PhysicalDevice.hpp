@@ -33,15 +33,16 @@ public:
     };
 
 private:
-    cVulkanInstance* ppVulkanInstance;
+    static cPhysicalDevice* oInstance;
 
     cSurface* ppSurface;
 
-    // Selected physical graphics device
     VkPhysicalDevice poPhysicalDevice = VK_NULL_HANDLE;
 
 public:
-    cPhysicalDevice(cVulkanInstance* pVulkanInstance, cSurface* pSurface);
+    static cPhysicalDevice* GetInstance();
+
+    void SelectPhysicalDevice(cVulkanInstance* pVulkanInstance, cSurface* pSurface);
 
     tQueueFamilyIndices FindQueueFamilies(void);
     tSwapChainSupportDetails QuerySwapChainSupport(void);
@@ -51,9 +52,11 @@ public:
                              VkDevice* pDevice);
 
     void GetPhysicalMemoryProperties(VkPhysicalDeviceMemoryProperties* pMemoryProperties);
+    void GetDeviceFormatProperties(VkFormat& oFormat,
+                                   VkFormatProperties* pFormatProperties);
 
 private:
-    void SelectPhysicalDevice(void);
+    cPhysicalDevice();
 
     bool IsDeviceSuitable(VkPhysicalDevice& oDevice);
     bool CheckDeviceExtensionSupport(VkPhysicalDevice& oDevice);
@@ -62,22 +65,27 @@ private:
     tSwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice& oDevice);
 };
 
-cPhysicalDevice::cPhysicalDevice(cVulkanInstance* pVulkanInstance, cSurface* pSurface)
+cPhysicalDevice* cPhysicalDevice::oInstance = new cPhysicalDevice();
+
+cPhysicalDevice* cPhysicalDevice::GetInstance()
 {
-    assert(pVulkanInstance != NULL);
-    assert(pSurface != NULL);
-
-    ppVulkanInstance = pVulkanInstance;
-    ppSurface = pSurface;
-
-    SelectPhysicalDevice();
+    return oInstance;
 }
 
-void cPhysicalDevice::SelectPhysicalDevice(void)
+cPhysicalDevice::cPhysicalDevice()
 {
+}
+
+void cPhysicalDevice::SelectPhysicalDevice(cVulkanInstance* pVulkanInstance, cSurface* pSurface)
+{
+    assert(pVulkanInstance != nullptr);
+    assert(pSurface != nullptr);
+
+    ppSurface = pSurface;
+
     // Get the number of graphics devices with Vulkan support
     uint deviceCount = 0;
-    ppVulkanInstance->EnumeratePhysicalDevices(&deviceCount, NULL);
+    pVulkanInstance->EnumeratePhysicalDevices(&deviceCount, nullptr);
 
     // If none found, throw an error
     if (deviceCount == 0)
@@ -87,7 +95,7 @@ void cPhysicalDevice::SelectPhysicalDevice(void)
 
     // Get all the devices with Vulkan support
     std::vector<VkPhysicalDevice> devices(deviceCount);
-    ppVulkanInstance->EnumeratePhysicalDevices(&deviceCount, devices.data());
+    pVulkanInstance->EnumeratePhysicalDevices(&deviceCount, devices.data());
 
     // Set physicalDevice to the first device that is suitable
     for (VkPhysicalDevice& device : devices)
@@ -135,7 +143,7 @@ tQueueFamilyIndices cPhysicalDevice::FindQueueFamilies(VkPhysicalDevice& oDevice
 {
     // Get the amount of supported QueueFamilies
     uint ulQueueFamilyCount = 0;
-    vkGetPhysicalDeviceQueueFamilyProperties(oDevice, &ulQueueFamilyCount, NULL);
+    vkGetPhysicalDeviceQueueFamilyProperties(oDevice, &ulQueueFamilyCount, nullptr);
 
     // Get all the supported QueueFamilies
     std::vector<VkQueueFamilyProperties> atQueueFamilies(ulQueueFamilyCount);
@@ -168,11 +176,11 @@ bool cPhysicalDevice::CheckDeviceExtensionSupport(VkPhysicalDevice& oDevice)
 {
     // Get the amount of supported extensions
     uint uiExtensionCount;
-    vkEnumerateDeviceExtensionProperties(oDevice, NULL, &uiExtensionCount, NULL);
+    vkEnumerateDeviceExtensionProperties(oDevice, nullptr, &uiExtensionCount, nullptr);
 
     // Get all the supported extensions
     std::vector<VkExtensionProperties> atAvailableExtensions(uiExtensionCount);
-    vkEnumerateDeviceExtensionProperties(oDevice, NULL, &uiExtensionCount, atAvailableExtensions.data());
+    vkEnumerateDeviceExtensionProperties(oDevice, nullptr, &uiExtensionCount, atAvailableExtensions.data());
 
     // Create a set with the required extensions
     std::set<string> asRequiredExtensions(DEVICE_EXTENSIONS.begin(), DEVICE_EXTENSIONS.end());
@@ -200,7 +208,7 @@ tSwapChainSupportDetails cPhysicalDevice::QuerySwapChainSupport(VkPhysicalDevice
 
     // Get the surface formats supported by this device (pixel format, color space)
     uint uiFormatCount;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(oDevice, oSurface, &uiFormatCount, NULL);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(oDevice, oSurface, &uiFormatCount, nullptr);
     if (uiFormatCount != 0)
     {
         tDetails.atFormats.resize(uiFormatCount);
@@ -209,7 +217,7 @@ tSwapChainSupportDetails cPhysicalDevice::QuerySwapChainSupport(VkPhysicalDevice
 
     // Get the presentation modes supported by this device
     uint presentModeCount;
-    vkGetPhysicalDeviceSurfacePresentModesKHR(oDevice, oSurface, &presentModeCount, NULL);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(oDevice, oSurface, &presentModeCount, nullptr);
     if (presentModeCount != 0)
     {
         tDetails.atPresentModes.resize(presentModeCount);
@@ -233,15 +241,20 @@ bool cPhysicalDevice::CreateLogicalDevice(VkDeviceCreateInfo* pCreateInfo,
                                           VkAllocationCallbacks* pAllocator,
                                           VkDevice* pLogicalDevice)
 {
-    assert(pCreateInfo != NULL);
-    assert(pLogicalDevice != NULL);
+    assert(pCreateInfo != nullptr);
+    assert(pLogicalDevice != nullptr);
 
     return vkCreateDevice(poPhysicalDevice, pCreateInfo, pAllocator, pLogicalDevice) == VK_SUCCESS;
 }
 
 void cPhysicalDevice::GetPhysicalMemoryProperties(VkPhysicalDeviceMemoryProperties* pMemoryProperties)
 {
-    assert(pMemoryProperties != NULL);
+    assert(pMemoryProperties != nullptr);
 
     vkGetPhysicalDeviceMemoryProperties(poPhysicalDevice, pMemoryProperties);
+}
+
+void cPhysicalDevice::GetDeviceFormatProperties(VkFormat& oFormat, VkFormatProperties* pFormatProperties)
+{
+    vkGetPhysicalDeviceFormatProperties(poPhysicalDevice, oFormat, pFormatProperties);
 }

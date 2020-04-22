@@ -4,63 +4,118 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/Vertex.hpp>
 #include <vulkan/LogicalDevice.hpp>
+#include <vulkan/BufferHelper.hpp>
 
 class cVertexBuffer
 {
 private:
-    const std::vector<Vertex> patVERTICES = {
-            {{0.0f,  -0.5f}, {1.0f, 0.0f, 0.0f}},
-            {{0.5f,  0.5f},  {0.0f, 1.0f, 0.0f}},
-            {{-0.5f, 0.5f},  {0.0f, 0.0f, 1.0f}}
-    };
+    const std::string MODEL_PATH = "resources/chalet.obj";
+
+    std::vector<Vertex> patVertices;
+    std::vector<uint> paiIndices;
 
     cLogicalDevice* ppLogicalDevice;
 
     VkBuffer poVertexBuffer;
     VkDeviceMemory poVertexBufferMemory;
+    VkBuffer poIndexBuffer;
+    VkDeviceMemory poIndexBufferMemory;
 
 public:
     cVertexBuffer(cLogicalDevice* pLogicalDevice,
-                  cPhysicalDevice* pPhysicalDevice,
                   VkCommandPool& oCommandPool);
     ~cVertexBuffer(void);
 
+    void LoadModel(void);
+
     uint GetVertexCount(void);
+    uint GetIndexCount(void);
 
     void CmdBindVertexBuffer(VkCommandBuffer& oCommandBuffer);
+    void CmdBindIndexBuffer(VkCommandBuffer& oCommandBuffer);
 
 private:
-    void CreateBuffer(cLogicalDevice* pLogicalDevice,
-                      cPhysicalDevice* pPhysicalDevice,
-                      VkDeviceSize ulSize,
-                      VkBufferUsageFlags uiUsage,
-                      VkMemoryPropertyFlags uiProperties,
-                      VkBuffer& oBuffer,
-                      VkDeviceMemory& oBufferMemory);
+    void CreateVertexBuffer(cLogicalDevice* pLogicalDevice,
+                            VkCommandPool& oCommandPool);
+    void CreateIndexBuffer(cLogicalDevice* pLogicalDevice,
+                           VkCommandPool& oCommandPool);
+
     void CopyBuffer(cLogicalDevice* pLogicalDevice,
                     VkBuffer& oSrcBuffer,
                     VkBuffer& oDstBuffer,
                     VkDeviceSize ulSize,
                     VkCommandPool& oCommandPool);
-
-    uint FindMemoryType(uint uiTypeFilter, VkMemoryPropertyFlags tProperties, cPhysicalDevice* pPhysicalDevice);
 };
 
 cVertexBuffer::cVertexBuffer(cLogicalDevice* pLogicalDevice,
-                             cPhysicalDevice* pPhysicalDevice,
                              VkCommandPool& oCommandPool)
 {
     ppLogicalDevice = pLogicalDevice;
 
-    VkDeviceSize ulBufferSize = sizeof(patVERTICES[0]) * patVERTICES.size();
+    LoadModel();
+    CreateVertexBuffer(pLogicalDevice, oCommandPool);
+    CreateIndexBuffer(pLogicalDevice, oCommandPool);
+}
+
+cVertexBuffer::~cVertexBuffer(void)
+{
+    ppLogicalDevice->DestroyBuffer(poVertexBuffer, nullptr);
+    ppLogicalDevice->FreeMemory(poVertexBufferMemory, nullptr);
+
+    ppLogicalDevice->DestroyBuffer(poIndexBuffer, nullptr);
+    ppLogicalDevice->FreeMemory(poIndexBufferMemory, nullptr);
+}
+
+void cVertexBuffer::LoadModel(void)
+{
+    tinyobj::attrib_t tAttrib;
+    std::vector<tinyobj::shape_t> atShapes;
+    std::vector<tinyobj::material_t> atMaterials;
+    std::string sError;
+
+    if (!tinyobj::LoadObj(&tAttrib, &atShapes, &atMaterials, &sError, MODEL_PATH.c_str()))
+    {
+        throw std::runtime_error(sError);
+    }
+
+    for (const auto& tShape : atShapes)
+    {
+        for (const auto& index : tShape.mesh.indices)
+        {
+            Vertex tVertex = {};
+
+            tVertex.pos = {
+                    tAttrib.vertices[3 * index.vertex_index + 0],
+                    tAttrib.vertices[3 * index.vertex_index + 1],
+                    tAttrib.vertices[3 * index.vertex_index + 2]
+            };
+
+            // TODO: Add texture support
+            /*tVertex.texCoord = {
+                    attrib.texcoords[2 * index.texcoord_index + 0],
+                    attrib.texcoords[2 * index.texcoord_index + 1]
+            };*/
+
+            tVertex.color = {1.0f, 1.0f, 1.0f};
+
+            patVertices.push_back(tVertex);
+            paiIndices.push_back(paiIndices.size());
+        }
+    }
+}
+
+void cVertexBuffer::CreateVertexBuffer(cLogicalDevice* pLogicalDevice,
+                                       VkCommandPool& oCommandPool)
+{
+    VkDeviceSize ulBufferSize = sizeof(patVertices[0]) * patVertices.size();
 
     // Create a stagingBuffer which is host visible and coherent so we can copy to it
     VkBuffer oStagingBuffer;
     VkDeviceMemory oStagingBufferMemory;
-    CreateBuffer(pLogicalDevice, pPhysicalDevice, ulBufferSize,
-                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                 oStagingBuffer, oStagingBufferMemory);
+    cBufferHelper::CreateBuffer(pLogicalDevice, ulBufferSize,
+                                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                oStagingBuffer, oStagingBufferMemory);
 
     // Pointer for mapped memory
     void* pData;
@@ -69,98 +124,61 @@ cVertexBuffer::cVertexBuffer(cLogicalDevice* pLogicalDevice,
     pLogicalDevice->MapMemory(oStagingBufferMemory, 0, ulBufferSize, 0, &pData);
     {
         // Copy the vertex data to the mapped memory
-        memcpy(pData, patVERTICES.data(), (uint) ulBufferSize);
+        memcpy(pData, patVertices.data(), (uint) ulBufferSize);
     }
     // Unmap the memory again
     pLogicalDevice->UnmapMemory(oStagingBufferMemory);
 
     // Create a vertexBuffer which is local to the graphics device
-    CreateBuffer(pLogicalDevice, pPhysicalDevice, ulBufferSize,
-                 VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                 poVertexBuffer, poVertexBufferMemory);
+    cBufferHelper::CreateBuffer(pLogicalDevice, ulBufferSize,
+                                VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                                poVertexBuffer, poVertexBufferMemory);
 
     // Copy the data from the stagingBuffer to the vertexBuffer
     CopyBuffer(pLogicalDevice, oStagingBuffer, poVertexBuffer, ulBufferSize, oCommandPool);
 
     // Clean up the stagingBuffer
-    pLogicalDevice->DestroyBuffer(oStagingBuffer, NULL);
-    pLogicalDevice->FreeMemory(oStagingBufferMemory, NULL);
+    pLogicalDevice->DestroyBuffer(oStagingBuffer, nullptr);
+    pLogicalDevice->FreeMemory(oStagingBufferMemory, nullptr);
 }
 
-cVertexBuffer::~cVertexBuffer(void)
+void cVertexBuffer::CreateIndexBuffer(cLogicalDevice* pLogicalDevice,
+                                      VkCommandPool& oCommandPool)
 {
-    ppLogicalDevice->DestroyBuffer(poVertexBuffer, NULL);
-    ppLogicalDevice->FreeMemory(poVertexBufferMemory, NULL);
-}
+    VkDeviceSize ulBufferSize = sizeof(paiIndices[0]) * paiIndices.size();
 
-void cVertexBuffer::CreateBuffer(cLogicalDevice* pLogicalDevice,
-                                 cPhysicalDevice* pPhysicalDevice,
-                                 VkDeviceSize ulSize,
-                                 VkBufferUsageFlags uiUsage,
-                                 VkMemoryPropertyFlags uiProperties,
-                                 VkBuffer& oBuffer,
-                                 VkDeviceMemory& oBufferMemory)
-{
-    // Struct with information about the buffer
-    VkBufferCreateInfo tBufferInfo = {};
-    tBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    VkBuffer oStagingBuffer;
+    VkDeviceMemory oStagingBufferMemory;
+    cBufferHelper::CreateBuffer(pLogicalDevice, ulBufferSize,
+                                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                oStagingBuffer, oStagingBufferMemory);
 
-    // Set the buffer size and usage
-    tBufferInfo.size = ulSize;
-    tBufferInfo.usage = uiUsage;
+    // Pointer for mapped memory
+    void* pData;
 
-    // Buffers can be shared between queue families, we're not using this, so set to EXCLUSIVE
-    tBufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-    // Create the vertex buffer
-    if (!pLogicalDevice->CreateBuffer(&tBufferInfo, NULL, &oBuffer))
+    // Map the memory into CPU accessible memory
+    pLogicalDevice->MapMemory(oStagingBufferMemory, 0, ulBufferSize, 0, &pData);
     {
-        throw std::runtime_error("failed to create buffer!");
+        // Copy the vertex data to the mapped memory
+        memcpy(pData, paiIndices.data(), (uint) ulBufferSize);
     }
+    // Unmap the memory again
+    pLogicalDevice->UnmapMemory(oStagingBufferMemory);
 
-    // Struct with memory requirements for the vertex buffer
-    VkMemoryRequirements tMemRequirements;
-    vkGetBufferMemoryRequirements(pLogicalDevice->GetDevice(), oBuffer, &tMemRequirements);
+    // Create a vertexBuffer which is local to the graphics device
+    cBufferHelper::CreateBuffer(pLogicalDevice, ulBufferSize,
+                                VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+                                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                                poIndexBuffer, poIndexBufferMemory);
 
-    // Struct with information on how we want to allocate the buffer
-    VkMemoryAllocateInfo tAllocInfo = {};
-    tAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    // Copy the data from the stagingBuffer to the vertexBuffer
+    CopyBuffer(pLogicalDevice, oStagingBuffer, poIndexBuffer, ulBufferSize, oCommandPool);
 
-    // Set the required memory size
-    tAllocInfo.allocationSize = tMemRequirements.size;
-
-    // Find the right memory type and set it
-    tAllocInfo.memoryTypeIndex = FindMemoryType(tMemRequirements.memoryTypeBits, uiProperties, pPhysicalDevice);
-
-    // Allocate the memory for the buffer
-    if (!pLogicalDevice->AllocateMemory(&tAllocInfo, NULL, &oBufferMemory))
-    {
-        throw std::runtime_error("failed to allocate buffer memory!");
-    }
-
-    // Bind the allocated memory to the buffer
-    pLogicalDevice->BindBufferMemory(oBuffer, oBufferMemory, 0);
-}
-
-uint cVertexBuffer::FindMemoryType(uint uiTypeFilter,
-                                   VkMemoryPropertyFlags tProperties,
-                                   cPhysicalDevice* pPhysicalDevice)
-{
-    // Get memory properties from the physical device
-    VkPhysicalDeviceMemoryProperties memProperties;
-    pPhysicalDevice->GetPhysicalMemoryProperties(&memProperties);
-
-    // Find a memory type that matches the type filter and properties
-    for (uint i = 0; i < memProperties.memoryTypeCount; i++)
-    {
-        if ((uiTypeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & tProperties) == tProperties)
-        {
-            return i;
-        }
-    }
-
-    throw std::runtime_error("failed to find suitable memory type!");
+    // Clean up the stagingBuffer
+    pLogicalDevice->DestroyBuffer(oStagingBuffer, nullptr);
+    pLogicalDevice->FreeMemory(oStagingBufferMemory, nullptr);
 }
 
 void cVertexBuffer::CopyBuffer(cLogicalDevice* pLogicalDevice,
@@ -217,7 +235,12 @@ void cVertexBuffer::CopyBuffer(cLogicalDevice* pLogicalDevice,
 
 uint cVertexBuffer::GetVertexCount(void)
 {
-    return patVERTICES.size();
+    return patVertices.size();
+}
+
+uint cVertexBuffer::GetIndexCount(void)
+{
+    return paiIndices.size();
 }
 
 void cVertexBuffer::CmdBindVertexBuffer(VkCommandBuffer& oCommandBuffer)
@@ -226,4 +249,9 @@ void cVertexBuffer::CmdBindVertexBuffer(VkCommandBuffer& oCommandBuffer)
     VkDeviceSize aulOffsets[] = {0};
 
     vkCmdBindVertexBuffers(oCommandBuffer, 0, 1, aoVertexBuffers, aulOffsets);
+}
+
+void cVertexBuffer::CmdBindIndexBuffer(VkCommandBuffer& oCommandBuffer)
+{
+    vkCmdBindIndexBuffer(oCommandBuffer, poIndexBuffer, 0, VK_INDEX_TYPE_UINT32);
 }

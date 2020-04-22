@@ -22,7 +22,7 @@ public:
 
 cSurface::cSurface(cVulkanInstance* pVulkanInstance, cWindow* pWindow)
 {
-    pVulkanInstance->CreateWindowSurface(pWindow, NULL, &poSurface);
+    pVulkanInstance->CreateWindowSurface(pWindow, nullptr, &poSurface);
 }
 
 // TODO: This doesn't belong here, needs to be in PhysicalDevice

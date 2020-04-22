@@ -7,7 +7,7 @@ class cWindow
 {
 private:
     // Pointer to the GLFW window instance
-    GLFWwindow* ppWindow = NULL;
+    GLFWwindow* ppWindow = nullptr;
 
 public:
     // Window size
@@ -40,7 +40,7 @@ cWindow::cWindow(void)
 cWindow::~cWindow(void)
 {
     // Destroy the GLFW window if it exists
-    if (ppWindow != NULL)
+    if (ppWindow != nullptr)
     {
         glfwDestroyWindow(ppWindow);
     }
@@ -51,21 +51,21 @@ cWindow::~cWindow(void)
 
 void cWindow::CreateWindow(void)
 {
-    assert(ppWindow == NULL); // Don't create a window if it has already been created
+    assert(ppWindow == nullptr); // Don't create a window if it has already been created
 
-    ppWindow = glfwCreateWindow(WIDTH, HEIGHT, "BUS", NULL, NULL);
+    ppWindow = glfwCreateWindow(WIDTH, HEIGHT, "BUS", nullptr, nullptr);
 }
 
 bool cWindow::ShouldClose(void)
 {
-    assert(ppWindow != NULL); // Window must be created first
+    assert(ppWindow != nullptr); // Window must be created first
 
     return glfwWindowShouldClose(ppWindow);
 }
 
 void cWindow::MainLoop(void)
 {
-    assert(ppWindow != NULL); // Window must be created first
+    assert(ppWindow != nullptr); // Window must be created first
 
     glfwPollEvents();
 }
@@ -74,7 +74,7 @@ bool cWindow::CreateWindowSurface(VkInstance& oVulkanInstance,
                                   VkAllocationCallbacks* pAllocatorCallback,
                                   VkSurfaceKHR* pSurface)
 {
-    assert(pSurface != NULL);
+    assert(pSurface != nullptr);
 
     return glfwCreateWindowSurface(oVulkanInstance, ppWindow, pAllocatorCallback, pSurface) == VK_SUCCESS;
 }

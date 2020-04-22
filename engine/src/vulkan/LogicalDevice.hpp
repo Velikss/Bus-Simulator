@@ -20,7 +20,7 @@ private:
     VkQueue poPresentQueue;
 
 public:
-    cLogicalDevice(cPhysicalDevice* pPhysicalDevice);
+    cLogicalDevice(void);
     ~cLogicalDevice(void);
 
     VkDevice& GetDevice(void);
@@ -93,6 +93,41 @@ public:
     void ResetFences(uint uiFenceCount,
                      VkFence* pFences);
 
+    bool CreateDescriptorSetLayout(VkDescriptorSetLayoutCreateInfo* pCreateInfo,
+                                   VkAllocationCallbacks* pAllocator,
+                                   VkDescriptorSetLayout* pSetLayout);
+    void DestroyDescriptorSetLayout(VkDescriptorSetLayout& oDescriptorSetLayout,
+                                    VkAllocationCallbacks* pAllocator);
+
+    bool CreateDescriptorPool(VkDescriptorPoolCreateInfo* pCreateInfo,
+                              VkAllocationCallbacks* pAllocator,
+                              VkDescriptorPool* pDescriptorPool);
+    void DestroyDescriptorPool(VkDescriptorPool& oDescriptorPool,
+                               VkAllocationCallbacks* pAllocator);
+
+    bool AllocateDescriptorSets(VkDescriptorSetAllocateInfo* pAllocateInfo,
+                                VkDescriptorSet* pDescriptorSets);
+    void FreeDescriptorSets(VkDescriptorPool& oDescriptorPool,
+                            uint uiDescriptorSetCount,
+                            VkDescriptorSet* pDescriptorSets);
+    void UpdateDescriptorSets(uint uiDescriptorWriteCount,
+                              VkWriteDescriptorSet* pDescriptorWrites,
+                              uint uiDescriptorCopyCount,
+                              VkCopyDescriptorSet* pDescriptorCopies);
+
+    bool CreateImage(VkImageCreateInfo* pCreateInfo,
+                     VkAllocationCallbacks* pAllocator,
+                     VkImage* pImage);
+    void GetImageMemoryRequirements(VkImage& oImage,
+                                    VkMemoryRequirements* pMemoryRequirements);
+    void BindImageMemory(VkImage& oImage,
+                         VkDeviceMemory& oMemory,
+                         VkDeviceSize ulMemoryOffset);
+
+    bool CreateImageView(VkImageViewCreateInfo* pCreateInfo,
+                         VkAllocationCallbacks* pAllocator,
+                         VkImageView* pView);
+
 
 private:
     VkDeviceQueueCreateInfo GetQueueCreateInfo(uint uiQueueFamily);
@@ -101,9 +136,9 @@ private:
                                            const std::vector<const char*>& apDeviceExtensions);
 };
 
-cLogicalDevice::cLogicalDevice(cPhysicalDevice* pPhysicalDevice)
+cLogicalDevice::cLogicalDevice()
 {
-    assert(pPhysicalDevice != NULL);
+    cPhysicalDevice* pPhysicalDevice = cPhysicalDevice::GetInstance();
 
     // Get supported QueueFamilies from the physical device
     ptQueueIndices = pPhysicalDevice->FindQueueFamilies();
@@ -126,7 +161,7 @@ cLogicalDevice::cLogicalDevice(cPhysicalDevice* pPhysicalDevice)
                                                                pPhysicalDevice->DEVICE_EXTENSIONS);
 
     // Create the logical device, and throw an error on failure
-    if (!pPhysicalDevice->CreateLogicalDevice(&tDeviceCreateInfo, NULL, &poDevice))
+    if (!pPhysicalDevice->CreateLogicalDevice(&tDeviceCreateInfo, nullptr, &poDevice))
     {
         throw std::runtime_error("failed to create logical device!");
     }
@@ -141,7 +176,7 @@ cLogicalDevice::cLogicalDevice(cPhysicalDevice* pPhysicalDevice)
 cLogicalDevice::~cLogicalDevice()
 {
     // Destroy the logical device
-    vkDestroyDevice(poDevice, NULL);
+    vkDestroyDevice(poDevice, nullptr);
 }
 
 VkDeviceQueueCreateInfo cLogicalDevice::GetQueueCreateInfo(uint uiQueueFamily)
@@ -268,7 +303,7 @@ bool cLogicalDevice::CreateGraphicsPipeline(uint uiCreateInfoCount,
                                             VkGraphicsPipelineCreateInfo* pCreateInfos,
                                             VkPipeline* pPipelines)
 {
-    return vkCreateGraphicsPipelines(poDevice, VK_NULL_HANDLE, uiCreateInfoCount, pCreateInfos, NULL, pPipelines)
+    return vkCreateGraphicsPipelines(poDevice, VK_NULL_HANDLE, uiCreateInfoCount, pCreateInfos, nullptr, pPipelines)
            == VK_SUCCESS;
 }
 
@@ -324,3 +359,74 @@ void cLogicalDevice::FreeCommandBuffers(VkCommandPool& oCommandPool,
 {
     vkFreeCommandBuffers(poDevice, oCommandPool, uiCommandBufferCount, pCommandBuffers);
 }
+
+bool cLogicalDevice::CreateDescriptorSetLayout(VkDescriptorSetLayoutCreateInfo* pCreateInfo,
+                                               VkAllocationCallbacks* pAllocator,
+                                               VkDescriptorSetLayout* pSetLayout)
+{
+    return vkCreateDescriptorSetLayout(poDevice, pCreateInfo, pAllocator, pSetLayout) == VK_SUCCESS;
+}
+
+void cLogicalDevice::DestroyDescriptorSetLayout(VkDescriptorSetLayout& oDescriptorSetLayout,
+                                                VkAllocationCallbacks* pAllocator)
+{
+    vkDestroyDescriptorSetLayout(poDevice, oDescriptorSetLayout, pAllocator);
+}
+
+bool cLogicalDevice::CreateDescriptorPool(VkDescriptorPoolCreateInfo* pCreateInfo,
+                                          VkAllocationCallbacks* pAllocator,
+                                          VkDescriptorPool* pDescriptorPool)
+{
+    return vkCreateDescriptorPool(poDevice, pCreateInfo, pAllocator, pDescriptorPool) == VK_SUCCESS;
+}
+
+void cLogicalDevice::DestroyDescriptorPool(VkDescriptorPool& oDescriptorPool, VkAllocationCallbacks* pAllocator)
+{
+    vkDestroyDescriptorPool(poDevice, oDescriptorPool, pAllocator);
+}
+
+bool cLogicalDevice::AllocateDescriptorSets(VkDescriptorSetAllocateInfo* pAllocateInfo,
+                                            VkDescriptorSet* pDescriptorSets)
+{
+    return vkAllocateDescriptorSets(poDevice, pAllocateInfo, pDescriptorSets) == VK_SUCCESS;
+}
+
+void cLogicalDevice::FreeDescriptorSets(VkDescriptorPool& oDescriptorPool,
+                                        uint uiDescriptorSetCount,
+                                        VkDescriptorSet* pDescriptorSets)
+{
+    vkFreeDescriptorSets(poDevice, oDescriptorPool, uiDescriptorSetCount, pDescriptorSets);
+}
+
+void cLogicalDevice::UpdateDescriptorSets(uint uiDescriptorWriteCount,
+                                          VkWriteDescriptorSet* pDescriptorWrites,
+                                          uint uiDescriptorCopyCount,
+                                          VkCopyDescriptorSet* pDescriptorCopies)
+{
+    vkUpdateDescriptorSets(poDevice, uiDescriptorWriteCount, pDescriptorWrites,
+                           uiDescriptorCopyCount, pDescriptorCopies);
+}
+
+bool cLogicalDevice::CreateImage(VkImageCreateInfo* pCreateInfo, VkAllocationCallbacks* pAllocator, VkImage* pImage)
+{
+    return vkCreateImage(poDevice, pCreateInfo, pAllocator, pImage) == VK_SUCCESS;
+}
+
+void cLogicalDevice::GetImageMemoryRequirements(VkImage& oImage, VkMemoryRequirements* pMemoryRequirements)
+{
+    vkGetImageMemoryRequirements(poDevice, oImage, pMemoryRequirements);
+}
+
+void cLogicalDevice::BindImageMemory(VkImage& oImage, VkDeviceMemory& oMemory, VkDeviceSize ulMemoryOffset)
+{
+    vkBindImageMemory(poDevice, oImage, oMemory, ulMemoryOffset);
+}
+
+bool cLogicalDevice::CreateImageView(VkImageViewCreateInfo* pCreateInfo,
+                                     VkAllocationCallbacks* pAllocator,
+                                     VkImageView* pView)
+{
+    return vkCreateImageView(poDevice, pCreateInfo, pAllocator, pView) == VK_SUCCESS;
+}
+
+

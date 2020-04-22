@@ -8,17 +8,21 @@
 #include <vulkan/SwapChain.hpp>
 #include <vulkan/RenderPass.hpp>
 #include <vulkan/Vertex.hpp>
+#include <vulkan/UniformHandler.hpp>
 
 class cGraphicsPipeline
 {
 private:
     cLogicalDevice* ppLogicalDevice;
-    VkPipelineLayout poPipelineLayout;
 
 public:
     VkPipeline poGraphicsPipeline;
+    VkPipelineLayout poPipelineLayout;
 
-    cGraphicsPipeline(cSwapChain* pSwapChain, cLogicalDevice* pLogicalDevice, cRenderPass* pRenderPass);
+    cGraphicsPipeline(cSwapChain* pSwapChain,
+                      cLogicalDevice* pLogicalDevice,
+                      cRenderPass* pRenderPass,
+                      cUniformHandler* pUniformHandler);
     ~cGraphicsPipeline(void);
 
 private:
@@ -26,7 +30,10 @@ private:
     std::vector<char> ReadFile(const std::string& sFilename);
 };
 
-cGraphicsPipeline::cGraphicsPipeline(cSwapChain* pSwapChain, cLogicalDevice* pLogicalDevice, cRenderPass* pRenderPass)
+cGraphicsPipeline::cGraphicsPipeline(cSwapChain* pSwapChain,
+                                     cLogicalDevice* pLogicalDevice,
+                                     cRenderPass* pRenderPass,
+                                     cUniformHandler* pUniformHandler)
 {
     ppLogicalDevice = pLogicalDevice;
 
@@ -115,7 +122,7 @@ cGraphicsPipeline::cGraphicsPipeline(cSwapChain* pSwapChain, cLogicalDevice* pLo
 
     // Determines what type of culling to use
     tRasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-    tRasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+    tRasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 
     // Allows the rasterizer to alter the depth values by adding a constant value or using a slope
     tRasterizer.depthBiasEnable = VK_FALSE;
@@ -130,9 +137,26 @@ cGraphicsPipeline::cGraphicsPipeline(cSwapChain* pSwapChain, cLogicalDevice* pLo
     tMultisampling.sampleShadingEnable = VK_FALSE;
     tMultisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
     tMultisampling.minSampleShading = 1.0f;
-    tMultisampling.pSampleMask = NULL;
+    tMultisampling.pSampleMask = nullptr;
     tMultisampling.alphaToCoverageEnable = VK_FALSE;
     tMultisampling.alphaToOneEnable = VK_FALSE;
+
+    // Struct with information about the depth stencil
+    VkPipelineDepthStencilStateCreateInfo tDepthStencil = {};
+    tDepthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+
+    // Enable depth testing
+    tDepthStencil.depthTestEnable = VK_TRUE;
+    tDepthStencil.depthWriteEnable = VK_TRUE;
+
+    // We want to stick to the convention lower depth = closer, so new frags should be less
+    tDepthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+
+    // We don't have any special depth bounds
+    tDepthStencil.depthBoundsTestEnable = VK_FALSE;
+
+    // We don't want to use stencil buffer operations
+    tDepthStencil.stencilTestEnable = VK_FALSE;
 
     // Allows you to blend the new color values with values already in the framebuffer
     // We will just be ignoring this
@@ -160,13 +184,13 @@ cGraphicsPipeline::cGraphicsPipeline(cSwapChain* pSwapChain, cLogicalDevice* pLo
     // Struct with information about the pipeline layout
     VkPipelineLayoutCreateInfo tPipelineLayoutInfo = {};
     tPipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    tPipelineLayoutInfo.setLayoutCount = 0;
-    tPipelineLayoutInfo.pSetLayouts = NULL;
+    tPipelineLayoutInfo.setLayoutCount = pUniformHandler->GetDescriptorSetLayoutCount();
+    tPipelineLayoutInfo.pSetLayouts = pUniformHandler->GetDescriptorSetLayouts();
     tPipelineLayoutInfo.pushConstantRangeCount = 0;
-    tPipelineLayoutInfo.pPushConstantRanges = NULL;
+    tPipelineLayoutInfo.pPushConstantRanges = nullptr;
 
     // Create the pipeline layout
-    if (!pLogicalDevice->CreatePipelineLayout(&tPipelineLayoutInfo, NULL, &poPipelineLayout))
+    if (!pLogicalDevice->CreatePipelineLayout(&tPipelineLayoutInfo, nullptr, &poPipelineLayout))
     {
         throw std::runtime_error("failed to create pipeline layout!");
     }
@@ -185,9 +209,9 @@ cGraphicsPipeline::cGraphicsPipeline(cSwapChain* pSwapChain, cLogicalDevice* pLo
     pipelineInfo.pViewportState = &tViewportState;
     pipelineInfo.pRasterizationState = &tRasterizer;
     pipelineInfo.pMultisampleState = &tMultisampling;
-    pipelineInfo.pDepthStencilState = NULL;
+    pipelineInfo.pDepthStencilState = &tDepthStencil;
     pipelineInfo.pColorBlendState = &tColorBlending;
-    pipelineInfo.pDynamicState = NULL; // TODO: Enable dynamic states
+    pipelineInfo.pDynamicState = nullptr; // TODO: Enable dynamic states
 
     // Set the pipeline layout we created
     pipelineInfo.layout = poPipelineLayout;
@@ -208,14 +232,14 @@ cGraphicsPipeline::cGraphicsPipeline(cSwapChain* pSwapChain, cLogicalDevice* pLo
     }
 
     // After the pipeline has been created, the shader modules can be destroyed
-    pLogicalDevice->DestroyShaderModule(oVertShaderModule, NULL);
-    pLogicalDevice->DestroyShaderModule(oFragShaderModule, NULL);
+    pLogicalDevice->DestroyShaderModule(oVertShaderModule, nullptr);
+    pLogicalDevice->DestroyShaderModule(oFragShaderModule, nullptr);
 }
 
 cGraphicsPipeline::~cGraphicsPipeline()
 {
-    ppLogicalDevice->DestroyPipeline(poGraphicsPipeline, NULL);
-    ppLogicalDevice->DestroyPipelineLayout(poPipelineLayout, NULL);
+    ppLogicalDevice->DestroyPipeline(poGraphicsPipeline, nullptr);
+    ppLogicalDevice->DestroyPipelineLayout(poPipelineLayout, nullptr);
 }
 
 VkShaderModule cGraphicsPipeline::CreateShaderModule(const std::vector<char>& asCode, cLogicalDevice* pLogicalDevice)
@@ -230,7 +254,7 @@ VkShaderModule cGraphicsPipeline::CreateShaderModule(const std::vector<char>& as
 
     // Create the shader module
     VkShaderModule shaderModule;
-    if (!pLogicalDevice->CreateShaderModule(&createInfo, NULL, &shaderModule))
+    if (!pLogicalDevice->CreateShaderModule(&createInfo, nullptr, &shaderModule))
     {
         throw std::runtime_error("failed to create shader module!");
     }

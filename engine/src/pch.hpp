@@ -1,6 +1,9 @@
 #pragma once
 
-#define GLFW_INCLUDE_VULKAN
+#define GLFW_INCLUDE_VULKAN                 // We want to use GLFW with Vulkan
+#define GLM_FORCE_RADIANS                   // Force GLM to use radians everywhere
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES  // Force GLM to use aligned types by default
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE         // Vulkan uses a depth range from 0 to 1, so we need GLM to do the same
 
 #include <string>
 #include <iostream>
