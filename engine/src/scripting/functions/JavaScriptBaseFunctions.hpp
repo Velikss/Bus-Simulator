@@ -47,9 +47,9 @@ namespace JavaScriptBaseFunctions
         cEntity *poEntity = static_cast<cEntity *>(p);
 
         // Return value
-        duk_push_int(poContext, poEntity->ptPosition[0]);
+        duk_push_int(poContext, poEntity->pos[0]);
 
-        std::cout << "Return value: " << poEntity->ptPosition[0];
+        std::cout << "Return value: " << poEntity->pos[0];
 
         return 1;
     }

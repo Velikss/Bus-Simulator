@@ -14,41 +14,44 @@ set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(Headers 
-    ${PROJECT_SOURCE_DIR}/src/pch.hpp
-    ${PROJECT_SOURCE_DIR}/src/shaders/glsl.hpp
-    ${PROJECT_SOURCE_DIR}/src/shaders/shader.hpp
-    ${PROJECT_SOURCE_DIR}/src/shaders/ShaderProgram.hpp
-    ${PROJECT_SOURCE_DIR}/src/objects/BaseObject.hpp
-    ${PROJECT_SOURCE_DIR}/src/objects/Light.hpp
-    ${PROJECT_SOURCE_DIR}/src/objects/Material.hpp
-    ${PROJECT_SOURCE_DIR}/src/objects/Mesh.hpp
-    ${PROJECT_SOURCE_DIR}/src/objects/ObjectGroup.hpp
-    ${PROJECT_SOURCE_DIR}/src/buffers/Buffer.hpp
-    ${PROJECT_SOURCE_DIR}/src/geometries/Geometry.hpp
-    ${PROJECT_SOURCE_DIR}/src/geometries/SkyBoxGeometry.hpp
-    ${PROJECT_SOURCE_DIR}/src/vendor/tiny_obj_loader.h
-    ${PROJECT_SOURCE_DIR}/src/loaders/fileloader.hpp
-    ${PROJECT_SOURCE_DIR}/src/loaders/objectloader.hpp
-    ${PROJECT_SOURCE_DIR}/src/vendor/stb_image.h
-    ${PROJECT_SOURCE_DIR}/src/textures/Texture.hpp
-    ${PROJECT_SOURCE_DIR}/src/textures/CubeMapTexture.hpp
-    ${PROJECT_SOURCE_DIR}/src/scenes/Scene.hpp
-    ${PROJECT_SOURCE_DIR}/src/scenes/Camera.hpp
-    ${PROJECT_SOURCE_DIR}/src/scenes/MyStreetScene.hpp
-    ${PROJECT_SOURCE_DIR}/src/animations/Animation.hpp
-    ${PROJECT_SOURCE_DIR}/src/animations/FireWehrAnimation.hpp
-    ${PROJECT_SOURCE_DIR}/src/animations/LightObjectBindingAnimation.hpp
-    ${PROJECT_SOURCE_DIR}/src/animations/MoonLightAnimation.hpp
-    ${PROJECT_SOURCE_DIR}/src/animations/OrbitalAnimation.hpp
-    ${PROJECT_SOURCE_DIR}/src/scenes/TestScene.hpp
+set(Headers
+        ${PROJECT_SOURCE_DIR}/src/pch.hpp
+        ${PROJECT_SOURCE_DIR}/src/shaders/glsl.hpp
+        ${PROJECT_SOURCE_DIR}/src/shaders/shader.hpp
+        ${PROJECT_SOURCE_DIR}/src/shaders/ShaderProgram.hpp
+        ${PROJECT_SOURCE_DIR}/src/objects/BaseObject.hpp
+        ${PROJECT_SOURCE_DIR}/src/objects/Light.hpp
+        ${PROJECT_SOURCE_DIR}/src/objects/Material.hpp
+        ${PROJECT_SOURCE_DIR}/src/objects/Mesh.hpp
+        ${PROJECT_SOURCE_DIR}/src/objects/ObjectGroup.hpp
+        ${PROJECT_SOURCE_DIR}/src/buffers/Buffer.hpp
+        ${PROJECT_SOURCE_DIR}/src/geometries/Geometry.hpp
+        ${PROJECT_SOURCE_DIR}/src/geometries/SkyBoxGeometry.hpp
+        ${PROJECT_SOURCE_DIR}/src/vendor/tiny_obj_loader.h
+        ${PROJECT_SOURCE_DIR}/src/loaders/fileloader.hpp
+        ${PROJECT_SOURCE_DIR}/src/loaders/objectloader.hpp
+        ${PROJECT_SOURCE_DIR}/src/vendor/stb_image.h
+        ${PROJECT_SOURCE_DIR}/src/textures/Texture.hpp
+        ${PROJECT_SOURCE_DIR}/src/textures/CubeMapTexture.hpp
+        ${PROJECT_SOURCE_DIR}/src/scenes/Scene.hpp
+        ${PROJECT_SOURCE_DIR}/src/scenes/Camera.hpp
+        ${PROJECT_SOURCE_DIR}/src/scenes/MyStreetScene.hpp
+        ${PROJECT_SOURCE_DIR}/src/animations/Animation.hpp
+        ${PROJECT_SOURCE_DIR}/src/animations/FireWehrAnimation.hpp
+        ${PROJECT_SOURCE_DIR}/src/animations/LightObjectBindingAnimation.hpp
+        ${PROJECT_SOURCE_DIR}/src/animations/MoonLightAnimation.hpp
+        ${PROJECT_SOURCE_DIR}/src/animations/OrbitalAnimation.hpp
+        ${PROJECT_SOURCE_DIR}/src/entities/cEntity.hpp
+        ${PROJECT_SOURCE_DIR}/src/entities/cEntityGroup.hpp
+        ${PROJECT_SOURCE_DIR}/src/entities/cBehaviourHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/scenes/TestScene.hpp
         ${PROJECT_SOURCE_DIR}/src/scripting/cScriptingEngine.hpp
         ${PROJECT_SOURCE_DIR}/src/scripting/duktape.h
-        ${PROJECT_SOURCE_DIR}/src/scripting/functions/JavaScriptBaseFunctions.hpp src/entities/cEntity.hpp)
-set(Sources 
-    ${PROJECT_SOURCE_DIR}/src/main.cpp
+        ${PROJECT_SOURCE_DIR}/src/scripting/functions/JavaScriptBaseFunctions.hpp)
+set(Sources
+        ${PROJECT_SOURCE_DIR}/src/main.cpp
         ${PROJECT_SOURCE_DIR}/src/scripting/duktape.c
-)
+        )
 
 include_directories(${PROJECT_SOURCE_DIR}/src ${GLEW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS})
 add_library(${This} STATIC ${Sources} ${Headers})

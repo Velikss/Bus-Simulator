@@ -118,6 +118,11 @@ public:
 		rot.y -= angle_diff;
 	}
 
+	virtual void Update()
+    {
+
+    }
+
 	virtual void Render()
 	{
 		if(render)

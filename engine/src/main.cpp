@@ -113,9 +113,11 @@ int main(int argc, char **argv)
 {
     cScriptingEngine engine = cScriptingEngine();
 
-    cEntity en = cEntity(glm::vec3(5.0f, 2.0f, 3.0f));
+    cEntity en = cEntity(nullptr);
+    en.SetPos(2.0f, 3.0f, 4.0f);
+    std::cout << en.pos[0];
     std::vector<cEntity *> entities = std::vector<cEntity *>();
 
-    engine.ExecuteBehaviour("src/scripting/seperation.js", &en, entities);
+    //engine.ExecuteBehaviour("src/scripting/seperation.js", &en, entities);
 }
 

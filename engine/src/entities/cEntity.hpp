@@ -2,15 +2,22 @@
 
 #include <pch.hpp>
 #include <objects/BaseObject.hpp>
+#include "cBehaviourHandler.hpp"
+//#include <entities/cBehaviourHandler.hpp>
 
-class cEntity
+class cEntity : public BaseObject
 {
 public:
-    glm::vec3 ptPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+    std::vector<cBehaviourHandler *> paBehaviourHandlers;
 
-    cEntity(glm::vec3 tPosition)
+    cEntity(Mesh *mesh) : BaseObject(mesh)
     {
-        ptPosition = tPosition;
+
+    }
+
+    virtual void Update()
+    {
+        // update logic
     }
 };
 

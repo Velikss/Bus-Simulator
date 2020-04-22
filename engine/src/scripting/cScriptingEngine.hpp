@@ -4,7 +4,6 @@
 #include <scripting/duktape.h>
 #include <scripting/functions/JavaScriptBaseFunctions.hpp>
 #include <fstream>
-#include <entities/cEntity.hpp>
 
 class cScriptingEngine
 {
@@ -30,7 +29,6 @@ public:
 
     void Init();
 
-    void ExecuteBehaviour(const char *pstrBehaviourScript, cEntity *poEntity, std::vector<cEntity *> Entities);
 
     bool CompileJavaScriptFile(const char *filename);
 
@@ -52,14 +50,6 @@ void cScriptingEngine::Init()
     duk_put_global_string(ppoContext, "GetEntityX");
 }
 
-void cScriptingEngine::ExecuteBehaviour(const char *pstrBehaviourScript, cEntity *poEntity, std::vector<cEntity *> Entities)
-{
-
-    CompileJavaScriptFile(pstrBehaviourScript);
-
-    RunJavaScriptFunction(ppoContext, "execute", poEntity, &Entities);
-
-}
 
 bool cScriptingEngine::CompileJavaScriptFile(const char *pstrFilename)
 {
