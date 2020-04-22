@@ -173,20 +173,20 @@ string cUri::ToString()
     string sUri = psProtocol + "://" + psHost;
     if (C_PROTOCOL_PORT.at(psProtocol) != pusPort) sUri += ":" + std::to_string(pusPort);
     for(auto& sSubPath : pasPath)
-        sUri += "/" + sSubPath;
+        sUri += "/" + encode(sSubPath);
     if (pasParameters.size() > 0)
     {
         bool bFirst = true;
         for (auto& [sKey, sValue] : pasParameters)
             if (bFirst)
             {
-                sUri += "?" + sKey + "=" + sValue;
+                sUri += "?" + encode(sKey) + "=" + encode(sValue);
                 bFirst = false;
             }
             else
-                sUri += "&" + sKey + "=" + sValue;
+                sUri += "&" + encode(sKey) + "=" + encode(sValue);
     }
-    return encode(sUri);
+    return sUri;
 }
 
 std::string cUri::encode(const string &value) noexcept
