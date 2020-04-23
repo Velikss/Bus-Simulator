@@ -11,14 +11,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
-
-template<class I, class E, class S>
-struct codecvt : std::codecvt<I, E, S>
-{
-    ~codecvt()
-    { }
-};
-
 typedef std::string string;
 typedef unsigned int uint;
 typedef long long int64;

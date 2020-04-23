@@ -9,6 +9,13 @@
 #include <sqltypes.h>
 #include <sql.h>
 
+template<class I, class E, class S>
+class codecvt : std::codecvt<I, E, S>
+{
+    ~codecvt()
+    { }
+};
+
 class cODBCInstance
 {
     HENV henv = nullptr;
