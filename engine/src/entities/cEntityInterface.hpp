@@ -26,6 +26,11 @@ public:
 
     }
 
+    virtual void SetHeading(glm::vec2 *heading)
+    {
+
+    }
+
 };
 
 class cEntityGroupInterface : public cEntityInterface

@@ -34,6 +34,8 @@ public:
 
     static duk_ret_t ReturnEntityHeading(duk_context *poContext);
 
+    static duk_ret_t SetEntityHeading(duk_context *poContext);
+
     static duk_ret_t ReturnEntityList(duk_context *poContext);
 };
 
@@ -50,6 +52,7 @@ void cBehaviourHandler::AddBehaviour(std::string sBehaviourName, std::string sFi
     poBehaviourEngine->RegisterFunction(cBehaviourHandler::ReturnEntityVelocity, 1, "GetEntityVelocity");
     poBehaviourEngine->RegisterFunction(cBehaviourHandler::SetEntityVelocity, 3, "SetEntityVelocity");
     poBehaviourEngine->RegisterFunction(cBehaviourHandler::ReturnEntityHeading, 1, "GetEntityHeading");
+    poBehaviourEngine->RegisterFunction(cBehaviourHandler::SetEntityHeading, 1, "SetEntityHeading");
 
     if (poBehaviourEngine->CompileJavaScriptFile(sFileName.c_str()))
         cBehaviourHandler::poBehaviours.insert({sBehaviourName, poBehaviourEngine});
@@ -170,6 +173,29 @@ duk_ret_t cBehaviourHandler::ReturnEntityHeading(duk_context *poContext)
     duk_put_prop_index(poContext, ArrayIndex, 1);
 
     return 1;
+}
+
+duk_ret_t cBehaviourHandler::SetEntityHeading(duk_context *poContext)
+{
+    if (duk_get_top(poContext) == 0)
+    {
+        /* throw TypeError if no arguments given */
+        return DUK_RET_TYPE_ERROR;
+    }
+
+    // Get pointer from stack
+    void *p = duk_to_pointer(poContext, -3);
+
+    // Cast pointer to Entity pointer, we know it's pointing to an entity
+    cEntityInterface *poEntity = static_cast<cEntityInterface *>(p);
+
+    // Get velocity from stack
+    glm::vec2 heading(duk_to_number(poContext, -2), duk_to_number(poContext, -1));
+
+    // Set velocity to entity
+    poEntity->SetHeading(&heading);
+
+    return 0;
 }
 
 duk_ret_t cBehaviourHandler::ReturnEntityList(duk_context *poContext)

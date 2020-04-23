@@ -38,6 +38,11 @@ public:
         pVelocity = *velocity;
     }
 
+    void SetHeading(glm::vec2 *heading)
+    {
+        pHeading = *heading;
+    }
+
     virtual void Update()
     {
         for (auto &cBehaviourHandler : paBehaviourHandlers)
