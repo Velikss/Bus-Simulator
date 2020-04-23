@@ -10,8 +10,9 @@
 #include <sql.h>
 
 template<class I, class E, class S>
-class codecvt : std::codecvt<I, E, S>
+class codecvt : public std::codecvt<I, E, S>
 {
+public:
     ~codecvt()
     { }
 };
