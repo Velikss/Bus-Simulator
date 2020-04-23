@@ -2,6 +2,7 @@
 
 #include <pch.hpp>
 #include <scripting/cScriptingEngine.hpp>
+class cEntityGroup;
 
 class cBehaviourHandler
 {
@@ -19,13 +20,13 @@ public:
         psBehaviourName = sBehaviourName;
     }
 
-    virtual void Update(BaseObject *oEntity);
+    static void UpdateEngine(std::string sBehaviourName, std::string sFileName);
 
     static void AddBehaviour(std::string sBehaviourName, std::string sFileName);
 
-    static void UpdateEngine(std::string sBehaviourName, std::string sFileName);
+    virtual void Update(BaseObject *oEntity, cEntityGroup *oEntityGroup);
 
-    static duk_ret_t GetEntityX(duk_context *poContext);
+    static duk_ret_t ReturnEntityCoordinates(duk_context *poContext);
 };
 
 std::map<std::string, cScriptingEngine *> cBehaviourHandler::poBehaviours;
@@ -36,18 +37,18 @@ void cBehaviourHandler::AddBehaviour(std::string sBehaviourName, std::string sFi
     cScriptingEngine *poBehaviourEngine = new cScriptingEngine();
 
     // Assign behaviour related functions to the engine's duktape context
-    poBehaviourEngine->RegisterFunction(cBehaviourHandler::GetEntityX, 1, "GetEntityX");
+    poBehaviourEngine->RegisterFunction(cBehaviourHandler::ReturnEntityCoordinates, 1, "GetEntityCoordinates");
 
     if (poBehaviourEngine->CompileJavaScriptFile(sFileName.c_str()))
         cBehaviourHandler::poBehaviours.insert({sBehaviourName, poBehaviourEngine});
 }
 
-void cBehaviourHandler::Update(BaseObject *oEntity)
+void cBehaviourHandler::Update(BaseObject *oEntity, cEntityGroup *oEntityGroup = nullptr)
 {
-    poBehaviours.at(psBehaviourName)->RunJavaScriptFunction("execute", oEntity, nullptr);
+    poBehaviours.at(psBehaviourName)->RunJavaScriptFunction("calculate", oEntity, oEntityGroup);
 }
 
-duk_ret_t cBehaviourHandler::GetEntityX(duk_context *poContext)
+duk_ret_t cBehaviourHandler::ReturnEntityCoordinates(duk_context *poContext)
 {
     if (duk_get_top(poContext) == 0)
     {
@@ -58,13 +59,20 @@ duk_ret_t cBehaviourHandler::GetEntityX(duk_context *poContext)
     // Get pointer from stack
     void *p = duk_get_pointer(poContext, 0);
 
-    // Cast pointer to Entity pointer
+    // Cast pointer to Entity pointer, we know it's pointing to an entity
     BaseObject *poEntity = static_cast<BaseObject *>(p);
 
-    // Return value
-    duk_push_int(poContext, poEntity->pos[0]);
+    // Push coordinates to stack, first we'll push an empty array
+    duk_idx_t ArrayIndex;
+    ArrayIndex = duk_push_array(poContext);
 
-    std::cout << "Return value: " << poEntity->pos[0];
+    // Then we will fill the array with the X Y Z coordinates
+    duk_push_int(poContext, poEntity->pos.x);
+    duk_put_prop_index(poContext, ArrayIndex, 0);
+    duk_push_int(poContext, poEntity->pos.y);
+    duk_put_prop_index(poContext, ArrayIndex, 1);
+    duk_push_int(poContext, poEntity->pos.z);
+    duk_put_prop_index(poContext, ArrayIndex, 2);
 
     return 1;
 }

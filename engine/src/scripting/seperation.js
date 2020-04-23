@@ -1,9 +1,14 @@
-function execute(entity, entities)
+function calculate(entity, entities)
 {
-    // Receive variables
-    var x = GetEntityX(entity);
-    println("Value received: ");
-    print(x);
+    // check if entities received
+    if(entities)
+    {
+        println("EntityGroup ptr: " + entities);
+    }
+
+    // check if entity received
+    if(entity)
+        println("Entity ptr: " + entity);
 
     // Do behaviour logic
 

@@ -6,6 +6,7 @@
 class cEntityGroup : public cEntity
 {
     std::vector<cEntity *> poEntities;
+    std::vector<cBehaviourHandler *> paBehaviourHandlers;
 public:
     cEntityGroup() : cEntity(nullptr)
     {
@@ -22,11 +23,24 @@ public:
         poEntities.erase(std::remove(poEntities.begin(), poEntities.end(), pEntity));
     }
 
-    void Render()
+    void AddBehaviour(cBehaviourHandler *&poBehaviour)
+    {
+        paBehaviourHandlers.push_back(poBehaviour);
+    }
+
+    void RemoveBehaviour(cBehaviourHandler *poBehaviour)
+    {
+        paBehaviourHandlers.erase(std::remove(paBehaviourHandlers.begin(), paBehaviourHandlers.end(), poBehaviour));
+    }
+
+    void UpdateEntities()
     {
         for (auto &entity : poEntities)
         {
-            entity->Update();
+            for (auto &cBehaviourHandler : paBehaviourHandlers)
+            {
+                cBehaviourHandler->Update(entity, this);
+            }
         }
     }
 };

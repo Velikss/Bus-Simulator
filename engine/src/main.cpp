@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 #include <scripting/cScriptingEngine.hpp>
 #include <entities/cEntity.hpp>
+#include <entities/cEntityGroup.hpp>
 
 const int WIDTH = 1080, HEIGHT = 720;
 
@@ -112,15 +113,25 @@ void window_size_callback(GLFWwindow *window, int width, int height)
 
 int main(int argc, char **argv)
 {
-    cScriptingEngine engine;
-
-    cEntity en(nullptr);
-    en.SetPosition(2.0f, 3.0f);
-
+    // Create static behaviours
     cBehaviourHandler::AddBehaviour("seperation", "src/scripting/seperation.js");
-    cBehaviourHandler *cb = new cBehaviourHandler("seperation");
-    en.AddBehaviour(cb);
 
-    en.Update();
+
+    cEntityGroup entityGroup;
+    cBehaviourHandler *cb = new cBehaviourHandler("seperation"); // behaviourname should be a name previously defined as static behaviour
+
+    cEntity en2(nullptr);
+    cEntity en3(nullptr);
+    cEntity en4(nullptr);
+    cEntity en5(nullptr);
+
+    entityGroup.AddEntity(&en2);
+    entityGroup.AddEntity(&en3);
+    entityGroup.AddEntity(&en4);
+    entityGroup.AddEntity(&en5);
+
+    entityGroup.AddBehaviour(cb);
+
+    entityGroup.UpdateEntities();
 }
 
