@@ -3,7 +3,7 @@
 #include <pch.hpp>
 #include <vulkan/vulkan.h>
 #include <vulkan/PhysicalDevice.hpp>
-#include <vulkan/BufferHelper.hpp>
+#include <vulkan/buffer/BufferHelper.hpp>
 
 class cImageHelper
 {

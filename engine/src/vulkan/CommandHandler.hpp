@@ -7,7 +7,7 @@
 #include <vulkan/SwapChain.hpp>
 #include <vulkan/RenderPass.hpp>
 #include <vulkan/GraphicsPipeline.hpp>
-#include <vulkan/VertexBuffer.hpp>
+#include <vulkan/buffer/Geometry.hpp>
 #include "CommandHelper.hpp"
 
 class cCommandHandler
@@ -24,7 +24,7 @@ public:
     void CreateCommandBuffers(cSwapChain* pSwapChain,
                               cRenderPass* pRenderPass,
                               cGraphicsPipeline* pGraphicsPipeline,
-                              cVertexBuffer* pVertexBuffer,
+                              std::vector<cGeometry*> apGeometries,
                               cUniformHandler* pUniformHandler);
 
     VkCommandBuffer& GetCommandBuffer(uint index);
@@ -34,7 +34,7 @@ private:
     void RecordCommandBuffers(cRenderPass* pRenderPass,
                               cSwapChain* pSwapChain,
                               cGraphicsPipeline* pGraphicsPipeline,
-                              cVertexBuffer* pVertexBuffer,
+                              std::vector<cGeometry*> apGeometries,
                               cUniformHandler* pUniformHandler);
 };
 
@@ -56,11 +56,11 @@ cCommandHandler::~cCommandHandler(void)
 void cCommandHandler::CreateCommandBuffers(cSwapChain* pSwapChain,
                                            cRenderPass* pRenderPass,
                                            cGraphicsPipeline* pGraphicsPipeline,
-                                           cVertexBuffer* pVertexBuffer,
+                                           std::vector<cGeometry*> apGeometries,
                                            cUniformHandler* pUniformHandler)
 {
     CreateCommandBuffers(pSwapChain);
-    RecordCommandBuffers(pRenderPass, pSwapChain, pGraphicsPipeline, pVertexBuffer, pUniformHandler);
+    RecordCommandBuffers(pRenderPass, pSwapChain, pGraphicsPipeline, apGeometries, pUniformHandler);
 }
 
 void cCommandHandler::CreateCommandBuffers(cSwapChain* pSwapChain)
@@ -91,7 +91,7 @@ void cCommandHandler::CreateCommandBuffers(cSwapChain* pSwapChain)
 void cCommandHandler::RecordCommandBuffers(cRenderPass* pRenderPass,
                                            cSwapChain* pSwapChain,
                                            cGraphicsPipeline* pGraphicsPipeline,
-                                           cVertexBuffer* pVertexBuffer,
+                                           std::vector<cGeometry*> apGeometries,
                                            cUniformHandler* pUniformHandler)
 {
     for (size_t i = 0; i < paoCommandBuffers.size(); i++)
@@ -140,16 +140,19 @@ void cCommandHandler::RecordCommandBuffers(cRenderPass* pRenderPass,
             vkCmdBindPipeline(paoCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
                               pGraphicsPipeline->poGraphicsPipeline);
 
-            // Bind the vertex buffers
-            pVertexBuffer->CmdBindVertexBuffer(paoCommandBuffers[i]);
+            for (auto pGeometry : apGeometries)
+            {
+                // Bind the vertex buffers
+                pGeometry->CmdBindVertexBuffer(paoCommandBuffers[i]);
 
-            // Bind the index buffers
-            pVertexBuffer->CmdBindIndexBuffer(paoCommandBuffers[i]);
+                // Bind the index buffers
+                pGeometry->CmdBindIndexBuffer(paoCommandBuffers[i]);
 
-            pUniformHandler->CmdBindDescriptorSets(paoCommandBuffers[i], pGraphicsPipeline->poPipelineLayout, i);
+                pUniformHandler->CmdBindDescriptorSets(paoCommandBuffers[i], pGraphicsPipeline->poPipelineLayout, i);
 
-            // Draw the vertices
-            vkCmdDrawIndexed(paoCommandBuffers[i], pVertexBuffer->GetIndexCount(), 1, 0, 0, 0);
+                // Draw the vertices
+                vkCmdDrawIndexed(paoCommandBuffers[i], pGeometry->GetIndexCount(), 1, 0, 0, 0);
+            }
 
             // End the render pass
             vkCmdEndRenderPass(paoCommandBuffers[i]);

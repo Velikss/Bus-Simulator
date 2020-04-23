@@ -15,7 +15,7 @@
 #include <vulkan/RenderPass.hpp>
 #include <vulkan/CommandHandler.hpp>
 #include <vulkan/RenderHandler.hpp>
-#include <vulkan/VertexBuffer.hpp>
+#include <vulkan/buffer/Geometry.hpp>
 
 class Engine
 {
@@ -34,7 +34,8 @@ private:
     cCommandHandler* ppCommandHandler;
     cTextureHandler* ppTextureHandler;
     cRenderHandler* ppRenderHandler;
-    cVertexBuffer* ppVertexBuffer;
+
+    std::vector<cGeometry*> papGeometries;
 
 public:
     // Initializes and starts the engine and all of it's sub-components
@@ -92,21 +93,25 @@ void Engine::InitVulkan(void)
     // Create the command handler. This deals with the commands that tell Vulkan what to do
     ppCommandHandler = new cCommandHandler(ppLogicalDevice);
 
+    // Create the texture handler. This deals with loading, binding and sampling the textures
     ppTextureHandler = new cTextureHandler(ppLogicalDevice);
 
+    // Create and setup the depth resources
     ppSwapChain->CreateDepthResources();
 
     // Create the framebuffers for the swap chain
     ppSwapChain->CreateFramebuffers(ppRenderPass->poRenderPass);
 
-    // Create the vertex buffer. This stores the vertex data and handles copying it to the GPU memory
-    ppVertexBuffer = new cVertexBuffer(ppLogicalDevice, cCommandHelper::poCommandPool);
+    // Create some geometries to render on the screen
+    papGeometries.push_back(cGeometry::FromOBJFile("resources/geometries/box.obj", ppLogicalDevice));
+    papGeometries.push_back(cGeometry::FromOBJFile("resources/geometries/sphere.obj", ppLogicalDevice));
 
+    // Setup the buffers for uniform variables
     ppUniformHandler->SetupUniformBuffers();
 
-    // Create and record the command buffers. A sequence of commands has to be recorded before you can to use them
+    // Create and record the command buffers. Records the sequence of commands needed to render scene
     ppCommandHandler->CreateCommandBuffers(ppSwapChain, ppRenderPass, ppGraphicsPipeline,
-                                           ppVertexBuffer, ppUniformHandler);
+                                           papGeometries, ppUniformHandler);
 
     // Create the rendering handler. Acquires the frames from the swapChain, submits them to the graphics queue
     // to execute the commands, then submits them to the presentation queue to show them on the screen
@@ -132,13 +137,18 @@ void Engine::MainLoop(void)
 void Engine::Cleanup(void)
 {
     delete ppRenderHandler;
-    delete ppVertexBuffer;
+    delete ppTextureHandler;
+    for (cGeometry* pGeometry : papGeometries)
+    {
+        delete pGeometry;
+    }
     delete ppCommandHandler;
     delete ppGraphicsPipeline;
     delete ppUniformHandler;
     delete ppRenderPass;
     delete ppSwapChain;
     delete ppLogicalDevice;
+    delete ppSurface;
     delete ppVulkanInstance;
     delete ppWindow;
 }

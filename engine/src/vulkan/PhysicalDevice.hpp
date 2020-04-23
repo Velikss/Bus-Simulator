@@ -32,8 +32,10 @@ public:
             VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
 
+    static bool poSelected;
+
 private:
-    static cPhysicalDevice* oInstance;
+    static cPhysicalDevice* poInstance;
 
     cSurface* ppSurface;
 
@@ -65,11 +67,12 @@ private:
     tSwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice& oDevice);
 };
 
-cPhysicalDevice* cPhysicalDevice::oInstance = new cPhysicalDevice();
+cPhysicalDevice* cPhysicalDevice::poInstance = new cPhysicalDevice();
+bool cPhysicalDevice::poSelected = false;
 
 cPhysicalDevice* cPhysicalDevice::GetInstance()
 {
-    return oInstance;
+    return poInstance;
 }
 
 cPhysicalDevice::cPhysicalDevice()
@@ -112,6 +115,8 @@ void cPhysicalDevice::SelectPhysicalDevice(cVulkanInstance* pVulkanInstance, cSu
     {
         throw std::runtime_error("failed to find a suitable GPU!");
     }
+
+    poSelected = true;
 }
 
 bool cPhysicalDevice::IsDeviceSuitable(VkPhysicalDevice& oDevice)

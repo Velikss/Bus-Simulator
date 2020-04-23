@@ -7,6 +7,16 @@
 class cVulkanInstance
 {
 private:
+    const std::vector<const char*> pasValidationLayers = {
+            "VK_LAYER_KHRONOS_validation"
+    };
+
+#ifdef NDEBUG
+    const bool pbENABLE_VALIDATION_LAYERS = false;
+#else
+    const bool pbENABLE_VALIDATION_LAYERS = true;
+#endif
+
     VkInstance poInstance;
 
 public:
@@ -18,16 +28,35 @@ public:
     bool CreateWindowSurface(cWindow* pWindow,
                              VkAllocationCallbacks* pAllocatorCallback,
                              VkSurfaceKHR* pSurface);
+    void DestroyWindowSurface(VkSurfaceKHR& oSurface,
+                              VkAllocationCallbacks* pAllocatorCallback);
 
 private:
     VkApplicationInfo GetApplicationInfo(void);
     VkInstanceCreateInfo GetCreateInfo(VkApplicationInfo& tAppInfo);
+
+    bool CheckValidationLayerSupport();
 };
 
 cVulkanInstance::cVulkanInstance(void)
 {
+    if (pbENABLE_VALIDATION_LAYERS && !CheckValidationLayerSupport())
+    {
+        throw std::runtime_error("validation layers requested, but not available!");
+    }
+
     VkApplicationInfo tAppInfo = GetApplicationInfo();
     VkInstanceCreateInfo tCreateInfo = GetCreateInfo(tAppInfo);
+
+    if (pbENABLE_VALIDATION_LAYERS)
+    {
+        tCreateInfo.enabledLayerCount = pasValidationLayers.size();
+        tCreateInfo.ppEnabledLayerNames = pasValidationLayers.data();
+    }
+    else
+    {
+        tCreateInfo.enabledLayerCount = 0;
+    }
 
     // Create the Vulkan instance, and throw an error on failure
     if (vkCreateInstance(&tCreateInfo, nullptr, &poInstance) != VK_SUCCESS)
@@ -92,4 +121,39 @@ bool cVulkanInstance::CreateWindowSurface(cWindow* pWindow,
                                           VkSurfaceKHR* pSurface)
 {
     return pWindow->CreateWindowSurface(poInstance, pAllocatorCallback, pSurface);
+}
+
+void cVulkanInstance::DestroyWindowSurface(VkSurfaceKHR& oSurface, VkAllocationCallbacks* pAllocatorCallback)
+{
+    vkDestroySurfaceKHR(poInstance, oSurface, pAllocatorCallback);
+}
+
+bool cVulkanInstance::CheckValidationLayerSupport()
+{
+    uint uiLayerCount;
+    vkEnumerateInstanceLayerProperties(&uiLayerCount, nullptr);
+
+    std::vector<VkLayerProperties> atAvailableLayers(uiLayerCount);
+    vkEnumerateInstanceLayerProperties(&uiLayerCount, atAvailableLayers.data());
+
+    for (const char* sLayerName : pasValidationLayers)
+    {
+        bool bLayerFound = false;
+
+        for (VkLayerProperties& tLayerProperties : atAvailableLayers)
+        {
+            if (strcmp(sLayerName, tLayerProperties.layerName) == 0)
+            {
+                bLayerFound = true;
+                break;
+            }
+        }
+
+        if (!bLayerFound)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }

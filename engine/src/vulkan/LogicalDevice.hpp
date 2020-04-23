@@ -8,7 +8,7 @@ class cLogicalDevice
 {
 private:
     // Logical device handle
-    VkDevice poDevice;
+    VkDevice poDevice = VK_NULL_HANDLE;
 
     // Supported QueueFamilies
     tQueueFamilyIndices ptQueueIndices;
@@ -230,6 +230,8 @@ VkDeviceCreateInfo cLogicalDevice::GetDeviceCreateInfo(std::vector<VkDeviceQueue
 
 VkDevice& cLogicalDevice::GetDevice()
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     return poDevice;
 }
 
@@ -250,22 +252,30 @@ void cLogicalDevice::QueuePresent(VkPresentInfoKHR* ptPresentInfo)
 
 void cLogicalDevice::WaitForFences(uint uiFenceCount, VkFence* pFences, VkBool32 bWaitAll, uint64 ulTimeout)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     vkWaitForFences(poDevice, uiFenceCount, pFences, bWaitAll, ulTimeout);
 }
 
 void cLogicalDevice::ResetFences(uint uiFenceCount, VkFence* pFences)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     vkResetFences(poDevice, uiFenceCount, pFences);
 }
 
 void cLogicalDevice::WaitUntilIdle(void)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     vkDeviceWaitIdle(poDevice);
 }
 
 bool cLogicalDevice::AllocateCommandBuffers(VkCommandBufferAllocateInfo* pAllocateInfo,
                                             VkCommandBuffer* pCommandBuffers)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     return vkAllocateCommandBuffers(poDevice, pAllocateInfo, pCommandBuffers) == VK_SUCCESS;
 }
 
@@ -273,11 +283,15 @@ bool cLogicalDevice::CreateCommandPool(VkCommandPoolCreateInfo* pCreateInfo,
                                        VkAllocationCallbacks* pAllocator,
                                        VkCommandPool* pCommandPool)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     return vkCreateCommandPool(poDevice, pCreateInfo, pAllocator, pCommandPool) == VK_SUCCESS;
 }
 
 void cLogicalDevice::DestroyCommandPool(VkCommandPool& oCommandPool, VkAllocationCallbacks* pAllocator)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     vkDestroyCommandPool(poDevice, oCommandPool, pAllocator);
 }
 
@@ -285,12 +299,16 @@ bool cLogicalDevice::CreateShaderModule(VkShaderModuleCreateInfo* pCreateInfo,
                                         VkAllocationCallbacks* pAllocator,
                                         VkShaderModule* pShaderModule)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     return vkCreateShaderModule(poDevice, pCreateInfo, pAllocator, pShaderModule) == VK_SUCCESS;
 }
 
 void cLogicalDevice::DestroyShaderModule(VkShaderModule& oShaderModule,
                                          VkAllocationCallbacks* pAllocator)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     vkDestroyShaderModule(poDevice, oShaderModule, pAllocator);
 }
 
@@ -298,11 +316,15 @@ bool cLogicalDevice::CreatePipelineLayout(VkPipelineLayoutCreateInfo* pCreateInf
                                           VkAllocationCallbacks* pAllocator,
                                           VkPipelineLayout* pPipelineLayout)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     return vkCreatePipelineLayout(poDevice, pCreateInfo, pAllocator, pPipelineLayout) == VK_SUCCESS;
 }
 
 void cLogicalDevice::DestroyPipelineLayout(VkPipelineLayout& oPipelineLayout, VkAllocationCallbacks* pAllocator)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     vkDestroyPipelineLayout(poDevice, oPipelineLayout, pAllocator);
 }
 
@@ -310,22 +332,30 @@ bool cLogicalDevice::CreateGraphicsPipeline(uint uiCreateInfoCount,
                                             VkGraphicsPipelineCreateInfo* pCreateInfos,
                                             VkPipeline* pPipelines)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     return vkCreateGraphicsPipelines(poDevice, VK_NULL_HANDLE, uiCreateInfoCount, pCreateInfos, nullptr, pPipelines)
            == VK_SUCCESS;
 }
 
 void cLogicalDevice::DestroyPipeline(VkPipeline& oPipeline, VkAllocationCallbacks* pAllocator)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     vkDestroyPipeline(poDevice, oPipeline, pAllocator);
 }
 
 bool cLogicalDevice::CreateBuffer(VkBufferCreateInfo* pCreateInfo, VkAllocationCallbacks* pAllocator, VkBuffer* pBuffer)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     return vkCreateBuffer(poDevice, pCreateInfo, pAllocator, pBuffer) == VK_SUCCESS;
 }
 
 void cLogicalDevice::DestroyBuffer(VkBuffer& oBuffer, VkAllocationCallbacks* pAllocator)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     vkDestroyBuffer(poDevice, oBuffer, pAllocator);
 }
 
@@ -333,16 +363,22 @@ bool cLogicalDevice::AllocateMemory(VkMemoryAllocateInfo* pAllocateInfo,
                                     VkAllocationCallbacks* pAllocator,
                                     VkDeviceMemory* pMemory)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     return vkAllocateMemory(poDevice, pAllocateInfo, pAllocator, pMemory) == VK_SUCCESS;
 }
 
 void cLogicalDevice::FreeMemory(VkDeviceMemory& oMemory, VkAllocationCallbacks* pAllocator)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     vkFreeMemory(poDevice, oMemory, pAllocator);
 }
 
 void cLogicalDevice::BindBufferMemory(VkBuffer& oBuffer, VkDeviceMemory& oMemory, VkDeviceSize ulMemoryOffset)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     vkBindBufferMemory(poDevice, oBuffer, oMemory, ulMemoryOffset);
 }
 
@@ -352,11 +388,15 @@ void cLogicalDevice::MapMemory(VkDeviceMemory& oMemory,
                                VkMemoryMapFlags uiFlags,
                                void** ppData)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     vkMapMemory(poDevice, oMemory, ulOffset, ulSize, uiFlags, ppData);
 }
 
 void cLogicalDevice::UnmapMemory(VkDeviceMemory& oDeviceMemory)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     vkUnmapMemory(poDevice, oDeviceMemory);
 }
 
@@ -364,6 +404,8 @@ void cLogicalDevice::FreeCommandBuffers(VkCommandPool& oCommandPool,
                                         uint uiCommandBufferCount,
                                         VkCommandBuffer* pCommandBuffers)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     vkFreeCommandBuffers(poDevice, oCommandPool, uiCommandBufferCount, pCommandBuffers);
 }
 
@@ -371,12 +413,16 @@ bool cLogicalDevice::CreateDescriptorSetLayout(VkDescriptorSetLayoutCreateInfo* 
                                                VkAllocationCallbacks* pAllocator,
                                                VkDescriptorSetLayout* pSetLayout)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     return vkCreateDescriptorSetLayout(poDevice, pCreateInfo, pAllocator, pSetLayout) == VK_SUCCESS;
 }
 
 void cLogicalDevice::DestroyDescriptorSetLayout(VkDescriptorSetLayout& oDescriptorSetLayout,
                                                 VkAllocationCallbacks* pAllocator)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     vkDestroyDescriptorSetLayout(poDevice, oDescriptorSetLayout, pAllocator);
 }
 
@@ -384,17 +430,23 @@ bool cLogicalDevice::CreateDescriptorPool(VkDescriptorPoolCreateInfo* pCreateInf
                                           VkAllocationCallbacks* pAllocator,
                                           VkDescriptorPool* pDescriptorPool)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     return vkCreateDescriptorPool(poDevice, pCreateInfo, pAllocator, pDescriptorPool) == VK_SUCCESS;
 }
 
 void cLogicalDevice::DestroyDescriptorPool(VkDescriptorPool& oDescriptorPool, VkAllocationCallbacks* pAllocator)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     vkDestroyDescriptorPool(poDevice, oDescriptorPool, pAllocator);
 }
 
 bool cLogicalDevice::AllocateDescriptorSets(VkDescriptorSetAllocateInfo* pAllocateInfo,
                                             VkDescriptorSet* pDescriptorSets)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     return vkAllocateDescriptorSets(poDevice, pAllocateInfo, pDescriptorSets) == VK_SUCCESS;
 }
 
@@ -402,6 +454,8 @@ void cLogicalDevice::FreeDescriptorSets(VkDescriptorPool& oDescriptorPool,
                                         uint uiDescriptorSetCount,
                                         VkDescriptorSet* pDescriptorSets)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     vkFreeDescriptorSets(poDevice, oDescriptorPool, uiDescriptorSetCount, pDescriptorSets);
 }
 
@@ -410,22 +464,30 @@ void cLogicalDevice::UpdateDescriptorSets(uint uiDescriptorWriteCount,
                                           uint uiDescriptorCopyCount,
                                           VkCopyDescriptorSet* pDescriptorCopies)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     vkUpdateDescriptorSets(poDevice, uiDescriptorWriteCount, pDescriptorWrites,
                            uiDescriptorCopyCount, pDescriptorCopies);
 }
 
 bool cLogicalDevice::CreateImage(VkImageCreateInfo* pCreateInfo, VkAllocationCallbacks* pAllocator, VkImage* pImage)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     return vkCreateImage(poDevice, pCreateInfo, pAllocator, pImage) == VK_SUCCESS;
 }
 
 void cLogicalDevice::GetImageMemoryRequirements(VkImage& oImage, VkMemoryRequirements* pMemoryRequirements)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     vkGetImageMemoryRequirements(poDevice, oImage, pMemoryRequirements);
 }
 
 void cLogicalDevice::BindImageMemory(VkImage& oImage, VkDeviceMemory& oMemory, VkDeviceSize ulMemoryOffset)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     vkBindImageMemory(poDevice, oImage, oMemory, ulMemoryOffset);
 }
 
@@ -433,6 +495,8 @@ bool cLogicalDevice::CreateImageView(VkImageViewCreateInfo* pCreateInfo,
                                      VkAllocationCallbacks* pAllocator,
                                      VkImageView* pView)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     return vkCreateImageView(poDevice, pCreateInfo, pAllocator, pView) == VK_SUCCESS;
 }
 
@@ -440,12 +504,16 @@ bool cLogicalDevice::CreateSampler(VkSamplerCreateInfo* pCreateInfo,
                                    VkAllocationCallbacks* pAllocator,
                                    VkSampler* pSampler)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     return vkCreateSampler(poDevice, pCreateInfo, pAllocator, pSampler) == VK_SUCCESS;
 }
 
 void cLogicalDevice::DestroySampler(VkSampler& oSampler,
                                     VkAllocationCallbacks* pAllocator)
 {
+    assert(poDevice != VK_NULL_HANDLE);
+
     vkDestroySampler(poDevice, oSampler, pAllocator);
 }
 

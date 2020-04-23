@@ -3,7 +3,7 @@
 #include <pch.hpp>
 #include <vulkan/vulkan.h>
 #include <vulkan/LogicalDevice.hpp>
-#include <vulkan/BufferHelper.hpp>
+#include <vulkan/buffer/BufferHelper.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -133,7 +133,7 @@ void cUniformHandler::UpdateUniformBuffers(uint uiImageIndex)
 
     tUBO.tModel = glm::rotate(
             glm::mat4(1.0f),
-            time * glm::radians(90.0f),
+            time * glm::radians(20.0f),
             glm::vec3(0.0f, 0.0f, 1.0f));
 
     tUBO.tView = glm::lookAt(

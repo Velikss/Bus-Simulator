@@ -2,7 +2,7 @@
 
 #include <pch.hpp>
 #include <vulkan/LogicalDevice.hpp>
-#include "BufferHelper.hpp"
+#include "vulkan/buffer/BufferHelper.hpp"
 #include "ImageHelper.hpp"
 #include "CommandHelper.hpp"
 
