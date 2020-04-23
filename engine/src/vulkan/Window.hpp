@@ -3,6 +3,7 @@
 #include <pch.hpp>
 #include <GLFW/glfw3.h>
 
+// Class representing the window which can be used for rendering
 class cWindow
 {
 private:
@@ -17,10 +18,16 @@ public:
     cWindow(void);
     ~cWindow(void);
 
+    // Create and initialize the window
     void CreateWindow(void);
-    bool ShouldClose(void);
-    void MainLoop(void);
 
+    // Returns true if the window should close
+    bool ShouldClose(void);
+
+    // Handles window events
+    void HandleEvents(void);
+
+    // Create the surface for this window
     bool CreateWindowSurface(VkInstance& oVulkanInstance,
                              VkAllocationCallbacks* pAllocatorCallback,
                              VkSurfaceKHR* pSurface);
@@ -51,21 +58,21 @@ cWindow::~cWindow(void)
 
 void cWindow::CreateWindow(void)
 {
-    assert(ppWindow == nullptr); // Don't create a window if it has already been created
+    assert(ppWindow == nullptr); // don't create a window if it has already been created
 
     ppWindow = glfwCreateWindow(WIDTH, HEIGHT, "BUS", nullptr, nullptr);
 }
 
 bool cWindow::ShouldClose(void)
 {
-    assert(ppWindow != nullptr); // Window must be created first
+    assert(ppWindow != nullptr); // window must be created first
 
     return glfwWindowShouldClose(ppWindow);
 }
 
-void cWindow::MainLoop(void)
+void cWindow::HandleEvents(void)
 {
-    assert(ppWindow != nullptr); // Window must be created first
+    assert(ppWindow != nullptr); // window must be created first
 
     glfwPollEvents();
 }
@@ -74,7 +81,8 @@ bool cWindow::CreateWindowSurface(VkInstance& oVulkanInstance,
                                   VkAllocationCallbacks* pAllocatorCallback,
                                   VkSurfaceKHR* pSurface)
 {
-    assert(pSurface != nullptr);
+    assert(oVulkanInstance != VK_NULL_HANDLE); // vulkan instance should exist
+    assert(pSurface != nullptr); // pSurface should point to where the surface needs to be stored
 
     return glfwCreateWindowSurface(oVulkanInstance, ppWindow, pAllocatorCallback, pSurface) == VK_SUCCESS;
 }

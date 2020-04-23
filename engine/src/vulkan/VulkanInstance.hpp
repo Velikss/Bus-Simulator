@@ -7,10 +7,14 @@
 class cVulkanInstance
 {
 private:
+    // List of validation layers we want to enable
+    // Validation layers allow you to see warnings and errors from Vulkan
     const std::vector<const char*> pasValidationLayers = {
             "VK_LAYER_KHRONOS_validation"
     };
 
+    // Validation layers should be disabled for production builds
+    // as they have a significant performance impact
 #ifdef NDEBUG
     const bool pbENABLE_VALIDATION_LAYERS = false;
 #else
@@ -32,22 +36,49 @@ public:
                               VkAllocationCallbacks* pAllocatorCallback);
 
 private:
-    VkApplicationInfo GetApplicationInfo(void);
-    VkInstanceCreateInfo GetCreateInfo(VkApplicationInfo& tAppInfo);
-
     bool CheckValidationLayerSupport();
 };
 
 cVulkanInstance::cVulkanInstance(void)
 {
+    // If validation layers are enabled, check to make sure all the
+    // requested layers are supported
     if (pbENABLE_VALIDATION_LAYERS && !CheckValidationLayerSupport())
     {
         throw std::runtime_error("validation layers requested, but not available!");
     }
 
-    VkApplicationInfo tAppInfo = GetApplicationInfo();
-    VkInstanceCreateInfo tCreateInfo = GetCreateInfo(tAppInfo);
+    // Struct with information about our application
+    VkApplicationInfo tAppInfo = {};
+    tAppInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 
+    // Name + version of our application
+    tAppInfo.pApplicationName = "Vulkan Engine";
+    tAppInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+
+    // Can be used to tell Vulkan what engine we're using
+    tAppInfo.pEngineName = "No Engine";
+    tAppInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+
+    // Vulkan API version
+    tAppInfo.apiVersion = VK_API_VERSION_1_0;
+
+    // Struct with information for creating the Vulkan instance
+    VkInstanceCreateInfo tCreateInfo = {};
+    tCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    tCreateInfo.pApplicationInfo = &tAppInfo;
+
+    // Get the extensions required for GLFW
+    uint ulGLFWExtensionCount = 0;
+    const char** ppGLFWExtensions = glfwGetRequiredInstanceExtensions(&ulGLFWExtensionCount);
+
+    tCreateInfo.enabledExtensionCount = ulGLFWExtensionCount;
+    tCreateInfo.ppEnabledExtensionNames = ppGLFWExtensions;
+
+    // If validation layers are disabled, set the count to 0
+    tCreateInfo.enabledLayerCount = 0;
+
+    // If validation layers are enabled, add them to the create info
     if (pbENABLE_VALIDATION_LAYERS)
     {
         tCreateInfo.enabledLayerCount = pasValidationLayers.size();
@@ -69,46 +100,6 @@ cVulkanInstance::~cVulkanInstance(void)
 {
     // Destroy the Vulkan instance
     vkDestroyInstance(poInstance, nullptr);
-}
-
-VkApplicationInfo cVulkanInstance::GetApplicationInfo(void)
-{
-    // Struct with information about our application
-    VkApplicationInfo tAppInfo = {};
-    tAppInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-
-    // Name + version of our application
-    tAppInfo.pApplicationName = "Vulkan Engine";
-    tAppInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-
-    // Can be used to tell Vulkan what engine we're using
-    tAppInfo.pEngineName = "No Engine";
-    tAppInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-
-    // Vulkan API version
-    tAppInfo.apiVersion = VK_API_VERSION_1_0;
-
-    return tAppInfo;
-}
-
-VkInstanceCreateInfo cVulkanInstance::GetCreateInfo(VkApplicationInfo& tAppInfo)
-{
-    // Struct with information for creating the Vulkan instance
-    VkInstanceCreateInfo tCreateInfo = {};
-    tCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    tCreateInfo.pApplicationInfo = &tAppInfo;
-
-    // Get the extensions required for GLFW
-    uint ulGLFWExtensionCount = 0;
-    const char** ppGLFWExtensions = glfwGetRequiredInstanceExtensions(&ulGLFWExtensionCount);
-
-    tCreateInfo.enabledExtensionCount = ulGLFWExtensionCount;
-    tCreateInfo.ppEnabledExtensionNames = ppGLFWExtensions;
-
-    // If validation layers are disabled, set the count to 0
-    tCreateInfo.enabledLayerCount = 0;
-
-    return tCreateInfo;
 }
 
 void cVulkanInstance::EnumeratePhysicalDevices(uint* pPhysicalDeviceCount, VkPhysicalDevice* pPhysicalDevices)

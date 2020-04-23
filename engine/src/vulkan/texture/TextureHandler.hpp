@@ -4,66 +4,82 @@
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/texture/Texture.hpp>
 
+// Class for loading and managing textures
 class cTextureHandler
 {
 private:
+    // Device where the textures and sampler are loaded
     cLogicalDevice* ppLogicalDevice;
 
+    // Texture sampler object
     VkSampler poTextureSampler = VK_NULL_HANDLE;
 
+    // List with all the textures
     std::vector<cTexture*> papTextures;
 
 public:
     cTextureHandler(cLogicalDevice* pLogicalDevice);
     ~cTextureHandler(void);
 
-    uint CreateTexture(const char* sFilePath);
+    // Load a texture from a file
+    uint LoadTextureFromFile(const char* sFilePath);
 
+    // Returns the texture at the given index
     cTexture* GetTexture(uint uiIndex);
+    // Returns the texture sampler
     VkSampler GetSampler();
 
 private:
+    // Creates the texture sampler
     void CreateTextureSampler(void);
 };
 
 cTextureHandler::cTextureHandler(cLogicalDevice* pLogicalDevice)
 {
+    assert(pLogicalDevice != nullptr); // logical device must exist
+
+    // Store the logical device
     ppLogicalDevice = pLogicalDevice;
 
+    // Create the texture sampler
     CreateTextureSampler();
 }
 
 cTextureHandler::~cTextureHandler(void)
 {
-    ppLogicalDevice->DestroySampler(poTextureSampler, nullptr);
-
+    // Destroy all the textures
     for (cTexture* pTexture : papTextures)
     {
         delete pTexture;
     }
+
+    // Destroy the texture sampler
+    ppLogicalDevice->DestroySampler(poTextureSampler, nullptr);
 }
 
-uint cTextureHandler::CreateTexture(const char* sFilePath)
+uint cTextureHandler::LoadTextureFromFile(const char* sFilePath)
 {
     // Load the pixel data and image size
-    int iTexWidth, iTexHeight, iTexChannels;
-    stbi_uc* pcPixels = stbi_load(sFilePath, &iTexWidth, &iTexHeight, &iTexChannels, STBI_rgb_alpha);
-    VkDeviceSize ulImageSize = iTexWidth * iTexHeight * 4; // we're using RGBA so 4 byte per pixel
+    int iTexWidth, iTexHeight;
+    stbi_uc* pcPixels = stbi_load(sFilePath, &iTexWidth, &iTexHeight, nullptr, STBI_rgb_alpha);
 
-    // check if the texture was loaded correctly
-    assert(pcPixels != nullptr);
+    // Make sure the texture was loaded correctly
+    if (pcPixels == nullptr)
+    {
+        throw std::runtime_error("unable to load texture");
+    }
+
+    // Check if the texture is valid
     assert(iTexWidth > 0);
     assert(iTexHeight > 0);
-    assert(ulImageSize > 0);
 
     // Create a struct with information about the texture
     tTextureInfo tTextureInfo = {};
     tTextureInfo.uiWidth = iTexWidth;
     tTextureInfo.uiHeight = iTexHeight;
-    tTextureInfo.uiChannels = iTexChannels;
-    tTextureInfo.uiSize = iTexWidth * iTexHeight * 4;
+    tTextureInfo.uiSize = iTexWidth * iTexHeight * 4; // we're using RGBA so 4 byte per pixel
 
-    // Create the texture object
+    // Create the texture object and add it to the list
     papTextures.push_back(new cTexture(ppLogicalDevice, tTextureInfo, pcPixels));
 
     // Return the index of this texture

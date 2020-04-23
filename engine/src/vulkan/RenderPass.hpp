@@ -5,6 +5,7 @@
 #include <vulkan/SwapChain.hpp>
 #include "SwapChain.hpp"
 
+// TODO: This should probably be a helper class with static functions
 class cRenderPass
 {
 private:

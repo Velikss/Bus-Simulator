@@ -3,22 +3,28 @@
 #include <pch.hpp>
 #include <vulkan/vulkan.h>
 #include <vulkan/LogicalDevice.hpp>
-#include <vulkan/CommandHelper.hpp>
+#include <vulkan/command/CommandHelper.hpp>
 #include <vulkan/texture/TextureInfo.hpp>
 
+// Helper class for textures
 class cTextureHelper
 {
 public:
+    // Copy a texture (pixels) into an image
     static void CopyTextureToImage(cLogicalDevice* pLogicalDevice,
                                    stbi_uc* pcPixels,
                                    tTextureInfo tTextureInfo,
                                    VkImage& oImage);
 
+    // Change the layout of an image
     static void TransitionImageLayout(VkImage& oImage,
                                       VkFormat eFormat,
                                       VkImageLayout eOldLayout,
                                       VkImageLayout eNewLayout,
                                       cLogicalDevice* pLogicalDevice);
+
+    // Copies data from a buffer into an image
+    // Image must have a TRANSFER_DST_OPTIMAL layout
     static void CopyBufferToImage(VkBuffer& oBuffer,
                                   VkImage& oImage,
                                   uint uiWidth,
@@ -38,6 +44,7 @@ void cTextureHelper::CopyTextureToImage(cLogicalDevice* pLogicalDevice,
     assert(pcPixels != nullptr);        // pixel data must exist
     assert(tTextureInfo.uiWidth > 0 && tTextureInfo.uiHeight > 0); // texture must have a width and height
 
+    // Get the size (in bytes) of this texture
     VkDeviceSize uiImageSize = tTextureInfo.uiSize;
 
     // Create the stagingBuffer which is host visible and coherent
@@ -80,12 +87,16 @@ void cTextureHelper::CopyTextureToImage(cLogicalDevice* pLogicalDevice,
     pLogicalDevice->FreeMemory(oStagingBufferMemory, nullptr);
 }
 
+// TODO: I'm still a bit confused about how this works, I will add the documentation when I get it straight
 void cTextureHelper::TransitionImageLayout(VkImage& oImage,
-                                           VkFormat eFormat,
+                                           VkFormat eFormat, // TODO: format is not used?
                                            VkImageLayout eOldLayout,
                                            VkImageLayout eNewLayout,
                                            cLogicalDevice* pLogicalDevice)
 {
+    assert(oImage != VK_NULL_HANDLE);   // image must exist
+    assert(pLogicalDevice != nullptr);  // device must exist
+
     VkImageMemoryBarrier tBarrier = {};
     tBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     tBarrier.oldLayout = eOldLayout;
@@ -148,6 +159,12 @@ void cTextureHelper::CopyBufferToImage(VkBuffer& oBuffer,
                                        uint uiHeight,
                                        cLogicalDevice* pLogicalDevice)
 {
+    assert(oBuffer != VK_NULL_HANDLE);      // buffer must exist
+    assert(oImage != VK_NULL_HANDLE);       // image must exist
+    assert(uiWidth > 0 && uiHeight > 0);    // image size must be specified
+    assert(pLogicalDevice != nullptr);      // device must exist
+
+    // Struct with information about the buffer to image copy we are going to do
     VkBufferImageCopy tRegion = {};
 
     // Specify how the pixels are laid out in memory
@@ -166,11 +183,12 @@ void cTextureHelper::CopyBufferToImage(VkBuffer& oBuffer,
     tRegion.imageOffset = {0, 0, 0};
     tRegion.imageExtent = {uiWidth, uiHeight, 1};
 
+    // Run the buffer to image copy command
     VkCommandBuffer oCommandBuffer = cCommandHelper::BeginSingleTimeCommands(pLogicalDevice);
     {
         vkCmdCopyBufferToImage(
                 oCommandBuffer, oBuffer, oImage,
-                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, // the image has a TRANSFER_DST_OPTIMAL layout
                 1, &tRegion
         );
     }

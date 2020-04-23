@@ -55,16 +55,19 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/SwapChain.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/GraphicsPipeline.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/RenderPass.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/CommandHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/RenderHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/UniformHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/ImageHelper.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/TextureHandler.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/CommandHelper.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/command/CommandHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/command/CommandHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/Geometry.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/Vertex.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/BufferHelper.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/ModelHelper.hpp src/vulkan/mesh/Mesh.hpp src/vulkan/texture/Texture.hpp src/vulkan/texture/TextureHelper.hpp src/vulkan/texture/TextureInfo.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/ModelHelper.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/mesh/Mesh.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/texture/Texture.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/texture/TextureHelper.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/texture/TextureInfo.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 

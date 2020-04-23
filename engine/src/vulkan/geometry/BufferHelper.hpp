@@ -4,7 +4,7 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/PhysicalDevice.hpp>
-#include <vulkan/CommandHelper.hpp>
+#include <vulkan/command/CommandHelper.hpp>
 
 // Helper class for dealing with Vulkan buffers and device memory
 class cBufferHelper

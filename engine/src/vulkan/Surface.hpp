@@ -5,6 +5,7 @@
 #include <vulkan/VulkanInstance.hpp>
 #include "Window.hpp"
 
+// TODO: This whole class is redundant, it should be merged with the Window class
 class cSurface
 {
 private:
@@ -33,7 +34,7 @@ cSurface::~cSurface()
     ppVulkanInstance->DestroyWindowSurface(poSurface, nullptr);
 }
 
-// TODO: This doesn't belong here, needs to be in PhysicalDevice
+// TODO: This doesn't belong here, should be in PhysicalDevice
 void cSurface::GetPhysicalDeviceSurfaceSupportKHR(VkPhysicalDevice& oPhysicalDevice,
                                                   uint uiQueueFamilyIndex,
                                                   VkBool32* pSupported)

@@ -109,7 +109,7 @@ public:
                                 VkDescriptorSet* pDescriptorSets);
     void FreeDescriptorSets(VkDescriptorPool& oDescriptorPool,
                             uint uiDescriptorSetCount,
-                            VkDescriptorSet* pDescriptorSets);
+                            VkDescriptorSet* pDescriptorSets); // TODO: Descriptor sets are never freed?
     void UpdateDescriptorSets(uint uiDescriptorWriteCount,
                               VkWriteDescriptorSet* pDescriptorWrites,
                               uint uiDescriptorCopyCount,

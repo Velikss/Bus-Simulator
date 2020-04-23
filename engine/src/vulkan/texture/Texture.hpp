@@ -7,13 +7,17 @@
 #include <vulkan/texture/TextureHelper.hpp>
 #include <vulkan/texture/TextureInfo.hpp>
 
+// Class representing a texture
 class cTexture
 {
 private:
+    // Logical device where this texture is loaded
     cLogicalDevice* ppLogicalDevice;
 
+    // Information about this texture
     tTextureInfo ptTextureInfo;
 
+    // Texture image, memory and image view
     VkImage poTextureImage = VK_NULL_HANDLE;
     VkDeviceMemory poTextureImageMemory = VK_NULL_HANDLE;
     VkImageView poTextureImageView = VK_NULL_HANDLE;
@@ -22,16 +26,19 @@ public:
     cTexture(cLogicalDevice* pLogicalDevice, tTextureInfo tTextureInfo, stbi_uc* pcPixels);
     ~cTexture();
 
+    // Returns the information about this texture
     tTextureInfo GetTextureInfo();
+    // Returns the image view for this texture
     VkImageView GetView();
 };
 
 cTexture::cTexture(cLogicalDevice* pLogicalDevice, tTextureInfo tTextureInfo, stbi_uc* pcPixels)
 {
     assert(pLogicalDevice != nullptr);                              // logical device must exist
-    assert(tTextureInfo.uiWidth > 0 && tTextureInfo.uiHeight > 0);  // texture must have a size
+    assert(tTextureInfo.uiWidth > 0 && tTextureInfo.uiHeight > 0);  // texture must have a width and height
     assert(pcPixels != nullptr);                                    // pixels must exist
 
+    // Store the logical device and texture info
     ppLogicalDevice = pLogicalDevice;
     ptTextureInfo = tTextureInfo;
 

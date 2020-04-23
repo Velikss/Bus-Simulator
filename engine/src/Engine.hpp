@@ -13,7 +13,7 @@
 #include <vulkan/SwapChain.hpp>
 #include <vulkan/GraphicsPipeline.hpp>
 #include <vulkan/RenderPass.hpp>
-#include <vulkan/CommandHandler.hpp>
+#include <vulkan/command/CommandHandler.hpp>
 #include <vulkan/RenderHandler.hpp>
 #include <vulkan/geometry/Geometry.hpp>
 
@@ -95,8 +95,8 @@ void Engine::InitVulkan(void)
 
     // Create the texture handler. This deals with loading, binding and sampling the textures
     ppTextureHandler = new cTextureHandler(ppLogicalDevice);
-    ppTextureHandler->CreateTexture("resources/textures/stone.jpg");
-    ppTextureHandler->CreateTexture("resources/textures/grass.jpg");
+    ppTextureHandler->LoadTextureFromFile("resources/textures/stone.jpg");
+    ppTextureHandler->LoadTextureFromFile("resources/textures/grass.jpg");
 
     // Create and setup the depth resources
     ppSwapChain->CreateDepthResources();
@@ -126,7 +126,7 @@ void Engine::MainLoop(void)
     while (!ppWindow->ShouldClose())
     {
         // Let the window do it's thing
-        ppWindow->MainLoop();
+        ppWindow->HandleEvents();
 
         // Draw a frame
         ppRenderHandler->DrawFrame();
