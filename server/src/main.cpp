@@ -6,7 +6,7 @@
 #include <streambuf>
 #include <SslHelper.hpp>
 #include <filesystem>
-#include <ODBC\cODBCInstance.hpp>
+#include <ODBC/cODBCInstance.hpp>
 
 string resp_str;
 
