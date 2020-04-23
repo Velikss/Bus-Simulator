@@ -380,11 +380,11 @@ bool cODBCInstance::QueryExec(string sQuery, std::vector<SQLROW>* aRows)
                 auto result = SQLGetData(stmt, tColumnDef.sIndex, tColumnDef.sType, vValueBuffer, tColumnDef.uiSize, &sLen);
                 if (result != SQL_SUCCESS && result != SQL_SUCCESS_WITH_INFO)
                 {
-                    extract_error("Varchar field: ", stmt, SQL_HANDLE_STMT);
+                    extract_error("Error:", stmt, SQL_HANDLE_STMT);
                     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
                     return false;
                 }
-                tRow.insert({ sName, new cODBCValue {vValueBuffer, tColumnDef.sType, tColumnDef.uiSize} });
+                tRow.insert({ sName, new cODBCValue {vValueBuffer, tColumnDef.sType, static_cast<SQLULEN>(sLen)} });
             }
             aRows->push_back(tRow);
         }

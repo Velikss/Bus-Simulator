@@ -17,7 +17,7 @@ TEST(ODBCTests, Discover)
 TEST(ODBCTests, FetchUser)
 {
     std::vector<SQLROW> aUsers;
-    EXPECT_TRUE(oInstance.QueryExec("SELECT Id, UserName, Password FROM User", &aUsers));
+    EXPECT_TRUE(oInstance.QueryExec("SELECT * FROM User", &aUsers));
     for (auto& aRow : aUsers)
     {
         std::cout << "---------------------------" << std::endl;
