@@ -25,9 +25,9 @@ public:
 			height += obj->mesh->geo->height;
 		if (height > 0)
 		{
-			pos.x = x;
-			pos.y = y - (height > 0 ? (height / 2) : 0);
-			pos.z = z;
+            pPosition.x = x;
+            pPosition.y = y - (height > 0 ? (height / 2) : 0);
+            pPosition.z = z;
 		}
 	}
 
@@ -36,14 +36,14 @@ public:
 		float height = 0.0;
 		for (auto& obj : objects)
 			height += obj->mesh->geo->height;
-		pos.y = y - (height > 0 ? (height / 2) : 0);
+        pPosition.y = y - (height > 0 ? (height / 2) : 0);
 	}
 
 	virtual void Render() override
 	{
 		for (auto& obj : objects)
 		{
-			glm::vec3 _pos = obj->pos + pos;
+			glm::vec3 _pos = obj->pPosition + pPosition;
 			glm::vec3 _rot = obj->rot + rot;
 			glm::vec3 _scale = obj->scale + scale;
 			obj->Render(_pos, _rot, _scale);

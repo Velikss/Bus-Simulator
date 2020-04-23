@@ -18,10 +18,10 @@ public:
 		// call base update.
 		OrbitalAnimation::Update();
 		Light* moon = (Light*)obj;
-		if (moon->pos.y <= 0)
+		if (moon->pPosition.y <= 0)
 			moon->radius = 0;
-		if (moon->pos.y > 0) 
-			moon->radius = radius * (lightIntensity * moon->pos.y);
+		if (moon->pPosition.y > 0)
+			moon->radius = radius * (lightIntensity * moon->pPosition.y);
 		if (moon->radius > maxLightIntensity)
 			moon->radius = maxLightIntensity;
 	}

@@ -19,7 +19,7 @@ public:
 
 	// components of the model matrix.
 	glm::vec3 rot = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 pPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f); 
 
 	BaseObject(Mesh* mesh, float posOnScale1 = false)
@@ -39,7 +39,7 @@ public:
 
 	virtual void SetPositionalHeigth(float y)
 	{
-		pos.y = y - (mesh->geo->height > 0 ? (mesh->geo->height / 2) : 0);
+        pPosition.y = y - (mesh->geo->height > 0 ? (mesh->geo->height / 2) : 0);
 	}
 
 	virtual void SetScale(float scaler)
@@ -72,36 +72,36 @@ public:
 	{
 		// return if base is a group.
 		if (!mesh) return;
-		pos.x = x;
-		pos.y = y - (mesh->geo->height > 0 ? (mesh->geo->height / 2) : 0);
-		pos.z = z;
+        pPosition.x = x;
+        pPosition.y = y - (mesh->geo->height > 0 ? (mesh->geo->height / 2) : 0);
+        pPosition.z = z;
 	}
 
 	virtual void SetPosition(float x, float z)
 	{
-		pos.x = x;
-		pos.z = z;
+        pPosition.x = x;
+        pPosition.z = z;
 	}
 
 	virtual void SetPosScale1(float x, float y, float z)
 	{
 		// return if base is a group.
 		if (!mesh) return;
-		pos.x = x;
-		pos.y = (y - scale.y) * (1.0f / scale.y);
-		pos.z = z;
+        pPosition.x = x;
+        pPosition.y = (y - scale.y) * (1.0f / scale.y);
+        pPosition.z = z;
 	}
 
 	virtual void MoveForward(float multiplier = 1.0)
 	{
 		glm::vec3 direction(sin(glm::radians(rot.y)), 0, cos(glm::radians(rot.y)));
-		pos -= (direction * multiplier);
+        pPosition -= (direction * multiplier);
 	}
 
 	virtual void MoveBackward(float multiplier = 1.0)
 	{
 		glm::vec3 direction(sin(glm::radians(rot.y)), 0, cos(glm::radians(rot.y)));
-		pos += (direction * multiplier);
+        pPosition += (direction * multiplier);
 	}
 
 	virtual void MoveLeft(float angle_diff)
@@ -126,7 +126,7 @@ public:
 	virtual void Render()
 	{
 		if(render)
-			Render(pos, rot, scale);
+			Render(pPosition, rot, scale);
 	}
 
 	virtual void Render(glm::vec3& _pos, glm::vec3& _rot, glm::vec3& _scale)

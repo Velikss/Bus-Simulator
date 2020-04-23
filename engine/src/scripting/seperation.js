@@ -1,17 +1,19 @@
 function calculate(entity, entities)
 {
-    // check if entities received
+   // check if entities received
     if(entities)
     {
-        println("EntityGroup ptr: " + entities);
+
     }
 
     // check if entity received
     if(entity)
-        println("Entity ptr: " + entity);
-
-    var entityList = GetEntityList(entities);
-    println("tesT: " + entityList[0]);
+    {
+        var heading = GetEntityHeading(entity);
+        println("Entity heading: " + heading);
+        var velocity = GetEntityVelocity(entity);
+        println("Entity velocity: " + velocity);
+    }
 
     // Do behaviour logic
 

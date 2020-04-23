@@ -10,6 +10,17 @@ public:
     {
 
     }
+
+    virtual void ReturnHeading(glm::vec2 *heading)
+    {
+
+    }
+
+    virtual void ReturnVelocity(glm::vec2 *velocity)
+    {
+
+    }
+
 };
 
 class cEntityGroupInterface : public cEntityInterface

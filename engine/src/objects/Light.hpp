@@ -23,7 +23,7 @@ public:
 	// sets the light properties in the shader given an index.
 	void PutOnShader(ShaderProgram* shader, int i)
 	{
-		glm::vec3 actual_pos = pos;
+		glm::vec3 actual_pos = pPosition;
 		actual_pos.y += 1.0f;
 		shader->setVec3("lights[" + std::to_string(i) + "].position", actual_pos);
 		shader->setVec3("lights[" + std::to_string(i) + "].ambient", ambient);

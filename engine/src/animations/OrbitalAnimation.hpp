@@ -20,7 +20,7 @@ protected:
 public:
 	OrbitalAnimation(BaseObject* object, float radius, float speed, OrbitAngle oAngle) : Animation(object)
 	{
-		rotCenter = object->pos;
+		rotCenter = object->pPosition;
 		this->radius = radius;
 		this->speed = speed;
 		this->oAngle = oAngle;

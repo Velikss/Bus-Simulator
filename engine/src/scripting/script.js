@@ -1,5 +1,8 @@
-for(i = 0; i < 10; i+= ++i - --i) {
-    y = 5;
-    print(i, i + 1);
+function hallo() {
+    print("hallo");
+    println("haha dit is javascript");
 }
-println("haha dit is javascript");
+
+export function getHallo() {
+    hallo();
+}

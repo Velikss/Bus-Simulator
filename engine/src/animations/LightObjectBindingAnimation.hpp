@@ -18,6 +18,6 @@ public:
 	void Update()
 	{
 		// move the light to the xz positon of the object.
-		tomove->SetPosition(obj->pos.x, obj->pos.z);
+		tomove->SetPosition(obj->pPosition.x, obj->pPosition.z);
 	}
 };

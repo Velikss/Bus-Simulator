@@ -82,8 +82,8 @@ bool loadAssImp(
     // Fill vertices positions
     vertices.reserve(mesh->mNumVertices);
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-        aiVector3D pos = mesh->mVertices[i];
-        vertices.push_back(glm::vec3(pos.x, pos.y, pos.z));
+        aiVector3D pPosition = mesh->mVertices[i];
+        vertices.push_back(glm::vec3(pPosition.x, pPosition.y, pPosition.z));
     }
 
     // Fill vertices texture coordinates
