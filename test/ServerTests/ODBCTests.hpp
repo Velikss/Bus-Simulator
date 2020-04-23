@@ -9,29 +9,15 @@ TEST(ODBCTests, Connect)
     EXPECT_TRUE(oInstance.Connect("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test;"));
 }
 
-TEST(ODBCTests, Discover)
+TEST(ODBCTests, Exe)
 {
-    EXPECT_TRUE(oInstance.Discover());
+    EXPECT_TRUE(oInstance.Exec("INSERT INTO UserTest (UserName, Password) VALUES('TEST', 'TEST');"));
 }
 
-TEST(ODBCTests, FetchUser)
+TEST(ODBCTests, Fetch)
 {
     std::vector<SQLROW> aUsers;
-    EXPECT_TRUE(oInstance.QueryExec("SELECT * FROM User", &aUsers));
-    for (auto& aRow : aUsers)
-    {
-        std::cout << "---------------------------" << std::endl;
-        SQLINTEGER iValue = 0;
-        string sUserName;
-        string sPassword;
-        aRow["Id"]->GetValueInteger(&iValue);
-        aRow["UserName"]->GetValueStr(sUserName);
-        aRow["Password"]->GetValueStr(sPassword);
-        std::cout << "Id: " << iValue << std::endl;
-        std::cout << "UserName: '" << sUserName << "'" << std::endl;
-        std::cout << "Password: '" << sPassword << "'" << std::endl;
-        std::cout << "---------------------------" << std::endl;
-    }
+    EXPECT_TRUE(oInstance.Fetch("SELECT * FROM UserTest", &aUsers));
 }
 
 TEST(ODBCTests, DisConnect)
