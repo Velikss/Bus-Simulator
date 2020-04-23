@@ -12,13 +12,26 @@ TEST(ODBCTests, Connect)
 TEST(ODBCTests, Discover)
 {
     EXPECT_TRUE(oInstance.Discover());
-    oInstance.PrintTables();
 }
 
 TEST(ODBCTests, FetchUser)
 {
-    std::vector<tUser> aUsers;
-    EXPECT_TRUE(oInstance.QueryExec("SELECT Id FROM User", &aUsers));
+    std::vector<SQLROW> aUsers;
+    EXPECT_TRUE(oInstance.QueryExec("SELECT Id, UserName, Password FROM User", &aUsers));
+    for (auto& aRow : aUsers)
+    {
+        std::cout << "---------------------------" << std::endl;
+        SQLINTEGER iValue = 0;
+        SQLVARCHAR* sUserName = nullptr;
+        SQLVARCHAR* sPassword = nullptr;
+        aRow["Id"]->GetValueInteger(&iValue);
+        aRow["UserName"]->GetValueChar(&sUserName);
+        aRow["Password"]->GetValueChar(&sPassword);
+        std::cout << "Id: " << iValue << std::endl;
+        std::cout << "UserName: " << sUserName << std::endl;
+        std::cout << "Password: " << sPassword << std::endl;
+        std::cout << "---------------------------" << std::endl;
+    }
 }
 
 TEST(ODBCTests, DisConnect)

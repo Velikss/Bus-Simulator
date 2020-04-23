@@ -18,19 +18,71 @@ public:
     { }
 };
 
-struct tUser
-{
-    SQLINTEGER iId;
-    SQLCHAR sName[256];
-};
-
 struct tColumnDefintion
 {
-    SQLSMALLINT iIndex;
-    SQLSMALLINT uiSize;
+public:
+    SQLSMALLINT sIndex;
+    SQLSMALLINT sType;
+    SQLULEN uiSize;
 };
 
 typedef std::map<string, std::map<string, tColumnDefintion>> tTableDefintions;
+
+class cODBCValue
+{
+    void* pvValue = nullptr;
+    SQLSMALLINT psType = SQL_UNKNOWN_TYPE;
+public:
+    cODBCValue()
+        = default;
+
+    cODBCValue(void* vValue, SQLSMALLINT sType)
+    {
+        this->pvValue = vValue;
+        this->psType = sType;
+    }
+
+    bool GetValueInteger(SQLINTEGER* piValue)
+    {
+        if(psType != SQL_INTEGER) return false;
+        *piValue = *(SQLINTEGER*)pvValue;
+        return true;
+    }
+
+    bool GetValueChar(SQLCHAR** ppValue)
+    {
+        if (psType != SQL_CHAR) return false;
+        *ppValue = (SQLCHAR*)pvValue;
+        return true;
+    }
+
+    bool GetValueVarChar(SQLVARCHAR** ppValue)
+    {
+        if (psType != SQL_VARCHAR) return false;
+        *ppValue = (SQLVARCHAR*)pvValue;
+        return true;
+    }
+
+    ~cODBCValue()
+    {
+        switch (psType)
+        {
+        case SQL_INTEGER:
+            delete (SQLINTEGER*)pvValue;
+            break;
+        case SQL_CHAR || SQL_VARCHAR:
+            delete[] (SQLCHAR*)pvValue;
+            break;
+        case SQL_UNKNOWN_TYPE:
+            break;
+        default:
+            assert(false); // Should have been a known type.
+            break;
+        }
+    }
+};
+
+typedef std::map<string, cODBCValue*> SQLROW;
 
 class cODBCInstance
 {
@@ -46,7 +98,32 @@ public:
     bool Disconnect();
     bool Discover();
     void PrintTables();
-    bool QueryExec(string sQuery, std::vector<tUser>* aUsers);
+    bool QueryExec(string sQuery, std::vector<SQLROW>* aRows);
+    void extract_error(
+        char* fn,
+        SQLHANDLE handle,
+        SQLSMALLINT type)
+    {
+        SQLINTEGER i = 0;
+        SQLINTEGER native;
+        SQLCHAR state[7];
+        SQLCHAR text[256];
+        SQLSMALLINT len;
+        SQLRETURN ret;
+        fprintf(stderr,
+            "\n"
+            "The driver reported the following diagnostics whilst running "
+            "%s\n\n",
+            fn);
+
+        do
+        {
+            ret = SQLGetDiagRec(type, handle, ++i, state, &native, text,
+                sizeof(text), &len);
+            if (SQL_SUCCEEDED(ret))
+                printf("%s:%ld:%ld:%s\n", state, i, native, text);
+        } while (ret == SQL_SUCCESS);
+    }
 };
 
 bool cODBCInstance::Connect(string sConnectionString)
@@ -166,7 +243,7 @@ bool cODBCInstance::DiscoverColumns(tTableDefintions*aTables)
             }
 
             string sName = string((const char*)caName, iNameLength);
-            SQLSMALLINT sLen = 0;
+            SQLULEN sLen = 0;
 
             switch (columnType)
             {
@@ -201,7 +278,7 @@ bool cODBCInstance::DiscoverColumns(tTableDefintions*aTables)
                     return false;
             }
 
-            aColumns.insert({sName, {i, sLen}});
+            aColumns.insert({sName, {i, columnType, sLen}});
         }
 
         SQLFreeHandle(SQL_HANDLE_STMT, stmtColumn);
@@ -209,7 +286,7 @@ bool cODBCInstance::DiscoverColumns(tTableDefintions*aTables)
     return true;
 }
 
-bool cODBCInstance::QueryExec(string sQuery, std::vector<tUser>* aUsers)
+bool cODBCInstance::QueryExec(string sQuery, std::vector<SQLROW>* aRows)
 {
     try
     {
@@ -226,30 +303,85 @@ bool cODBCInstance::QueryExec(string sQuery, std::vector<tUser>* aUsers)
             return false;
         }
 
-        SQLSMALLINT sColumns = 0;
-        if (SQL_SUCCESS != SQLNumResultCols(stmt, &sColumns))
+        SQLSMALLINT sColumnCount = 0;
+        if (SQL_SUCCESS != SQLNumResultCols(stmt, &sColumnCount))
         {
             SQLFreeHandle(SQL_HANDLE_STMT, stmt);
             return false;
         }
 
-        SQLULEN columnLen = 0;
-        if(SQL_SUCCESS != SQLDescribeCol(stmt, 1, nullptr, 0, nullptr, nullptr, &columnLen, nullptr, nullptr))
-        {
-            SQLFreeHandle(SQL_HANDLE_STMT, stmt);
-            return false;
-        }
+        std::map<string, tColumnDefintion> aColumns;
 
-        while (SQL_SUCCESS == SQLFetch(stmt))
+        for (SQLSMALLINT i = 1; i <= sColumnCount; i++)
         {
-            tUser tUsr;
-            SQLLEN tLen = 0;
-            if (SQL_SUCCESS != SQLGetData(stmt, 1, SQL_C_LONG, &tUsr.iId, sizeof(SQL_C_LONG), &tLen))
+            SQLCHAR caName[256];
+            SQLSMALLINT iNameLength = 0;
+            SQLULEN columnLength = 0;
+            SQLSMALLINT columnType = SQL_UNKNOWN_TYPE;
+
+            if (SQL_SUCCESS !=
+                SQLDescribeCol(stmt, i, (SQLCHAR *) &caName, sizeof(caName), &iNameLength, &columnType,
+                               &columnLength, nullptr, nullptr))
             {
                 SQLFreeHandle(SQL_HANDLE_STMT, stmt);
                 return false;
             }
-            aUsers->push_back(tUsr);
+
+            string sName = string((const char *) caName, iNameLength);
+            SQLULEN sLen = 0;
+
+            switch (columnType)
+            {
+                case SQL_CHAR:
+                    sLen = 1024;
+                    break;
+                case SQL_VARCHAR:
+                    sLen = 1024;
+                    break;
+                case SQL_NUMERIC:
+                    sLen = sizeof(SQLNUMERIC);
+                    break;
+                case SQL_INTEGER:
+                    sLen = sizeof(SQLINTEGER);
+                    break;
+                case SQL_SMALLINT:
+                    sLen = sizeof(SQLSMALLINT);
+                    break;
+                case SQL_FLOAT:
+                    sLen = sizeof(SQLFLOAT);
+                    break;
+                case SQL_REAL:
+                    sLen = sizeof(SQLREAL);
+                    break;
+                case SQL_DOUBLE:
+                    sLen = sizeof(SQLDOUBLE);
+                    break;
+                case SQL_TIMESTAMP:
+                    sLen = sizeof(SQL_TIMESTAMP_STRUCT);
+                    break;
+                default:
+                    return false;
+            }
+            aColumns.insert({sName, {i, columnType, sLen}});
+        }
+
+        while (SQL_SUCCESS == SQLFetch(stmt))
+        {
+            SQLROW tRow;
+            for (auto& [sName, tColumnDef] : aColumns)
+            {
+                void* vValueBuffer = malloc(tColumnDef.uiSize);
+                SQLLEN sLen = 0;
+                auto result = SQLGetData(stmt, tColumnDef.sIndex, tColumnDef.sType, vValueBuffer, tColumnDef.uiSize, &sLen);
+                if (result != SQL_SUCCESS && result != SQL_SUCCESS_WITH_INFO)
+                {
+                    extract_error("Varchar field: ", stmt, SQL_HANDLE_STMT);
+                    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+                    return false;
+                }
+                tRow.insert({ sName, new cODBCValue {vValueBuffer, tColumnDef.sType} });
+            }
+            aRows->push_back(tRow);
         }
         return true;
     }
@@ -265,6 +397,6 @@ void cODBCInstance::PrintTables()
     {
         std::cout << sName << ": " << std::endl;
         for (auto& [sName, tColumnSpecs] : aColumns)
-            std::cout << "\t[" << tColumnSpecs.iIndex << "]" << sName << ": " << tColumnSpecs.uiSize << std::endl;
+            std::cout << "\t[" << tColumnSpecs.sIndex << "]" << sName << ": " << tColumnSpecs.uiSize << std::endl;
     }
 }

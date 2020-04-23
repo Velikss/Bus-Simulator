@@ -19,6 +19,7 @@
 #include <limits>
 #include <memory>
 #include <sstream>
+#include <codecvt>
 #ifdef __linux__
 #define LINUX
 #include <unistd.h>
@@ -45,6 +46,9 @@ typedef unsigned int uint;
 typedef long long int64;
 typedef unsigned long long uint64;
 typedef unsigned char byte;
+typedef std::string string;
+typedef unsigned short ushort;
+typedef char* cstring;
 
 bool is_file_exist(string fileName)
 {
