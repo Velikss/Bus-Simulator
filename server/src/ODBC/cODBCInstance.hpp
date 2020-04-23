@@ -1,7 +1,7 @@
 #pragma once
 #include <pch.hpp>
 #include <iostream>
-#define UNICODE
+//#define UNICODE
 #if defined(WINDOWS)
 #include <windows.h>
 #endif
@@ -28,8 +28,10 @@ public:
 
 bool cODBCInstance::Connect(string sConnectionString)
 {
+/*
     std::wstring_convert<codecvt<char16_t,char,std::mbstate_t>,char16_t> convert;
     std::u16string s16ConnectionString = convert.from_bytes(sConnectionString);
+*/
 
     /* Initialize the ODBC environment handle. */
     SQLAllocHandle( SQL_HANDLE_ENV, nullptr, &henv );
@@ -42,11 +44,11 @@ bool cODBCInstance::Connect(string sConnectionString)
     SQLAllocHandle( SQL_HANDLE_DBC, henv, &hdbc );
 
     /* Connect to the database using the connection string. */
-    SQLRETURN result = SQLDriverConnect( hdbc,    /* Connection handle */
+    SQLRETURN result = SQLDriverConnectA( hdbc,    /* Connection handle */
                       0,                     /* Window handle */
-                      (SQLWCHAR*) s16ConnectionString.c_str(), /* Connection string */
+                      (SQLCHAR*) sConnectionString.c_str(), /* Connection string */
                       SQL_NTS,               /* This is a null-terminated string */
-                      (SQLWCHAR *)NULL,       /* Output (result) connection string */
+                      (SQLCHAR *)NULL,       /* Output (result) connection string */
                       SQL_NTS,               /* This is a null-terminated string */
                       0,                     /* Length of output connect string */
                       SQL_DRIVER_NOPROMPT ); /* Don’t display a prompt window */
