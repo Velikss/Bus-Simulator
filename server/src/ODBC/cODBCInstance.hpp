@@ -14,12 +14,15 @@ class cODBCInstance
     HENV henv = nullptr;
     HDBC hdbc = nullptr;
 public:
-    bool Connect();
+    bool Connect(string sConnectionString);
     bool Disconnect();
 };
 
-bool cODBCInstance::Connect()
+bool cODBCInstance::Connect(string sConnectionString)
 {
+    std::wstring_convert<std::codecvt<char16_t,char,std::mbstate_t>,char16_t> convert;
+    std::u16string s16ConnectionString = convert.from_bytes(sConnectionString);
+
     /* Initialize the ODBC environment handle. */
     SQLAllocHandle( SQL_HANDLE_ENV, nullptr, &henv );
 
@@ -33,7 +36,7 @@ bool cODBCInstance::Connect()
     /* Connect to the database using the connection string. */
     SQLRETURN result = SQLDriverConnect( hdbc,    /* Connection handle */
                       0,                     /* Window handle */
-                      (SQLWCHAR*) L"driver={MariaDB ODBC 3.1 Driver};server=192.168.178.187;user=root;pwd=hiddenhand;database=test;", /* Connection string */
+                      (SQLWCHAR*) s16ConnectionString.c_str(), /* Connection string */
                       SQL_NTS,               /* This is a null-terminated string */
                       (SQLWCHAR *)NULL,       /* Output (result) connection string */
                       SQL_NTS,               /* This is a null-terminated string */

@@ -82,7 +82,7 @@ int main()
         oConfigStream >> oConfig;
 
     cODBCInstance oODBCInstance;
-    oODBCInstance.Connect();
+    oODBCInstance.Connect("driver={MariaDB ODBC 3.1 Driver};server=192.168.178.187;user=root;pwd=hiddenhand;database=test;");
     oODBCInstance.Disconnect();
 
     //init response

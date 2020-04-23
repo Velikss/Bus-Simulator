@@ -1,6 +1,16 @@
 #pragma once
 #include <string>
 #include <map>
+#include <codecvt>
+#ifdef __linux__
+#define LINUX
+#include <unistd.h>
+#endif
+#if defined(_WIN32) || defined(_WIN64)
+#define WINDOWS
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
 typedef std::string string;
 typedef unsigned int uint;
 typedef long long int64;
