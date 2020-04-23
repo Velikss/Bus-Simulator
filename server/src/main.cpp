@@ -6,12 +6,13 @@
 #include <streambuf>
 #include <SslHelper.hpp>
 #include <filesystem>
+#include <ODBC\cODBCInstance.hpp>
 
 string resp_str;
 
 bool OnRecieve(cNetworkConnection* connection)
 {
-    byte buffer[8192]{0};
+    byte buffer[8192];
     const long size = connection->ReceiveBytes((byte *) &buffer[0], 8192);
     const std::string_view req_str((char*)buffer, size);
     cHttp::cRequest req = cHttp::cRequest::Deserialize((string) req_str);
@@ -80,13 +81,17 @@ int main()
     if (oConfigStream.is_open())
         oConfigStream >> oConfig;
 
+    cODBCInstance oODBCInstance;
+    oODBCInstance.Connect();
+    oODBCInstance.Disconnect();
+
     //init response
     Utf8 oUTF8ToHtmlConverter;
     std::ifstream oHtmlStream("./wwwroot/index.html");
     if (!oHtmlStream.is_open())
     {
         std::cout << "index.html could not be found." << std::endl;
-        return false;
+        return -1;
     }
     std::string sUTFHtml((std::istreambuf_iterator<char>(oHtmlStream)),
                          std::istreambuf_iterator<char>());
