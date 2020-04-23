@@ -30,16 +30,19 @@ typedef std::map<string, std::map<string, tColumnDefintion>> tTableDefintions;
 
 class cODBCValue
 {
+public:
     void* pvValue = nullptr;
     SQLSMALLINT psType = SQL_UNKNOWN_TYPE;
-public:
+    SQLULEN puiLen = 0;
+
     cODBCValue()
         = default;
 
-    cODBCValue(void* vValue, SQLSMALLINT sType)
+    cODBCValue(void* vValue, SQLSMALLINT sType, SQLULEN uiLen)
     {
         this->pvValue = vValue;
         this->psType = sType;
+        this->puiLen = uiLen;
     }
 
     bool GetValueInteger(SQLINTEGER* piValue)
@@ -49,17 +52,17 @@ public:
         return true;
     }
 
-    bool GetValueChar(SQLCHAR** ppValue)
+    bool GetValueStrRef(std::string_view & sValue)
     {
         if (psType != SQL_CHAR) return false;
-        *ppValue = (SQLCHAR*)pvValue;
+        sValue = std::string_view((const char*)pvValue, puiLen);
         return true;
     }
 
-    bool GetValueVarChar(SQLVARCHAR** ppValue)
+    bool GetValueStr(std::string & sValue)
     {
-        if (psType != SQL_VARCHAR) return false;
-        *ppValue = (SQLVARCHAR*)pvValue;
+        if (psType != SQL_CHAR) return false;
+        sValue = string((const char*)pvValue, puiLen);
         return true;
     }
 
@@ -70,7 +73,7 @@ public:
         case SQL_INTEGER:
             delete (SQLINTEGER*)pvValue;
             break;
-        case SQL_CHAR || SQL_VARCHAR:
+        case SQL_CHAR:
             delete[] (SQLCHAR*)pvValue;
             break;
         case SQL_UNKNOWN_TYPE:
@@ -333,10 +336,11 @@ bool cODBCInstance::QueryExec(string sQuery, std::vector<SQLROW>* aRows)
             switch (columnType)
             {
                 case SQL_CHAR:
-                    sLen = 1024;
+                    sLen = columnLength;
                     break;
                 case SQL_VARCHAR:
-                    sLen = 1024;
+                    columnType = SQL_CHAR;
+                    sLen = columnLength;
                     break;
                 case SQL_NUMERIC:
                     sLen = sizeof(SQLNUMERIC);
@@ -371,6 +375,7 @@ bool cODBCInstance::QueryExec(string sQuery, std::vector<SQLROW>* aRows)
             for (auto& [sName, tColumnDef] : aColumns)
             {
                 void* vValueBuffer = malloc(tColumnDef.uiSize);
+                memset(vValueBuffer, ' ', tColumnDef.uiSize);
                 SQLLEN sLen = 0;
                 auto result = SQLGetData(stmt, tColumnDef.sIndex, tColumnDef.sType, vValueBuffer, tColumnDef.uiSize, &sLen);
                 if (result != SQL_SUCCESS && result != SQL_SUCCESS_WITH_INFO)
@@ -379,7 +384,7 @@ bool cODBCInstance::QueryExec(string sQuery, std::vector<SQLROW>* aRows)
                     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
                     return false;
                 }
-                tRow.insert({ sName, new cODBCValue {vValueBuffer, tColumnDef.sType} });
+                tRow.insert({ sName, new cODBCValue {vValueBuffer, tColumnDef.sType, tColumnDef.uiSize} });
             }
             aRows->push_back(tRow);
         }

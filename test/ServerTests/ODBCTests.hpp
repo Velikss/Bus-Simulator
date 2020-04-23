@@ -22,14 +22,14 @@ TEST(ODBCTests, FetchUser)
     {
         std::cout << "---------------------------" << std::endl;
         SQLINTEGER iValue = 0;
-        SQLVARCHAR* sUserName = nullptr;
-        SQLVARCHAR* sPassword = nullptr;
+        string sUserName;
+        string sPassword;
         aRow["Id"]->GetValueInteger(&iValue);
-        aRow["UserName"]->GetValueChar(&sUserName);
-        aRow["Password"]->GetValueChar(&sPassword);
+        aRow["UserName"]->GetValueStr(sUserName);
+        aRow["Password"]->GetValueStr(sPassword);
         std::cout << "Id: " << iValue << std::endl;
-        std::cout << "UserName: " << sUserName << std::endl;
-        std::cout << "Password: " << sPassword << std::endl;
+        std::cout << "UserName: '" << sUserName << "'" << std::endl;
+        std::cout << "Password: '" << sPassword << "'" << std::endl;
         std::cout << "---------------------------" << std::endl;
     }
 }
