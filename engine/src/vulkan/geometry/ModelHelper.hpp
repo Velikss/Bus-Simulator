@@ -1,7 +1,7 @@
 #pragma once
 
 #include <pch.hpp>
-#include <vulkan/buffer/Vertex.hpp>
+#include <vulkan/geometry/Vertex.hpp>
 
 // Helper class for loading model files
 class cModelHelper

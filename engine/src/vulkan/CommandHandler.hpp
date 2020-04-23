@@ -7,7 +7,7 @@
 #include <vulkan/SwapChain.hpp>
 #include <vulkan/RenderPass.hpp>
 #include <vulkan/GraphicsPipeline.hpp>
-#include <vulkan/buffer/Geometry.hpp>
+#include <vulkan/geometry/Geometry.hpp>
 #include "CommandHelper.hpp"
 
 class cCommandHandler
@@ -140,15 +140,19 @@ void cCommandHandler::RecordCommandBuffers(cRenderPass* pRenderPass,
             vkCmdBindPipeline(paoCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
                               pGraphicsPipeline->poGraphicsPipeline);
 
-            for (auto pGeometry : apGeometries)
+            for (uint uiGeometryIndex = 0; uiGeometryIndex < apGeometries.size(); uiGeometryIndex++)
             {
+                cGeometry* pGeometry = apGeometries[uiGeometryIndex];
+
                 // Bind the vertex buffers
                 pGeometry->CmdBindVertexBuffer(paoCommandBuffers[i]);
 
                 // Bind the index buffers
                 pGeometry->CmdBindIndexBuffer(paoCommandBuffers[i]);
 
-                pUniformHandler->CmdBindDescriptorSets(paoCommandBuffers[i], pGraphicsPipeline->poPipelineLayout, i);
+                pUniformHandler->CmdBindDescriptorSets(paoCommandBuffers[i],
+                                                       pGraphicsPipeline->poPipelineLayout,
+                                                       uiGeometryIndex);
 
                 // Draw the vertices
                 vkCmdDrawIndexed(paoCommandBuffers[i], pGeometry->GetIndexCount(), 1, 0, 0, 0);

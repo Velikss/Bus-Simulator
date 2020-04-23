@@ -7,7 +7,7 @@
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/SwapChain.hpp>
 #include <vulkan/RenderPass.hpp>
-#include <vulkan/buffer/Vertex.hpp>
+#include <vulkan/geometry/Vertex.hpp>
 #include <vulkan/UniformHandler.hpp>
 
 class cGraphicsPipeline

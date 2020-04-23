@@ -2,10 +2,10 @@
 
 #include <pch.hpp>
 #include <vulkan/vulkan.h>
-#include <vulkan/buffer/Vertex.hpp>
+#include <vulkan/geometry/Vertex.hpp>
 #include <vulkan/LogicalDevice.hpp>
-#include <vulkan/buffer/BufferHelper.hpp>
-#include <vulkan/buffer/ModelHelper.hpp>
+#include <vulkan/geometry/BufferHelper.hpp>
+#include <vulkan/geometry/ModelHelper.hpp>
 
 // Class representing some geometry (vertices) that can be rendered in the scene
 class cGeometry

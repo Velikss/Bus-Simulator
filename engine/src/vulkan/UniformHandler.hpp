@@ -3,14 +3,14 @@
 #include <pch.hpp>
 #include <vulkan/vulkan.h>
 #include <vulkan/LogicalDevice.hpp>
-#include <vulkan/buffer/BufferHelper.hpp>
+#include <vulkan/geometry/BufferHelper.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <chrono>
 #include "vulkan/GraphicsPipeline.hpp"
-#include "TextureHandler.hpp"
+#include "vulkan/texture/TextureHandler.hpp"
 
 struct tUniformBufferObject
 {
@@ -37,8 +37,8 @@ public:
     cUniformHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
     ~cUniformHandler(void);
 
-    void SetupUniformBuffers();
-    void UpdateUniformBuffers(uint uiImageIndex);
+    void SetupUniformBuffers(uint uiCount, cTextureHandler* pTextureHandler);
+    void UpdateUniformBuffers();
 
     uint GetDescriptorSetLayoutCount(void);
     VkDescriptorSetLayout* GetDescriptorSetLayouts(void);
@@ -46,9 +46,9 @@ public:
     void CmdBindDescriptorSets(VkCommandBuffer& commandBuffer, VkPipelineLayout& oPipelineLayout, uint uiIndex);
 
 private:
-    void CreateUniformBuffers(void);
-    void CreateDescriptorPool(void);
-    void CreateDescriptorSets();
+    void CreateUniformBuffers(uint uiCount);
+    void CreateDescriptorPool();
+    void CreateDescriptorSets(cTextureHandler* pTextureHandler);
 };
 
 cUniformHandler::cUniformHandler(cLogicalDevice* pLogicalDevice,
@@ -96,22 +96,21 @@ cUniformHandler::~cUniformHandler()
     ppLogicalDevice->DestroyDescriptorPool(poDescriptorPool, nullptr);
 }
 
-void cUniformHandler::SetupUniformBuffers()
+void cUniformHandler::SetupUniformBuffers(uint uiCount, cTextureHandler* pTextureHandler)
 {
-    CreateUniformBuffers();
+    CreateUniformBuffers(uiCount);
     CreateDescriptorPool();
-    CreateDescriptorSets();
+    CreateDescriptorSets(pTextureHandler);
 }
 
-void cUniformHandler::CreateUniformBuffers()
+void cUniformHandler::CreateUniformBuffers(uint uiCount)
 {
     VkDeviceSize bufferSize = sizeof(tUniformBufferObject);
 
-    uint uiBufferCount = ppSwapChain->GetFramebufferSize();
-    paoUniformBuffers.resize(uiBufferCount);
-    paoUniformBuffersMemory.resize(uiBufferCount);
+    paoUniformBuffers.resize(uiCount);
+    paoUniformBuffersMemory.resize(uiCount);
 
-    for (uint i = 0; i < uiBufferCount; i++)
+    for (uint i = 0; i < uiCount; i++)
     {
         cBufferHelper::CreateBuffer(ppLogicalDevice, bufferSize,
                                     VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
@@ -120,43 +119,49 @@ void cUniformHandler::CreateUniformBuffers()
     }
 }
 
-void cUniformHandler::UpdateUniformBuffers(uint uiImageIndex)
+void cUniformHandler::UpdateUniformBuffers()
 {
-    assert(uiImageIndex < paoUniformBuffers.size()); // image index must be within the bounds of the buffers list
+    //assert(uiImageIndex < paoUniformBuffers.size()); // image index must be within the bounds of the buffers list
 
     static auto startTime = std::chrono::high_resolution_clock::now();
 
     auto currentTime = std::chrono::high_resolution_clock::now();
     float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-    tUniformBufferObject tUBO = {};
-
-    tUBO.tModel = glm::rotate(
-            glm::mat4(1.0f),
-            time * glm::radians(20.0f),
-            glm::vec3(0.0f, 0.0f, 1.0f));
-
-    tUBO.tView = glm::lookAt(
-            glm::vec3(2.0f, 2.0f, 2.0f),
-            glm::vec3(0.0f, 0.0f, 0.0f),
-            glm::vec3(0.0f, 0.0f, 1.0f));
-
-    VkExtent2D tExtent = ppSwapChain->ptSwapChainExtent;
-    tUBO.tProjection = glm::perspective(
-            glm::radians(45.0f),
-            tExtent.width / (float) tExtent.height,
-            0.1f, 10.0f);
-    tUBO.tProjection[1][1] *= -1; // invert the Y axis
 
     void* data;
-    ppLogicalDevice->MapMemory(paoUniformBuffersMemory[uiImageIndex], 0, sizeof(tUBO), 0, &data);
+    for (uint i = 0; i < paoDescriptorSets.size(); i++)
     {
-        memcpy(data, &tUBO, sizeof(tUBO));
+        VkDeviceMemory& oMemory = paoUniformBuffersMemory[i];
+
+        tUniformBufferObject tUBO = {};
+
+        tUBO.tModel = glm::rotate(
+                glm::mat4(1.0f),
+                (time * glm::radians(i == 0 ? 20.0f : -20.0f)),
+                glm::vec3(0.0f, 0.0f, 1.0f));
+
+        tUBO.tView = glm::lookAt(
+                glm::vec3(2.0f, 2.0f, 2.0f),
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(0.0f, 0.0f, 1.0f));
+
+        VkExtent2D tExtent = ppSwapChain->ptSwapChainExtent;
+        tUBO.tProjection = glm::perspective(
+                glm::radians(45.0f),
+                tExtent.width / (float) tExtent.height,
+                0.1f, 10.0f);
+        tUBO.tProjection[1][1] *= -1; // invert the Y axis
+
+        ppLogicalDevice->MapMemory(oMemory, 0, sizeof(tUBO), 0, &data);
+        {
+            memcpy(data, &tUBO, sizeof(tUBO));
+        }
+        ppLogicalDevice->UnmapMemory(oMemory);
     }
-    ppLogicalDevice->UnmapMemory(paoUniformBuffersMemory[uiImageIndex]);
 }
 
-void cUniformHandler::CreateDescriptorPool(void)
+void cUniformHandler::CreateDescriptorPool()
 {
     std::array<VkDescriptorPoolSize, 2> atPoolSizes = {};
     atPoolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -177,7 +182,7 @@ void cUniformHandler::CreateDescriptorPool(void)
     }
 }
 
-void cUniformHandler::CreateDescriptorSets()
+void cUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler)
 {
     std::vector<VkDescriptorSetLayout> aoLayouts(paoUniformBuffers.size(), poDescriptorSetLayout);
 
@@ -203,8 +208,8 @@ void cUniformHandler::CreateDescriptorSets()
 
         VkDescriptorImageInfo tImageInfo = {};
         tImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        tImageInfo.imageView = cTextureHandler::poTextureImageView;
-        tImageInfo.sampler = cTextureHandler::poTextureSampler;
+        tImageInfo.imageView = pTextureHandler->GetTexture(i)->GetView();
+        tImageInfo.sampler = pTextureHandler->GetSampler();
 
         std::array<VkWriteDescriptorSet, 2> atDescriptorWrites = {};
 

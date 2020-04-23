@@ -15,7 +15,7 @@
 #include <vulkan/RenderPass.hpp>
 #include <vulkan/CommandHandler.hpp>
 #include <vulkan/RenderHandler.hpp>
-#include <vulkan/buffer/Geometry.hpp>
+#include <vulkan/geometry/Geometry.hpp>
 
 class Engine
 {
@@ -95,6 +95,8 @@ void Engine::InitVulkan(void)
 
     // Create the texture handler. This deals with loading, binding and sampling the textures
     ppTextureHandler = new cTextureHandler(ppLogicalDevice);
+    ppTextureHandler->CreateTexture("resources/textures/stone.jpg");
+    ppTextureHandler->CreateTexture("resources/textures/grass.jpg");
 
     // Create and setup the depth resources
     ppSwapChain->CreateDepthResources();
@@ -107,7 +109,7 @@ void Engine::InitVulkan(void)
     papGeometries.push_back(cGeometry::FromOBJFile("resources/geometries/sphere.obj", ppLogicalDevice));
 
     // Setup the buffers for uniform variables
-    ppUniformHandler->SetupUniformBuffers();
+    ppUniformHandler->SetupUniformBuffers(2, ppTextureHandler);
 
     // Create and record the command buffers. Records the sequence of commands needed to render scene
     ppCommandHandler->CreateCommandBuffers(ppSwapChain, ppRenderPass, ppGraphicsPipeline,

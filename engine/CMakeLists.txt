@@ -61,10 +61,10 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/ImageHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/TextureHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/CommandHelper.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/buffer/Geometry.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/buffer/Vertex.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/buffer/BufferHelper.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/buffer/ModelHelper.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/Geometry.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/Vertex.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/BufferHelper.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/ModelHelper.hpp src/vulkan/mesh/Mesh.hpp src/vulkan/texture/Texture.hpp src/vulkan/texture/TextureHelper.hpp src/vulkan/texture/TextureInfo.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 

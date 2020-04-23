@@ -99,7 +99,7 @@ void cRenderHandler::DrawFrame(void)
     VkFence oAqcuireFence = VK_NULL_HANDLE;
     ppSwapChain->AcquireNextImage(UINT64_MAX, aoImageAvailableSemaphores[uiCurrentFrame], oAqcuireFence, &uiImageIndex);
 
-    ppUniformHandler->UpdateUniformBuffers(uiImageIndex);
+    ppUniformHandler->UpdateUniformBuffers();
 
     // Struct with information about the command buffer we want to submit to the queue
     VkSubmitInfo tSubmitInfo = {};
