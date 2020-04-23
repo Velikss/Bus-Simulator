@@ -19,7 +19,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(Headers
-        ServerTests/UriTests.hpp ServerTests/OdbcTests.hpp)
+        ServerTests/UriTests.hpp ServerTests/ODBCTests.hpp)
 set(Sources
         main_test.cpp
 )
