@@ -21,6 +21,11 @@ public:
 
     }
 
+    virtual void SetVelocity(glm::vec2 *velocity)
+    {
+
+    }
+
 };
 
 class cEntityGroupInterface : public cEntityInterface

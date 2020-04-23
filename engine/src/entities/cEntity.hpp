@@ -33,6 +33,11 @@ public:
         *velocity = pVelocity;
     }
 
+    void SetVelocity(glm::vec2 *velocity)
+    {
+        pVelocity = *velocity;
+    }
+
     virtual void Update()
     {
         for (auto &cBehaviourHandler : paBehaviourHandlers)

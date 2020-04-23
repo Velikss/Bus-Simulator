@@ -30,6 +30,8 @@ public:
 
     static duk_ret_t ReturnEntityVelocity(duk_context *poContext);
 
+    static duk_ret_t SetEntityVelocity(duk_context *poContext);
+
     static duk_ret_t ReturnEntityHeading(duk_context *poContext);
 
     static duk_ret_t ReturnEntityList(duk_context *poContext);
@@ -46,6 +48,7 @@ void cBehaviourHandler::AddBehaviour(std::string sBehaviourName, std::string sFi
     poBehaviourEngine->RegisterFunction(cBehaviourHandler::ReturnEntityCoordinates, 1, "GetEntityCoordinates");
     poBehaviourEngine->RegisterFunction(cBehaviourHandler::ReturnEntityList, 1, "GetEntityList");
     poBehaviourEngine->RegisterFunction(cBehaviourHandler::ReturnEntityVelocity, 1, "GetEntityVelocity");
+    poBehaviourEngine->RegisterFunction(cBehaviourHandler::SetEntityVelocity, 3, "SetEntityVelocity");
     poBehaviourEngine->RegisterFunction(cBehaviourHandler::ReturnEntityHeading, 1, "GetEntityHeading");
 
     if (poBehaviourEngine->CompileJavaScriptFile(sFileName.c_str()))
@@ -114,6 +117,29 @@ duk_ret_t cBehaviourHandler::ReturnEntityVelocity(duk_context *poContext)
     duk_put_prop_index(poContext, ArrayIndex, 1);
 
     return 1;
+}
+
+duk_ret_t cBehaviourHandler::SetEntityVelocity(duk_context *poContext)
+{
+    if (duk_get_top(poContext) == 0)
+    {
+        /* throw TypeError if no arguments given */
+        return DUK_RET_TYPE_ERROR;
+    }
+
+    // Get pointer from stack
+    void *p = duk_to_pointer(poContext, -3);
+
+    // Cast pointer to Entity pointer, we know it's pointing to an entity
+    cEntityInterface *poEntity = static_cast<cEntityInterface *>(p);
+
+    // Get velocity from stack
+    glm::vec2 velocity(duk_to_number(poContext, -2), duk_to_number(poContext, -1));
+
+    // Set velocity to entity
+    poEntity->SetVelocity(&velocity);
+
+    return 0;
 }
 
 duk_ret_t cBehaviourHandler::ReturnEntityHeading(duk_context *poContext)

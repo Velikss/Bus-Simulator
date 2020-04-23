@@ -13,6 +13,8 @@ function calculate(entity, entities)
         println("Entity heading: " + heading);
         var velocity = GetEntityVelocity(entity);
         println("Entity velocity: " + velocity);
+
+        SetEntityVelocity(entity, 1.22, 3.44);
     }
 
     // Do behaviour logic

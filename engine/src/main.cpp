@@ -133,5 +133,7 @@ int main(int argc, char **argv)
     entityGroup.AddBehaviour(cb);
 
     entityGroup.UpdateEntities();
+
+    std::cout << "Entity velocity: " << en2.pVelocity.x << " " << en2.pVelocity.y;
 }
 
