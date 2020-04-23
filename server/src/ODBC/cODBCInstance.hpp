@@ -2,7 +2,9 @@
 #include <pch.hpp>
 #include <iostream>
 #define UNICODE
+#if defined(WINDOWS)
 #include <windows.h>
+#endif
 #include <sqlext.h>
 #include <sqltypes.h>
 #include <sql.h>
