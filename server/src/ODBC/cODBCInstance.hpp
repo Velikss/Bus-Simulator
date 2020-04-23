@@ -20,7 +20,7 @@ public:
 
 bool cODBCInstance::Connect(string sConnectionString)
 {
-    std::wstring_convert<std::codecvt<char16_t,char,std::mbstate_t>,char16_t> convert;
+    std::wstring_convert<codecvt<char16_t,char,std::mbstate_t>,char16_t> convert;
     std::u16string s16ConnectionString = convert.from_bytes(sConnectionString);
 
     /* Initialize the ODBC environment handle. */
