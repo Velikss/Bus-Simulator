@@ -3,12 +3,12 @@
 #include <pch.hpp>
 #include <entities/cEntity.hpp>
 
-class cEntityGroup : public cEntity
+class cEntityGroup : public cEntityGroupInterface
 {
     std::vector<cEntity *> poEntities;
     std::vector<cBehaviourHandler *> paBehaviourHandlers;
 public:
-    cEntityGroup() : cEntity(nullptr)
+    cEntityGroup() : cEntityGroupInterface()
     {
 
     }
@@ -32,6 +32,12 @@ public:
     {
         paBehaviourHandlers.erase(std::remove(paBehaviourHandlers.begin(), paBehaviourHandlers.end(), poBehaviour));
     }
+
+    void ReturnEntities(std::vector<cEntityInterface *> **entities) override
+    {
+        *entities = reinterpret_cast<std::vector<cEntityInterface *> *>(&poEntities);
+    }
+
 
     void UpdateEntities()
     {

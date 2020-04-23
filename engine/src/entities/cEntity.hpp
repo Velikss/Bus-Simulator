@@ -3,13 +3,14 @@
 #include <pch.hpp>
 #include <objects/BaseObject.hpp>
 #include <entities/cBehaviourHandler.hpp>
+#include <entities/cEntityInterface.hpp>
 
-class cEntity : public BaseObject
+class cEntity : public cEntityInterface
 {
 public:
     std::vector<cBehaviourHandler *> paBehaviourHandlers;
 
-    cEntity(Mesh *mesh) : BaseObject(mesh)
+    cEntity(Mesh *mesh) : cEntityInterface(mesh)
     {
 
     }

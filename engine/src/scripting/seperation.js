@@ -10,6 +10,9 @@ function calculate(entity, entities)
     if(entity)
         println("Entity ptr: " + entity);
 
+    var entityList = GetEntityList(entities);
+    println("tesT: " + entityList[0]);
+
     // Do behaviour logic
 
     // Return values (set function that applies the modified values to the entity
