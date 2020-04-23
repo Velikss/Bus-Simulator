@@ -1,6 +1,10 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
+// Don't forget to compile the shaders after modifying
+// them using the provided 'compile.sh' (Linux) script.
+// This will also show you any errors in your shaders
+
 layout(binding = 0) uniform UniformBufferObject {
     mat4 model;
     mat4 view;
