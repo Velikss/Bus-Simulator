@@ -18,7 +18,7 @@ TEST(ODBCTests, Exe)
 TEST(ODBCTests, Unicode)
 {
     std::vector<SQLROW> aUsers;
-    EXPECT_TRUE(oInstance.Fetch("SELECT * FROM UserTest LIMIT 1", &aUsers));
+    EXPECT_TRUE(oInstance.Fetch("SELECT * FROM UserTest ORDER BY Id DESC LIMIT 1", &aUsers));
     EXPECT_TRUE(aUsers.size() == 1);
 
     string sFetchedUnicodeUTF8;
