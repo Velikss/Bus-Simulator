@@ -83,7 +83,6 @@ int main()
 
     cODBCInstance oODBCInstance;
     oODBCInstance.Connect("driver={MariaDB ODBC 3.1 Driver};server=192.168.178.187;user=root;pwd=hiddenhand;database=test;");
-    oODBCInstance.Disconnect();
 
     //init response
     Utf8 oUTF8ToHtmlConverter;

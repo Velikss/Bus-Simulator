@@ -172,12 +172,14 @@ bool cODBCInstance::Fetch(string sQuery, std::vector<SQLROW>* aRows)
     {
         if (SQL_SUCCESS != SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &stmt))
         {
+            extract_error("Execute: ", stmt, SQL_HANDLE_STMT);
             SQLFreeHandle(SQL_HANDLE_STMT, stmt);
             return false;
         }
 
         if (SQL_SUCCESS != SQLExecDirect(stmt, (SQLCHAR*)sQuery.c_str(), SQL_NTS))
         {
+            extract_error("Execute: ", stmt, SQL_HANDLE_STMT);
             SQLFreeHandle(SQL_HANDLE_STMT, stmt);
             return false;
         }
@@ -185,6 +187,7 @@ bool cODBCInstance::Fetch(string sQuery, std::vector<SQLROW>* aRows)
         SQLSMALLINT sColumnCount = 0;
         if (SQL_SUCCESS != SQLNumResultCols(stmt, &sColumnCount))
         {
+            extract_error("Execute: ", stmt, SQL_HANDLE_STMT);
             SQLFreeHandle(SQL_HANDLE_STMT, stmt);
             return false;
         }
@@ -256,7 +259,7 @@ bool cODBCInstance::Fetch(string sQuery, std::vector<SQLROW>* aRows)
                 auto result = SQLGetData(stmt, tColumnDef.sIndex, tColumnDef.sType, vValueBuffer, tColumnDef.uiSize, &sLen);
                 if (result != SQL_SUCCESS && result != SQL_SUCCESS_WITH_INFO)
                 {
-                    extract_error("Error:", stmt, SQL_HANDLE_STMT);
+                    extract_error("Fetch: ", stmt, SQL_HANDLE_STMT);
                     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
                     return false;
                 }
@@ -269,6 +272,7 @@ bool cODBCInstance::Fetch(string sQuery, std::vector<SQLROW>* aRows)
     }
     catch (std::exception& ex)
     {
+        extract_error("Fetch: ", stmt, SQL_HANDLE_STMT);
         SQLFreeHandle(SQL_HANDLE_STMT, stmt);
         return false;
     }
@@ -281,27 +285,22 @@ bool cODBCInstance::Exec(string sQuery)
     {
         if (SQL_SUCCESS != SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &stmt))
         {
+            extract_error("Execute: ", stmt, SQL_HANDLE_STMT);
             SQLFreeHandle(SQL_HANDLE_STMT, stmt);
             return false;
         }
 
         if (SQL_SUCCESS != SQLExecDirect(stmt, (SQLCHAR*)sQuery.c_str(), SQL_NTS))
         {
+            extract_error("Execute: ", stmt, SQL_HANDLE_STMT);
             SQLFreeHandle(SQL_HANDLE_STMT, stmt);
             return false;
         }
-
-        SQLSMALLINT sColumnCount = 0;
-        if (SQL_SUCCESS != SQLNumResultCols(stmt, &sColumnCount))
-        {
-            SQLFreeHandle(SQL_HANDLE_STMT, stmt);
-            return false;
-        }
-        SQLFreeHandle(SQL_HANDLE_STMT, stmt);
         return true;
     }
     catch (std::exception& ex)
     {
+        extract_error("Execute: ", stmt, SQL_HANDLE_STMT);
         SQLFreeHandle(SQL_HANDLE_STMT, stmt);
         return false;
     }

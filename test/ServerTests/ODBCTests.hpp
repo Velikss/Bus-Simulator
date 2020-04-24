@@ -3,6 +3,7 @@
 #include <server/src/ODBC/cODBCInstance.hpp>
 
 cODBCInstance oInstance;
+string sUnicodeUTF8 = "おはようございます";
 
 TEST(ODBCTests, Connect)
 {
@@ -11,7 +12,18 @@ TEST(ODBCTests, Connect)
 
 TEST(ODBCTests, Exe)
 {
-    EXPECT_TRUE(oInstance.Exec("INSERT INTO UserTest (UserName, Password) VALUES('TEST', 'TEST');"));
+    EXPECT_TRUE(oInstance.Exec("INSERT INTO UserTest (UserName, Password) VALUES('" + sUnicodeUTF8 + "', 'TEST');"));
+}
+
+TEST(ODBCTests, Unicode)
+{
+    std::vector<SQLROW> aUsers;
+    EXPECT_TRUE(oInstance.Fetch("SELECT * FROM UserTest LIMIT 1", &aUsers));
+    EXPECT_TRUE(aUsers.size() == 1);
+
+    string sFetchedUnicodeUTF8;
+    EXPECT_TRUE(aUsers[0]["UserName"]->GetValueStr(sFetchedUnicodeUTF8));
+    EXPECT_EQ(sUnicodeUTF8, sFetchedUnicodeUTF8);
 }
 
 TEST(ODBCTests, Fetch)
