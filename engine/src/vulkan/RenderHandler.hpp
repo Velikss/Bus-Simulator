@@ -4,7 +4,7 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/LogicalDevice.hpp>
 #include "SwapChain.hpp"
-#include "vulkan/command/CommandHandler.hpp"
+#include "vulkan/command/CommandBuffer.hpp"
 
 class cRenderHandler
 {
@@ -13,8 +13,8 @@ private:
 
     cLogicalDevice* ppLogicalDevice;
     cSwapChain* ppSwapChain;
-    cCommandHandler* ppCommandHandler;
-    cUniformHandler* ppUniformHandler;
+    cCommandBuffer* ppCommandBuffer;
+    cUniformHandler* ppUniformHandler = nullptr;
 
     std::vector<VkSemaphore> aoImageAvailableSemaphores;
     std::vector<VkSemaphore> aoRenderFinishedSemaphores;
@@ -25,24 +25,24 @@ private:
 public:
     cRenderHandler(cLogicalDevice* pLogicalDevice,
                    cSwapChain* pSwapChain,
-                   cCommandHandler* pCommandHandler,
-                   cUniformHandler* pUniformHandler);
+                   cCommandBuffer* pCommandBuffer);
     ~cRenderHandler(void);
 
     void CreateSemaphores(void);
 
     void DrawFrame(void);
+
+    void SetCommandBuffer(cCommandBuffer* pCommandBuffer);
+    void SetUniformHandler(cUniformHandler* pUniformHandler);
 };
 
 cRenderHandler::cRenderHandler(cLogicalDevice* pLogicalDevice,
                                cSwapChain* pSwapChain,
-                               cCommandHandler* pCommandHandler,
-                               cUniformHandler* pUniformHandler)
+                               cCommandBuffer* pCommandBuffer)
 {
     ppLogicalDevice = pLogicalDevice;
     ppSwapChain = pSwapChain;
-    ppCommandHandler = pCommandHandler;
-    ppUniformHandler = pUniformHandler;
+    ppCommandBuffer = pCommandBuffer;
 
     CreateSemaphores();
 }
@@ -99,7 +99,7 @@ void cRenderHandler::DrawFrame(void)
     VkFence oAqcuireFence = VK_NULL_HANDLE;
     ppSwapChain->AcquireNextImage(UINT64_MAX, aoImageAvailableSemaphores[uiCurrentFrame], oAqcuireFence, &uiImageIndex);
 
-    ppUniformHandler->UpdateUniformBuffers();
+    if (ppUniformHandler != nullptr) ppUniformHandler->UpdateUniformBuffers();
 
     // Struct with information about the command buffer we want to submit to the queue
     VkSubmitInfo tSubmitInfo = {};
@@ -114,7 +114,7 @@ void cRenderHandler::DrawFrame(void)
 
     // Specify which command buffers to submit
     tSubmitInfo.commandBufferCount = 1;
-    tSubmitInfo.pCommandBuffers = &ppCommandHandler->GetCommandBuffer(uiImageIndex);
+    tSubmitInfo.pCommandBuffers = &ppCommandBuffer->GetBuffer(uiImageIndex);
 
     // Specify which semaphores to signal once the command buffer(s) finish
     VkSemaphore aoSignalSemaphores[] = {aoRenderFinishedSemaphores[uiCurrentFrame]};
@@ -149,4 +149,14 @@ void cRenderHandler::DrawFrame(void)
 
     // Advance to the next frame
     uiCurrentFrame = (uiCurrentFrame + 1) % uiMAX_FRAMES_IN_FLIGHT;
+}
+
+void cRenderHandler::SetCommandBuffer(cCommandBuffer* pCommandBuffer)
+{
+    ppCommandBuffer = pCommandBuffer;
+}
+
+void cRenderHandler::SetUniformHandler(cUniformHandler* pUniformHandler)
+{
+    ppUniformHandler = pUniformHandler;
 }

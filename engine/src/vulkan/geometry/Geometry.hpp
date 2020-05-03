@@ -15,6 +15,9 @@ private:
     std::vector<Vertex> patVertices;
     std::vector<uint> paiIndices;
 
+    uint puiVertexCount;
+    uint puiIndexCount;
+
     // Device where this geometry is loaded
     cLogicalDevice* ppLogicalDevice;
 
@@ -51,11 +54,17 @@ cGeometry* cGeometry::FromOBJFile(const char* sFilePath, cLogicalDevice* pLogica
     // Load the model into the vertices and indices lists
     cModelHelper::LoadModel(sFilePath, pGeometry->patVertices, pGeometry->paiIndices);
 
-    assert(pGeometry->patVertices.size() > 0);  // there should be vertices
-    assert(pGeometry->paiIndices.size() > 0);   // there should be indices
+    pGeometry->puiVertexCount = pGeometry->patVertices.size();
+    pGeometry->puiIndexCount = pGeometry->paiIndices.size();
+
+    assert(pGeometry->puiVertexCount > 0);  // there should be vertices
+    assert(pGeometry->puiIndexCount > 0);   // there should be indices
 
     // Setup the buffers on the device and copy the data there
     pGeometry->CopyToDevice(pLogicalDevice);
+
+    pGeometry->patVertices.clear();
+    pGeometry->paiIndices.clear();
 
     return pGeometry;
 }
@@ -95,7 +104,7 @@ cGeometry::~cGeometry()
 
 uint cGeometry::GetIndexCount(void)
 {
-    return paiIndices.size();
+    return puiIndexCount;
 }
 
 void cGeometry::CmdBindVertexBuffer(VkCommandBuffer& oCommandBuffer)

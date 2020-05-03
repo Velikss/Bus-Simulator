@@ -9,6 +9,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <chrono>
+#include <vulkan/mesh/Mesh.hpp>
 #include "vulkan/GraphicsPipeline.hpp"
 #include "vulkan/texture/TextureHandler.hpp"
 
@@ -37,7 +38,7 @@ public:
     cUniformHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
     ~cUniformHandler(void);
 
-    void SetupUniformBuffers(uint uiCount, cTextureHandler* pTextureHandler);
+    void SetupUniformBuffers(uint uiCount, cTextureHandler* pTextureHandler, std::vector<cMesh*> apMeshes);
     void UpdateUniformBuffers();
 
     uint GetDescriptorSetLayoutCount(void);
@@ -48,7 +49,7 @@ public:
 private:
     void CreateUniformBuffers(uint uiCount);
     void CreateDescriptorPool();
-    void CreateDescriptorSets(cTextureHandler* pTextureHandler);
+    void CreateDescriptorSets(cTextureHandler* pTextureHandler, std::vector<cMesh*> apMeshes);
 };
 
 cUniformHandler::cUniformHandler(cLogicalDevice* pLogicalDevice,
@@ -96,11 +97,11 @@ cUniformHandler::~cUniformHandler()
     ppLogicalDevice->DestroyDescriptorPool(poDescriptorPool, nullptr);
 }
 
-void cUniformHandler::SetupUniformBuffers(uint uiCount, cTextureHandler* pTextureHandler)
+void cUniformHandler::SetupUniformBuffers(uint uiCount, cTextureHandler* pTextureHandler, std::vector<cMesh*> apMeshes)
 {
     CreateUniformBuffers(uiCount);
     CreateDescriptorPool();
-    CreateDescriptorSets(pTextureHandler);
+    CreateDescriptorSets(pTextureHandler, apMeshes);
 }
 
 void cUniformHandler::CreateUniformBuffers(uint uiCount)
@@ -185,7 +186,7 @@ void cUniformHandler::CreateDescriptorPool()
     }
 }
 
-void cUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler)
+void cUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, std::vector<cMesh*> apMeshes)
 {
     std::vector<VkDescriptorSetLayout> aoLayouts(paoUniformBuffers.size(), poDescriptorSetLayout);
 
@@ -211,7 +212,7 @@ void cUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler)
 
         VkDescriptorImageInfo tImageInfo = {};
         tImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        tImageInfo.imageView = pTextureHandler->GetTexture(i)->GetView();
+        tImageInfo.imageView = pTextureHandler->GetTexture(apMeshes[i]->GetTextureIndex())->GetView();
         tImageInfo.sampler = pTextureHandler->GetSampler();
 
         std::array<VkWriteDescriptorSet, 2> atDescriptorWrites = {};

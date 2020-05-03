@@ -3,7 +3,6 @@
 #include <pch.hpp>
 #include <vulkan/vulkan.h>
 #include <vulkan/VulkanInstance.hpp>
-#include "Surface.hpp"
 
 // A struct for storing the QueueFamily indices
 struct tQueueFamilyIndices
@@ -37,14 +36,14 @@ public:
 private:
     static cPhysicalDevice* poInstance;
 
-    cSurface* ppSurface;
+    cWindow* ppWindow;
 
     VkPhysicalDevice poPhysicalDevice = VK_NULL_HANDLE;
 
 public:
     static cPhysicalDevice* GetInstance();
 
-    void SelectPhysicalDevice(cVulkanInstance* pVulkanInstance, cSurface* pSurface);
+    void SelectPhysicalDevice(cVulkanInstance* pVulkanInstance, cWindow* pWindow);
 
     tQueueFamilyIndices FindQueueFamilies(void);
     tSwapChainSupportDetails QuerySwapChainSupport(void);
@@ -56,6 +55,11 @@ public:
     void GetPhysicalMemoryProperties(VkPhysicalDeviceMemoryProperties* pMemoryProperties);
     void GetDeviceFormatProperties(VkFormat& oFormat,
                                    VkFormatProperties* pFormatProperties);
+
+    void GetPhysicalDeviceSurfaceSupportKHR(VkPhysicalDevice& oPhysicalDevice,
+                                            uint uiQueueFamilyIndex,
+                                            cWindow* pWindow,
+                                            VkBool32* pSupported);
 
 private:
     cPhysicalDevice();
@@ -79,12 +83,12 @@ cPhysicalDevice::cPhysicalDevice()
 {
 }
 
-void cPhysicalDevice::SelectPhysicalDevice(cVulkanInstance* pVulkanInstance, cSurface* pSurface)
+void cPhysicalDevice::SelectPhysicalDevice(cVulkanInstance* pVulkanInstance, cWindow* pWindow)
 {
     assert(pVulkanInstance != nullptr);
-    assert(pSurface != nullptr);
+    assert(pWindow != nullptr);
 
-    ppSurface = pSurface;
+    ppWindow = pWindow;
 
     // Get the number of graphics devices with Vulkan support
     uint deviceCount = 0;
@@ -161,7 +165,7 @@ tQueueFamilyIndices cPhysicalDevice::FindQueueFamilies(VkPhysicalDevice& oDevice
     for (const auto& tQueueFamily : atQueueFamilies)
     {
         VkBool32 presentSupport = false;
-        ppSurface->GetPhysicalDeviceSurfaceSupportKHR(oDevice, iIndex, &presentSupport);
+        GetPhysicalDeviceSurfaceSupportKHR(oDevice, iIndex, ppWindow, &presentSupport);
         if (presentSupport)
         {
             tIndices.oulPresentFamily = iIndex;
@@ -203,7 +207,7 @@ bool cPhysicalDevice::CheckDeviceExtensionSupport(VkPhysicalDevice& oDevice)
 tSwapChainSupportDetails cPhysicalDevice::QuerySwapChainSupport(VkPhysicalDevice& oDevice)
 {
     // Get the VkSurfaceKHR object
-    VkSurfaceKHR& oSurface = ppSurface->GetSurface();
+    VkSurfaceKHR& oSurface = ppWindow->GetSurface();
 
     // Struct with information about swap chain support for this device
     tSwapChainSupportDetails tDetails = {};
@@ -262,4 +266,12 @@ void cPhysicalDevice::GetPhysicalMemoryProperties(VkPhysicalDeviceMemoryProperti
 void cPhysicalDevice::GetDeviceFormatProperties(VkFormat& oFormat, VkFormatProperties* pFormatProperties)
 {
     vkGetPhysicalDeviceFormatProperties(poPhysicalDevice, oFormat, pFormatProperties);
+}
+
+void cPhysicalDevice::GetPhysicalDeviceSurfaceSupportKHR(VkPhysicalDevice& oPhysicalDevice,
+                                                         uint uiQueueFamilyIndex,
+                                                         cWindow* pWindow,
+                                                         VkBool32* pSupported)
+{
+    vkGetPhysicalDeviceSurfaceSupportKHR(oPhysicalDevice, uiQueueFamilyIndex, pWindow->GetSurface(), pSupported);
 }

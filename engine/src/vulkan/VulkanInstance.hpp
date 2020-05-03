@@ -29,7 +29,7 @@ public:
 
     void EnumeratePhysicalDevices(uint* pPhysicalDeviceCount,
                                   VkPhysicalDevice* pPhysicalDevices);
-    bool CreateWindowSurface(cWindow* pWindow,
+    bool CreateWindowSurface(GLFWwindow* pWindow,
                              VkAllocationCallbacks* pAllocatorCallback,
                              VkSurfaceKHR* pSurface);
     void DestroyWindowSurface(VkSurfaceKHR& oSurface,
@@ -107,11 +107,11 @@ void cVulkanInstance::EnumeratePhysicalDevices(uint* pPhysicalDeviceCount, VkPhy
     vkEnumeratePhysicalDevices(poInstance, pPhysicalDeviceCount, pPhysicalDevices);
 }
 
-bool cVulkanInstance::CreateWindowSurface(cWindow* pWindow,
+bool cVulkanInstance::CreateWindowSurface(GLFWwindow* pWindow,
                                           VkAllocationCallbacks* pAllocatorCallback,
                                           VkSurfaceKHR* pSurface)
 {
-    return pWindow->CreateWindowSurface(poInstance, pAllocatorCallback, pSurface);
+    return glfwCreateWindowSurface(poInstance, pWindow, pAllocatorCallback, pSurface) == VK_SUCCESS;
 }
 
 void cVulkanInstance::DestroyWindowSurface(VkSurfaceKHR& oSurface, VkAllocationCallbacks* pAllocatorCallback)

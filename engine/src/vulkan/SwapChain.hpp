@@ -28,8 +28,7 @@ public:
     VkFormat peSwapChainImageFormat;
 
     cSwapChain(cLogicalDevice* pLogicalDevice,
-               cWindow* pWindow,
-               cSurface* pSurface);
+               cWindow* pWindow);
     ~cSwapChain(void);
 
     void CreateFramebuffers(VkRenderPass& oRenderPass);
@@ -53,21 +52,19 @@ private:
                                                     VkPresentModeKHR ePresentMode,
                                                     VkExtent2D& tExtent,
                                                     uint uiImageCount,
-                                                    cSurface* pSurface,
+                                                    cWindow* pWindow,
                                                     cPhysicalDevice* pPhysicalDevice,
                                                     tSwapChainSupportDetails& tSwapChainSupport);
 
-    void CreateSwapChain(cWindow* pWindow, cSurface* pSurface);
+    void CreateSwapChain(cWindow* pWindow);
     void CreateImageViews(void);
 };
 
-cSwapChain::cSwapChain(cLogicalDevice* pLogicalDevice,
-                       cWindow* pWindow,
-                       cSurface* pSurface)
+cSwapChain::cSwapChain(cLogicalDevice* pLogicalDevice, cWindow* pWindow)
 {
     ppLogicalDevice = pLogicalDevice;
 
-    CreateSwapChain(pWindow, pSurface);
+    CreateSwapChain(pWindow);
     CreateImageViews();
 }
 
@@ -167,7 +164,7 @@ VkSwapchainCreateInfoKHR cSwapChain::GetSwapChainCreateInfo(VkSurfaceFormatKHR& 
                                                             VkPresentModeKHR ePresentMode,
                                                             VkExtent2D& tExtent,
                                                             uint uiImageCount,
-                                                            cSurface* pSurface,
+                                                            cWindow* pWindow,
                                                             cPhysicalDevice* pPhysicalDevice,
                                                             tSwapChainSupportDetails& tSwapChainSupport)
 {
@@ -176,7 +173,7 @@ VkSwapchainCreateInfoKHR cSwapChain::GetSwapChainCreateInfo(VkSurfaceFormatKHR& 
     tCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 
     // Specify which surface to tie the swap chain to
-    tCreateInfo.surface = pSurface->GetSurface();
+    tCreateInfo.surface = pWindow->GetSurface();
 
     // Specify the details of the swap chain images
     tCreateInfo.minImageCount = uiImageCount;
@@ -226,7 +223,7 @@ VkSwapchainCreateInfoKHR cSwapChain::GetSwapChainCreateInfo(VkSurfaceFormatKHR& 
     return tCreateInfo;
 }
 
-void cSwapChain::CreateSwapChain(cWindow* pWindow, cSurface* pSurface)
+void cSwapChain::CreateSwapChain(cWindow* pWindow)
 {
     cPhysicalDevice* pPhysicalDevice = cPhysicalDevice::GetInstance();
     VkDevice& oDevice = ppLogicalDevice->GetDevice();
@@ -247,7 +244,7 @@ void cSwapChain::CreateSwapChain(cWindow* pWindow, cSurface* pSurface)
     // Create the swap chain create info
     VkSwapchainCreateInfoKHR tCreateInfo = GetSwapChainCreateInfo(
             tSurfaceFormat, ePresentMode, tExtent, uiImageCount,
-            pSurface, pPhysicalDevice, tSwapChainSupport
+            pWindow, pPhysicalDevice, tSwapChainSupport
     );
 
     // Create the swap chain

@@ -2,24 +2,36 @@
 
 #include <pch.hpp>
 #include <GLFW/glfw3.h>
+#include <vulkan/VulkanInstance.hpp>
 
 // Class representing the window which can be used for rendering
 class cWindow
 {
 private:
+    cVulkanInstance* ppVulkanInstance;
+
     // Pointer to the GLFW window instance
     GLFWwindow* ppWindow = nullptr;
+
+    VkSurfaceKHR poSurface = VK_NULL_HANDLE;
 
 public:
     // Window size
     const uint WIDTH = 800;
     const uint HEIGHT = 600;
 
-    cWindow(void);
-    ~cWindow(void);
+    cWindow();
+    ~cWindow();
 
     // Create and initialize the window
-    void CreateWindow(void);
+    void CreateWindow();
+
+    // Create the surface for this window
+    bool CreateWindowSurface(cVulkanInstance* pVulkanInstance);
+
+    // Destroy the surface for this window
+    // Must be called before destroying the vulkan instance
+    void DestroyWindowSurface();
 
     // Returns true if the window should close
     bool ShouldClose(void);
@@ -27,13 +39,12 @@ public:
     // Handles window events
     void HandleEvents(void);
 
-    // Create the surface for this window
-    bool CreateWindowSurface(VkInstance& oVulkanInstance,
-                             VkAllocationCallbacks* pAllocatorCallback,
-                             VkSurfaceKHR* pSurface);
+    void SetKeyCallback(GLFWkeyfun pCallback);
+
+    VkSurfaceKHR& GetSurface(void);
 };
 
-cWindow::cWindow(void)
+cWindow::cWindow()
 {
     glfwInit();
 
@@ -44,8 +55,9 @@ cWindow::cWindow(void)
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 }
 
-cWindow::~cWindow(void)
+cWindow::~cWindow()
 {
+
     // Destroy the GLFW window if it exists
     if (ppWindow != nullptr)
     {
@@ -56,11 +68,27 @@ cWindow::~cWindow(void)
     glfwTerminate();
 }
 
-void cWindow::CreateWindow(void)
+void cWindow::CreateWindow()
 {
     assert(ppWindow == nullptr); // don't create a window if it has already been created
 
     ppWindow = glfwCreateWindow(WIDTH, HEIGHT, "BUS", nullptr, nullptr);
+}
+
+bool cWindow::CreateWindowSurface(cVulkanInstance* pVulkanInstance)
+{
+    assert(pVulkanInstance != nullptr); // vulkan instance should exist
+
+    ppVulkanInstance = pVulkanInstance;
+
+    return pVulkanInstance->CreateWindowSurface(ppWindow, nullptr, &poSurface);
+}
+
+void cWindow::DestroyWindowSurface()
+{
+    assert(ppVulkanInstance != nullptr); // vulkan instance must exist
+
+    ppVulkanInstance->DestroyWindowSurface(poSurface, nullptr);
 }
 
 bool cWindow::ShouldClose(void)
@@ -77,12 +105,17 @@ void cWindow::HandleEvents(void)
     glfwPollEvents();
 }
 
-bool cWindow::CreateWindowSurface(VkInstance& oVulkanInstance,
-                                  VkAllocationCallbacks* pAllocatorCallback,
-                                  VkSurfaceKHR* pSurface)
+void cWindow::SetKeyCallback(GLFWkeyfun pCallback)
 {
-    assert(oVulkanInstance != VK_NULL_HANDLE); // vulkan instance should exist
-    assert(pSurface != nullptr); // pSurface should point to where the surface needs to be stored
+    assert(pCallback != nullptr); // callback cannot be null
+    assert(ppWindow != nullptr);  // window must be created first
 
-    return glfwCreateWindowSurface(oVulkanInstance, ppWindow, pAllocatorCallback, pSurface) == VK_SUCCESS;
+    glfwSetKeyCallback(ppWindow, pCallback);
+}
+
+VkSurfaceKHR& cWindow::GetSurface(void)
+{
+    assert(poSurface != VK_NULL_HANDLE);
+
+    return poSurface;
 }

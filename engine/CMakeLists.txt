@@ -17,6 +17,7 @@ find_package(Vulkan REQUIRED)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
 set(Headers
         ${PROJECT_SOURCE_DIR}/src/pch.hpp
@@ -51,14 +52,12 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/VulkanInstance.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/PhysicalDevice.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/LogicalDevice.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/Surface.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/SwapChain.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/GraphicsPipeline.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/RenderPass.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/RenderHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/UniformHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/ImageHelper.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/command/CommandHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/CommandHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/Geometry.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/Vertex.hpp
@@ -67,7 +66,12 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/mesh/Mesh.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/texture/Texture.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/texture/TextureHelper.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/texture/TextureInfo.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/texture/TextureInfo.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/command/CommandBuffer.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/command/CommandBufferRecorder.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/command/IndexedRenderRecorder.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/command/ClearScreenRecorder.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/MainLoop.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 
