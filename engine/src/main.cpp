@@ -145,8 +145,10 @@ int main(int argc, char **argv)
 
     entityGroup.AddBehaviour(cb);
 
-    for(int i = 0; i<20; i++){
+    for(int i = 0; i<10; i++){
         entityGroup.UpdateEntities();
+
+        std::cout << "Entity X: " << en2.pPosition.x << ", " << en2.pPosition.z << std::endl;
 
         std::cout << std::endl;
         std::cout << "Entity velocity: " << en2.pVelocity.x << " " << en2.pVelocity.y << std::endl;

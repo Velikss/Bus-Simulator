@@ -17,23 +17,21 @@ namespace JavaScriptEntityFunctions
             return DUK_RET_TYPE_ERROR;
         }
 
-        // Get pointer from stack
+        // Get pointer from stack.
         void *p = duk_get_pointer(poContext, 0);
 
-        // Cast pointer to Entity pointer, we know it's pointing to an entity
+        // Cast pointer to Entity pointer, we know it's pointing to an entity.
         BaseObject *poEntity = static_cast<BaseObject *>(p);
 
-        // Push coordinates to stack, first we'll push an empty array
+        // Push coordinates to stack, first we'll push an empty array.
         duk_idx_t ArrayIndex;
         ArrayIndex = duk_push_array(poContext);
 
-        // Then we will fill the array with the X Y Z coordinates
+        // Then we will fill the array with the X Y coordinates of the entity. (we take Z as Y position because vec3 is used in BaseObject)
         duk_push_int(poContext, poEntity->pPosition.x);
         duk_put_prop_index(poContext, ArrayIndex, 0);
-        duk_push_int(poContext, poEntity->pPosition.y);
-        duk_put_prop_index(poContext, ArrayIndex, 1);
         duk_push_int(poContext, poEntity->pPosition.z);
-        duk_put_prop_index(poContext, ArrayIndex, 2);
+        duk_put_prop_index(poContext, ArrayIndex, 1);
 
         return 1;
     }

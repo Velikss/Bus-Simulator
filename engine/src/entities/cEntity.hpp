@@ -69,7 +69,7 @@ public:
         pSteeringForce = glm::vec2(0, 0);
         for (auto &cBehaviourHandler : paBehaviourHandlers)
         {
-            // Runs JavaScript which calculates a steeringforce and appends it to the current force.
+            // Runs JavaScript which calculates a steering force and appends it to the current force.
             cBehaviourHandler->Update(this);
         }
 

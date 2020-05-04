@@ -31,7 +31,7 @@ namespace JavaScriptBaseFunctions
             return DUK_RET_TYPE_ERROR;
         }
 
-        std::cout << std::endl << duk_to_string(poContext, 0);
+        std::cout << duk_to_string(poContext, 0) << std::endl;
 
         return 0;
     }

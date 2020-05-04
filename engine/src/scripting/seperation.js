@@ -34,7 +34,7 @@ function calculate(entity, entities)
             steeringforce[0] *= force;
             steeringforce[1] *= force;
         }
-        
+
         SetEntitySteeringForce(entity, steeringforce[0], steeringforce[1]);
     }
 }
