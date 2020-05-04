@@ -88,7 +88,7 @@ bool cScriptingEngine::CompileJavaScriptFile(const char *pstrFilename)
 
 bool cScriptingEngine::RunJavaScriptFunction(const char *psFunctionName, void *pArga = nullptr, void *pArgb = nullptr)
 {
-    bool bReturnVal;
+    bool bReturnVal = true;
 
     // Get a reference to the named JS function
     if (duk_get_global_string(ppoContext, psFunctionName))
@@ -107,8 +107,8 @@ bool cScriptingEngine::RunJavaScriptFunction(const char *psFunctionName, void *p
         }
         else
         {
-            // function executed successfully - get result
-            bReturnVal = duk_get_boolean(ppoContext, -1);
+            // Function executed successfully
+            bReturnVal = true;
         }
     }
     else
