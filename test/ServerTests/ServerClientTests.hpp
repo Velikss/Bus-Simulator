@@ -38,7 +38,7 @@ TEST(ServerClientTests, Bind)
 {
     pPlainServerSettings = std::make_shared<cNetworkConnection::tNetworkInitializationSettings>();
     pPlainServerSettings->sAddress = "0.0.0.0";
-    pPlainServerSettings->usPort = 8080;
+    pPlainServerSettings->usPort = 81;
     pPlainServerSettings->eIPVersion = cNetworkConnection::cIPVersion::eV4;
     pPlainServerSettings->eConnectionType = cNetworkConnection::cConnectionType::eTCP;
     pPlainServerSettings->eMode = cNetworkConnection::cMode::eNonBlocking;
@@ -54,7 +54,7 @@ TEST(ServerClientTests, Connect)
 {
     pPlainClientSettings = std::make_shared<cNetworkConnection::tNetworkInitializationSettings>();
     pPlainClientSettings->sAddress = "0.0.0.0";
-    pPlainClientSettings->usPort = 8080;
+    pPlainClientSettings->usPort = 81;
     pPlainClientSettings->eIPVersion = cNetworkConnection::cIPVersion::eV4;
     pPlainClientSettings->eConnectionType = cNetworkConnection::cConnectionType::eTCP;
     pPlainClientSettings->eMode = cNetworkConnection::cMode::eNonBlocking;
@@ -78,7 +78,7 @@ TEST(ServerClientTests, BindSSL)
 {
     pSSLServerSettings = std::make_shared<cNetworkConnection::tNetworkInitializationSettings>();
     pSSLServerSettings->sAddress = "0.0.0.0";
-    pSSLServerSettings->usPort = 8080;
+    pSSLServerSettings->usPort = 82;
     pSSLServerSettings->bUseSSL = true;
     pSSLServerSettings->sCertFile = "./19-4-2020.cert";
     pSSLServerSettings->sKeyFile = "./19-4-2020.key";
@@ -97,7 +97,7 @@ TEST(ServerClientTests, ConnectSSL)
 {
     pSSLClientSettings = std::make_shared<cNetworkConnection::tNetworkInitializationSettings>();
     pSSLClientSettings->sAddress = "0.0.0.0";
-    pSSLClientSettings->usPort = 8080;
+    pSSLClientSettings->usPort = 82;
     pSSLClientSettings->bUseSSL = true;
     pSSLClientSettings->eIPVersion = cNetworkConnection::cIPVersion::eV4;
     pSSLClientSettings->eConnectionType = cNetworkConnection::cConnectionType::eTCP;
