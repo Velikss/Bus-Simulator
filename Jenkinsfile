@@ -11,7 +11,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    sh 'cmake -D CMAKE_CXX_FLAGS="/JENKINS=1 ${CMAKE_CXX_FLAGS}" .'
+                    sh 'cmake .'
                     sh 'cmake --build .'
                 }
             }
