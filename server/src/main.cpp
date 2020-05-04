@@ -7,6 +7,7 @@
 #include <SslHelper.hpp>
 #include <filesystem>
 #include <ODBC/cODBCInstance.hpp>
+#include <Uri.hpp>
 
 string resp_str;
 
@@ -17,6 +18,9 @@ bool OnRecieve(cNetworkConnection* connection)
     const std::string_view req_str((char*)buffer, size);
     cHttp::cRequest req = cHttp::cRequest::Deserialize((string) req_str);
 
+    cUri oUri = cUri::ParseFromRequest(req.GetResource());
+    std::cout << oUri.ToString() << std::endl;
+
     connection->SendBytes((const byte*)resp_str.c_str(), resp_str.size());
 
     return !(cHttp::GetValueFromHeader(req.GetHeaders(), "connection") != "keep-alive");
@@ -24,14 +28,12 @@ bool OnRecieve(cNetworkConnection* connection)
 
 void OnDisConnect(cNetworkConnection* connection)
 {
-    std::cout << inet_ntoa(connection->ptAddress.sin_addr) << ":"
-              << ntohs(connection->ptAddress.sin_port) << ", disconnected." << std::endl;
+    std::cout << connection->GetConnectionString() << ", disconnected." << std::endl;
 }
 
 bool OnConnect(cNetworkConnection* connection)
 {
-    std::cout << "New connection from " << inet_ntoa(connection->ptAddress.sin_addr) << ":"
-              << ntohs(connection->ptAddress.sin_port) << std::endl;
+    std::cout << "New connection from " << connection->GetConnectionString() << std::endl;
     return true;
 }
 
@@ -150,10 +152,8 @@ int main()
     }
     tNetworkSettings.eIPVersion = cNetworkConnection::cIPVersion::eV4;
     tNetworkSettings.eConnectionType = cNetworkConnection::cConnectionType::eTCP;
-    tNetworkSettings.eMode = cNetworkConnection::cMode::eBlocking;
-    string sIp = cNetworkAbstractions::DNSLookup("nipqer.nl");
-    std::cout << sIp << std::endl;
-    std::cout << cNetworkAbstractions::DNSReverseLookup(sIp) << std::endl;
+    tNetworkSettings.eMode = cNetworkConnection::cMode::eNonBlocking;
+
     cNetworkServer server(&tNetworkSettings);
     server.SetOnConnectEvent(OnConnect);
     server.SetOnRecieveEvent(OnRecieve);
@@ -162,5 +162,40 @@ int main()
         std::cout << "failed to start the server, is the port open?" << std::endl;
     else
         std::cout << "started on: " << tNetworkSettings.sAddress << ":" << tNetworkSettings.usPort << std::endl;
+
+    cNetworkConnection::tNetworkInitializationSettings tConnectNetworkSettings;
+    tConnectNetworkSettings.sAddress = "127.0.0.1";
+    tConnectNetworkSettings.usPort = 8080;
+    tConnectNetworkSettings.bUseSSL = true;
+    tConnectNetworkSettings.eIPVersion = cNetworkConnection::cIPVersion::eV4;
+    tConnectNetworkSettings.eConnectionType = cNetworkConnection::cConnectionType::eTCP;
+    tConnectNetworkSettings.eMode = cNetworkConnection::cMode::eNonBlocking;
+
+    cNetworkClient client(&tConnectNetworkSettings);
+    client.SetOnConnectEvent([&](cNetworkConnection* connection) -> void{
+        std::cout << "connected client." << std::endl;
+    });
+    client.SetOnDisconnectEvent([&](cNetworkConnection* connection) -> void{
+        std::cout << "disconnected client." << std::endl;
+    });
+    client.SetOnRecieveEvent([&](cNetworkConnection* connection) -> bool{
+        byte buffer[8192];
+        const long size = connection->ReceiveBytes((byte *) &buffer[0], 8192);
+        if (size <= 0) return true;
+        const std::string_view resp_str((char*)buffer, size);
+        cHttp::cResponse resp = cHttp::cResponse::Deserialize((string) resp_str);
+        return true;
+    });
+    if (!client.Connect()) std::cout << "failed to connect." << std::endl;
+    else
+    {
+        cHttp::cRequest req;
+        std::vector<cHttp::cHeader> aHeaders;
+        aHeaders.push_back({ "connection", "keep-alive" });
+        req.SetHeaders(aHeaders);
+        string sRequest = req.Serialize();
+        client.SendBytes((const byte*)sRequest.c_str(), sRequest.size());
+    }
+    for(;;){sleep(1000);}
     return 0;
 }

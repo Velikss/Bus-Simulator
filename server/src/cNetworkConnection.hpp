@@ -2,8 +2,8 @@
 #include <pch.hpp>
 #include <iostream>
 #include <string>
-#include <NetworkAbstractions.hpp>
-#include <SslHelper.hpp>
+#include "NetworkAbstractions.hpp"
+#include "SslHelper.hpp"
 
 class cNetworkConnection
 {
@@ -29,10 +29,9 @@ public:
 protected:
 	tNetworkInitializationSettings* pptNetworkSettings = nullptr;
 	int piLastStatus = 0;
-public:
     sockaddr_in ptAddress = {};
     NET_SOCK poSock = NET_INVALID_SOCKET_ID;
-
+public:
 	cNetworkConnection(NET_SOCK oSock, sockaddr_in tAddress)
 	{
 		if (puiNumberOfAliveSockets++ == 0) cNetworkAbstractions::NetInit();
@@ -50,17 +49,6 @@ public:
 
 	void Close();
 
-	// Read and write bytes to the socket stream:
-	long ReceiveBytes(byte* pBuffer, size_t uiNumBytes)
-    {
-        long size = 0;
-	    if(ppConnectionSSL)
-            size = SSL_read(ppConnectionSSL, (char*) pBuffer, uiNumBytes);
-        else
-	        size = recv(poSock, (char*)pBuffer, uiNumBytes, 0);
-        return size;
-    }
-
     bool IsConnected()
     {
 	    return (cNetworkAbstractions::IsConnected(poSock) == cNetworkAbstractions::cConnectionStatus::eCONNECTED);
@@ -76,6 +64,26 @@ public:
         return cNetworkAbstractions::IsConnected(poSock);
     }
 
+    string GetIP()
+    {
+        return string(inet_ntoa(ptAddress.sin_addr));
+    }
+
+    ushort GetPort()
+    {
+        return ptAddress.sin_port;
+    }
+
+    string GetPortStr()
+    {
+	    return std::to_string(GetPort());
+    }
+
+    string GetConnectionString()
+    {
+	    return GetIP() + ":" + GetPortStr();
+    }
+
 	void SendBytes(const byte* pBuffer, size_t uiNumBytes)
     {
         long lResult = 0;
@@ -87,6 +95,16 @@ public:
             throw std::runtime_error("Failed to 'send()' bytes! NET_SOCKET_ERROR!");
         else if (static_cast<size_t>(lResult) != uiNumBytes)
             throw std::runtime_error("Failed to 'send()' bytes! Couldn't send all the data!");
+    }
+
+    long ReceiveBytes(byte* pBuffer, size_t uiNumBytes)
+    {
+        long size = 0;
+        if(ppConnectionSSL)
+            size = SSL_read(ppConnectionSSL, (char*) pBuffer, uiNumBytes);
+        else
+            size = recv(poSock, (char*)pBuffer, uiNumBytes, 0);
+        return size;
     }
 
 	static unsigned int puiNumberOfAliveSockets;
@@ -110,16 +128,7 @@ cNetworkConnection::cNetworkConnection(cNetworkConnection::tNetworkInitializatio
         throw std::runtime_error("invalid");
 
     // Optionally set non-blocking.
-    // Windows requires a different system call.
     if (ptNetworkSettings->eMode == cMode::eNonBlocking) cNetworkAbstractions::SetBlocking(poSock, false);
-
-    if (ptNetworkSettings->bUseSSL)
-    {
-        ppSSLContext = cSSLHelper::CreateServerCtx();
-        if (ptNetworkSettings->sCertFile.size() == 0 || ptNetworkSettings->sKeyFile.size() == 0)
-            throw std::runtime_error("invalid files");
-        cSSLHelper::LoadCertificate(ppSSLContext, (char*)ptNetworkSettings->sCertFile.c_str(), (char*)ptNetworkSettings->sKeyFile.c_str());
-    }
 }
 
 void cNetworkConnection::Close()

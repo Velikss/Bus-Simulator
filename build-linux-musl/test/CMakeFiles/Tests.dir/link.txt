@@ -1,1 +1,0 @@
-/usr/bin/g++  -g   CMakeFiles/Tests.dir/main_test.cpp.o  -o Tests /usr/lib/libssl.a /usr/lib/libcrypto.a /usr/lib/libodbc.so -lgtest -lgmock 

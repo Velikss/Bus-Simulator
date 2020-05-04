@@ -31,6 +31,7 @@ public:
     bool IsValidUri() const { return valid; }
 
     static cUri ParseFromString(string in);
+    static cUri ParseFromRequest(string in);
 
     string ToString();
 };
@@ -164,10 +165,18 @@ cUri cUri::ParseFromString(string in)
 
 string cUri::ToString()
 {
-    string sUri = psProtocol + "://" + psHost;
-    if (C_PROTOCOL_PORT.at(psProtocol) != pusPort) sUri += ":" + std::to_string(pusPort);
-    for(auto& sSubPath : pasPath)
-        sUri += "/" + sSubPath;
+    string sUri;
+    if (psProtocol.size() > 0)
+    {
+        sUri = psProtocol + "://" + psHost;
+        if (C_PROTOCOL_PORT.at(psProtocol) != pusPort) sUri += ":" + std::to_string(pusPort);
+    }
+    if (pasPath.size() > 0)
+        for (auto& sSubPath : pasPath)
+            sUri += "/" + sSubPath;
+    else
+        sUri += "/";
+
     if (pasParameters.size() > 0)
     {
         bool bFirst = true;
@@ -181,5 +190,64 @@ string cUri::ToString()
                 sUri += "&" + sKey + "=" + sValue;
     }
     return sUri;
+}
+
+cUri cUri::ParseFromRequest(string in)
+{
+    cUri oUri;
+    if(in.find('/') != 0) return oUri;
+    if(in.size() == 1) return oUri;
+
+    size_t uiGetParamIndex = in.find('?');
+    size_t uiHostNameEnd = 0;
+
+    // Try to find a path
+    if (uiGetParamIndex != uiHostNameEnd && uiHostNameEnd < in.size())
+    {
+        size_t uiBegin = uiHostNameEnd;
+        size_t uiEnd = string::npos;
+
+        if (in[uiBegin] != '/') uiBegin = in.find('/', uiBegin);
+
+        if (uiBegin != string::npos)
+        {
+            // Set end of the maximum path
+            if (uiGetParamIndex == string::npos) uiEnd = in.size();
+            else uiEnd = uiGetParamIndex;
+
+            do
+            {
+                const size_t uiCurrentBegin = uiBegin + 1;
+                uiBegin = in.find('/', uiBegin + 1);
+                if (uiCurrentBegin >= uiEnd) break;
+                if (uiBegin == string::npos) uiBegin = uiEnd;
+                string sParam = in.substr(uiCurrentBegin, uiBegin - uiCurrentBegin);
+                if (sParam.size() > 0) oUri.pasPath.push_back(sParam);
+            }
+            while (uiBegin < uiEnd);
+        }
+    }
+
+    // Try to find any eGET parameters
+    if(uiGetParamIndex != string::npos)
+    {
+        if (uiGetParamIndex < uiHostNameEnd) return oUri;
+        do
+        {
+            // Find whether there is another parameters.
+            auto uiCurrentGetParamIndex = uiGetParamIndex;
+            uiGetParamIndex = in.find('&', uiGetParamIndex + 1);
+            // If not set the end index to the end of the input.
+            if (uiGetParamIndex == string::npos) uiGetParamIndex = in.size();
+
+            string sParam = in.substr(uiCurrentGetParamIndex + 1, uiGetParamIndex - uiCurrentGetParamIndex - 1);
+            const size_t uiEqualsIndex = sParam.find('=');
+            oUri.pasParameters.insert({(string)sParam.substr(0, uiEqualsIndex), (string)sParam.substr(uiEqualsIndex + 1, sParam.size() - uiEqualsIndex)});
+        }
+        while (uiGetParamIndex < in.size());
+    }
+
+    oUri.valid = true;
+    return oUri;
 }
 

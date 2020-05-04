@@ -95,7 +95,7 @@ int cNetworkAbstractions::CloseSocket(NET_SOCK & oSock)
 cNetworkAbstractions::cConnectionStatus cNetworkAbstractions::IsConnected(NET_SOCK oSock)
 {
     char pBuffer;
-    long size = recv(oSock, &pBuffer, 1, MSG_PEEK);
+    int size = recv(oSock, &pBuffer, 1, MSG_PEEK);
 #if defined(WINDOWS)
     if (WSAGetLastError() == WSAECONNRESET) return cNetworkAbstractions::cConnectionStatus::eDISCONNECTED;
 #else

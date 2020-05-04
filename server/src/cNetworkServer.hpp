@@ -1,9 +1,9 @@
 #pragma once
-#include <cNetworkConnection.hpp>
-#include <Http/HTTP.hpp>
-#include <vendor/Utf8.hpp>
+#include "cNetworkConnection.hpp"
+#include "Http/HTTP.hpp"
+#include "../vendor/Utf8.hpp"
 
-class cNetworkServer : public cNetworkConnection
+class cNetworkServer : protected cNetworkConnection
 {
     bool pbShutdown = false;
 
@@ -16,15 +16,25 @@ class cNetworkServer : public cNetworkConnection
 public:
 	cNetworkServer(cNetworkConnection::tNetworkInitializationSettings* ptNetworkSettings) : cNetworkConnection(ptNetworkSettings)
 	{
+        if (ptNetworkSettings->bUseSSL)
+        {
+            ppSSLContext = cSSLHelper::CreateServerCtx();
+            if (ptNetworkSettings->sCertFile.size() > 0 && ptNetworkSettings->sKeyFile.size() > 0)
+                cSSLHelper::LoadCertificate(ppSSLContext, (char*)ptNetworkSettings->sCertFile.c_str(), (char*)ptNetworkSettings->sKeyFile.c_str());
+        }
+    }
+
+    void Stop()
+    {
+        pbShutdown = true;
+        for(auto& [name, t] : threads)
+            t.join();
+        Close();
     }
 
 	~cNetworkServer()
     {
-        std::cout << "stopping server..." << std::endl;
-	    pbShutdown = true;
-	    for(auto& [name, t] : threads)
-	        t.join();
-	    std::cout << "stopped server." << std::endl;
+	    Stop();
     }
 
 	void SetOnConnectEvent(const std::function<bool(cNetworkConnection *)> &OnConnect)
@@ -69,8 +79,7 @@ cNetworkConnection *cNetworkServer::AcceptConnection(bool bBlockingSocket) const
         SSL_set_fd(oNewConnection->ppConnectionSSL, oSock);
 
         int iReturn = SSL_accept(oNewConnection->ppConnectionSSL);
-
-        if (iReturn < 0)
+        if (iReturn <= 0)
         {
             delete oNewConnection;
             return nullptr;

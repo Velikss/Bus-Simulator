@@ -132,3 +132,14 @@ TEST(UriTests, ToString)
     oUri.pasParameters.insert({"tester", "false"});
     EXPECT_EQ(oUri.ToString(), "https://google.com/test/framework?testParam=1&tester=false");
 }
+
+TEST(UriTests, ParseRequestURI)
+{
+    string sUri = "/google?hallo=hallo";
+    cUri oUri = cUri::ParseFromRequest(sUri);
+    EXPECT_TRUE(oUri.IsValidUri());
+    EXPECT_TRUE(oUri.pasPath.size() == 1);
+    EXPECT_TRUE(oUri.pasPath[0] == "google");
+    EXPECT_TRUE(oUri.pasParameters.size() == 1);
+    EXPECT_EQ(oUri.pasParameters["hallo"], "hallo");
+}

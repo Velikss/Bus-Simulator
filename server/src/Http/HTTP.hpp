@@ -191,7 +191,9 @@ namespace cHttp
         void SerializeContent(string& sTarget)
         {
             for (auto &oHeader : this->paHeaders)
-                sTarget += oHeader.Serialize();
+                if(oHeader.GetKey() != "content-length")
+                    sTarget += oHeader.Serialize();
+
             if (psBody.size())
                 sTarget += cHeader("content-length", std::to_string(psBody.size())).Serialize();
 

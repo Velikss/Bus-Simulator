@@ -46,6 +46,18 @@ public:
         return ctx;
     }
 
+    static SSL_CTX* CreateClientCtx()
+    {
+        const SSL_METHOD* method = TLS_client_method();
+        SSL_CTX* ctx = SSL_CTX_new(method);
+        if (ctx == NULL)
+        {
+            ERR_print_errors_fp(stderr);
+            return nullptr;
+        }
+        return ctx;
+    }
+
     static bool LoadCertificate(SSL_CTX* ctx, char* CertFile, char* KeyFile)
     {
         /* set the local certificate from CertFile */
