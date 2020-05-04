@@ -47,6 +47,17 @@ public:
             {
                 cBehaviourHandler->Update(entity, this);
             }
+
+
+            glm::vec2 acceleration = entity->pSteeringForce / entity->pfMaxSpeed;
+            entity->pVelocity += acceleration;
+            if(entity->pVelocity.length() > entity->pfMaxSpeed)
+            {
+                entity->pVelocity = glm::normalize(entity->pVelocity);
+                entity->pVelocity = entity->pVelocity * entity->pfMaxSpeed;
+            }
+            entity->pPosition.x += entity->pVelocity.x;
+            entity->pPosition.z += entity->pVelocity.y;
         }
     }
 };
