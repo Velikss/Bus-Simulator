@@ -11,6 +11,7 @@ public:
     std::vector<cBehaviourHandler *> paBehaviourHandlers;
     glm::vec2 pVelocity;
     glm::vec2 pHeading;
+    glm::vec2 pSteeringForce;
     float pfMass;
     float pfMaxSpeed;
 
@@ -18,6 +19,7 @@ public:
     {
         pVelocity = glm::vec2(0, 0);
         pHeading = glm::vec2(0, 0);
+        pSteeringForce = glm::vec2(0, 0);
         pfMass = 1;
         pfMaxSpeed = 0;
     }
@@ -61,7 +63,7 @@ public:
     {
         for (auto &cBehaviourHandler : paBehaviourHandlers)
         {
-            cBehaviourHandler->Update(this);
+            pSteeringForce += cBehaviourHandler->Update(this);
         }
     }
 };

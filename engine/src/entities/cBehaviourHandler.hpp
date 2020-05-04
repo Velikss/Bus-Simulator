@@ -24,7 +24,7 @@ public:
 
     static void AddBehaviour(std::string sBehaviourName, std::string sFileName);
 
-    virtual void Update(BaseObject *oEntity, cEntityGroupInterface *oEntityGroup);
+    virtual glm::vec2 Update(BaseObject *oEntity, cEntityGroupInterface *oEntityGroup);
 };
 
 std::map<std::string, cScriptingEngine *> cBehaviourHandler::poBehaviours;
@@ -55,9 +55,11 @@ void cBehaviourHandler::AddBehaviour(std::string sBehaviourName, std::string sFi
 }
 
 /*
- * Calls calculate function from the engines' stack.
+ * Calls calculate function from the engines' stack, then returns steering force.
  */
-void cBehaviourHandler::Update(BaseObject *oEntity, cEntityGroupInterface *oEntityGroup = nullptr)
+glm::vec2 cBehaviourHandler::Update(BaseObject *oEntity, cEntityGroupInterface *oEntityGroup = nullptr)
 {
     poBehaviours.at(psBehaviourName)->RunJavaScriptFunction("calculate", oEntity, oEntityGroup);
+    //TODO get steeringforce from Js and return it
+    return glm::vec2(0, 0);
 }
