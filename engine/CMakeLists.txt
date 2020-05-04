@@ -9,6 +9,7 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
+find_package(duktape REQUIRED)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
@@ -46,16 +47,14 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/entities/cBehaviourHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/scenes/TestScene.hpp
         ${PROJECT_SOURCE_DIR}/src/scripting/cScriptingEngine.hpp
-        ${PROJECT_SOURCE_DIR}/src/scripting/duktape.h
         ${PROJECT_SOURCE_DIR}/src/scripting/functions/JavaScriptBaseFunctions.hpp
         ${PROJECT_SOURCE_DIR}/src/scripting/functions/JavaScriptEntityFunctions.hpp
         ${PROJECT_SOURCE_DIR}/src/entities/cEntityInterface.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp
-        ${PROJECT_SOURCE_DIR}/src/scripting/duktape.c
         )
 
-include_directories(${PROJECT_SOURCE_DIR}/src ${GLEW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS})
+include_directories(${PROJECT_SOURCE_DIR}/src ${GLEW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${DUKTAPE_INCLUDE_DIRS})
 add_library(${This} STATIC ${Sources} ${Headers})
 add_executable(${This}-bin ${Sources} ${Headers})
-target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw)
+target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw ${DUKTAPE_LIBRARY})

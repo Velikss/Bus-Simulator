@@ -9,7 +9,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 enable_testing()
 
-add_subdirectory(googletest)
 add_subdirectory(engine)
 add_subdirectory(engine/glfw)
 

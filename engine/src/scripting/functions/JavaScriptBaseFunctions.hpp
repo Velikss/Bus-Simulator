@@ -1,7 +1,7 @@
 #pragma once
 
 #include <pch.hpp>
-#include <scripting/duktape.h>
+#include <duktape.h>
 
 /*
  * This namespace contains basic javascript functions which can be used when making a script for the game engine, these functions are registered as javascript functions in the scripting engine.

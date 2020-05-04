@@ -1,7 +1,7 @@
 #pragma once
 
 #include <pch.hpp>
-#include <scripting/duktape.h>
+#include <duktape.h>
 #include <fstream>
 #include <scripting/functions/JavaScriptBaseFunctions.hpp>
 
