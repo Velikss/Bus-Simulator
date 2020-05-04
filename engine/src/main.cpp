@@ -145,13 +145,23 @@ int main(int argc, char **argv)
 
     entityGroup.AddBehaviour(cb);
 
-    entityGroup.UpdateEntities();
+    for(int i = 0; i<10; i++){
+        entityGroup.UpdateEntities();
 
-    std::cout << std::endl;
-    std::cout << "Entity velocity: " << en2.pVelocity.x << " " << en2.pVelocity.y << std::endl;
-    std::cout << "Entity velocity: " << en3.pVelocity.x << " " << en2.pVelocity.y << std::endl;
-    std::cout << "Entity velocity: " << en4.pVelocity.x << " " << en2.pVelocity.y << std::endl;
-    std::cout << "Entity velocity: " << en5.pVelocity.x << " " << en2.pVelocity.y << std::endl;
-    std::cout << "Entity Steering force: " << en2.pSteeringForce.x << " - " << en2.pSteeringForce.y << std::endl;
+        std::cout << std::endl;
+        std::cout << "Entity velocity: " << en2.pVelocity.x << " " << en2.pVelocity.y << std::endl;
+        std::cout << "Entity velocity: " << en3.pVelocity.x << " " << en2.pVelocity.y << std::endl;
+        std::cout << "Entity velocity: " << en4.pVelocity.x << " " << en2.pVelocity.y << std::endl;
+        std::cout << "Entity velocity: " << en5.pVelocity.x << " " << en2.pVelocity.y << std::endl;
+        std::cout << "Entity Steering force: " << en2.pSteeringForce.x << " - " << en2.pSteeringForce.y << std::endl;
+        std::cout << "Entity Steering force: " << en3.pSteeringForce.x << " - " << en3.pSteeringForce.y << std::endl;
+        std::cout << "Entity Steering force: " << en4.pSteeringForce.x << " - " << en4.pSteeringForce.y << std::endl;
+        std::cout << "Entity Steering force: " << en5.pSteeringForce.x << " - " << en5.pSteeringForce.y << std::endl;
+        std::cout << "Entity position: " << en2.pPosition.x << " - " << en2.pPosition.z << std::endl;
+        std::cout << "Entity position: " << en3.pPosition.x << " - " << en3.pPosition.z << std::endl;
+        std::cout << "Entity position: " << en4.pPosition.x << " - " << en4.pPosition.z << std::endl;
+        std::cout << "Entity position: " << en5.pPosition.x << " - " << en5.pPosition.z << std::endl;
+    }
+
 }
 

@@ -3,7 +3,7 @@ function calculate(entity, entities)
     // Do behaviour logic
     // check if entity and entities received
     if(entity && entities) {
-        var radius = 10;
+        var radius = 100;
         var force = 10;
 
         var ME = GetEntityCoordinates(entity);
