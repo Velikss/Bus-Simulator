@@ -36,6 +36,7 @@ function calculate(entity, entities)
             steeringforce[0] = (steeringforce[0] / length) * force;
             steeringforce[1] = (steeringforce[1] / length) * force;
             //TODO return steeringForce normalized and multiplied by force
+            return steeringforce;
         }
 
         function seek(target)

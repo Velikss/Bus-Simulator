@@ -12,10 +12,12 @@ function calculate(entity, entities)
 
         // Do behaviour logic
         entityList.forEach(calc);
-        function calc(ent, index) {
+        function calc(ent, index)
+        {
             var coords = GetEntityCoordinates(ent)
             var distSquared = (ME[0] - coords[0]) * (ME[0] - coords[0]) + (ME[1] - coords[1]) * (ME[1] - coords[1]);
-            if (distSquared < radius * radius && distSquared > 0) {
+            if (distSquared < radius * radius && distSquared > 0)
+            {
                 // seperation force
                 var x = ME[0] - coords[0];
                 var y = ME[1] - coords[1];
@@ -28,5 +30,6 @@ function calculate(entity, entities)
         steeringforce[0] = (steeringforce[0] / length) * force;
         steeringforce[1] = (steeringforce[1] / length) * force;
         // TODO return steeringForce normalized and multiplied by force
+        return steeringforce;
     }
 }
