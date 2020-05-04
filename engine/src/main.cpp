@@ -120,10 +120,19 @@ int main(int argc, char **argv)
     cEntityGroup entityGroup;
     cBehaviourHandler *cb = new cBehaviourHandler("seperation"); // behaviourname should be a name previously defined as static behaviour
 
+//    cEntity en2(nullptr);
+//    cEntity en3(nullptr);
+//    cEntity en4(nullptr);
+//    cEntity en5(nullptr);
+
     cEntity en2(nullptr);
+    en2.SetPosition(11.1f, 11.1f);
     cEntity en3(nullptr);
+    en3.SetPosition(12.1f, 12.1f);
     cEntity en4(nullptr);
+    en4.SetPosition(13.1f, 13.1f);
     cEntity en5(nullptr);
+    en5.SetPosition(14.1f, 14.1f);
 
     entityGroup.AddEntity(&en2);
     entityGroup.AddEntity(&en3);
@@ -134,6 +143,10 @@ int main(int argc, char **argv)
 
     entityGroup.UpdateEntities();
 
-    std::cout << "Entity velocity: " << en2.pVelocity.x << " " << en2.pVelocity.y;
+    std::cout << std::endl;
+    std::cout << "Entity velocity: " << en2.pVelocity.x << " " << en2.pVelocity.y << std::endl;
+    std::cout << "Entity velocity: " << en3.pVelocity.x << " " << en2.pVelocity.y << std::endl;
+    std::cout << "Entity velocity: " << en4.pVelocity.x << " " << en2.pVelocity.y << std::endl;
+    std::cout << "Entity velocity: " << en5.pVelocity.x << " " << en2.pVelocity.y << std::endl;
 }
 
