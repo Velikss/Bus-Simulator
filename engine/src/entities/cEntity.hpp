@@ -9,17 +9,17 @@ class cEntity : public cEntityInterface
 {
 public:
     std::vector<cBehaviourHandler *> paBehaviourHandlers;
-    glm::vec2 pVelocity;
-    glm::vec2 pHeading;
-    glm::vec2 pSteeringForce;
+    glm::vec2 poVelocity;
+    glm::vec2 poHeading;
+    glm::vec2 poSteeringForce;
     float pfMass;
     float pfMaxSpeed;
 
     cEntity(Mesh *mesh) : cEntityInterface(mesh)
     {
-        pVelocity = glm::vec2(0, 0);
-        pHeading = glm::vec2(0, 0);
-        pSteeringForce = glm::vec2(0, 0);
+        poVelocity = glm::vec2(0, 0);
+        poHeading = glm::vec2(0, 0);
+        poSteeringForce = glm::vec2(0, 0);
         pfMass = 1;
         pfMaxSpeed = 0;
     }
@@ -41,48 +41,48 @@ public:
 
     void ReturnHeading(glm::vec2 *heading) override
     {
-        *heading = pHeading;
+        *heading = poHeading;
     }
 
     void ReturnVelocity(glm::vec2 *velocity) override
     {
-        *velocity = pVelocity;
+        *velocity = poVelocity;
     }
 
     void SetVelocity(glm::vec2 *velocity)
     {
-        pVelocity = *velocity;
+        poVelocity = *velocity;
     }
 
     void SetHeading(glm::vec2 *heading)
     {
-        pHeading = *heading;
+        poHeading = *heading;
     }
 
     void AppendSteeringForce(glm::vec2 *SteeringForce)
     {
-        pSteeringForce += *SteeringForce;
+        poSteeringForce += *SteeringForce;
     }
 
     virtual void Update()
     {
-        pSteeringForce = glm::vec2(0, 0);
+        poSteeringForce = glm::vec2(0, 0);
         for (auto &cBehaviourHandler : paBehaviourHandlers)
         {
             // Runs JavaScript which calculates a steering force and appends it to the current force.
             cBehaviourHandler->Update(this);
         }
 
-        glm::vec2 acceleration = pSteeringForce / pfMaxSpeed;
-        pVelocity += acceleration;
-        if(pVelocity.length() > pfMaxSpeed)
+        glm::vec2 acceleration = poSteeringForce / pfMaxSpeed;
+        poVelocity += acceleration;
+        if(poVelocity.length() > pfMaxSpeed)
         {
-            pVelocity = glm::normalize(pVelocity);
-            pVelocity = pVelocity * pfMaxSpeed;
+            poVelocity = glm::normalize(poVelocity);
+            poVelocity = poVelocity * pfMaxSpeed;
         }
-        pPosition.x += pVelocity.x;
-        pPosition.z += pVelocity.y;
-        pVelocity *= 0.9;
+        pPosition.x += poVelocity.x;
+        pPosition.z += poVelocity.y;
+        poVelocity *= 0.9;
     }
 };
 

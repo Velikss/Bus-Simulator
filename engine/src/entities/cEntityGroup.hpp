@@ -43,24 +43,24 @@ public:
     {
         for (auto &entity : poEntities)
         {
-            entity->pSteeringForce = glm::vec2(0, 0);
+            entity->poSteeringForce = glm::vec2(0, 0);
             for (auto &cBehaviourHandler : paBehaviourHandlers)
             {
                 cBehaviourHandler->Update(entity, this);
             }
 
 
-            glm::vec2 acceleration = entity->pSteeringForce / entity->pfMaxSpeed;
-            entity->pVelocity += acceleration;
-            if(entity->pVelocity.length() > entity->pfMaxSpeed)
+            glm::vec2 acceleration = entity->poSteeringForce / entity->pfMaxSpeed;
+            entity->poVelocity += acceleration;
+            if(entity->poVelocity.length() > entity->pfMaxSpeed)
             {
-                entity->pVelocity = glm::normalize(entity->pVelocity);
-                entity->pVelocity = entity->pVelocity * entity->pfMaxSpeed;
+                entity->poVelocity = glm::normalize(entity->poVelocity);
+                entity->poVelocity = entity->poVelocity * entity->pfMaxSpeed;
             }
-            entity->pPosition.x += entity->pVelocity.x;
-            entity->pPosition.z += entity->pVelocity.y;
+            entity->pPosition.x += entity->poVelocity.x;
+            entity->pPosition.z += entity->poVelocity.y;
 
-            entity->pVelocity *= 0.9;
+            entity->poVelocity *= 0.9;
         }
     }
 };

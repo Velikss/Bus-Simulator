@@ -151,14 +151,14 @@ int main(int argc, char **argv)
         std::cout << "Entity X: " << en2.pPosition.x << ", " << en2.pPosition.z << std::endl;
 
         std::cout << std::endl;
-        std::cout << "Entity velocity: " << en2.pVelocity.x << " " << en2.pVelocity.y << std::endl;
-        std::cout << "Entity velocity: " << en3.pVelocity.x << " " << en3.pVelocity.y << std::endl;
-        std::cout << "Entity velocity: " << en4.pVelocity.x << " " << en4.pVelocity.y << std::endl;
-        std::cout << "Entity velocity: " << en5.pVelocity.x << " " << en5.pVelocity.y << std::endl;
-        std::cout << "Entity Steering force: " << en2.pSteeringForce.x << " - " << en2.pSteeringForce.y << std::endl;
-        std::cout << "Entity Steering force: " << en3.pSteeringForce.x << " - " << en3.pSteeringForce.y << std::endl;
-        std::cout << "Entity Steering force: " << en4.pSteeringForce.x << " - " << en4.pSteeringForce.y << std::endl;
-        std::cout << "Entity Steering force: " << en5.pSteeringForce.x << " - " << en5.pSteeringForce.y << std::endl;
+        std::cout << "Entity velocity: " << en2.poVelocity.x << " " << en2.poVelocity.y << std::endl;
+        std::cout << "Entity velocity: " << en3.poVelocity.x << " " << en3.poVelocity.y << std::endl;
+        std::cout << "Entity velocity: " << en4.poVelocity.x << " " << en4.poVelocity.y << std::endl;
+        std::cout << "Entity velocity: " << en5.poVelocity.x << " " << en5.poVelocity.y << std::endl;
+        std::cout << "Entity Steering force: " << en2.poSteeringForce.x << " - " << en2.poSteeringForce.y << std::endl;
+        std::cout << "Entity Steering force: " << en3.poSteeringForce.x << " - " << en3.poSteeringForce.y << std::endl;
+        std::cout << "Entity Steering force: " << en4.poSteeringForce.x << " - " << en4.poSteeringForce.y << std::endl;
+        std::cout << "Entity Steering force: " << en5.poSteeringForce.x << " - " << en5.poSteeringForce.y << std::endl;
         std::cout << "Entity position: " << en2.pPosition.x << " - " << en2.pPosition.z << std::endl;
         std::cout << "Entity position: " << en3.pPosition.x << " - " << en3.pPosition.z << std::endl;
         std::cout << "Entity position: " << en4.pPosition.x << " - " << en4.pPosition.z << std::endl;
