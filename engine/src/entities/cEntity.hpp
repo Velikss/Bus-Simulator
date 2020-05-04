@@ -72,6 +72,15 @@ public:
             cBehaviourHandler->Update(this);
         }
 
+        glm::vec2 acceleration = pSteeringForce / pfMaxSpeed;
+        pVelocity += acceleration;
+        if(pVelocity.length() > pfMaxSpeed)
+        {
+            pVelocity = glm::normalize(pVelocity);
+            pVelocity = pVelocity * pfMaxSpeed;
+        }
+        pPosition.x += pVelocity.x;
+        pPosition.z += pVelocity.y;
     }
 };
 
