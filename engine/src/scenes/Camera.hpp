@@ -13,7 +13,7 @@ class Camera
     float speed = 0.05f;
     float FoV = glm::radians(45.0);
 
-    glm::vec3 cameraPos = glm::vec3(2.0f, 3.0f, 2.0f);
+    glm::vec3 cameraPos = glm::vec3(2.0f, 7.0f, 2.0f);
     glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
@@ -58,6 +58,12 @@ public:
     {
         if (!lockMovement)
             cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    }
+
+    void MoveUp()
+    {
+        if (!lockMovement)
+            cameraPos += cameraSpeed * cameraUp;
     }
 
     void LookUp()

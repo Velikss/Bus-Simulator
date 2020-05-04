@@ -67,6 +67,7 @@ cTexture* cTextureHandler::LoadTextureFromFile(const char* sFilePath)
     tTextureInfo.uiWidth = iTexWidth;
     tTextureInfo.uiHeight = iTexHeight;
     tTextureInfo.uiSize = iTexWidth * iTexHeight * 4; // we're using RGBA so 4 byte per pixel
+    tTextureInfo.uiMipLevels = std::floor(std::log2(std::max(iTexWidth, iTexHeight))) + 1;
 
     // Create the texture object and return it
     return new cTexture(ppLogicalDevice, tTextureInfo, pcPixels);
@@ -88,7 +89,7 @@ void cTextureHandler::CreateTextureSampler(void)
 
     // Configure anisotropic filtering
     tSamplerInfo.anisotropyEnable = VK_TRUE;
-    tSamplerInfo.maxAnisotropy = 16; // higher = better quality, max is 16
+    tSamplerInfo.maxAnisotropy = 16; // higher = better quality, max is 16 TODO: max actually depends on device
 
     // When sampling outside the image, what color to use
     // irrelevant when using REPEAT addressing mode

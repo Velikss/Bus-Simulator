@@ -29,7 +29,7 @@ private:
 
 public:
     // Create a new Geometry from an OBJ file
-    static cGeometry* FromOBJFile(const char* sFilePath, cLogicalDevice* pLogicalDevice);
+    static cGeometry* FromOBJFile(const char* sFilePath, cLogicalDevice* pLogicalDevice, float fUVScale = 1.0f);
 
     // Cleans up the buffers and frees the memory on the device which is used for this geometry
     ~cGeometry();
@@ -47,22 +47,33 @@ private:
     void CopyToDevice(cLogicalDevice* pLogicalDevice);
 };
 
-cGeometry* cGeometry::FromOBJFile(const char* sFilePath, cLogicalDevice* pLogicalDevice)
+cGeometry* cGeometry::FromOBJFile(const char* sFilePath, cLogicalDevice* pLogicalDevice, float fUVScale)
 {
     cGeometry* pGeometry = new cGeometry();
 
     // Load the model into the vertices and indices lists
     cModelHelper::LoadModel(sFilePath, pGeometry->patVertices, pGeometry->paiIndices);
 
+    // Get the amount of vertices and indices
     pGeometry->puiVertexCount = pGeometry->patVertices.size();
     pGeometry->puiIndexCount = pGeometry->paiIndices.size();
 
     assert(pGeometry->puiVertexCount > 0);  // there should be vertices
     assert(pGeometry->puiIndexCount > 0);   // there should be indices
 
+    // If a custom UV scale is specified, rescale the UV's
+    if (fUVScale != 1.0f)
+    {
+        for (Vertex& tVertex : pGeometry->patVertices)
+        {
+            tVertex.texCoord *= fUVScale;
+        }
+    }
+
     // Setup the buffers on the device and copy the data there
     pGeometry->CopyToDevice(pLogicalDevice);
 
+    // Clear the vertices and indices now that they've been loaded on the device
     pGeometry->patVertices.clear();
     pGeometry->paiIndices.clear();
 

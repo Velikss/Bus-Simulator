@@ -20,6 +20,7 @@ protected:
     std::map<string, cTexture*> pmpTextures;
     std::map<string, cGeometry*> pmpGeometries;
     std::map<string, cMesh*> pmpMeshes;
+    std::map<string, cModel*> pmpModels;
 
     std::map<string, cBaseObject*> pmpObjects;
 
@@ -53,9 +54,9 @@ cScene::cScene()
 
 cScene::~cScene()
 {
-    for (auto oTexture : pmpTextures)
+    for (auto oModel : pmpModels)
     {
-        delete oTexture.second;
+        delete oModel.second;
     }
 
     for (auto oObject : pmpObjects)
@@ -71,6 +72,11 @@ cScene::~cScene()
     for (auto oGeometry : pmpGeometries)
     {
         delete oGeometry.second;
+    }
+
+    for (auto oTexture : pmpTextures)
+    {
+        delete oTexture.second;
     }
 }
 

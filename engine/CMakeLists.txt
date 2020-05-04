@@ -71,7 +71,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/CommandBufferRecorder.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/IndexedRenderRecorder.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/ClearScreenRecorder.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/Scene.hpp src/vulkan/scene/BaseObject.hpp src/vulkan/scene/TestScene.hpp src/vulkan/scene/InputHandler.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/Scene.hpp src/vulkan/scene/BaseObject.hpp src/vulkan/scene/TestScene.hpp src/vulkan/scene/InputHandler.hpp src/vulkan/scene/StreetScene.hpp src/vulkan/scene/ObjectGroup.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 

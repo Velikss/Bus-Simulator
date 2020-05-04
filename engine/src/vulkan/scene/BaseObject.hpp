@@ -87,3 +87,5 @@ void cBaseObject::setScale(const glm::vec3 oScale)
     poScale.y = oScale.y;
     poScale.z = oScale.z;
 }
+
+typedef cBaseObject cModel;

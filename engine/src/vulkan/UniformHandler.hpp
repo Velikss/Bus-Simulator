@@ -131,7 +131,7 @@ void cUniformHandler::UpdateUniformBuffers(cScene* pScene)
     static glm::mat4 oProjection = glm::perspective(
             glm::radians(45.0f),
             tExtent.width / (float) tExtent.height,
-            0.1f, 100.0f);
+            0.1f, 800.0f);
 
     /*
      * TODO: Split camera matrices from object matrices.

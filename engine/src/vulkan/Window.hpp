@@ -20,8 +20,8 @@ private:
 
 public:
     // Window size
-    static const uint WIDTH = 800;
-    static const uint HEIGHT = 600;
+    static const uint WIDTH = 2500;
+    static const uint HEIGHT = 1300;
 
     iInputHandler* ppInputHandler;
 
@@ -88,7 +88,7 @@ void cWindow::CreateWindow()
     ppWindow = glfwCreateWindow(WIDTH, HEIGHT, "BUS", nullptr, nullptr);
 
     glfwSetCursorPosCallback(ppWindow, mouseCallback);
-    glfwSetInputMode(ppWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    //glfwSetInputMode(ppWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetKeyCallback(ppWindow, keyCallback);
 }
 

@@ -41,6 +41,8 @@ private:
 
     VkPhysicalDevice poPhysicalDevice = VK_NULL_HANDLE;
 
+    VkSampleCountFlagBits puiMaxSampleCount;
+
 public:
     static cPhysicalDevice* GetInstance();
 
@@ -48,6 +50,7 @@ public:
 
     tQueueFamilyIndices FindQueueFamilies(void);
     tSwapChainSupportDetails QuerySwapChainSupport(void);
+    VkSampleCountFlagBits GetMaxSampleCount(void);
 
     bool CreateLogicalDevice(VkDeviceCreateInfo* pCreateInfo,
                              VkAllocationCallbacks* pAllocator,
@@ -70,6 +73,7 @@ private:
 
     tQueueFamilyIndices FindQueueFamilies(VkPhysicalDevice& oDevice);
     tSwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice& oDevice);
+    VkSampleCountFlagBits GetMaxSampleCount(VkPhysicalDevice& oDevice);
 };
 
 cPhysicalDevice* cPhysicalDevice::poInstance = new cPhysicalDevice();
@@ -92,25 +96,26 @@ void cPhysicalDevice::SelectPhysicalDevice(cVulkanInstance* pVulkanInstance, cWi
     ppWindow = pWindow;
 
     // Get the number of graphics devices with Vulkan support
-    uint deviceCount = 0;
-    pVulkanInstance->EnumeratePhysicalDevices(&deviceCount, nullptr);
+    uint uiDeviceCount = 0;
+    pVulkanInstance->EnumeratePhysicalDevices(&uiDeviceCount, nullptr);
 
     // If none found, throw an error
-    if (deviceCount == 0)
+    if (uiDeviceCount == 0)
     {
         throw std::runtime_error("failed to find GPUs with Vulkan support!");
     }
 
     // Get all the devices with Vulkan support
-    std::vector<VkPhysicalDevice> devices(deviceCount);
-    pVulkanInstance->EnumeratePhysicalDevices(&deviceCount, devices.data());
+    std::vector<VkPhysicalDevice> aoDevices(uiDeviceCount);
+    pVulkanInstance->EnumeratePhysicalDevices(&uiDeviceCount, aoDevices.data());
 
     // Set physicalDevice to the first device that is suitable
-    for (VkPhysicalDevice& device : devices)
+    for (VkPhysicalDevice& oDevice : aoDevices)
     {
-        if (IsDeviceSuitable(device))
+        if (IsDeviceSuitable(oDevice))
         {
-            poPhysicalDevice = device;
+            poPhysicalDevice = oDevice;
+            puiMaxSampleCount = GetMaxSampleCount(oDevice);
             break;
         }
     }
@@ -237,6 +242,24 @@ tSwapChainSupportDetails cPhysicalDevice::QuerySwapChainSupport(VkPhysicalDevice
     return tDetails;
 }
 
+VkSampleCountFlagBits cPhysicalDevice::GetMaxSampleCount(VkPhysicalDevice& oDevice)
+{
+    VkPhysicalDeviceProperties tPhysicalDeviceProperties;
+    vkGetPhysicalDeviceProperties(oDevice, &tPhysicalDeviceProperties);
+
+    VkSampleCountFlags uiCounts = tPhysicalDeviceProperties.limits.framebufferColorSampleCounts &
+                                  tPhysicalDeviceProperties.limits.framebufferDepthSampleCounts;
+
+    if (uiCounts & VK_SAMPLE_COUNT_64_BIT) return VK_SAMPLE_COUNT_64_BIT;
+    if (uiCounts & VK_SAMPLE_COUNT_32_BIT) return VK_SAMPLE_COUNT_32_BIT;
+    if (uiCounts & VK_SAMPLE_COUNT_16_BIT) return VK_SAMPLE_COUNT_16_BIT;
+    if (uiCounts & VK_SAMPLE_COUNT_8_BIT) return VK_SAMPLE_COUNT_8_BIT;
+    if (uiCounts & VK_SAMPLE_COUNT_4_BIT) return VK_SAMPLE_COUNT_4_BIT;
+    if (uiCounts & VK_SAMPLE_COUNT_2_BIT) return VK_SAMPLE_COUNT_2_BIT;
+
+    return VK_SAMPLE_COUNT_1_BIT;
+}
+
 tQueueFamilyIndices cPhysicalDevice::FindQueueFamilies(void)
 {
     return FindQueueFamilies(poPhysicalDevice);
@@ -245,6 +268,11 @@ tQueueFamilyIndices cPhysicalDevice::FindQueueFamilies(void)
 tSwapChainSupportDetails cPhysicalDevice::QuerySwapChainSupport(void)
 {
     return QuerySwapChainSupport(poPhysicalDevice);
+}
+
+VkSampleCountFlagBits cPhysicalDevice::GetMaxSampleCount(void)
+{
+    return puiMaxSampleCount;
 }
 
 bool cPhysicalDevice::CreateLogicalDevice(VkDeviceCreateInfo* pCreateInfo,

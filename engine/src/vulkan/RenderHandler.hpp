@@ -90,6 +90,22 @@ void cRenderHandler::CreateSemaphores()
 
 void cRenderHandler::DrawFrame(cScene* pScene)
 {
+#ifdef ENABLE_FPS_COUNT
+    static auto startTime = std::chrono::high_resolution_clock::now();
+    static uint frameCount = 0;
+
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+    frameCount++;
+    if (time >= 1)
+    {
+        printf("%u fps\n", frameCount);
+        startTime = currentTime;
+        frameCount = 0;
+    }
+#endif
+
     // Wait for the fence of the current frame and reset it to the unsignalled state
     ppLogicalDevice->WaitForFences(1, &aoInFlightFences[uiCurrentFrame], VK_TRUE, UINT64_MAX);
     ppLogicalDevice->ResetFences(1, &aoInFlightFences[uiCurrentFrame]);

@@ -1,5 +1,7 @@
 #pragma once
 
+#define ENABLE_FPS_COUNT
+
 #include <pch.hpp>
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
@@ -19,6 +21,7 @@
 #include <vulkan/command/IndexedRenderRecorder.hpp>
 #include <vulkan/command/ClearScreenRecorder.hpp>
 #include <vulkan/scene/TestScene.hpp>
+#include <vulkan/scene/StreetScene.hpp>
 
 class Engine
 {
@@ -110,7 +113,7 @@ void Engine::InitVulkan(void)
     // Create the texture handler. This deals with loading, binding and sampling the textures
     ppTextureHandler = new cTextureHandler(ppLogicalDevice);
 
-    ppScene = new cTestScene();
+    ppScene = new cStreetScene();
     ppScene->Load(ppTextureHandler, ppLogicalDevice);
     ppWindow->ppInputHandler = ppScene;
 
