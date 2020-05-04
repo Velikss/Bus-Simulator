@@ -37,8 +37,8 @@ std::shared_ptr<cNetworkConnection::tNetworkInitializationSettings> pPlainClient
 TEST(ServerClientTests, Bind)
 {
     pPlainServerSettings = std::make_shared<cNetworkConnection::tNetworkInitializationSettings>();
-    pPlainServerSettings->sAddress = "0.0.0.0";
-    pPlainServerSettings->usPort = 81;
+    pPlainServerSettings->sAddress = "127.0.0.1";
+    pPlainServerSettings->usPort = 8000;
     pPlainServerSettings->eIPVersion = cNetworkConnection::cIPVersion::eV4;
     pPlainServerSettings->eConnectionType = cNetworkConnection::cConnectionType::eTCP;
     pPlainServerSettings->eMode = cNetworkConnection::cMode::eNonBlocking;
@@ -53,8 +53,8 @@ TEST(ServerClientTests, Bind)
 TEST(ServerClientTests, Connect)
 {
     pPlainClientSettings = std::make_shared<cNetworkConnection::tNetworkInitializationSettings>();
-    pPlainClientSettings->sAddress = "0.0.0.0";
-    pPlainClientSettings->usPort = 81;
+    pPlainClientSettings->sAddress = "127.0.0.1";
+    pPlainClientSettings->usPort = 8000;
     pPlainClientSettings->eIPVersion = cNetworkConnection::cIPVersion::eV4;
     pPlainClientSettings->eConnectionType = cNetworkConnection::cConnectionType::eTCP;
     pPlainClientSettings->eMode = cNetworkConnection::cMode::eNonBlocking;
@@ -77,8 +77,8 @@ std::shared_ptr<cNetworkConnection::tNetworkInitializationSettings> pSSLClientSe
 TEST(ServerClientTests, BindSSL)
 {
     pSSLServerSettings = std::make_shared<cNetworkConnection::tNetworkInitializationSettings>();
-    pSSLServerSettings->sAddress = "0.0.0.0";
-    pSSLServerSettings->usPort = 82;
+    pSSLServerSettings->sAddress = "127.0.0.1";
+    pSSLServerSettings->usPort = 8000;
     pSSLServerSettings->bUseSSL = true;
     pSSLServerSettings->sCertFile = "./19-4-2020.cert";
     pSSLServerSettings->sKeyFile = "./19-4-2020.key";
@@ -96,8 +96,8 @@ TEST(ServerClientTests, BindSSL)
 TEST(ServerClientTests, ConnectSSL)
 {
     pSSLClientSettings = std::make_shared<cNetworkConnection::tNetworkInitializationSettings>();
-    pSSLClientSettings->sAddress = "0.0.0.0";
-    pSSLClientSettings->usPort = 82;
+    pSSLClientSettings->sAddress = "127.0.0.1";
+    pSSLClientSettings->usPort = 8000;
     pSSLClientSettings->bUseSSL = true;
     pSSLClientSettings->eIPVersion = cNetworkConnection::cIPVersion::eV4;
     pSSLClientSettings->eConnectionType = cNetworkConnection::cConnectionType::eTCP;
