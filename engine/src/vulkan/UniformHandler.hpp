@@ -10,6 +10,7 @@
 
 #include <chrono>
 #include <vulkan/mesh/Mesh.hpp>
+#include <vulkan/scene/Scene.hpp>
 #include "vulkan/GraphicsPipeline.hpp"
 #include "vulkan/texture/TextureHandler.hpp"
 
@@ -38,8 +39,8 @@ public:
     cUniformHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
     ~cUniformHandler(void);
 
-    void SetupUniformBuffers(uint uiCount, cTextureHandler* pTextureHandler, std::vector<cMesh*> apMeshes);
-    void UpdateUniformBuffers();
+    void SetupUniformBuffers(cTextureHandler* pTextureHandler, cScene* pScene);
+    void UpdateUniformBuffers(cScene* pScene);
 
     uint GetDescriptorSetLayoutCount(void);
     VkDescriptorSetLayout* GetDescriptorSetLayouts(void);
@@ -47,9 +48,9 @@ public:
     void CmdBindDescriptorSets(VkCommandBuffer& commandBuffer, VkPipelineLayout& oPipelineLayout, uint uiIndex);
 
 private:
-    void CreateUniformBuffers(uint uiCount);
+    void CreateUniformBuffers(cScene* pScene);
     void CreateDescriptorPool();
-    void CreateDescriptorSets(cTextureHandler* pTextureHandler, std::vector<cMesh*> apMeshes);
+    void CreateDescriptorSets(cTextureHandler* pTextureHandler, cScene* pScene);
 };
 
 cUniformHandler::cUniformHandler(cLogicalDevice* pLogicalDevice,
@@ -97,16 +98,18 @@ cUniformHandler::~cUniformHandler()
     ppLogicalDevice->DestroyDescriptorPool(poDescriptorPool, nullptr);
 }
 
-void cUniformHandler::SetupUniformBuffers(uint uiCount, cTextureHandler* pTextureHandler, std::vector<cMesh*> apMeshes)
+void cUniformHandler::SetupUniformBuffers(cTextureHandler* pTextureHandler,
+                                          cScene* pScene)
 {
-    CreateUniformBuffers(uiCount);
+    CreateUniformBuffers(pScene);
     CreateDescriptorPool();
-    CreateDescriptorSets(pTextureHandler, apMeshes);
+    CreateDescriptorSets(pTextureHandler, pScene);
 }
 
-void cUniformHandler::CreateUniformBuffers(uint uiCount)
+void cUniformHandler::CreateUniformBuffers(cScene* pScene)
 {
     VkDeviceSize bufferSize = sizeof(tUniformBufferObject);
+    uint uiCount = pScene->GetObjectCount();
 
     paoUniformBuffers.resize(uiCount);
     paoUniformBuffersMemory.resize(uiCount);
@@ -120,43 +123,42 @@ void cUniformHandler::CreateUniformBuffers(uint uiCount)
     }
 }
 
-void cUniformHandler::UpdateUniformBuffers()
+void cUniformHandler::UpdateUniformBuffers(cScene* pScene)
 {
-    //assert(uiImageIndex < paoUniformBuffers.size()); // image index must be within the bounds of the buffers list
+    assert(pScene != nullptr);
 
-    static auto startTime = std::chrono::high_resolution_clock::now();
+    static VkExtent2D tExtent = ppSwapChain->ptSwapChainExtent;
+    static glm::mat4 oProjection = glm::perspective(
+            glm::radians(45.0f),
+            tExtent.width / (float) tExtent.height,
+            0.1f, 100.0f);
 
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
+    /*
+     * TODO: Split camera matrices from object matrices.
+     * Currently the camera matrices (projection and
+     * view) are combined with the object (model) matrix
+     * and updated for every object individually. These
+     * two should be separated to improve performance.
+     */
 
     void* data;
-    for (uint i = 0; i < paoDescriptorSets.size(); i++)
+    uint uiIndex = 0;
+    for (auto oObject : pScene->GetObjects())
     {
-        VkDeviceMemory& oMemory = paoUniformBuffersMemory[i];
-
         tUniformBufferObject tUBO = {};
 
-        tUBO.tModel = glm::translate(
-                glm::rotate(
-                        glm::mat4(1.0f),
-                        (time * glm::radians(i == 0 ? 20.0f : -20.0f)),
-                        glm::vec3(0.0f, 0.0f, 1.0f)),
-                glm::vec3(i, 0, 0)
-        );
+        // Set the model matrix of the object
+        tUBO.tModel = oObject.second->GetModelMatrix();
 
-        tUBO.tView = glm::lookAt(
-                glm::vec3(2.0f, 2.0f, 2.0f),
-                glm::vec3(0.0f, 0.0f, 0.0f),
-                glm::vec3(0.0f, 0.0f, 1.0f));
+        // Set the view matrix of the camera
+        tUBO.tView = pScene->GetCamera().GetViewMatrix();
 
-        VkExtent2D tExtent = ppSwapChain->ptSwapChainExtent;
-        tUBO.tProjection = glm::perspective(
-                glm::radians(45.0f),
-                tExtent.width / (float) tExtent.height,
-                0.1f, 10.0f);
+        // Set the projection matrix
+        tUBO.tProjection = oProjection;
         tUBO.tProjection[1][1] *= -1; // invert the Y axis
 
+        // Copy the data to memory
+        VkDeviceMemory& oMemory = paoUniformBuffersMemory[uiIndex++];
         ppLogicalDevice->MapMemory(oMemory, 0, sizeof(tUBO), 0, &data);
         {
             memcpy(data, &tUBO, sizeof(tUBO));
@@ -186,7 +188,7 @@ void cUniformHandler::CreateDescriptorPool()
     }
 }
 
-void cUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, std::vector<cMesh*> apMeshes)
+void cUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, cScene* pScene)
 {
     std::vector<VkDescriptorSetLayout> aoLayouts(paoUniformBuffers.size(), poDescriptorSetLayout);
 
@@ -203,22 +205,23 @@ void cUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, std
         throw std::runtime_error("failed to allocate descriptor sets!");
     }
 
-    for (uint i = 0; i < paoDescriptorSets.size(); i++)
+    uint uiIndex = 0;
+    for (auto oObject : pScene->GetObjects())
     {
         VkDescriptorBufferInfo tBufferInfo = {};
-        tBufferInfo.buffer = paoUniformBuffers[i];
+        tBufferInfo.buffer = paoUniformBuffers[uiIndex];
         tBufferInfo.offset = 0;
         tBufferInfo.range = sizeof(tUniformBufferObject);
 
         VkDescriptorImageInfo tImageInfo = {};
         tImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        tImageInfo.imageView = pTextureHandler->GetTexture(apMeshes[i]->GetTextureIndex())->GetView();
+        tImageInfo.imageView = oObject.second->GetMesh()->GetTexture()->GetView();
         tImageInfo.sampler = pTextureHandler->GetSampler();
 
         std::array<VkWriteDescriptorSet, 2> atDescriptorWrites = {};
 
         atDescriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        atDescriptorWrites[0].dstSet = paoDescriptorSets[i];
+        atDescriptorWrites[0].dstSet = paoDescriptorSets[uiIndex];
         atDescriptorWrites[0].dstBinding = 0;
         atDescriptorWrites[0].dstArrayElement = 0;
         atDescriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -226,7 +229,7 @@ void cUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, std
         atDescriptorWrites[0].pBufferInfo = &tBufferInfo;
 
         atDescriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        atDescriptorWrites[1].dstSet = paoDescriptorSets[i];
+        atDescriptorWrites[1].dstSet = paoDescriptorSets[uiIndex];
         atDescriptorWrites[1].dstBinding = 1;
         atDescriptorWrites[1].dstArrayElement = 0;
         atDescriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -235,6 +238,8 @@ void cUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, std
 
         ppLogicalDevice->UpdateDescriptorSets(atDescriptorWrites.size(), atDescriptorWrites.data(),
                                               0, nullptr);
+
+        uiIndex++;
     }
 }
 

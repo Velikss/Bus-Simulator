@@ -18,7 +18,7 @@
 #include <vulkan/command/CommandBuffer.hpp>
 #include <vulkan/command/IndexedRenderRecorder.hpp>
 #include <vulkan/command/ClearScreenRecorder.hpp>
-#include <thread>
+#include <vulkan/scene/TestScene.hpp>
 
 class Engine
 {
@@ -36,6 +36,8 @@ private:
     cCommandBuffer* ppCommandBuffer;
     cTextureHandler* ppTextureHandler;
     cRenderHandler* ppRenderHandler;
+
+    cScene* ppScene;
 
 public:
     // Initializes and starts the engine and all of it's sub-components
@@ -108,18 +110,15 @@ void Engine::InitVulkan(void)
     // Create the texture handler. This deals with loading, binding and sampling the textures
     ppTextureHandler = new cTextureHandler(ppLogicalDevice);
 
-    // Create some geometries to render on the screen
-    uint uiTextureId = ppTextureHandler->LoadTextureFromFile("resources/chalet.jpg");
-    cGeometry* oGeometry = cGeometry::FromOBJFile("resources/chalet.obj", ppLogicalDevice);
-    std::vector<cMesh*> aMeshes = {
-            new cMesh(oGeometry, uiTextureId)
-    };
+    ppScene = new cTestScene();
+    ppScene->Load(ppTextureHandler, ppLogicalDevice);
+    ppWindow->ppInputHandler = ppScene;
 
     // Setup the buffers for uniform variables
-    ppUniformHandler->SetupUniformBuffers(1, ppTextureHandler, aMeshes);
+    ppUniformHandler->SetupUniformBuffers(ppTextureHandler, ppScene);
 
     cIndexedRenderRecorder recorder(ppRenderPass, ppSwapChain, ppGraphicsPipeline,
-                                    &aMeshes, ppUniformHandler);
+                                    ppUniformHandler, ppScene);
     ppCommandBuffer->RecordBuffers(&recorder);
 }
 
@@ -131,8 +130,16 @@ void Engine::MainLoop(void)
         // Let the window do it's thing
         ppWindow->HandleEvents();
 
+        // Update the scene
+        ppScene->Update();
+
+        if (ppScene->ShouldQuit())
+        {
+            ppWindow->Close();
+        }
+
         // Draw a frame
-        ppRenderHandler->DrawFrame();
+        ppRenderHandler->DrawFrame(ppScene);
     }
 
     // Wait until the logical device is idle before returning
@@ -141,6 +148,7 @@ void Engine::MainLoop(void)
 
 void Engine::Cleanup(void)
 {
+    delete ppScene;
     delete ppRenderHandler;
     delete ppTextureHandler;
     delete ppCommandBuffer;
@@ -153,3 +161,5 @@ void Engine::Cleanup(void)
     delete ppVulkanInstance;
     delete ppWindow;
 }
+
+

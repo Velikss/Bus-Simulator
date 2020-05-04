@@ -3,6 +3,7 @@
 #include <pch.hpp>
 #include <vulkan/vulkan.h>
 #include <vulkan/VulkanInstance.hpp>
+#include "Window.hpp"
 
 // A struct for storing the QueueFamily indices
 struct tQueueFamilyIndices

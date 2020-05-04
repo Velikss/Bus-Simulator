@@ -4,25 +4,28 @@
 #include <vulkan/geometry/Geometry.hpp>
 #include <vulkan/texture/Texture.hpp>
 
+// This class is very simple right now, it just connects a geometry and texture
+// together. Later, things like materials will be added here.
 class cMesh
 {
 private:
     cGeometry* ppGeometry;
-    uint puiTextureIndex;
+    cTexture* ppTexture;
 
 public:
-    cMesh(cGeometry* pGeometry, uint uiTextureIndex);
+    cMesh(cGeometry* pGeometry, cTexture* pTexture);
 
     cGeometry* GetGeometry();
-    uint GetTextureIndex();
+    cTexture* GetTexture();
 };
 
-cMesh::cMesh(cGeometry* pGeometry, uint uiTextureIndex)
+cMesh::cMesh(cGeometry* pGeometry, cTexture* pTexture)
 {
     assert(pGeometry != nullptr);
+    assert(pTexture != nullptr);
 
     ppGeometry = pGeometry;
-    puiTextureIndex = uiTextureIndex;
+    ppTexture = pTexture;
 }
 
 cGeometry* cMesh::GetGeometry()
@@ -30,7 +33,7 @@ cGeometry* cMesh::GetGeometry()
     return ppGeometry;
 }
 
-uint cMesh::GetTextureIndex()
+cTexture* cMesh::GetTexture()
 {
-    return puiTextureIndex;
+    return ppTexture;
 }

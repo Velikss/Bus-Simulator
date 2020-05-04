@@ -14,18 +14,13 @@ private:
     // Texture sampler object
     VkSampler poTextureSampler = VK_NULL_HANDLE;
 
-    // List with all the textures
-    std::vector<cTexture*> papTextures;
-
 public:
     cTextureHandler(cLogicalDevice* pLogicalDevice);
     ~cTextureHandler(void);
 
     // Load a texture from a file
-    uint LoadTextureFromFile(const char* sFilePath);
+    cTexture* LoadTextureFromFile(const char* sFilePath);
 
-    // Returns the texture at the given index
-    cTexture* GetTexture(uint uiIndex);
     // Returns the texture sampler
     VkSampler GetSampler();
 
@@ -47,17 +42,11 @@ cTextureHandler::cTextureHandler(cLogicalDevice* pLogicalDevice)
 
 cTextureHandler::~cTextureHandler(void)
 {
-    // Destroy all the textures
-    for (cTexture* pTexture : papTextures)
-    {
-        delete pTexture;
-    }
-
     // Destroy the texture sampler
     ppLogicalDevice->DestroySampler(poTextureSampler, nullptr);
 }
 
-uint cTextureHandler::LoadTextureFromFile(const char* sFilePath)
+cTexture* cTextureHandler::LoadTextureFromFile(const char* sFilePath)
 {
     // Load the pixel data and image size
     int iTexWidth, iTexHeight;
@@ -79,11 +68,8 @@ uint cTextureHandler::LoadTextureFromFile(const char* sFilePath)
     tTextureInfo.uiHeight = iTexHeight;
     tTextureInfo.uiSize = iTexWidth * iTexHeight * 4; // we're using RGBA so 4 byte per pixel
 
-    // Create the texture object and add it to the list
-    papTextures.push_back(new cTexture(ppLogicalDevice, tTextureInfo, pcPixels));
-
-    // Return the index of this texture
-    return papTextures.size() - 1;
+    // Create the texture object and return it
+    return new cTexture(ppLogicalDevice, tTextureInfo, pcPixels);
 }
 
 void cTextureHandler::CreateTextureSampler(void)
@@ -126,13 +112,6 @@ void cTextureHandler::CreateTextureSampler(void)
     {
         throw std::runtime_error("failed to create texture sampler!");
     }
-}
-
-cTexture* cTextureHandler::GetTexture(uint uiIndex)
-{
-    assert(uiIndex < papTextures.size());
-
-    return papTextures[uiIndex];
 }
 
 VkSampler cTextureHandler::GetSampler()

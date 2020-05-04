@@ -12,8 +12,8 @@ private:
     cRenderPass* ppRenderPass;
     cSwapChain* ppSwapChain;
     cGraphicsPipeline* ppGraphicsPipeline;
-    std::vector<cMesh*>* ppMeshes;
     cUniformHandler* ppUniformHandler;
+    cScene* ppScene;
 
     VkRenderPassBeginInfo ptRenderPassInfo = {};
     std::array<VkClearValue, 2> paoClearValues = {};
@@ -22,8 +22,8 @@ public:
     cIndexedRenderRecorder(cRenderPass* pRenderPass,
                            cSwapChain* pSwapChain,
                            cGraphicsPipeline* pGraphicsPipeline,
-                           std::vector<cMesh*>* paMeshes,
-                           cUniformHandler* pUniformHandler);
+                           cUniformHandler* pUniformHandler,
+                           cScene* pScene);
 
     void Setup(uint uiIndex) override;
     void RecordCommands(VkCommandBuffer& oCommandBuffer, uint uiIndex) override;
@@ -32,14 +32,14 @@ public:
 cIndexedRenderRecorder::cIndexedRenderRecorder(cRenderPass* pRenderPass,
                                                cSwapChain* pSwapChain,
                                                cGraphicsPipeline* pGraphicsPipeline,
-                                               std::vector<cMesh*>* paMeshes,
-                                               cUniformHandler* pUniformHandler)
+                                               cUniformHandler* pUniformHandler,
+                                               cScene* pScene)
 {
     ppRenderPass = pRenderPass;
     ppSwapChain = pSwapChain;
     ppGraphicsPipeline = pGraphicsPipeline;
-    ppMeshes = paMeshes;
     ppUniformHandler = pUniformHandler;
+    ppScene = pScene;
 }
 
 void cIndexedRenderRecorder::Setup(uint uiIndex)
@@ -71,9 +71,10 @@ void cIndexedRenderRecorder::RecordCommands(VkCommandBuffer& oCommandBuffer, uin
     vkCmdBindPipeline(oCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                       ppGraphicsPipeline->poGraphicsPipeline);
 
-    for (uint uiGeometryIndex = 0; uiGeometryIndex < ppMeshes->size(); uiGeometryIndex++)
+    uint uiGeometryIndex = 0;
+    for (auto oObject : ppScene->GetObjects())
     {
-        cGeometry* pGeometry = (*ppMeshes)[uiGeometryIndex]->GetGeometry();
+        cGeometry* pGeometry = oObject.second->GetMesh()->GetGeometry();
 
         // Bind the vertex buffers
         pGeometry->CmdBindVertexBuffer(oCommandBuffer);
@@ -84,7 +85,7 @@ void cIndexedRenderRecorder::RecordCommands(VkCommandBuffer& oCommandBuffer, uin
         // Bind the descriptor sets
         ppUniformHandler->CmdBindDescriptorSets(oCommandBuffer,
                                                 ppGraphicsPipeline->poPipelineLayout,
-                                                uiGeometryIndex);
+                                                uiGeometryIndex++);
 
         // Draw the vertices
         vkCmdDrawIndexed(oCommandBuffer, pGeometry->GetIndexCount(), 1, 0, 0, 0);

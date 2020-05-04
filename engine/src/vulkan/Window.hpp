@@ -3,11 +3,14 @@
 #include <pch.hpp>
 #include <GLFW/glfw3.h>
 #include <vulkan/VulkanInstance.hpp>
+#include <vulkan/scene/InputHandler.hpp>
 
 // Class representing the window which can be used for rendering
 class cWindow
 {
 private:
+    static cWindow* poInstance;
+
     cVulkanInstance* ppVulkanInstance;
 
     // Pointer to the GLFW window instance
@@ -17,8 +20,10 @@ private:
 
 public:
     // Window size
-    const uint WIDTH = 800;
-    const uint HEIGHT = 600;
+    static const uint WIDTH = 800;
+    static const uint HEIGHT = 600;
+
+    iInputHandler* ppInputHandler;
 
     cWindow();
     ~cWindow();
@@ -39,10 +44,16 @@ public:
     // Handles window events
     void HandleEvents(void);
 
-    void SetKeyCallback(GLFWkeyfun pCallback);
+    // Mark this window as should close
+    void Close(void);
 
     VkSurfaceKHR& GetSurface(void);
+
+    static void mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY);
+    static void keyCallback(GLFWwindow* pWindow, int iKey, int iScanCode, int iAction, int iMods);
 };
+
+cWindow* cWindow::poInstance;
 
 cWindow::cWindow()
 {
@@ -53,6 +64,8 @@ cWindow::cWindow()
 
     // Window resizing is temporarily disabled
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
+    poInstance = this;
 }
 
 cWindow::~cWindow()
@@ -73,6 +86,10 @@ void cWindow::CreateWindow()
     assert(ppWindow == nullptr); // don't create a window if it has already been created
 
     ppWindow = glfwCreateWindow(WIDTH, HEIGHT, "BUS", nullptr, nullptr);
+
+    glfwSetCursorPosCallback(ppWindow, mouseCallback);
+    glfwSetInputMode(ppWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetKeyCallback(ppWindow, keyCallback);
 }
 
 bool cWindow::CreateWindowSurface(cVulkanInstance* pVulkanInstance)
@@ -105,12 +122,9 @@ void cWindow::HandleEvents(void)
     glfwPollEvents();
 }
 
-void cWindow::SetKeyCallback(GLFWkeyfun pCallback)
+void cWindow::Close(void)
 {
-    assert(pCallback != nullptr); // callback cannot be null
-    assert(ppWindow != nullptr);  // window must be created first
-
-    glfwSetKeyCallback(ppWindow, pCallback);
+    glfwSetWindowShouldClose(ppWindow, GLFW_TRUE);
 }
 
 VkSurfaceKHR& cWindow::GetSurface(void)
@@ -118,4 +132,33 @@ VkSurfaceKHR& cWindow::GetSurface(void)
     assert(poSurface != VK_NULL_HANDLE);
 
     return poSurface;
+}
+
+void cWindow::mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY)
+{
+    static bool bFirstMouse = true;
+    static float uiLastX = WIDTH, uiLastY = HEIGHT;
+
+    if (bFirstMouse)
+    {
+        uiLastX = dPosX;
+        uiLastY = dPosY;
+        bFirstMouse = false;
+    }
+
+    float uiDeltaX = dPosX - uiLastX;
+    float uiDeltaY = dPosY - uiLastY;
+    uiLastX = dPosX;
+    uiLastY = dPosY;
+
+    const float fSensitivity = 2.5f;
+    uiDeltaX *= fSensitivity;
+    uiDeltaY *= fSensitivity;
+
+    poInstance->ppInputHandler->HandleMouse(uiDeltaX, uiDeltaY);
+}
+
+void cWindow::keyCallback(GLFWwindow* pWindow, int iKey, int iScanCode, int iAction, int iMods)
+{
+    poInstance->ppInputHandler->HandleKey(iKey, iAction);
 }

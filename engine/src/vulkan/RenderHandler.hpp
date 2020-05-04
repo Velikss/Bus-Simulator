@@ -30,7 +30,7 @@ public:
 
     void CreateSemaphores(void);
 
-    void DrawFrame(void);
+    void DrawFrame(cScene* pScene);
 
     void SetCommandBuffer(cCommandBuffer* pCommandBuffer);
     void SetUniformHandler(cUniformHandler* pUniformHandler);
@@ -88,7 +88,7 @@ void cRenderHandler::CreateSemaphores()
     }
 }
 
-void cRenderHandler::DrawFrame(void)
+void cRenderHandler::DrawFrame(cScene* pScene)
 {
     // Wait for the fence of the current frame and reset it to the unsignalled state
     ppLogicalDevice->WaitForFences(1, &aoInFlightFences[uiCurrentFrame], VK_TRUE, UINT64_MAX);
@@ -99,7 +99,7 @@ void cRenderHandler::DrawFrame(void)
     VkFence oAqcuireFence = VK_NULL_HANDLE;
     ppSwapChain->AcquireNextImage(UINT64_MAX, aoImageAvailableSemaphores[uiCurrentFrame], oAqcuireFence, &uiImageIndex);
 
-    if (ppUniformHandler != nullptr) ppUniformHandler->UpdateUniformBuffers();
+    if (ppUniformHandler != nullptr) ppUniformHandler->UpdateUniformBuffers(pScene);
 
     // Struct with information about the command buffer we want to submit to the queue
     VkSubmitInfo tSubmitInfo = {};
