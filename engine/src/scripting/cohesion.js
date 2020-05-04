@@ -5,7 +5,6 @@ function calculate(entity, entities)
     if(entity && entities) {
         var radius = 10;
         var force = 10;
-        var mass = GetEntityMass(entity);
         var maxspeed = GetEntityMaxSpeed(entity);
 
         var ME = GetEntityCoordinates(entity);
@@ -17,7 +16,6 @@ function calculate(entity, entities)
 
         // Do behaviour logic
         entityList.forEach(calc);
-
         function calc(ent, index)
         {
             var coords = GetEntityCoordinates(ent)
@@ -34,7 +32,10 @@ function calculate(entity, entities)
                 centerOfMass[1] /= neighbourCount;
                 seek(centerOfMass)
             }
-            //TODO return steeringForce
+            var length = Math.sqrt((steeringforce[0] * steeringforce[0]) + (steeringforce[1] * steeringforce[1]))
+            steeringforce[0] = (steeringforce[0] / length) * force;
+            steeringforce[1] = (steeringforce[1] / length) * force;
+            //TODO return steeringForce normalized and multiplied by force
         }
 
         function seek(target)
@@ -48,6 +49,5 @@ function calculate(entity, entities)
             steeringforce[0] = desiredVelocity[0] - velocity[0];
             steeringforce[1] = desiredVelocity[1] - velocity[1];
         }
-
     }
 }
