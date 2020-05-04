@@ -5,8 +5,10 @@ function calculate(entity, entities)
     if(entity && entities) {
         var radius = 10;
         var force = 10;
-        var mass = 1;
-        var maxspeed = 10;
+        var mass = GetEntityMass(entity);
+        println("Entity mass: " + mass);
+        var maxspeed = GetEntityMaxSpeed(entity);
+        println("Entity maxspeed: " + maxspeed);
 
         var ME = GetEntityCoordinates(entity);
         var entityList = GetEntityList(entities);
@@ -44,6 +46,7 @@ function calculate(entity, entities)
 
         // Return values (set function that applies the modified values to the entity
         SetEntityVelocity(entity, velocity[0], velocity[1]);
+
 
         //TODO
         // truncate by maxspeed
