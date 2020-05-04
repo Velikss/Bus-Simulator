@@ -41,6 +41,11 @@ public:
 
     }
 
+    virtual void AppendSteeringForce(glm::vec2 *SteeringForce)
+    {
+
+    }
+
 };
 
 class cEntityGroupInterface : public cEntityInterface

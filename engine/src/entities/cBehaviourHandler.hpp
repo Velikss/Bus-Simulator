@@ -24,7 +24,7 @@ public:
 
     static void AddBehaviour(std::string sBehaviourName, std::string sFileName);
 
-    virtual glm::vec2 Update(BaseObject *oEntity, cEntityGroupInterface *oEntityGroup);
+    virtual void Update(BaseObject *oEntity, cEntityGroupInterface *oEntityGroup);
 };
 
 std::map<std::string, cScriptingEngine *> cBehaviourHandler::poBehaviours;
@@ -46,6 +46,7 @@ void cBehaviourHandler::AddBehaviour(std::string sBehaviourName, std::string sFi
     poBehaviourEngine->RegisterFunction(JavaScriptEntityFunctions::SetEntityVelocity, 3, "SetEntityVelocity");
     poBehaviourEngine->RegisterFunction(JavaScriptEntityFunctions::ReturnEntityHeading, 1, "GetEntityHeading");
     poBehaviourEngine->RegisterFunction(JavaScriptEntityFunctions::SetEntityHeading, 3, "SetEntityHeading");
+    poBehaviourEngine->RegisterFunction(JavaScriptEntityFunctions::AppendEntitySteeringForce, 3, "SetEntitySteeringForce");
 
     /* Compile the behaviours' script (it will be placed as bytecode on the engines' stack)
      * If it compiles successful, add the behaviour with it's engine to poBehaviour.
@@ -55,11 +56,9 @@ void cBehaviourHandler::AddBehaviour(std::string sBehaviourName, std::string sFi
 }
 
 /*
- * Calls calculate function from the engines' stack, then returns steering force.
+ * Calls calculate function from the engines' stack, which will calculate a steering force and append it to the entity's steering force..
  */
-glm::vec2 cBehaviourHandler::Update(BaseObject *oEntity, cEntityGroupInterface *oEntityGroup = nullptr)
+void cBehaviourHandler::Update(BaseObject *oEntity, cEntityGroupInterface *oEntityGroup = nullptr)
 {
     poBehaviours.at(psBehaviourName)->RunJavaScriptFunction("calculate", oEntity, oEntityGroup);
-    //TODO get steeringforce from Js and return it
-    return glm::vec2(0, 0);
 }

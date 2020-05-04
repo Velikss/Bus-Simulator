@@ -152,5 +152,6 @@ int main(int argc, char **argv)
     std::cout << "Entity velocity: " << en3.pVelocity.x << " " << en2.pVelocity.y << std::endl;
     std::cout << "Entity velocity: " << en4.pVelocity.x << " " << en2.pVelocity.y << std::endl;
     std::cout << "Entity velocity: " << en5.pVelocity.x << " " << en2.pVelocity.y << std::endl;
+    std::cout << "Entity Steering force: " << en2.pSteeringForce.x << " - " << en2.pSteeringForce.y << std::endl;
 }
 

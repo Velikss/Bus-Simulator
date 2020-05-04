@@ -59,12 +59,19 @@ public:
         pHeading = *heading;
     }
 
+    void AppendSteeringForce(glm::vec2 *SteeringForce)
+    {
+        pSteeringForce += *SteeringForce;
+    }
+
     virtual void Update()
     {
         for (auto &cBehaviourHandler : paBehaviourHandlers)
         {
-            pSteeringForce += cBehaviourHandler->Update(this);
+            // Runs JavaScript which calculates a steeringforce and appends it to the current force.
+            cBehaviourHandler->Update(this);
         }
+
     }
 };
 

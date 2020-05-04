@@ -77,9 +77,9 @@ bool cScriptingEngine::CompileJavaScriptFile(const char *pstrFilename)
     else
     {
         // No error so code can be evaluated
-        duk_pcall(ppoContext, 0);
-
-        bSucces = true;
+        if(duk_pcall(ppoContext, 0) == DUK_EXEC_SUCCESS) {
+            bSucces = true;
+        }
     }
     duk_pop(ppoContext);
 

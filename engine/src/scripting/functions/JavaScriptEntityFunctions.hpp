@@ -220,5 +220,28 @@ namespace JavaScriptEntityFunctions
 
         return 1;
     }
+
+    duk_ret_t AppendEntitySteeringForce(duk_context *poContext)
+    {
+        if (duk_get_top(poContext) == 0)
+        {
+            /* throw TypeError if no arguments given */
+            return DUK_RET_TYPE_ERROR;
+        }
+
+        // Get pointer from stack
+        void *p = duk_to_pointer(poContext, -3);
+
+        // Cast pointer to Entity pointer, we know it's pointing to an entity
+        cEntityInterface *poEntity = static_cast<cEntityInterface *>(p);
+
+        // Get SteeringForce from stack
+        glm::vec2 SteeringForce(duk_to_number(poContext, -2), duk_to_number(poContext, -1));
+
+        // Set velocity to entity
+        poEntity->AppendSteeringForce(&SteeringForce);
+
+        return 0;
+    }
 };
 
