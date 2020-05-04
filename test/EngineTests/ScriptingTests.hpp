@@ -2,9 +2,25 @@
 #include <pch.hpp>
 #include <gtest/gtest.h>
 #include <scripting/cScriptingEngine.hpp>
-#include <entities/cEntity.hpp>
 
-TEST(ScriptingTests, InitEngine)
+TEST(ScriptingTests, TestEngineCompilesWrongFilePath)
 {
-    cEntity entity(nullptr);
+    cScriptingEngine engine;
+
+    ASSERT_FALSE(engine.CompileJavaScriptFile("/path/to/file"));
 }
+
+TEST(ScriptingTests, TestEngineCompilesCorrectFilePath)
+{
+    cScriptingEngine engine;
+
+    ASSERT_TRUE(engine.CompileJavaScriptFile("../test/EngineTests/test.js"));
+}
+
+//TEST(ScriptingTests, TestScriptFunction)
+//{
+//    cScriptingEngine engine;
+//    engine.CompileJavaScriptFile("../test/EngineTests/test.js");
+//
+//    ASSERT_TRUE(engine.RunJavaScriptFunction("test"));
+//}

@@ -62,7 +62,7 @@ bool cScriptingEngine::CompileJavaScriptFile(const char *pstrFilename)
     if (!oFileStream.is_open())
     {
         std::cout << pstrFilename << " could not be found." << std::endl;
-        return -1;
+        return bSucces;
     }
     std::string strFileContent((std::istreambuf_iterator<char>(oFileStream)),
                                std::istreambuf_iterator<char>());
@@ -86,7 +86,7 @@ bool cScriptingEngine::CompileJavaScriptFile(const char *pstrFilename)
     return bSucces;
 }
 
-bool cScriptingEngine::RunJavaScriptFunction(const char *psFunctionName, void *pArga, void *pArgb)
+bool cScriptingEngine::RunJavaScriptFunction(const char *psFunctionName, void *pArga = nullptr, void *pArgb = nullptr)
 {
     bool bReturnVal;
 
