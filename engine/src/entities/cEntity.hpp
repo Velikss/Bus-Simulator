@@ -11,16 +11,30 @@ public:
     std::vector<cBehaviourHandler *> paBehaviourHandlers;
     glm::vec2 pVelocity;
     glm::vec2 pHeading;
+    float pfMass;
+    float pfMaxSpeed;
 
     cEntity(Mesh *mesh) : cEntityInterface(mesh)
     {
         pVelocity = glm::vec2(0, 0);
         pHeading = glm::vec2(0, 0);
+        pfMass = 1;
+        pfMaxSpeed = 0;
     }
 
     void AddBehaviour(cBehaviourHandler *&poBehaviour)
     {
         paBehaviourHandlers.push_back(poBehaviour);
+    }
+
+    void ReturnMass(float *mass) override
+    {
+        *mass = pfMass;
+    }
+
+    void ReturnMaxSpeed(float *speed) override
+    {
+        *speed = pfMaxSpeed;
     }
 
     void ReturnHeading(glm::vec2 *heading) override

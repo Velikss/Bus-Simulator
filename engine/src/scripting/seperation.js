@@ -9,10 +9,10 @@ function calculate(entity, entities)
     // check if entity received
     if(entity)
     {
-        var heading = GetEntityHeading(entity);
-        println("Entity heading: " + heading);
-        var velocity = GetEntityVelocity(entity);
-        println("Entity velocity: " + velocity);
+        var mass = GetEntityMass(entity);
+        println("Entity mass: " + mass);
+        var speed = GetEntityMaxSpeed(entity);
+        println("Entity speed: " + speed);
 
         SetEntityVelocity(entity, 1.22, 3.44);
     }

@@ -4,6 +4,9 @@
 #include <scripting/duktape.h>
 #include <entities/cEntityInterface.hpp>
 
+/*
+ * This namespace contains all duktape functions related to game entities, these functions are registered as javascript functions in cBehaviourHandler
+ */
 namespace JavaScriptEntityFunctions
 {
     duk_ret_t ReturnEntityCoordinates(duk_context *poContext)
@@ -31,6 +34,52 @@ namespace JavaScriptEntityFunctions
         duk_put_prop_index(poContext, ArrayIndex, 1);
         duk_push_int(poContext, poEntity->pPosition.z);
         duk_put_prop_index(poContext, ArrayIndex, 2);
+
+        return 1;
+    }
+
+    duk_ret_t ReturnEntityMass(duk_context *poContext)
+    {
+        if (duk_get_top(poContext) == 0)
+        {
+            /* throw TypeError if no arguments given */
+            return DUK_RET_TYPE_ERROR;
+        }
+
+        // Get pointer from stack
+        void *p = duk_get_pointer(poContext, 0);
+
+        // Cast pointer to Entity pointer, we know it's pointing to an entity
+        cEntityInterface *poEntity = static_cast<cEntityInterface *>(p);
+
+        // Get Mass and push to the duk stack
+        float mass;
+        poEntity->ReturnMass(&mass);
+
+        duk_push_number(poContext, mass);
+
+        return 1;
+    }
+
+    duk_ret_t ReturnEntityMaxSpeed(duk_context *poContext)
+    {
+        if (duk_get_top(poContext) == 0)
+        {
+            /* throw TypeError if no arguments given */
+            return DUK_RET_TYPE_ERROR;
+        }
+
+        // Get pointer from stack
+        void *p = duk_get_pointer(poContext, 0);
+
+        // Cast pointer to Entity pointer, we know it's pointing to an entity
+        cEntityInterface *poEntity = static_cast<cEntityInterface *>(p);
+
+        // Get speed and push to the duk stack
+        float speed;
+        poEntity->ReturnMaxSpeed(&speed);
+
+        duk_push_number(poContext, speed);
 
         return 1;
     }

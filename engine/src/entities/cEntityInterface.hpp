@@ -11,6 +11,16 @@ public:
 
     }
 
+    virtual void ReturnMass(float *mass)
+    {
+
+    }
+
+    virtual void ReturnMaxSpeed(float * speed)
+    {
+
+    }
+
     virtual void ReturnHeading(glm::vec2 *heading)
     {
 
