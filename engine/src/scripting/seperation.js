@@ -3,7 +3,7 @@ function calculate(entity, entities)
     // Do behaviour logic
     // check if entity and entities received
     if(entity && entities) {
-        var radius = 100;
+        var radius = 10;
         var force = 10;
 
         var ME = GetEntityCoordinates(entity);
@@ -27,8 +27,13 @@ function calculate(entity, entities)
             }
         }
         var length = Math.sqrt((steeringforce[0] * steeringforce[0]) + (steeringforce[1] * steeringforce[1]))
-        steeringforce[0] = (steeringforce[0] / length) * force;
-        steeringforce[1] = (steeringforce[1] / length) * force;
+        if(length > 0){
+            steeringforce[0] = (steeringforce[0] / length) * force;
+            steeringforce[1] = (steeringforce[1] / length) * force;
+        }else{
+            steeringforce[0] *= force;
+            steeringforce[1] *= force;
+        }
         
         SetEntitySteeringForce(entity, steeringforce[0], steeringforce[1]);
     }

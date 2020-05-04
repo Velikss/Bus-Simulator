@@ -43,6 +43,7 @@ public:
     {
         for (auto &entity : poEntities)
         {
+            entity->pSteeringForce = glm::vec2(0, 0);
             for (auto &cBehaviourHandler : paBehaviourHandlers)
             {
                 cBehaviourHandler->Update(entity, this);
@@ -58,6 +59,8 @@ public:
             }
             entity->pPosition.x += entity->pVelocity.x;
             entity->pPosition.z += entity->pVelocity.y;
+
+            entity->pVelocity *= 0.9;
         }
     }
 };
