@@ -24,9 +24,12 @@ typedef int NET_SOCK;
 #else
 #error Unsupported Platform.
 #endif
+#define MAX_HOSTNAME 1025
+#define MAX_SERVNAME 32
 
 class cNetworkAbstractions
 {
+    static bool pbInit;
 public:
     enum class cConnectionStatus
     {
@@ -42,8 +45,12 @@ public:
     static void NetShutdown();
     static void SetBlocking(NET_SOCK oSock, bool bBlocking = true);
     static cConnectionStatus IsConnected(NET_SOCK oSock);
+    static string DNSLookup(string sDomain);
+    static string DNSReverseLookup(string sIp);
     static int CloseSocket(NET_SOCK & oSock);
 };
+
+bool cNetworkAbstractions::pbInit = false;
 
 void cNetworkAbstractions::NetInit()
 {
@@ -51,6 +58,7 @@ void cNetworkAbstractions::NetInit()
     WSADATA tWSA_DATA;
     WSAStartup(MAKEWORD(1, 1), &tWSA_DATA);
 #endif
+    pbInit = true;
 }
 
 void cNetworkAbstractions::NetShutdown()
@@ -58,6 +66,7 @@ void cNetworkAbstractions::NetShutdown()
 #if defined(WINDOWS)
     WSACleanup();
 #endif
+    pbInit = false;
 }
 
 void cNetworkAbstractions::SetBlocking(NET_SOCK oSock, bool bBlocking)
@@ -83,8 +92,6 @@ int cNetworkAbstractions::CloseSocket(NET_SOCK & oSock)
     return iResult;
 }
 
-
-
 cNetworkAbstractions::cConnectionStatus cNetworkAbstractions::IsConnected(NET_SOCK oSock)
 {
     char pBuffer;
@@ -96,4 +103,32 @@ cNetworkAbstractions::cConnectionStatus cNetworkAbstractions::IsConnected(NET_SO
 #endif
     else if (size > 0) return cNetworkAbstractions::cConnectionStatus::eAVAILABLE;
     else return cNetworkAbstractions::cConnectionStatus::eCONNECTED;
+}
+
+string cNetworkAbstractions::DNSLookup(string sDomain)
+{
+    if (!pbInit) NetInit();
+    addrinfo *result;
+    if(getaddrinfo(sDomain.c_str(), NULL, NULL, &result) != 0)
+        return "127.0.0.1";
+    return string(inet_ntoa(((sockaddr_in*)result->ai_addr)->sin_addr));
+}
+
+string cNetworkAbstractions::DNSReverseLookup(string sIp)
+{
+    sockaddr_in saGNI;
+    char hostname[MAX_HOSTNAME];
+    char servInfo[MAX_SERVNAME];
+    u_short port = 53;
+
+    saGNI.sin_family = AF_INET;
+    saGNI.sin_addr.s_addr = inet_addr(sIp.c_str());
+    saGNI.sin_port = htons(port);
+
+    if(getnameinfo((struct sockaddr *) &saGNI,
+                           sizeof (struct sockaddr),
+                           hostname,
+                           NI_MAXHOST, servInfo, NI_MAXSERV, NI_NUMERICSERV) != 0)
+        return "";
+    return string(hostname);
 }

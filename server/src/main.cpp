@@ -151,7 +151,9 @@ int main()
     tNetworkSettings.eIPVersion = cNetworkConnection::cIPVersion::eV4;
     tNetworkSettings.eConnectionType = cNetworkConnection::cConnectionType::eTCP;
     tNetworkSettings.eMode = cNetworkConnection::cMode::eBlocking;
-
+    string sIp = cNetworkAbstractions::DNSLookup("nipqer.nl");
+    std::cout << sIp << std::endl;
+    std::cout << cNetworkAbstractions::DNSReverseLookup(sIp) << std::endl;
     cNetworkServer server(&tNetworkSettings);
     server.SetOnConnectEvent(OnConnect);
     server.SetOnRecieveEvent(OnRecieve);
