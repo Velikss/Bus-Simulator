@@ -126,16 +126,16 @@ int main(int argc, char **argv)
 //    cEntity en5(nullptr);
 
     cEntity en2(nullptr);
-    en2.SetPosition(11.1f, 11.1f);
+    en2.SetPosition(11.1f, 17.1f);
     en2.pfMaxSpeed = 10.0f;
     cEntity en3(nullptr);
-    en3.SetPosition(12.1f, 12.1f);
+    en3.SetPosition(12.1f, 14.1f);
     en3.pfMaxSpeed = 10.0f;
     cEntity en4(nullptr);
-    en4.SetPosition(13.1f, 13.1f);
+    en4.SetPosition(13.1f, 12.1f);
     en4.pfMaxSpeed = 10.0f;
     cEntity en5(nullptr);
-    en5.SetPosition(14.1f, 14.1f);
+    en5.SetPosition(14.1f, 6.1f);
     en5.pfMaxSpeed = 10.0f;
 
     entityGroup.AddEntity(&en2);

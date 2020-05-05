@@ -12,16 +12,16 @@ TEST(ScriptingTests, CheckIfCoordinatesChangeAfterSeperationUpdate)
     cBehaviourHandler *cb = new cBehaviourHandler("seperation");
 
     cEntity en2(nullptr);
-    en2.SetPosition(11.1f, 11.1f);
+    en2.SetPosition(11.1f, 17.1f);
     en2.pfMaxSpeed = 10.0f;
     cEntity en3(nullptr);
-    en3.SetPosition(12.1f, 12.1f);
+    en3.SetPosition(12.1f, 177.1f);
     en3.pfMaxSpeed = 10.0f;
     cEntity en4(nullptr);
-    en4.SetPosition(13.1f, 13.1f);
+    en4.SetPosition(13.1f, 22.1f);
     en4.pfMaxSpeed = 10.0f;
     cEntity en5(nullptr);
-    en5.SetPosition(14.1f, 14.1f);
+    en5.SetPosition(14.1f, 1.1f);
     en5.pfMaxSpeed = 10.0f;
 
     entityGroup.AddEntity(&en2);
@@ -31,11 +31,11 @@ TEST(ScriptingTests, CheckIfCoordinatesChangeAfterSeperationUpdate)
 
     entityGroup.AddBehaviour(cb);
 
-    glm::vec2 old = en2.pPosition;
+    glm::vec3 old = en2.pPosition;
 
-    entityGroup.UpdateEntities();
+        entityGroup.UpdateEntities();
 
     ASSERT_NE(old[0], en2.pPosition[0]);
 
-    ASSERT_NE(old[1], en2.pPosition[1]);
+    ASSERT_NE(old[2], en2.pPosition[2]);
 }
