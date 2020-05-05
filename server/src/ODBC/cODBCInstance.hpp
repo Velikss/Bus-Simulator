@@ -62,15 +62,15 @@ namespace dt
         return tNow;
     }
 
-    string to_string(SQL_TIMESTAMP_STRUCT & ptTimeStamp)
+    string to_string(SQL_TIMESTAMP_STRUCT tTimeStamp)
     {
         std::stringstream ss;
-        ss << std::setw(2) << std::setfill('0') << ptTimeStamp.day << "-";
-        ss << std::setw(2) << std::setfill('0') << ptTimeStamp.month << "-";
-        ss << std::setw(4) << std::setfill('0') << ptTimeStamp.year << " ";
-        ss << std::setw(2) << std::setfill('0') << ptTimeStamp.hour << ":";
-        ss << std::setw(2) << std::setfill('0') << ptTimeStamp.minute << ":";
-        ss << std::setw(2) << std::setfill('0') << ptTimeStamp.second;
+        ss << std::setw(2) << std::setfill('0') << tTimeStamp.day << "-";
+        ss << std::setw(2) << std::setfill('0') << tTimeStamp.month << "-";
+        ss << std::setw(4) << std::setfill('0') << tTimeStamp.year << " ";
+        ss << std::setw(2) << std::setfill('0') << tTimeStamp.hour << ":";
+        ss << std::setw(2) << std::setfill('0') << tTimeStamp.minute << ":";
+        ss << std::setw(2) << std::setfill('0') << tTimeStamp.second;
         return ss.str();
     }
 }
