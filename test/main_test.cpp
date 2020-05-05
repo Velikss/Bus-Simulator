@@ -3,6 +3,7 @@
 #include <ServerTests/UriTests.hpp>
 #include <ServerTests/ODBCTests.hpp>
 #include <ServerTests/ServerClientTests.hpp>
+#include <ServerTests/SsoTests.hpp>
 
 int main(int argc, char **argv)
 {
