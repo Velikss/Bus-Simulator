@@ -8,11 +8,15 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 find_package(OpenGL REQUIRED)
-find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(PkgConfig REQUIRED)
-pkg_search_module(GLFW REQUIRED glfw3)
-find_package(Vulkan REQUIRED)
+find_package(glfw3 REQUIRED)
+IF(NOT WIN32)
+    find_package(Vulkan REQUIRED)
+ELSE()
+    SET(Vulkan_INCLUDE_DIRS D:/VulkanSDK/1.2.135.0/include)
+    SET(Vulkan_LIBRARIES D:/VulkanSDK/1.2.135.0/Lib/vulkan-1.lib)
+ENDIF()
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
@@ -71,11 +75,11 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/CommandBufferRecorder.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/IndexedRenderRecorder.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/ClearScreenRecorder.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/Scene.hpp src/vulkan/scene/BaseObject.hpp src/vulkan/scene/TestScene.hpp src/vulkan/scene/InputHandler.hpp src/vulkan/scene/StreetScene.hpp src/vulkan/scene/ObjectGroup.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/Scene.hpp src/vulkan/scene/BaseObject.hpp src/vulkan/scene/TestScene.hpp src/vulkan/scene/InputHandler.hpp src/vulkan/scene/StreetScene.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 
 include_directories(${PROJECT_SOURCE_DIR}/src ${GLEW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS})
 add_library(${This} STATIC ${Sources} ${Headers})
 add_executable(${This}-bin ${Sources} ${Headers})
-target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} ${GLFW_LIBRARIES} ${Vulkan_LIBRARIES})
+target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw ${Vulkan_LIBRARIES})

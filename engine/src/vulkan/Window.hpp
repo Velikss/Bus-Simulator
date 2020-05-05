@@ -29,7 +29,7 @@ public:
     ~cWindow();
 
     // Create and initialize the window
-    void CreateWindow();
+    void CreateGLWindow();
 
     // Create the surface for this window
     bool CreateWindowSurface(cVulkanInstance* pVulkanInstance);
@@ -81,7 +81,7 @@ cWindow::~cWindow()
     glfwTerminate();
 }
 
-void cWindow::CreateWindow()
+void cWindow::CreateGLWindow()
 {
     assert(ppWindow == nullptr); // don't create a window if it has already been created
 

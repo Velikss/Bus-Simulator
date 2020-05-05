@@ -47,7 +47,7 @@ public:
     void Run(void);
 
 private:
-    void CreateWindow(void);
+    void CreateGLWindow(void);
     void InitVulkan(void);
     void MainLoop(void);
     void Cleanup(void);
@@ -55,16 +55,16 @@ private:
 
 void Engine::Run()
 {
-    CreateWindow();
+    CreateGLWindow();
     InitVulkan();
     MainLoop();
     Cleanup();
 }
 
-void Engine::CreateWindow(void)
+void Engine::CreateGLWindow(void)
 {
     ppWindow = new cWindow();
-    ppWindow->CreateWindow();
+    ppWindow->CreateGLWindow();
 }
 
 void Engine::InitVulkan(void)
