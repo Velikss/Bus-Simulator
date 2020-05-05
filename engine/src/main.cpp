@@ -115,10 +115,12 @@ int main(int argc, char **argv)
 {
     // Create static behaviours
     cBehaviourHandler::AddBehaviour("seperation", "src/scripting/seperation.js");
+    cBehaviourHandler::AddBehaviour("cohesion", "src/scripting/cohesion.js");
 
 
     cEntityGroup entityGroup;
-    cBehaviourHandler *cb = new cBehaviourHandler("seperation"); // behaviourname should be a name previously defined as static behaviour
+    cBehaviourHandler *cbSeperation = new cBehaviourHandler("seperation"); // behaviourname should be a name previously defined as static behaviour
+    cBehaviourHandler *cbCohesion = new cBehaviourHandler("cohesion"); // behaviourname should be a name previously defined as static behaviour
 
 //    cEntity en2(nullptr);
 //    cEntity en3(nullptr);
@@ -143,7 +145,8 @@ int main(int argc, char **argv)
     entityGroup.AddEntity(&en4);
     entityGroup.AddEntity(&en5);
 
-    entityGroup.AddBehaviour(cb);
+    entityGroup.AddBehaviour(cbSeperation);
+    entityGroup.AddBehaviour(cbCohesion);
 
     for(int i = 0; i<10; i++){
         entityGroup.UpdateEntities();

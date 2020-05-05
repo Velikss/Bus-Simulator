@@ -33,8 +33,13 @@ function calculate(entity, entities)
                 seek(centerOfMass)
             }
             var length = Math.sqrt((steeringforce[0] * steeringforce[0]) + (steeringforce[1] * steeringforce[1]))
-            steeringforce[0] = (steeringforce[0] / length) * force;
-            steeringforce[1] = (steeringforce[1] / length) * force;
+            if(length > 0){
+                steeringforce[0] = (steeringforce[0] / length) * force;
+                steeringforce[1] = (steeringforce[1] / length) * force;
+            }else{
+                steeringforce[0] *= force;
+                steeringforce[1] *= force;
+            }
 
             SetEntitySteeringForce(entity, steeringforce[0], steeringforce[1]);
         }
@@ -42,8 +47,8 @@ function calculate(entity, entities)
         function seek(target)
         {
             var desiredVelocity = [0, 0];
-            desiredVelocity[0] = target[0] - Me[0];
-            desiredVelocity[1] = target[1] - Me[1];
+            desiredVelocity[0] = target[0] - ME[0];
+            desiredVelocity[1] = target[1] - ME[1];
             var length = Math.sqrt((desiredVelocity[0] * desiredVelocity[0]) + (desiredVelocity[1] * desiredVelocity[1]))
             desiredVelocity[0] = (desiredVelocity[0] / length) * maxspeed;
             desiredVelocity[1] = (desiredVelocity[0] / length) * maxspeed;
