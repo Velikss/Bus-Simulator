@@ -6,7 +6,7 @@
 
 TEST(ScriptingTests, CheckIfCoordinatesChangeAfterSeperationUpdate)
 {
-    cBehaviourHandler::AddBehaviour("seperation", "src/scripting/seperation.js");
+    cBehaviourHandler::AddBehaviour("seperation", "../engine/src/scripting/seperation.js");
 
     cEntityGroup entityGroup;
     cBehaviourHandler *cb = new cBehaviourHandler("seperation");
@@ -33,9 +33,8 @@ TEST(ScriptingTests, CheckIfCoordinatesChangeAfterSeperationUpdate)
 
     glm::vec3 old = en2.pPosition;
 
-        entityGroup.UpdateEntities();
+    entityGroup.UpdateEntities();
 
     ASSERT_NE(old[0], en2.pPosition[0]);
-
     ASSERT_NE(old[2], en2.pPosition[2]);
 }
