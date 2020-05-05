@@ -10,6 +10,71 @@
 #include <sql.h>
 #define SQL_RESULT_LEN 1024
 
+namespace dt
+{
+    time_t TimeOfTimeStamp(SQL_TIMESTAMP_STRUCT & tTimeStamp)
+    {
+        time_t iLocalTime(NULL);
+        tm* tLocalTime = std::localtime(&iLocalTime);
+
+        tm tTime;
+        tTime.tm_year = tTimeStamp.year - 1900;
+        tTime.tm_mon = tTimeStamp.month - 1;
+        tTime.tm_mday = tTimeStamp.day;
+        tTime.tm_hour = tTimeStamp.hour;
+        tTime.tm_min = tTimeStamp.minute;
+        tTime.tm_sec = tTimeStamp.second;
+        tTime.tm_isdst = tLocalTime->tm_isdst;
+
+        return mktime(&tTime);
+    }
+
+    SQL_TIMESTAMP_STRUCT TimeToTimeStamp(std::time_t & iTime)
+    {
+        tm* t = gmtime(&iTime);
+        SQL_TIMESTAMP_STRUCT tTimeStamp{};
+        tTimeStamp.year = t->tm_year + 1900;
+        tTimeStamp.month = t->tm_mon + 1;
+        tTimeStamp.day = t->tm_mday;
+        tTimeStamp.hour = t->tm_hour;
+        tTimeStamp.minute = t->tm_min;
+        tTimeStamp.second = t->tm_sec;
+        return tTimeStamp;
+    }
+
+    SQL_TIMESTAMP_STRUCT Now()
+    {
+        time_t t = time(NULL);
+        tm* now = gmtime(&t);
+
+        SQL_TIMESTAMP_STRUCT tNow{};
+        tNow.year = 1900 + now->tm_year;
+        tNow.month = 1 + now->tm_mon;
+        tNow.day = now->tm_mday;
+        tNow.hour = now->tm_hour;
+        tNow.minute = now->tm_min;
+        tNow.second = now->tm_sec;
+        while(tNow.month > 12)
+        {
+            tNow.year++;
+            tNow.month-=12;
+        }
+        return tNow;
+    }
+
+    string to_string(SQL_TIMESTAMP_STRUCT & ptTimeStamp)
+    {
+        std::stringstream ss;
+        ss << std::setw(2) << std::setfill('0') << ptTimeStamp.day << "-";
+        ss << std::setw(2) << std::setfill('0') << ptTimeStamp.month << "-";
+        ss << std::setw(4) << std::setfill('0') << ptTimeStamp.year << " ";
+        ss << std::setw(2) << std::setfill('0') << ptTimeStamp.hour << ":";
+        ss << std::setw(2) << std::setfill('0') << ptTimeStamp.minute << ":";
+        ss << std::setw(2) << std::setfill('0') << ptTimeStamp.second;
+        return ss.str();
+    }
+}
+
 template<class I, class E, class S>
 class codecvt : public std::codecvt<I, E, S>
 {
@@ -58,8 +123,21 @@ public:
 
     bool GetValueStr(std::string & sValue)
     {
-        if (psType != SQL_CHAR) return false;
+        if (psType != SQL_CHAR && psType != SQL_TYPE_TIMESTAMP) return false;
+        if (psType == SQL_TYPE_TIMESTAMP)
+        {
+            SQL_TIMESTAMP_STRUCT* ptTimeStamp = (SQL_TIMESTAMP_STRUCT*)pvValue;
+            sValue = dt::to_string(*ptTimeStamp);
+            return true;
+        }
         sValue = string((const char*)pvValue, puiLen);
+        return true;
+    }
+
+    bool GetValueTimeStamp(SQL_TIMESTAMP_STRUCT & tTimeStamp)
+    {
+        if (psType != SQL_TYPE_TIMESTAMP) return false;
+        tTimeStamp = *(SQL_TIMESTAMP_STRUCT*)pvValue;
         return true;
     }
 
@@ -67,20 +145,25 @@ public:
     {
         switch (psType)
         {
-        case SQL_INTEGER:
-            delete (SQLINTEGER*)pvValue;
-            break;
-        case SQL_CHAR:
-            delete[] (SQLCHAR*)pvValue;
-            break;
-        case SQL_UNKNOWN_TYPE:
-            break;
-        default:
-            assert(false); // Should have been a known type.
-            break;
+            case SQL_INTEGER:
+                delete (SQLINTEGER *) pvValue;
+                break;
+            case SQL_CHAR:
+                delete[] (SQLCHAR *) pvValue;
+                break;
+            case SQL_TYPE_TIMESTAMP:
+                delete (SQL_TIMESTAMP_STRUCT *) pvValue;
+                break;
+            case SQL_UNKNOWN_TYPE:
+                break;
+            default:
+                assert(false); // Should have been a known type.
+                break;
         }
     }
 };
+
+
 
 typedef std::map<string, cODBCValue*> SQLROW;
 
@@ -239,7 +322,7 @@ bool cODBCInstance::Fetch(string sQuery, std::vector<SQLROW>* aRows)
                 case SQL_DOUBLE:
                     sLen = sizeof(SQLDOUBLE);
                     break;
-                case SQL_TIMESTAMP:
+                case SQL_TYPE_TIMESTAMP:
                     sLen = sizeof(SQL_TIMESTAMP_STRUCT);
                     break;
                 default:

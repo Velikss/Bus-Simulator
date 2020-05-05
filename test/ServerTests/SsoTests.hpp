@@ -3,6 +3,7 @@
 #include <server/src/SsoProtocol.hpp>
 
 using namespace SSO;
+
 TEST(SSOTests, Hash)
 {
     byte aHash[64];
@@ -13,4 +14,27 @@ TEST(SSOTests, Hash)
     string sEncoded = base64_encode(aHash, uiHashSize);
     EXPECT_EQ(iStatus, cSSO_OK);
     EXPECT_TRUE(sEncoded.compare("UNs2NQkCAADMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzA=="));
+}
+
+cODBCInstance oSSOInstance;
+TEST(SSOTests, Login)
+{
+    EXPECT_TRUE(oSSOInstance.Connect("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test;"));
+    std::vector<SQLROW> aRows;
+    EXPECT_TRUE(oSSOInstance.Fetch("SELECT * FROM User", &aRows));
+    EXPECT_TRUE(aRows.size() > 0);
+    for(auto& oRow : aRows)
+    {
+        SQL_TIMESTAMP_STRUCT tStamp{};
+        string sTimeStamp;
+        oRow["SSOStamp"]->GetValueTimeStamp(tStamp);
+        oRow["SSOStamp"]->GetValueStr(sTimeStamp);
+        SQL_TIMESTAMP_STRUCT tStamp2 = dt::Now();
+
+        std::cout << "now: " << dt::to_string(tStamp2) << std::endl;
+        std::cout << "stamp: " << dt::to_string(tStamp) << std::endl;
+
+        time_t diff = dt::TimeOfTimeStamp(tStamp2) - dt::TimeOfTimeStamp(tStamp);
+        std::cout << "diff: " << dt::to_string(dt::TimeToTimeStamp(diff)) << std::endl;
+    }
 }
