@@ -35,8 +35,8 @@ function calculate(entity, entities)
             var length = Math.sqrt((steeringforce[0] * steeringforce[0]) + (steeringforce[1] * steeringforce[1]))
             steeringforce[0] = (steeringforce[0] / length) * force;
             steeringforce[1] = (steeringforce[1] / length) * force;
-            //TODO return steeringForce normalized and multiplied by force
-            return steeringforce;
+
+            SetEntitySteeringForce(entity, steeringforce[0], steeringforce[1]);
         }
 
         function seek(target)
