@@ -1,28 +1,28 @@
 #pragma once
 
 #include <pch.hpp>
-#include <vulkan/RenderPass.hpp>
+#include <vulkan/GraphicsRenderPass.hpp>
 #include <vulkan/SwapChain.hpp>
 #include <vulkan/command/CommandBufferRecorder.hpp>
 
-class cClearScreenRecorder : public cCommandBufferRecorder
+class cClearScreenRecorder : public iCommandBufferRecorder
 {
 private:
-    cRenderPass* ppRenderPass;
+    cGraphicsRenderPass* ppRenderPass;
     cSwapChain* ppSwapChain;
 
     VkRenderPassBeginInfo ptRenderPassInfo = {};
     std::array<VkClearValue, 2> paoClearValues = {};
 
 public:
-    cClearScreenRecorder(cRenderPass* pRenderPass,
+    cClearScreenRecorder(cGraphicsRenderPass* pRenderPass,
                          cSwapChain* pSwapChain);
 
     void Setup(uint uiIndex) override;
     void RecordCommands(VkCommandBuffer& oCommandBuffer, uint uiIndex) override;
 };
 
-cClearScreenRecorder::cClearScreenRecorder(cRenderPass* pRenderPass,
+cClearScreenRecorder::cClearScreenRecorder(cGraphicsRenderPass* pRenderPass,
                                            cSwapChain* pSwapChain)
 {
     ppRenderPass = pRenderPass;

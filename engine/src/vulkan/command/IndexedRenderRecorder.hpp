@@ -1,18 +1,18 @@
 #pragma once
 
 #include <pch.hpp>
-#include <vulkan/RenderPass.hpp>
+#include <vulkan/GraphicsRenderPass.hpp>
 #include <vulkan/SwapChain.hpp>
-#include <vulkan/GraphicsPipeline.hpp>
+#include <vulkan/pipeline/GraphicsPipeline.hpp>
 #include "CommandBufferRecorder.hpp"
 
-class cIndexedRenderRecorder : public cCommandBufferRecorder
+class cIndexedRenderRecorder : public iCommandBufferRecorder
 {
 private:
     cRenderPass* ppRenderPass;
     cSwapChain* ppSwapChain;
     cGraphicsPipeline* ppGraphicsPipeline;
-    cUniformHandler* ppUniformHandler;
+    cGraphicsUniformHandler* ppUniformHandler;
     cScene* ppScene;
 
     VkRenderPassBeginInfo ptRenderPassInfo = {};
@@ -22,7 +22,7 @@ public:
     cIndexedRenderRecorder(cRenderPass* pRenderPass,
                            cSwapChain* pSwapChain,
                            cGraphicsPipeline* pGraphicsPipeline,
-                           cUniformHandler* pUniformHandler,
+                           cGraphicsUniformHandler* pUniformHandler,
                            cScene* pScene);
 
     void Setup(uint uiIndex) override;
@@ -32,7 +32,7 @@ public:
 cIndexedRenderRecorder::cIndexedRenderRecorder(cRenderPass* pRenderPass,
                                                cSwapChain* pSwapChain,
                                                cGraphicsPipeline* pGraphicsPipeline,
-                                               cUniformHandler* pUniformHandler,
+                                               cGraphicsUniformHandler* pUniformHandler,
                                                cScene* pScene)
 {
     ppRenderPass = pRenderPass;

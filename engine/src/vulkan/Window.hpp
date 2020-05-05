@@ -13,12 +13,13 @@ private:
 
     cVulkanInstance* ppVulkanInstance;
 
-    // Pointer to the GLFW window instance
-    GLFWwindow* ppWindow = nullptr;
 
     VkSurfaceKHR poSurface = VK_NULL_HANDLE;
 
 public:
+    // Pointer to the GLFW window instance
+    GLFWwindow* ppWindow = nullptr;
+
     // Window size
     static const uint WIDTH = 2500;
     static const uint HEIGHT = 1300;

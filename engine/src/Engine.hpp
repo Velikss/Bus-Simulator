@@ -12,8 +12,8 @@
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/VulkanInstance.hpp>
 #include <vulkan/SwapChain.hpp>
-#include <vulkan/GraphicsPipeline.hpp>
-#include <vulkan/RenderPass.hpp>
+#include <vulkan/pipeline/GraphicsPipeline.hpp>
+#include <vulkan/GraphicsRenderPass.hpp>
 #include <vulkan/RenderHandler.hpp>
 #include <vulkan/geometry/Geometry.hpp>
 #include <vulkan/mesh/Mesh.hpp>
@@ -22,6 +22,7 @@
 #include <vulkan/command/ClearScreenRecorder.hpp>
 #include <vulkan/scene/TestScene.hpp>
 #include <vulkan/scene/StreetScene.hpp>
+#include <vulkan/overlay/TextTest.hpp>
 
 class Engine
 {
@@ -32,15 +33,16 @@ private:
     cLogicalDevice* ppLogicalDevice;
 
     cSwapChain* ppSwapChain;
-    cUniformHandler* ppUniformHandler;
+    cGraphicsUniformHandler* ppUniformHandler;
     cGraphicsPipeline* ppGraphicsPipeline;
     cRenderPass* ppRenderPass;
 
-    cCommandBuffer* ppCommandBuffer;
+    cCommandBuffer* papCommandBuffers[2];
     cTextureHandler* ppTextureHandler;
     cRenderHandler* ppRenderHandler;
 
     cScene* ppScene;
+    TextTest* ppTest;
 
 public:
     // Initializes and starts the engine and all of it's sub-components
@@ -87,10 +89,10 @@ void Engine::InitVulkan(void)
 
     // Create the render pass. This holds information about the frames we want to render.
     // will probably be moved somewhere else later
-    ppRenderPass = new cRenderPass(ppSwapChain, ppLogicalDevice);
+    ppRenderPass = new cGraphicsRenderPass(ppLogicalDevice, ppSwapChain);
 
     // Create the uniform handler. This is responsible for the uniform variables
-    ppUniformHandler = new cUniformHandler(ppLogicalDevice, ppSwapChain);
+    ppUniformHandler = new cGraphicsUniformHandler(ppLogicalDevice, ppSwapChain);
 
     // Create the graphics pipeline. Handles the shaders and fixed-function operations for the graphics pipeline.
     ppGraphicsPipeline = new cGraphicsPipeline(ppSwapChain, ppLogicalDevice, ppRenderPass, ppUniformHandler);
@@ -103,11 +105,14 @@ void Engine::InitVulkan(void)
     // Create the framebuffers for the swap chain
     ppSwapChain->CreateFramebuffers(ppRenderPass->poRenderPass);
 
-    ppCommandBuffer = new cCommandBuffer(ppLogicalDevice, ppSwapChain);
+    ppTest = new TextTest(ppLogicalDevice, ppSwapChain);
+
+    papCommandBuffers[0] = new cCommandBuffer(ppLogicalDevice, ppSwapChain);
+    papCommandBuffers[1] = new cCommandBuffer(ppLogicalDevice, ppSwapChain);
 
     // Create the rendering handler. Acquires the frames from the swapChain, submits them to the graphics queue
     // to execute the commands, then submits them to the presentation queue to show them on the screen
-    ppRenderHandler = new cRenderHandler(ppLogicalDevice, ppSwapChain, ppCommandBuffer);
+    ppRenderHandler = new cRenderHandler(ppLogicalDevice, ppSwapChain, papCommandBuffers, 2);
     ppRenderHandler->SetUniformHandler(ppUniformHandler);
 
     // Create the texture handler. This deals with loading, binding and sampling the textures
@@ -122,7 +127,9 @@ void Engine::InitVulkan(void)
 
     cIndexedRenderRecorder recorder(ppRenderPass, ppSwapChain, ppGraphicsPipeline,
                                     ppUniformHandler, ppScene);
-    ppCommandBuffer->RecordBuffers(&recorder);
+    papCommandBuffers[0]->RecordBuffers(&recorder);
+
+    papCommandBuffers[1]->RecordBuffers(ppTest->GetCommandRecorder());
 }
 
 void Engine::MainLoop(void)
@@ -142,7 +149,7 @@ void Engine::MainLoop(void)
         }
 
         // Draw a frame
-        ppRenderHandler->DrawFrame(ppScene);
+        ppRenderHandler->DrawFrame(ppScene, ppTest, papCommandBuffers[1]);
     }
 
     // Wait until the logical device is idle before returning
@@ -153,8 +160,13 @@ void Engine::Cleanup(void)
 {
     delete ppScene;
     delete ppRenderHandler;
+    delete ppTest;
     delete ppTextureHandler;
-    delete ppCommandBuffer;
+    for (auto oBuffer : papCommandBuffers)
+    {
+        delete oBuffer;
+    }
+    ppLogicalDevice->DestroyCommandPool(cCommandHelper::poCommandPool, nullptr);
     delete ppGraphicsPipeline;
     delete ppUniformHandler;
     delete ppRenderPass;

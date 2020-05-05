@@ -33,7 +33,7 @@ public:
 };
 
 void cTextureHelper::CopyTextureToImage(cLogicalDevice* pLogicalDevice,
-                                        stbi_uc* pcPixels,
+                                        byte* pcPixels,
                                         tTextureInfo tTextureInfo,
                                         VkImage& oImage)
 {

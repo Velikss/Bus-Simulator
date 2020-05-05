@@ -11,12 +11,12 @@ find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(glfw3 REQUIRED)
-IF(NOT WIN32)
+IF (NOT WIN32)
     find_package(Vulkan REQUIRED)
-ELSE()
+ELSE ()
     SET(Vulkan_INCLUDE_DIRS D:/VulkanSDK/1.2.135.0/include)
     SET(Vulkan_LIBRARIES D:/VulkanSDK/1.2.135.0/Lib/vulkan-1.lib)
-ENDIF()
+ENDIF ()
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
@@ -57,10 +57,9 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/PhysicalDevice.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/LogicalDevice.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/SwapChain.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/GraphicsPipeline.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/RenderPass.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/GraphicsPipeline.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/RenderHandler.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/UniformHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/uniform/UniformHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/ImageHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/CommandHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/Geometry.hpp
@@ -75,7 +74,20 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/CommandBufferRecorder.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/IndexedRenderRecorder.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/ClearScreenRecorder.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/Scene.hpp src/vulkan/scene/BaseObject.hpp src/vulkan/scene/TestScene.hpp src/vulkan/scene/InputHandler.hpp src/vulkan/scene/StreetScene.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/Scene.hpp src/vulkan/scene/BaseObject.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/TestScene.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/InputHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/StreetScene.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/TextTest.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/OverlayPipeline.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/PipelineHelper.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/Vertex2D.hpp src/vulkan/overlay/OverlayRenderPass.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/OverlayCommandBufferRecorder.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/Font.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/uniform/UniformHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/OverlayUniformHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/Text.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/renderpass/RenderPass.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 

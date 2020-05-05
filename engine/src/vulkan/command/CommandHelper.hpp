@@ -32,7 +32,7 @@ void cCommandHelper::SetupCommandPool(cLogicalDevice* pLogicalDevice)
     VkCommandPoolCreateInfo tPoolInfo = {};
     tPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     tPoolInfo.queueFamilyIndex = queueFamilyIndices.oulGraphicsFamily.value();
-    tPoolInfo.flags = 0;
+    tPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
     // Create the command pool
     if (!pLogicalDevice->CreateCommandPool(&tPoolInfo, nullptr, &poCommandPool))

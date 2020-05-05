@@ -6,9 +6,10 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/SwapChain.hpp>
-#include <vulkan/RenderPass.hpp>
+#include <vulkan/GraphicsRenderPass.hpp>
 #include <vulkan/geometry/Vertex.hpp>
-#include <vulkan/UniformHandler.hpp>
+#include <vulkan/uniform/GraphicsUniformHandler.hpp>
+#include <vulkan/pipeline/PipelineHelper.hpp>
 
 class cGraphicsPipeline
 {
@@ -22,28 +23,24 @@ public:
     cGraphicsPipeline(cSwapChain* pSwapChain,
                       cLogicalDevice* pLogicalDevice,
                       cRenderPass* pRenderPass,
-                      cUniformHandler* pUniformHandler);
+                      cGraphicsUniformHandler* pUniformHandler);
     ~cGraphicsPipeline(void);
-
-private:
-    VkShaderModule CreateShaderModule(const std::vector<char>& asCode, cLogicalDevice* pLogicalDevice);
-    std::vector<char> ReadFile(const std::string& sFilename);
 };
 
 cGraphicsPipeline::cGraphicsPipeline(cSwapChain* pSwapChain,
                                      cLogicalDevice* pLogicalDevice,
                                      cRenderPass* pRenderPass,
-                                     cUniformHandler* pUniformHandler)
+                                     cGraphicsUniformHandler* pUniformHandler)
 {
     ppLogicalDevice = pLogicalDevice;
 
     // Read the shader files
-    std::vector<char> acVertShaderCode = ReadFile("shaders/vert.spv");
-    std::vector<char> acFragShaderCode = ReadFile("shaders/frag.spv");
+    std::vector<char> acVertShaderCode = cPipelineHelper::ReadFile("shaders/vert.spv");
+    std::vector<char> acFragShaderCode = cPipelineHelper::ReadFile("shaders/frag.spv");
 
     // Load the shader code into modules
-    VkShaderModule oVertShaderModule = CreateShaderModule(acVertShaderCode, pLogicalDevice);
-    VkShaderModule oFragShaderModule = CreateShaderModule(acFragShaderCode, pLogicalDevice);
+    VkShaderModule oVertShaderModule = cPipelineHelper::CreateShaderModule(acVertShaderCode, pLogicalDevice);
+    VkShaderModule oFragShaderModule = cPipelineHelper::CreateShaderModule(acFragShaderCode, pLogicalDevice);
 
     // Struct with information about the vertex shader stage
     VkPipelineShaderStageCreateInfo tVertShaderStageInfo = {};
@@ -79,6 +76,51 @@ cGraphicsPipeline::cGraphicsPipeline(cSwapChain* pSwapChain,
     tInputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     tInputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
 
+    // Struct with information to configure multisampling
+    // Requires enabling this feature first
+    VkPipelineMultisampleStateCreateInfo tMultisampling = {};
+    tMultisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+    tMultisampling.sampleShadingEnable = VK_FALSE;
+    tMultisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+    tMultisampling.minSampleShading = 1.0f;
+    tMultisampling.pSampleMask = nullptr;
+    tMultisampling.alphaToCoverageEnable = VK_FALSE;
+    tMultisampling.alphaToOneEnable = VK_FALSE;
+
+    // Allows you to blend the new color values with values already in the framebuffer
+    // We will just be ignoring this
+    VkPipelineColorBlendAttachmentState tColorBlendAttachment = {};
+    tColorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                                           VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    tColorBlendAttachment.blendEnable = VK_FALSE;
+    VkPipelineColorBlendStateCreateInfo tColorBlending = {};
+    tColorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    tColorBlending.logicOpEnable = VK_FALSE;
+    tColorBlending.attachmentCount = 1;
+    tColorBlending.pAttachments = &tColorBlendAttachment;
+
+    // Struct with information about the pipeline layout
+    VkPipelineLayoutCreateInfo tPipelineLayoutInfo = {};
+    tPipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    tPipelineLayoutInfo.setLayoutCount = pUniformHandler->GetDescriptorSetLayoutCount();
+    tPipelineLayoutInfo.pSetLayouts = pUniformHandler->GetDescriptorSetLayouts();
+    tPipelineLayoutInfo.pushConstantRangeCount = 0;
+    tPipelineLayoutInfo.pPushConstantRanges = nullptr;
+
+    // Create the pipeline layout
+    if (!pLogicalDevice->CreatePipelineLayout(&tPipelineLayoutInfo, nullptr, &poPipelineLayout))
+    {
+        throw std::runtime_error("failed to create pipeline layout!");
+    }
+
+    // Struct with information for creating the graphics pipeline
+    VkGraphicsPipelineCreateInfo pipelineInfo = {};
+    pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+
+    // Set the shader stages we defined earlier
+    pipelineInfo.stageCount = 2;
+    pipelineInfo.pStages = atShaderStages;
+
     // Struct with information about the viewport
     VkViewport tViewport = {};
     tViewport.x = 0.0f;
@@ -102,106 +144,9 @@ cGraphicsPipeline::cGraphicsPipeline(cSwapChain* pSwapChain,
     tViewportState.scissorCount = 1;
     tViewportState.pScissors = &tScissors;
 
-    // Struct with information for the rasterizer
-    VkPipelineRasterizationStateCreateInfo tRasterizer = {};
-    tRasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-
-    // Allows pixels beyond the near&far planes to be clamped to them.
-    // Requires enabling this feature first
-    tRasterizer.depthClampEnable = VK_FALSE;
-
-    // If set to true, geometry will not pass trough the rasterizer stage
-    tRasterizer.rasterizerDiscardEnable = VK_FALSE;
-
-    // Determines how fragments are generated, options are FILL, LINE or POINT
-    tRasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-
-    // Width of the lines (in fragments)
-    // Values more than 1.0 require enabling this feature first
-    tRasterizer.lineWidth = 1.0f;
-
-    // Determines what type of culling to use
-    tRasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-    tRasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-
-    // Allows the rasterizer to alter the depth values by adding a constant value or using a slope
-    tRasterizer.depthBiasEnable = VK_FALSE;
-    tRasterizer.depthBiasConstantFactor = 0.0f;
-    tRasterizer.depthBiasClamp = 0.0f;
-    tRasterizer.depthBiasSlopeFactor = 0.0f;
-
-    // Struct with information to configure multisampling
-    // Requires enabling this feature first
-    VkPipelineMultisampleStateCreateInfo tMultisampling = {};
-    tMultisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-    tMultisampling.sampleShadingEnable = VK_FALSE;
-    tMultisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-    tMultisampling.minSampleShading = 1.0f;
-    tMultisampling.pSampleMask = nullptr;
-    tMultisampling.alphaToCoverageEnable = VK_FALSE;
-    tMultisampling.alphaToOneEnable = VK_FALSE;
-
-    // Struct with information about the depth stencil
-    VkPipelineDepthStencilStateCreateInfo tDepthStencil = {};
-    tDepthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-
-    // Enable depth testing
-    tDepthStencil.depthTestEnable = VK_TRUE;
-    tDepthStencil.depthWriteEnable = VK_TRUE;
-
-    // We want to stick to the convention lower depth = closer, so new frags should be less
-    tDepthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
-
-    // We don't have any special depth bounds
-    tDepthStencil.depthBoundsTestEnable = VK_FALSE;
-
-    // We don't want to use stencil buffer operations
-    tDepthStencil.stencilTestEnable = VK_FALSE;
-
-    // Allows you to blend the new color values with values already in the framebuffer
-    // We will just be ignoring this
-    VkPipelineColorBlendAttachmentState tColorBlendAttachment = {};
-    tColorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-                                           VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-    tColorBlendAttachment.blendEnable = VK_FALSE;
-    VkPipelineColorBlendStateCreateInfo tColorBlending = {};
-    tColorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-    tColorBlending.logicOpEnable = VK_FALSE;
-    tColorBlending.attachmentCount = 1;
-    tColorBlending.pAttachments = &tColorBlendAttachment;
-
-    // Array of states you want to be able to change dynamically
-    VkDynamicState aoDynamicStates[] = {
-            VK_DYNAMIC_STATE_VIEWPORT
-    };
-
-    // Struct with information on the states you want to change dynamically
-    VkPipelineDynamicStateCreateInfo tDynamicState = {};
-    tDynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-    tDynamicState.dynamicStateCount = 1;
-    tDynamicState.pDynamicStates = aoDynamicStates;
-
-    // Struct with information about the pipeline layout
-    VkPipelineLayoutCreateInfo tPipelineLayoutInfo = {};
-    tPipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    tPipelineLayoutInfo.setLayoutCount = pUniformHandler->GetDescriptorSetLayoutCount();
-    tPipelineLayoutInfo.pSetLayouts = pUniformHandler->GetDescriptorSetLayouts();
-    tPipelineLayoutInfo.pushConstantRangeCount = 0;
-    tPipelineLayoutInfo.pPushConstantRanges = nullptr;
-
-    // Create the pipeline layout
-    if (!pLogicalDevice->CreatePipelineLayout(&tPipelineLayoutInfo, nullptr, &poPipelineLayout))
-    {
-        throw std::runtime_error("failed to create pipeline layout!");
-    }
-
-    // Struct with information for creating the graphics pipeline
-    VkGraphicsPipelineCreateInfo pipelineInfo = {};
-    pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-
-    // Set the shader stages we defined earlier
-    pipelineInfo.stageCount = 2;
-    pipelineInfo.pStages = atShaderStages;
+    VkPipelineRasterizationStateCreateInfo tRasterizer =
+            cPipelineHelper::GetRasterizerCreateInfo(VK_FRONT_FACE_COUNTER_CLOCKWISE);
+    VkPipelineDepthStencilStateCreateInfo tDepthStencil = cPipelineHelper::GetDepthStencilCreateInfo();
 
     // Set the configuration for all the fixed-function stages we defined earlier
     pipelineInfo.pVertexInputState = &tVertexInputInfo;
@@ -240,44 +185,4 @@ cGraphicsPipeline::~cGraphicsPipeline()
 {
     ppLogicalDevice->DestroyPipeline(poGraphicsPipeline, nullptr);
     ppLogicalDevice->DestroyPipelineLayout(poPipelineLayout, nullptr);
-}
-
-VkShaderModule cGraphicsPipeline::CreateShaderModule(const std::vector<char>& asCode, cLogicalDevice* pLogicalDevice)
-{
-    // Struct with information for creating the shader module
-    VkShaderModuleCreateInfo createInfo = {};
-    createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-
-    // Put the code into the struct
-    createInfo.codeSize = asCode.size();
-    createInfo.pCode = reinterpret_cast<const uint*>(asCode.data());
-
-    // Create the shader module
-    VkShaderModule shaderModule;
-    if (!pLogicalDevice->CreateShaderModule(&createInfo, nullptr, &shaderModule))
-    {
-        throw std::runtime_error("failed to create shader module!");
-    }
-
-    return shaderModule;
-}
-
-std::vector<char> cGraphicsPipeline::ReadFile(const string& sFilename)
-{
-    std::ifstream oFileStream(sFilename, std::ios::ate | std::ios::binary);
-
-    if (!oFileStream.is_open())
-    {
-        throw std::runtime_error("failed to open file!");
-    }
-
-    size_t uiFileSize = (size_t) oFileStream.tellg();
-    std::vector<char> acBuffer(uiFileSize);
-
-    oFileStream.seekg(0);
-    oFileStream.read(acBuffer.data(), uiFileSize);
-
-    oFileStream.close();
-
-    return acBuffer;
 }

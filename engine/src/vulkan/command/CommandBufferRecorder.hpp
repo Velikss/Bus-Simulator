@@ -3,7 +3,7 @@
 #include <pch.hpp>
 #include <vulkan/vulkan.h>
 
-class cCommandBufferRecorder
+class iCommandBufferRecorder
 {
 public:
     virtual void Setup(uint uiIndex) = 0;

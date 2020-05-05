@@ -11,8 +11,9 @@
 #include <chrono>
 #include <vulkan/mesh/Mesh.hpp>
 #include <vulkan/scene/Scene.hpp>
-#include "vulkan/GraphicsPipeline.hpp"
+#include "vulkan/pipeline/GraphicsPipeline.hpp"
 #include "vulkan/texture/TextureHandler.hpp"
+#include "UniformHandler.hpp"
 
 struct tUniformBufferObject
 {
@@ -21,7 +22,7 @@ struct tUniformBufferObject
     glm::mat4 tProjection;
 };
 
-class cUniformHandler
+class cGraphicsUniformHandler : public iUniformHandler
 {
 private:
     cLogicalDevice* ppLogicalDevice;
@@ -36,8 +37,8 @@ private:
     std::vector<VkDescriptorSet> paoDescriptorSets;
 
 public:
-    cUniformHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
-    ~cUniformHandler(void);
+    cGraphicsUniformHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
+    ~cGraphicsUniformHandler() override;
 
     void SetupUniformBuffers(cTextureHandler* pTextureHandler, cScene* pScene);
     void UpdateUniformBuffers(cScene* pScene);
@@ -53,8 +54,8 @@ private:
     void CreateDescriptorSets(cTextureHandler* pTextureHandler, cScene* pScene);
 };
 
-cUniformHandler::cUniformHandler(cLogicalDevice* pLogicalDevice,
-                                 cSwapChain* pSwapChain)
+cGraphicsUniformHandler::cGraphicsUniformHandler(cLogicalDevice* pLogicalDevice,
+                                                 cSwapChain* pSwapChain)
 {
     ppLogicalDevice = pLogicalDevice;
     ppSwapChain = pSwapChain;
@@ -85,7 +86,8 @@ cUniformHandler::cUniformHandler(cLogicalDevice* pLogicalDevice,
     }
 }
 
-cUniformHandler::~cUniformHandler()
+
+cGraphicsUniformHandler::~cGraphicsUniformHandler()
 {
     ppLogicalDevice->DestroyDescriptorSetLayout(poDescriptorSetLayout, nullptr);
 
@@ -98,15 +100,15 @@ cUniformHandler::~cUniformHandler()
     ppLogicalDevice->DestroyDescriptorPool(poDescriptorPool, nullptr);
 }
 
-void cUniformHandler::SetupUniformBuffers(cTextureHandler* pTextureHandler,
-                                          cScene* pScene)
+void cGraphicsUniformHandler::SetupUniformBuffers(cTextureHandler* pTextureHandler,
+                                                  cScene* pScene)
 {
     CreateUniformBuffers(pScene);
     CreateDescriptorPool();
     CreateDescriptorSets(pTextureHandler, pScene);
 }
 
-void cUniformHandler::CreateUniformBuffers(cScene* pScene)
+void cGraphicsUniformHandler::CreateUniformBuffers(cScene* pScene)
 {
     VkDeviceSize bufferSize = sizeof(tUniformBufferObject);
     uint uiCount = pScene->GetObjectCount();
@@ -123,7 +125,7 @@ void cUniformHandler::CreateUniformBuffers(cScene* pScene)
     }
 }
 
-void cUniformHandler::UpdateUniformBuffers(cScene* pScene)
+void cGraphicsUniformHandler::UpdateUniformBuffers(cScene* pScene)
 {
     assert(pScene != nullptr);
 
@@ -167,7 +169,7 @@ void cUniformHandler::UpdateUniformBuffers(cScene* pScene)
     }
 }
 
-void cUniformHandler::CreateDescriptorPool()
+void cGraphicsUniformHandler::CreateDescriptorPool()
 {
     std::array<VkDescriptorPoolSize, 2> atPoolSizes = {};
     atPoolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -188,7 +190,7 @@ void cUniformHandler::CreateDescriptorPool()
     }
 }
 
-void cUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, cScene* pScene)
+void cGraphicsUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, cScene* pScene)
 {
     std::vector<VkDescriptorSetLayout> aoLayouts(paoUniformBuffers.size(), poDescriptorSetLayout);
 
@@ -243,19 +245,19 @@ void cUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, cSc
     }
 }
 
-uint cUniformHandler::GetDescriptorSetLayoutCount(void)
+uint cGraphicsUniformHandler::GetDescriptorSetLayoutCount(void)
 {
     return 1;
 }
 
-VkDescriptorSetLayout* cUniformHandler::GetDescriptorSetLayouts(void)
+VkDescriptorSetLayout* cGraphicsUniformHandler::GetDescriptorSetLayouts(void)
 {
     return &poDescriptorSetLayout;
 }
 
-void cUniformHandler::CmdBindDescriptorSets(VkCommandBuffer& commandBuffer,
-                                            VkPipelineLayout& oPipelineLayout,
-                                            uint uiIndex)
+void cGraphicsUniformHandler::CmdBindDescriptorSets(VkCommandBuffer& commandBuffer,
+                                                    VkPipelineLayout& oPipelineLayout,
+                                                    uint uiIndex)
 {
     vkCmdBindDescriptorSets(commandBuffer,
                             VK_PIPELINE_BIND_POINT_GRAPHICS,

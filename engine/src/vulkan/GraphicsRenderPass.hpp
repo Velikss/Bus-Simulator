@@ -3,29 +3,22 @@
 #include <pch.hpp>
 #include <vulkan/vulkan.h>
 #include <vulkan/SwapChain.hpp>
-#include "SwapChain.hpp"
+#include <vulkan/renderpass/RenderPass.hpp>
+#include <vulkan/SwapChain.hpp>
 
-// TODO: This should probably be a helper class with static functions
-class cRenderPass
+class cGraphicsRenderPass : public cRenderPass
 {
-private:
-    cLogicalDevice* ppLogicalDevice;
-
 public:
-    VkRenderPass poRenderPass;
-
-    cRenderPass(cSwapChain* pSwapChain, cLogicalDevice* pLogicalDevice);
-    ~cRenderPass(void);
+    cGraphicsRenderPass(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
 
 private:
     void GetColorAttachment(VkAttachmentDescription& tColorAttachment, cSwapChain* pSwapChain);
     void GetDepthAttachment(VkAttachmentDescription& tDepthAttachment);
 };
 
-cRenderPass::cRenderPass(cSwapChain* pSwapChain, cLogicalDevice* pLogicalDevice)
+cGraphicsRenderPass::cGraphicsRenderPass(cLogicalDevice* pLogicalDevice,
+                                         cSwapChain* pSwapChain) : cRenderPass(pLogicalDevice)
 {
-    ppLogicalDevice = pLogicalDevice;
-
     // Struct with information about the color attachment
     VkAttachmentDescription tColorAttachment = {};
     GetColorAttachment(tColorAttachment, pSwapChain);
@@ -84,12 +77,7 @@ cRenderPass::cRenderPass(cSwapChain* pSwapChain, cLogicalDevice* pLogicalDevice)
     }
 }
 
-cRenderPass::~cRenderPass(void)
-{
-    vkDestroyRenderPass(ppLogicalDevice->GetDevice(), poRenderPass, nullptr);
-}
-
-void cRenderPass::GetColorAttachment(VkAttachmentDescription& tColorAttachment, cSwapChain* pSwapChain)
+void cGraphicsRenderPass::GetColorAttachment(VkAttachmentDescription& tColorAttachment, cSwapChain* pSwapChain)
 {
     // Set the format to the format of our swap chain images
     tColorAttachment.format = pSwapChain->peSwapChainImageFormat;
@@ -113,7 +101,7 @@ void cRenderPass::GetColorAttachment(VkAttachmentDescription& tColorAttachment, 
     tColorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 }
 
-void cRenderPass::GetDepthAttachment(VkAttachmentDescription& tDepthAttachment)
+void cGraphicsRenderPass::GetDepthAttachment(VkAttachmentDescription& tDepthAttachment)
 {
     // Set the format to the format of our swap chain images
     tDepthAttachment.format = cImageHelper::FindDepthFormat();

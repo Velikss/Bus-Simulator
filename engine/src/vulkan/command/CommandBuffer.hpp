@@ -17,14 +17,14 @@ public:
     cCommandBuffer(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
     ~cCommandBuffer(void);
 
-    void RecordBuffers(cCommandBufferRecorder* pRecorder);
+    void RecordBuffers(iCommandBufferRecorder* pRecorder);
 
     VkCommandBuffer& GetBuffer(uint uiIndex);
 
 private:
     void CreateBuffers(cSwapChain* pSwapChain);
     void RecordBuffer(VkCommandBuffer& oBuffer,
-                      cCommandBufferRecorder* pRecorder,
+                      iCommandBufferRecorder* pRecorder,
                       VkCommandBufferBeginInfo& tBeginInfo,
                       uint uiIndex);
 };
@@ -41,7 +41,6 @@ cCommandBuffer::~cCommandBuffer(void)
     ppLogicalDevice->FreeCommandBuffers(cCommandHelper::poCommandPool,
                                         paoCommandBuffers.size(),
                                         paoCommandBuffers.data());
-    ppLogicalDevice->DestroyCommandPool(cCommandHelper::poCommandPool, nullptr);
 }
 
 void cCommandBuffer::CreateBuffers(cSwapChain* pSwapChain)
@@ -69,7 +68,7 @@ void cCommandBuffer::CreateBuffers(cSwapChain* pSwapChain)
     }
 }
 
-void cCommandBuffer::RecordBuffers(cCommandBufferRecorder* pRecorder)
+void cCommandBuffer::RecordBuffers(iCommandBufferRecorder* pRecorder)
 {
     // Struct with details about the usage of this buffer
     VkCommandBufferBeginInfo tBeginInfo = {};
@@ -85,7 +84,7 @@ void cCommandBuffer::RecordBuffers(cCommandBufferRecorder* pRecorder)
 }
 
 void cCommandBuffer::RecordBuffer(VkCommandBuffer& oBuffer,
-                                  cCommandBufferRecorder* pRecorder,
+                                  iCommandBufferRecorder* pRecorder,
                                   VkCommandBufferBeginInfo& tBeginInfo,
                                   uint uiIndex)
 {

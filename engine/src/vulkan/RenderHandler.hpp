@@ -3,6 +3,7 @@
 #include <pch.hpp>
 #include <vulkan/vulkan.h>
 #include <vulkan/LogicalDevice.hpp>
+#include <vulkan/overlay/TextTest.hpp>
 #include "SwapChain.hpp"
 #include "vulkan/command/CommandBuffer.hpp"
 
@@ -13,8 +14,9 @@ private:
 
     cLogicalDevice* ppLogicalDevice;
     cSwapChain* ppSwapChain;
-    cCommandBuffer* ppCommandBuffer;
-    cUniformHandler* ppUniformHandler = nullptr;
+    cCommandBuffer** ppCommandBuffers;
+    uint puiCommandBufferCount;
+    cGraphicsUniformHandler* ppUniformHandler = nullptr;
 
     std::vector<VkSemaphore> aoImageAvailableSemaphores;
     std::vector<VkSemaphore> aoRenderFinishedSemaphores;
@@ -25,24 +27,26 @@ private:
 public:
     cRenderHandler(cLogicalDevice* pLogicalDevice,
                    cSwapChain* pSwapChain,
-                   cCommandBuffer* pCommandBuffer);
+                   cCommandBuffer** pCommandBuffers,
+                   uint uiCommandBufferCount);
     ~cRenderHandler(void);
 
     void CreateSemaphores(void);
 
-    void DrawFrame(cScene* pScene);
+    void DrawFrame(cScene* pScene, TextTest* pTest, cCommandBuffer* pCommandBuffer);
 
-    void SetCommandBuffer(cCommandBuffer* pCommandBuffer);
-    void SetUniformHandler(cUniformHandler* pUniformHandler);
+    void SetUniformHandler(cGraphicsUniformHandler* pUniformHandler);
 };
 
 cRenderHandler::cRenderHandler(cLogicalDevice* pLogicalDevice,
                                cSwapChain* pSwapChain,
-                               cCommandBuffer* pCommandBuffer)
+                               cCommandBuffer** pCommandBuffers,
+                               uint uiCommandBufferCount)
 {
     ppLogicalDevice = pLogicalDevice;
     ppSwapChain = pSwapChain;
-    ppCommandBuffer = pCommandBuffer;
+    ppCommandBuffers = pCommandBuffers;
+    puiCommandBufferCount = uiCommandBufferCount;
 
     CreateSemaphores();
 }
@@ -88,7 +92,7 @@ void cRenderHandler::CreateSemaphores()
     }
 }
 
-void cRenderHandler::DrawFrame(cScene* pScene)
+void cRenderHandler::DrawFrame(cScene* pScene, TextTest* pTest, cCommandBuffer* pCommandBuffer)
 {
 #ifdef ENABLE_FPS_COUNT
     static auto startTime = std::chrono::high_resolution_clock::now();
@@ -100,7 +104,12 @@ void cRenderHandler::DrawFrame(cScene* pScene)
     frameCount++;
     if (time >= 1)
     {
-        printf("%u fps\n", frameCount);
+        ppLogicalDevice->WaitUntilIdle();
+        static uint test = 0;
+        char text[64];
+        sprintf(text, "%u fps", frameCount);
+        pTest->UpdateText(text);
+        pCommandBuffer->RecordBuffers(pTest->GetCommandRecorder());
         startTime = currentTime;
         frameCount = 0;
     }
@@ -129,8 +138,14 @@ void cRenderHandler::DrawFrame(cScene* pScene)
     tSubmitInfo.pWaitDstStageMask = aeWaitStages;
 
     // Specify which command buffers to submit
-    tSubmitInfo.commandBufferCount = 1;
-    tSubmitInfo.pCommandBuffers = &ppCommandBuffer->GetBuffer(uiImageIndex);
+    std::vector<VkCommandBuffer> aBuffers;
+    for (uint i = 0; i < puiCommandBufferCount; i++)
+    {
+        aBuffers.push_back(ppCommandBuffers[i]->GetBuffer(uiImageIndex));
+    }
+
+    tSubmitInfo.commandBufferCount = aBuffers.size();
+    tSubmitInfo.pCommandBuffers = aBuffers.data();
 
     // Specify which semaphores to signal once the command buffer(s) finish
     VkSemaphore aoSignalSemaphores[] = {aoRenderFinishedSemaphores[uiCurrentFrame]};
@@ -167,12 +182,7 @@ void cRenderHandler::DrawFrame(cScene* pScene)
     uiCurrentFrame = (uiCurrentFrame + 1) % uiMAX_FRAMES_IN_FLIGHT;
 }
 
-void cRenderHandler::SetCommandBuffer(cCommandBuffer* pCommandBuffer)
-{
-    ppCommandBuffer = pCommandBuffer;
-}
-
-void cRenderHandler::SetUniformHandler(cUniformHandler* pUniformHandler)
+void cRenderHandler::SetUniformHandler(cGraphicsUniformHandler* pUniformHandler)
 {
     ppUniformHandler = pUniformHandler;
 }
