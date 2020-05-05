@@ -3,7 +3,6 @@
 
 class cNetworkClient : public cNetworkConnection
 {
-    bool pbShutdown = false;
     std::map<string, std::thread> threads;
 
     std::function<void(cNetworkConnection *)> OnConnect = nullptr;
@@ -22,10 +21,14 @@ public:
 
 	void Disconnect()
     {
-        pbShutdown = true;
-        for(auto& [name, t] : threads)
-            t.join();
-        Close();
+	    if(!pbDestroyed)
+        {
+            pbShutdown = true;
+            for (auto&[name, t] : threads)
+                if (t.joinable())
+                    t.join();
+            CloseConnection();
+        }
     }
 
     ~cNetworkClient()
@@ -88,14 +91,14 @@ void cNetworkClient::OnRecieveLoop()
             if (OnRecieve)
                 if (!OnRecieve(this))
                 {
-                    Close();
+                    CloseConnection();
                     break;
                 }
         }
         else if (status == cNetworkAbstractions::cConnectionStatus::eDISCONNECTED)
         {
             if (OnDisconnect) OnDisconnect(this);
-            Close();
+            CloseConnection();
             break;
         }
     }

@@ -65,8 +65,8 @@ TEST(ServerClientTests, Connect)
     pPlainClient->SendBytes((byte*)sGreeting.c_str(), sGreeting.size());
     sleep(50);
     EXPECT_EQ(iTimesRecieved, 1);
-    pPlainClient->Disconnect();
     pPlainServer->Stop();
+    pPlainClient->Disconnect();
 }
 
 std::shared_ptr<cNetworkServer> pSSLServer = nullptr;
@@ -109,6 +109,6 @@ TEST(ServerClientTests, ConnectSSL)
     pSSLClient->SendBytes((byte*)sGreeting.c_str(), sGreeting.size());
     sleep(50);
     EXPECT_EQ(iTimesRecieved, 2);
-    pSSLClient->Disconnect();
     pSSLServer->Stop();
+    pSSLClient->Disconnect();
 }

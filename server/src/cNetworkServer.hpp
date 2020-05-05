@@ -3,10 +3,8 @@
 #include "Http/HTTP.hpp"
 #include "../vendor/Utf8.hpp"
 
-class cNetworkServer : protected cNetworkConnection
+class cNetworkServer : public cNetworkConnection
 {
-    bool pbShutdown = false;
-
     std::map<string, std::thread> threads;
     std::vector<cNetworkConnection*> aConnections;
 
@@ -27,9 +25,13 @@ public:
     void Stop()
     {
         pbShutdown = true;
-        for(auto& [name, t] : threads)
-            t.join();
-        Close();
+	    if(!pbDestroyed)
+        {
+            for (auto&[name, t] : threads)
+                if (t.joinable())
+                    t.join();
+            CloseConnection();
+        }
     }
 
 	~cNetworkServer()
@@ -95,12 +97,12 @@ bool cNetworkServer::Listen()
 {
     if ((piLastStatus = bind(poSock, (const sockaddr*)&ptAddress, sizeof(ptAddress))) != 0)
     {
-        Close();
+        CloseConnection();
         return false;
     }
     if ((piLastStatus = listen(poSock, SOMAXCONN)) != 0)
     {
-        Close();
+        CloseConnection();
         return false;
     }
     threads.insert({"recieve", std::thread(&cNetworkServer::OnRecieveLoop, this)});

@@ -8,30 +8,31 @@
 class cNetworkConnection
 {
 public:
-    SSL_CTX* ppSSLContext = nullptr;
-    SSL* ppConnectionSSL = nullptr;
-
-	enum class cMode { eBlocking, eNonBlocking };
-	enum class cIPVersion { eV4, eV6 };
-	enum class cConnectionType { eTCP, eUDP };
-
-	struct tNetworkInitializationSettings
-	{
-		cMode eMode = cMode::eBlocking;
-		cIPVersion eIPVersion = cIPVersion::eV4;
-		cConnectionType eConnectionType = cConnectionType::eTCP;
-		std::string sAddress = "127.0.0.1";
-		unsigned short usPort = 0;
-		bool bUseSSL = false;
-		std::string sCertFile = "";
-		std::string sKeyFile = "";
-	};
+    enum class cMode { eBlocking, eNonBlocking };
+    enum class cIPVersion { eV4, eV6 };
+    enum class cConnectionType { eTCP, eUDP };
+    struct tNetworkInitializationSettings
+    {
+        cMode eMode = cMode::eBlocking;
+        cIPVersion eIPVersion = cIPVersion::eV4;
+        cConnectionType eConnectionType = cConnectionType::eTCP;
+        std::string sAddress = "127.0.0.1";
+        unsigned short usPort = 0;
+        bool bUseSSL = false;
+        std::string sCertFile = "";
+        std::string sKeyFile = "";
+    };
 protected:
-	tNetworkInitializationSettings* pptNetworkSettings = nullptr;
-	int piLastStatus = 0;
+    bool pbShutdown = false;
+    bool pbDestroyed = false;
+
+    tNetworkInitializationSettings* pptNetworkSettings = nullptr;
+    int piLastStatus = 0;
     sockaddr_in ptAddress = {};
     NET_SOCK poSock = NET_INVALID_SOCKET_ID;
 public:
+    SSL_CTX* ppSSLContext = nullptr;
+    SSL* ppConnectionSSL = nullptr;
 	cNetworkConnection(NET_SOCK oSock, sockaddr_in tAddress)
 	{
 		if (puiNumberOfAliveSockets++ == 0) cNetworkAbstractions::NetInit();
@@ -41,13 +42,12 @@ public:
 
     virtual ~cNetworkConnection()
     {
-        if (ppSSLContext) SSL_CTX_free(ppSSLContext);
-        Close();
+        CloseConnection();
     }
 
 	cNetworkConnection(tNetworkInitializationSettings* ptNetworkSettings);
 
-	void Close();
+	void CloseConnection();
 
     bool IsConnected()
     {
@@ -131,15 +131,21 @@ cNetworkConnection::cNetworkConnection(cNetworkConnection::tNetworkInitializatio
     if (ptNetworkSettings->eMode == cMode::eNonBlocking) cNetworkAbstractions::SetBlocking(poSock, false);
 }
 
-void cNetworkConnection::Close()
+void cNetworkConnection::CloseConnection()
 {
-    if (ppConnectionSSL)
-        SSL_free(ppConnectionSSL);
-    if (poSock != NET_INVALID_SOCKET_ID)
+    if (!pbDestroyed)
     {
-        if (cNetworkAbstractions::CloseSocket(poSock) != 0)
-            throw std::runtime_error("could not close socket");
+        if (poSock != NET_INVALID_SOCKET_ID)
+        {
+            if (cNetworkAbstractions::CloseSocket(poSock) != 0)
+                throw std::runtime_error("could not close socket");
 
-        if (--puiNumberOfAliveSockets == 0) cNetworkAbstractions::NetShutdown();
+            if (--puiNumberOfAliveSockets == 0) cNetworkAbstractions::NetShutdown();
+        }
+        if (ppConnectionSSL)
+            SSL_free(ppConnectionSSL);
+        if (ppSSLContext)
+            SSL_CTX_free(ppSSLContext);
     }
+    pbDestroyed = true;
 }
