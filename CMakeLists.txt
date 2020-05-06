@@ -12,6 +12,8 @@ enable_testing()
 add_subdirectory(googletest)
 add_subdirectory(engine)
 
+find_package(glm REQUIRED)
+
 set(Headers
     ${PROJECT_SOURCE_DIR}/src/pch.hpp
 )
