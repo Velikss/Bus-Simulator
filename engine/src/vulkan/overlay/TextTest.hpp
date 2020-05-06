@@ -24,7 +24,7 @@ private:
     cOverlayCommandBufferRecorder* ppCommandRecorder;
 
 public:
-    TextTest(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain, cRenderPass* pRenderPass);
+    TextTest(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
     ~TextTest();
 
     void UpdateText(string sText);
@@ -33,16 +33,14 @@ public:
     iUniformHandler* GetUniformHandler();
 };
 
-TextTest::TextTest(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain, cRenderPass* pRenderPass)
+TextTest::TextTest(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain)
 {
     stb_font_arial_50_usascii(stbFontData, font24pixels, fontHeight);
     ppFont = new cFont(pLogicalDevice, fontWidth, fontHeight, &font24pixels[0][0]);
 
-    ppRenderPass = pRenderPass;
-
     ppUniformHandler = new cOverlayUniformHandler(pLogicalDevice, ppFont);
     ppUniformHandler->SetupUniformBuffers(nullptr, nullptr);
-    //ppRenderPass = new cOverlayRenderPass(pLogicalDevice, pSwapChain);
+    ppRenderPass = new cOverlayRenderPass(pLogicalDevice, pSwapChain);
     ppPipeline = new cOverlayPipeline(pSwapChain, pLogicalDevice, ppRenderPass, ppUniformHandler);
     ppText = new cText(pLogicalDevice);
 

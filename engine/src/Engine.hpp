@@ -90,7 +90,7 @@ void Engine::InitVulkan(void)
 
     // Create the render pass. This holds information about the frames we want to render.
     // will probably be moved somewhere else later
-    ppRenderPass = new cOverlayRenderPass(ppLogicalDevice, ppSwapChain);
+    ppRenderPass = new cGraphicsRenderPass(ppLogicalDevice, ppSwapChain);
 
     // Create the uniform handler. This is responsible for the uniform variables
     ppUniformHandler = new cGraphicsUniformHandler(ppLogicalDevice, ppSwapChain);
@@ -106,7 +106,7 @@ void Engine::InitVulkan(void)
     // Create the framebuffers for the swap chain
     ppSwapChain->CreateFramebuffers(ppRenderPass->poRenderPass);
 
-    ppTest = new TextTest(ppLogicalDevice, ppSwapChain, ppRenderPass);
+    ppTest = new TextTest(ppLogicalDevice, ppSwapChain);
 
     papCommandBuffers[0] = new cCommandBuffer(ppLogicalDevice, ppSwapChain);
     papCommandBuffers[1] = new cCommandBuffer(ppLogicalDevice, ppSwapChain);

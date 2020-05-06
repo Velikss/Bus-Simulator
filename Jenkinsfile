@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    environment {
+        VULKAN_SDK: '/opt/vulkan/1.2.135.0/x86_64'
+    }
     stages {
         stage('Init') {
             steps {
