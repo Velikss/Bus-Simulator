@@ -16,7 +16,8 @@ private:
     cSwapChain* ppSwapChain;
     cCommandBuffer** ppCommandBuffers;
     uint puiCommandBufferCount;
-    cGraphicsUniformHandler* ppUniformHandler = nullptr;
+    iUniformHandler** ppUniformHandlers = nullptr;
+    uint puiUniformHandlerCount;
 
     std::vector<VkSemaphore> aoImageAvailableSemaphores;
     std::vector<VkSemaphore> aoRenderFinishedSemaphores;
@@ -35,7 +36,7 @@ public:
 
     void DrawFrame(cScene* pScene, TextTest* pTest, cCommandBuffer* pCommandBuffer);
 
-    void SetUniformHandler(cGraphicsUniformHandler* pUniformHandler);
+    void SetUniformHandlers(iUniformHandler** pUniformHandlers, uint uiUniformHandlerCount);
 };
 
 cRenderHandler::cRenderHandler(cLogicalDevice* pLogicalDevice,
@@ -124,7 +125,10 @@ void cRenderHandler::DrawFrame(cScene* pScene, TextTest* pTest, cCommandBuffer* 
     VkFence oAqcuireFence = VK_NULL_HANDLE;
     ppSwapChain->AcquireNextImage(UINT64_MAX, aoImageAvailableSemaphores[uiCurrentFrame], oAqcuireFence, &uiImageIndex);
 
-    if (ppUniformHandler != nullptr) ppUniformHandler->UpdateUniformBuffers(pScene);
+    for (uint i = 0; i < puiUniformHandlerCount; i++)
+    {
+        ppUniformHandlers[i]->UpdateUniformBuffers(pScene);
+    }
 
     // Struct with information about the command buffer we want to submit to the queue
     VkSubmitInfo tSubmitInfo = {};
@@ -182,7 +186,8 @@ void cRenderHandler::DrawFrame(cScene* pScene, TextTest* pTest, cCommandBuffer* 
     uiCurrentFrame = (uiCurrentFrame + 1) % uiMAX_FRAMES_IN_FLIGHT;
 }
 
-void cRenderHandler::SetUniformHandler(cGraphicsUniformHandler* pUniformHandler)
+void cRenderHandler::SetUniformHandlers(iUniformHandler** pUniformHandlers, uint uiUniformHandlerCount)
 {
-    ppUniformHandler = pUniformHandler;
+    ppUniformHandlers = pUniformHandlers;
+    puiUniformHandlerCount = uiUniformHandlerCount;
 }

@@ -40,13 +40,15 @@ public:
     cGraphicsUniformHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
     ~cGraphicsUniformHandler() override;
 
-    void SetupUniformBuffers(cTextureHandler* pTextureHandler, cScene* pScene);
-    void UpdateUniformBuffers(cScene* pScene);
+    void SetupUniformBuffers(cTextureHandler* pTextureHandler, cScene* pScene) override;
+    void UpdateUniformBuffers(cScene* pScene) override;
 
-    uint GetDescriptorSetLayoutCount(void);
-    VkDescriptorSetLayout* GetDescriptorSetLayouts(void);
+    uint GetDescriptorSetLayoutCount(void) override;
+    VkDescriptorSetLayout* GetDescriptorSetLayouts(void) override;
 
-    void CmdBindDescriptorSets(VkCommandBuffer& commandBuffer, VkPipelineLayout& oPipelineLayout, uint uiIndex);
+    void CmdBindDescriptorSets(VkCommandBuffer& commandBuffer,
+                               VkPipelineLayout& oPipelineLayout,
+                               uint uiIndex) override;
 
 private:
     void CreateUniformBuffers(cScene* pScene);

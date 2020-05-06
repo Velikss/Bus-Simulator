@@ -38,6 +38,7 @@ private:
     cRenderPass* ppRenderPass;
 
     cCommandBuffer* papCommandBuffers[2];
+    iUniformHandler* papUniformHandlers[2];
     cTextureHandler* ppTextureHandler;
     cRenderHandler* ppRenderHandler;
 
@@ -110,10 +111,13 @@ void Engine::InitVulkan(void)
     papCommandBuffers[0] = new cCommandBuffer(ppLogicalDevice, ppSwapChain);
     papCommandBuffers[1] = new cCommandBuffer(ppLogicalDevice, ppSwapChain);
 
+    papUniformHandlers[0] = ppUniformHandler;
+    papUniformHandlers[1] = ppTest->GetUniformHandler();
+
     // Create the rendering handler. Acquires the frames from the swapChain, submits them to the graphics queue
     // to execute the commands, then submits them to the presentation queue to show them on the screen
     ppRenderHandler = new cRenderHandler(ppLogicalDevice, ppSwapChain, papCommandBuffers, 2);
-    ppRenderHandler->SetUniformHandler(ppUniformHandler);
+    ppRenderHandler->SetUniformHandlers(papUniformHandlers, 2);
 
     // Create the texture handler. This deals with loading, binding and sampling the textures
     ppTextureHandler = new cTextureHandler(ppLogicalDevice);

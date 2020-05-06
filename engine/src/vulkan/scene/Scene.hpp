@@ -27,6 +27,8 @@ protected:
     bool paKeys[GLFW_KEY_LAST] = {false};
 
 public:
+    glm::vec3 color = glm::vec3(0, 1, 0);
+
     cScene();
     virtual ~cScene();
 

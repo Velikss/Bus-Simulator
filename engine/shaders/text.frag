@@ -4,10 +4,18 @@ layout (location = 0) in vec2 inUV;
 
 layout (binding = 0) uniform sampler2D samplerFont;
 
+layout(binding = 3) uniform OverlayUniformObject {
+    vec3 color;
+} uniforms;
+
 layout (location = 0) out vec4 outFragColor;
 
 void main(void)
 {
-	float color = texture(samplerFont, inUV).r;
-	outFragColor = vec4(color);
+    // The texture shows contains all the letters in the
+    // red channel, so we're using that as the value for
+    // our alpha channel, and combining it with the color
+    // from the uniform object
+    float alpha = texture(samplerFont, inUV).r;
+    outFragColor = vec4(uniforms.color, alpha);
 }

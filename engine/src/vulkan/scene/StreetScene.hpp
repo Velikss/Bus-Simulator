@@ -5,6 +5,9 @@
 
 class cStreetScene : public cScene
 {
+private:
+    bool pressed;
+
 public:
     void Update() override;
 
@@ -47,6 +50,23 @@ void cStreetScene::Update()
 
     if (paKeys[GLFW_KEY_ESCAPE])
         Quit();
+
+    if (paKeys[GLFW_KEY_T])
+    {
+        if (!pressed)
+        {
+            float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+            float g = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+            float b = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+
+            color = glm::vec3(r, g, b);
+        }
+        pressed = true;
+    }
+    else
+    {
+        pressed = false;
+    }
 
     cScene::Update();
 }

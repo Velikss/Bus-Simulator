@@ -30,6 +30,7 @@ public:
     void UpdateText(string sText);
 
     iCommandBufferRecorder* GetCommandRecorder();
+    iUniformHandler* GetUniformHandler();
 };
 
 TextTest::TextTest(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain)
@@ -64,4 +65,9 @@ void TextTest::UpdateText(string sText)
 iCommandBufferRecorder* TextTest::GetCommandRecorder()
 {
     return ppCommandRecorder;
+}
+
+iUniformHandler* TextTest::GetUniformHandler()
+{
+    return ppUniformHandler;
 }
