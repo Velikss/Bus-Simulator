@@ -29,9 +29,9 @@ public:
 
     void Init();
 
-    void RegisterFunction(duk_c_function, duk_idx_t, const char *psKey);
+    void RegisterFunction(duk_c_function func, duk_idx_t iArgs, const char *psKey);
 
-    bool CompileJavaScriptFile(const char *filename);
+    bool CompileJavaScriptFile(const char *psFilename);
 
     bool RunJavaScriptFunction(const char *psFunctionName, void *pArga, void *pArgb);
 
@@ -47,21 +47,21 @@ void cScriptingEngine::Init()
     duk_put_global_string(ppoContext, "println");
 }
 
-void cScriptingEngine::RegisterFunction(duk_c_function func, duk_idx_t args, const char *psKey)
+void cScriptingEngine::RegisterFunction(duk_c_function fnFunc, duk_idx_t iArgs, const char *psKey)
 {
-    duk_push_c_function(ppoContext, func, args);
+    duk_push_c_function(ppoContext, fnFunc, iArgs);
     duk_put_global_string(ppoContext, psKey);
 }
 
-bool cScriptingEngine::CompileJavaScriptFile(const char *pstrFilename)
+bool cScriptingEngine::CompileJavaScriptFile(const char *psFilename)
 {
     bool bSucces = false;
 
     // Read file as string
-    std::ifstream oFileStream(pstrFilename);
+    std::ifstream oFileStream(psFilename);
     if (!oFileStream.is_open())
     {
-        std::cout << pstrFilename << " could not be found." << std::endl;
+        std::cout << psFilename << " could not be found." << std::endl;
         return bSucces;
     }
     std::string strFileContent((std::istreambuf_iterator<char>(oFileStream)),
