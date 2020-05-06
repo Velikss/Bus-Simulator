@@ -6,7 +6,7 @@
 #include "OverlayUniformHandler.hpp"
 #include "OverlayCommandBufferRecorder.hpp"
 
-class TextTest
+class cTextHandler
 {
 private:
     static const uint fontWidth = STB_FONT_arial_50_usascii_BITMAP_WIDTH;
@@ -24,8 +24,8 @@ private:
     cOverlayCommandBufferRecorder* ppCommandRecorder;
 
 public:
-    TextTest(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
-    ~TextTest();
+    cTextHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
+    ~cTextHandler();
 
     void UpdateText(string sText);
 
@@ -33,7 +33,7 @@ public:
     iUniformHandler* GetUniformHandler();
 };
 
-TextTest::TextTest(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain)
+cTextHandler::cTextHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain)
 {
     stb_font_arial_50_usascii(stbFontData, font24pixels, fontHeight);
     ppFont = new cFont(pLogicalDevice, fontWidth, fontHeight, &font24pixels[0][0]);
@@ -48,7 +48,7 @@ TextTest::TextTest(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain)
                                                           ppUniformHandler, ppText);
 }
 
-TextTest::~TextTest()
+cTextHandler::~cTextHandler()
 {
     delete ppFont;
     delete ppUniformHandler;
@@ -57,17 +57,17 @@ TextTest::~TextTest()
     delete ppText;
 }
 
-void TextTest::UpdateText(string sText)
+void cTextHandler::UpdateText(string sText)
 {
     ppText->UpdateText(sText, 1.5f, stbFontData);
 }
 
-iCommandBufferRecorder* TextTest::GetCommandRecorder()
+iCommandBufferRecorder* cTextHandler::GetCommandRecorder()
 {
     return ppCommandRecorder;
 }
 
-iUniformHandler* TextTest::GetUniformHandler()
+iUniformHandler* cTextHandler::GetUniformHandler()
 {
     return ppUniformHandler;
 }

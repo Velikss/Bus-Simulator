@@ -22,7 +22,7 @@
 #include <vulkan/command/ClearScreenRecorder.hpp>
 #include <vulkan/scene/TestScene.hpp>
 #include <vulkan/scene/StreetScene.hpp>
-#include <vulkan/overlay/TextTest.hpp>
+#include <vulkan/overlay/TextHandler.hpp>
 
 class Engine
 {
@@ -43,7 +43,7 @@ private:
     cRenderHandler* ppRenderHandler;
 
     cScene* ppScene;
-    TextTest* ppTest;
+    cTextHandler* ppTest;
 
 public:
     // Initializes and starts the engine and all of it's sub-components
@@ -106,7 +106,7 @@ void Engine::InitVulkan(void)
     // Create the framebuffers for the swap chain
     ppSwapChain->CreateFramebuffers(ppRenderPass->poRenderPass);
 
-    ppTest = new TextTest(ppLogicalDevice, ppSwapChain);
+    ppTest = new cTextHandler(ppLogicalDevice, ppSwapChain);
 
     papCommandBuffers[0] = new cCommandBuffer(ppLogicalDevice, ppSwapChain);
     papCommandBuffers[1] = new cCommandBuffer(ppLogicalDevice, ppSwapChain);

@@ -3,7 +3,7 @@
 #include <pch.hpp>
 #include <vulkan/vulkan.h>
 #include <vulkan/LogicalDevice.hpp>
-#include <vulkan/overlay/TextTest.hpp>
+#include <vulkan/overlay/TextHandler.hpp>
 #include "SwapChain.hpp"
 #include "vulkan/command/CommandBuffer.hpp"
 
@@ -34,7 +34,7 @@ public:
 
     void CreateSemaphores(void);
 
-    void DrawFrame(cScene* pScene, TextTest* pTest, cCommandBuffer* pCommandBuffer);
+    void DrawFrame(cScene* pScene, cTextHandler* pTest, cCommandBuffer* pCommandBuffer);
 
     void SetUniformHandlers(iUniformHandler** pUniformHandlers, uint uiUniformHandlerCount);
 };
@@ -93,7 +93,7 @@ void cRenderHandler::CreateSemaphores()
     }
 }
 
-void cRenderHandler::DrawFrame(cScene* pScene, TextTest* pTest, cCommandBuffer* pCommandBuffer)
+void cRenderHandler::DrawFrame(cScene* pScene, cTextHandler* pTest, cCommandBuffer* pCommandBuffer)
 {
 #ifdef ENABLE_FPS_COUNT
     static auto startTime = std::chrono::high_resolution_clock::now();

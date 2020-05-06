@@ -73,7 +73,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/TestScene.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/InputHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/StreetScene.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/TextTest.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/TextHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/OverlayPipeline.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/PipelineHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/Vertex2D.hpp src/vulkan/overlay/OverlayRenderPass.hpp
@@ -91,6 +91,6 @@ add_library(${This} STATIC ${Sources} ${Headers})
 add_executable(${This}-bin ${Sources} ${Headers})
 target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw ${Vulkan_LIBRARIES})
 
-#[[IF (NOT WIN32)
+IF (NOT WIN32)
     add_custom_command(TARGET ${This}-bin PRE_BUILD COMMAND cd ${PROJECT_SOURCE_DIR}/shaders && ./compile.sh)
-ENDIF ()]]
+ENDIF ()
