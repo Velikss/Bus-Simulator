@@ -39,6 +39,10 @@ ELSE()
     target_link_libraries(${This} PUBLIC gtest gmock)
 ENDIF()
 
+IF(NOT WIN32)
+    target_link_libraries(${This} PUBLIC /usr/lib/libuuid.a)
+ENDIF()
+
 add_test(
     NAME ${This}
     COMMAND ${This}
