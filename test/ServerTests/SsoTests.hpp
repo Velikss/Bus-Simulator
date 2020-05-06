@@ -1,6 +1,7 @@
 #pragma once
 #include <pch.hpp>
 #include <server/src/SsoProtocol.hpp>
+#include <server/vendor/StdUuid.hpp>
 
 using namespace SSO;
 
@@ -37,4 +38,13 @@ TEST(SSOTests, Login)
         time_t diff = dt::TimeOfTimeStamp(tStamp2) - dt::TimeOfTimeStamp(tStamp);
         std::cout << "diff: " << dt::to_string(dt::TimeToTimeStamp(diff)) << std::endl;
     }
+}
+
+TEST(SSOTests, UuidGeneration)
+{
+    using namespace uuids;
+    const uuid oId = uuids::uuid_system_generator{}();
+    EXPECT_TRUE(!oId.is_nil());
+    string sId = to_string(oId);
+    EXPECT_TRUE(sId.size() > 0);
 }
