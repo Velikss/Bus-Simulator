@@ -173,7 +173,7 @@ class cODBCInstance
     HDBC hdbc = nullptr;
 
     void extract_error(
-            char* fn,
+            const char* fn,
             SQLHANDLE handle,
             SQLSMALLINT type)
     {
@@ -194,7 +194,7 @@ class cODBCInstance
             ret = SQLGetDiagRec(type, handle, ++i, state, &native, text,
                                 sizeof(text), &len);
             if (SQL_SUCCEEDED(ret))
-                printf("%s:%ld:%ld:%s\n", state, i, native, text);
+                printf("%s:%d:%d:%s\n", state, i, native, text);
         } while (ret == SQL_SUCCESS);
     }
 public:
