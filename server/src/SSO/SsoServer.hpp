@@ -5,6 +5,9 @@
 
 class cSSOServer : protected cNetworkServer
 {
+    std::map<string, bool> aRequiredTables {
+            {"User", false}
+    };
     std::shared_ptr<cODBCInstance> poDB;
 public:
     cSSOServer(cNetworkConnection::tNetworkInitializationSettings* tSettings) : cNetworkServer(tSettings)
@@ -21,9 +24,6 @@ public:
     {
         poDB = std::make_shared<cODBCInstance>();
         std::vector<SQLROW> aTables;
-        std::map<string, bool> aExistence {
-                {"User", false}
-        };
         if(!poDB->Connect(sODBCConnectionString)) return false;
         if(!poDB->Fetch("SHOW TABLES", &aTables)) return false;
         for(auto& oEntry : aTables)
@@ -31,15 +31,17 @@ public:
             {
                 string sTableName;
                 oValue->GetValueStr(sTableName);
-                if (aExistence.find(sTableName) != aExistence.end())
-                    aExistence[sTableName] = true;
+                if (aRequiredTables.find(sTableName) != aRequiredTables.end())
+                    aRequiredTables[sTableName] = true;
             }
 
-        for(auto& [sKey, bExists] : aExistence)
+        for(auto& [sKey, bExists] : aRequiredTables)
         {
             if(!bExists)
                 if(!poDB->ExecFile("./SQL/CreateSSO" + sKey + ".sql"))
                     return false;
+                else
+                    aRequiredTables[sKey] = true;
         }
         return true;
     }

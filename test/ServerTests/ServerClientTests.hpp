@@ -80,8 +80,8 @@ TEST(ServerClientTests, BindSSL)
     pSSLServerSettings->sAddress = "127.0.0.1";
     pSSLServerSettings->usPort = 8001;
     pSSLServerSettings->bUseSSL = true;
-    pSSLServerSettings->sCertFile = "./19-4-2020.cert";
-    pSSLServerSettings->sKeyFile = "./19-4-2020.key";
+    pSSLServerSettings->sCertFile = "./test.cert";
+    pSSLServerSettings->sKeyFile = "./test.key";
     pSSLServerSettings->eIPVersion = cNetworkConnection::cIPVersion::eV4;
     pSSLServerSettings->eConnectionType = cNetworkConnection::cConnectionType::eTCP;
     pSSLServerSettings->eMode = cNetworkConnection::cMode::eNonBlocking;

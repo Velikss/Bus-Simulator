@@ -18,7 +18,11 @@ public:
         {
             ppSSLContext = cSSLHelper::CreateServerCtx();
             if (ptNetworkSettings->sCertFile.size() > 0 && ptNetworkSettings->sKeyFile.size() > 0)
-                cSSLHelper::LoadCertificate(ppSSLContext, (char*)ptNetworkSettings->sCertFile.c_str(), (char*)ptNetworkSettings->sKeyFile.c_str());
+                if(!cSSLHelper::LoadCertificate(ppSSLContext, ptNetworkSettings->sCertFile, ptNetworkSettings->sKeyFile))
+                {
+                    std::cout << "could not find certificates." << std::endl;
+                    assert(false);
+                }
         }
     }
 

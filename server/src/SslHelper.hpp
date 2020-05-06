@@ -58,16 +58,18 @@ public:
         return ctx;
     }
 
-    static bool LoadCertificate(SSL_CTX* ctx, char* CertFile, char* KeyFile)
+    static bool LoadCertificate(SSL_CTX* ctx, string sCertFile, string sKeyFile)
     {
+        if(!is_file_exist(sCertFile)) return false;
+        if(!is_file_exist(sKeyFile)) return false;
         /* set the local certificate from CertFile */
-        if ( SSL_CTX_use_certificate_file(ctx, CertFile, SSL_FILETYPE_PEM) <= 0 )
+        if ( SSL_CTX_use_certificate_file(ctx, sCertFile.c_str(), SSL_FILETYPE_PEM) <= 0 )
         {
             ERR_print_errors_fp(stderr);
             return false;
         }
         /* set the private key from KeyFile (may be the same as CertFile) */
-        if ( SSL_CTX_use_PrivateKey_file(ctx, KeyFile, SSL_FILETYPE_PEM) <= 0 )
+        if ( SSL_CTX_use_PrivateKey_file(ctx, sKeyFile.c_str(), SSL_FILETYPE_PEM) <= 0 )
         {
             ERR_print_errors_fp(stderr);
             return false;
