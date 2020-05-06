@@ -39,8 +39,6 @@ TEST(SSOTests, SetupSSOServer)
     poSSOServer = std::make_shared<cSSOServer>(pSSOServerSettings.get());
     EXPECT_TRUE(poSSOServer->Init("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test;"));
 
-
-
     //EXPECT_TRUE(poSSOServer->Listen());
 //    EXPECT_TRUE(oSSOInstance.Connect("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test;"));
 //    std::vector<SQLROW> aRows;

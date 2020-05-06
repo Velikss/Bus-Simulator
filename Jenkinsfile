@@ -41,7 +41,7 @@ pipeline {
                     stopProcessingIfError: true
                   )]
             )
-            deleteDir()
+            //deleteDir()
         }
     }
 }

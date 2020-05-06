@@ -21,7 +21,7 @@ public:
                 if(!cSSLHelper::LoadCertificate(ppSSLContext, ptNetworkSettings->sCertFile, ptNetworkSettings->sKeyFile))
                 {
                     std::cout << "could not find certificates." << std::endl;
-                    assert(false);
+                    throw std::runtime_error("could not find certificates.");
                 }
         }
     }
