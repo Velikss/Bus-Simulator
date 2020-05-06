@@ -91,3 +91,9 @@ include_directories(${PROJECT_SOURCE_DIR}/src ${GLEW_INCLUDE_DIRS} ${OPENGL_INCL
 add_library(${This} STATIC ${Sources} ${Headers})
 add_executable(${This}-bin ${Sources} ${Headers})
 target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw ${Vulkan_LIBRARIES})
+
+IF (NOT WIN32)
+    add_custom_command(TARGET ${This}-bin PRE_BUILD COMMAND cd ${PROJECT_SOURCE_DIR}/shaders && ./compile.sh)
+ELSE ()
+    add_custom_command(TARGET ${This}-bin PRE_BUILD COMMAND cd ${PROJECT_SOURCE_DIR}/shaders && ./compile.bat)
+ENDIF ()
