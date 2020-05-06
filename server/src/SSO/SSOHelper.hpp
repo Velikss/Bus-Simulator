@@ -1,6 +1,6 @@
 #pragma once
 #include <pch.hpp>
-#include "cNetworkConnection.hpp"
+#include "server/src/cNetworkConnection.hpp"
 
 typedef int SSO_STATUS;
 #define cSSO_OK          0
@@ -8,8 +8,10 @@ typedef int SSO_STATUS;
 #define cSSO_FAIL_INIT   -2
 #define cSSO_FAIL_UPDATE -3
 #define cSSO_FAIL_FINISH -4
+
 namespace SSO
 {
+    // Function to create a blake2 hash of a byte sequence.
     SSO_STATUS Blake2Hash(const unsigned char *message, size_t message_len, unsigned char **digest, unsigned int *digest_len)
     {
         EVP_MD_CTX *mdctx;
@@ -34,11 +36,6 @@ namespace SSO
             return cSSO_FAIL_FINISH;
 
         EVP_MD_CTX_free(mdctx);
-        return cSSO_OK;
-    }
-
-    SSO_STATUS Accept(cNetworkConnection* pConnection)
-    {
         return cSSO_OK;
     }
 }

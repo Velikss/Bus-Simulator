@@ -198,10 +198,16 @@ class cODBCInstance
         } while (ret == SQL_SUCCESS);
     }
 public:
+    ~cODBCInstance()
+    {
+        Disconnect();
+    }
+
     bool Connect(string sConnectionString);
     bool Disconnect();
     bool Fetch(string sQuery, std::vector<SQLROW>* aRows);
     bool Exec(string sQuery);
+    bool ExecFile(string sFileName);
 };
 
 bool cODBCInstance::Connect(string sConnectionString)
@@ -222,28 +228,44 @@ bool cODBCInstance::Connect(string sConnectionString)
     SQLAllocHandle( SQL_HANDLE_DBC, henv, &hdbc );
 
     /* Connect to the database using the connection string. */
-    SQLRETURN result = SQLDriverConnectA( hdbc,    /* Connection handle */
-                      0,                     /* Window handle */
-                      (SQLCHAR*) sConnectionString.c_str(), /* Connection string */
-                      SQL_NTS,               /* This is a null-terminated string */
-                      (SQLCHAR *)NULL,       /* Output (result) connection string */
-                      SQL_NTS,               /* This is a null-terminated string */
-                      0,                     /* Length of output connect string */
-                      SQL_DRIVER_NOPROMPT ); /* Don’t display a prompt window */
+    SQLRETURN result = 0;
+
+    try
+    {
+        result = SQLDriverConnectA(hdbc,    /* Connection handle */
+            0,                     /* Window handle */
+            (SQLCHAR*)sConnectionString.c_str(), /* Connection string */
+            SQL_NTS,               /* This is a null-terminated string */
+            (SQLCHAR*)NULL,       /* Output (result) connection string */
+            SQL_NTS,               /* This is a null-terminated string */
+            0,                     /* Length of output connect string */
+            SQL_DRIVER_NOPROMPT); /* Don’t display a prompt window */
+    }
+    catch (std::exception& ex)
+    {
+        std::cout << "connecting too fast?" << std::endl;
+        SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
+        SQLFreeHandle(SQL_HANDLE_ENV, henv);
+        return false;
+    }
 
     return (result == SQL_SUCCESS || result == SQL_SUCCESS_WITH_INFO);
 }
 
 bool cODBCInstance::Disconnect()
 {
-    /* Disconnect from the database. */
-    SQLRETURN result = SQLDisconnect(hdbc);
+    SQLRETURN result = SQL_SUCCESS;
+    if (hdbc)
+    {
+        /* Disconnect from the database. */
+        result = SQLDisconnect(hdbc);
 
-    /* Free the connection handle. */
-    SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
+        /* Free the connection handle. */
+        SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 
-    /* Free the environment handle. */
-    SQLFreeHandle(SQL_HANDLE_ENV, henv);
+        /* Free the environment handle. */
+        SQLFreeHandle(SQL_HANDLE_ENV, henv);
+    }
 
     return (result == SQL_SUCCESS || result == SQL_SUCCESS_WITH_INFO);
 }
@@ -387,4 +409,14 @@ bool cODBCInstance::Exec(string sQuery)
         SQLFreeHandle(SQL_HANDLE_STMT, stmt);
         return false;
     }
+}
+
+bool cODBCInstance::ExecFile(string sFileName)
+{
+    std::ifstream oFileStream(sFileName);
+    if (!oFileStream.is_open())
+        return false;
+    std::string sQuery((std::istreambuf_iterator<char>(oFileStream)),
+                         std::istreambuf_iterator<char>());
+    return Exec(sQuery);
 }
