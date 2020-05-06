@@ -2,6 +2,7 @@
 
 #include <pch.hpp>
 #include <vulkan/scene/Scene.hpp>
+#include <scenes/BusCamera.hpp>
 
 class cStreetScene : public cScene
 {
@@ -31,19 +32,28 @@ void cStreetScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogic
 void cStreetScene::Update()
 {
     if (paKeys[GLFW_KEY_W])
-        poCamera.Forward();
+        poCamera->Forward();
     if (paKeys[GLFW_KEY_S])
-        poCamera.BackWard();
+        poCamera->BackWard();
     if (paKeys[GLFW_KEY_A])
-        poCamera.MoveLeft();
+        poCamera->MoveLeft();
     if (paKeys[GLFW_KEY_D])
-        poCamera.MoveRight();
+        poCamera->MoveRight();
+    if (paKeys[GLFW_KEY_C])
+        poCamera = new FirstPersonFlyCamera;
+    if (paKeys[GLFW_KEY_B])
+    {
+        poCamera = new BusCamera;
+        poCamera->cameraPivot = pmpObjects["bus"]->getPosition();
+        poCamera->cameraHeight = 15.0f;
+        poCamera->cameraPivotChanges = glm::vec3(0.0f, 5.0f, 0.0f);
+    }
 
     // temporary flight controls
     if (paKeys[GLFW_KEY_SPACE])
-        poCamera.cameraHeight += 0.005;
+        poCamera->cameraHeight += 0.01;
     if (paKeys[GLFW_KEY_LEFT_SHIFT])
-        poCamera.cameraHeight -= 0.005;
+        poCamera->cameraHeight -= 0.01;
 
     if (paKeys[GLFW_KEY_ESCAPE])
         Quit();
@@ -59,6 +69,7 @@ void cStreetScene::LoadTextures(cTextureHandler* pTextureHandler)
     pmpTextures["street"] = pTextureHandler->LoadTextureFromFile("resources/textures/street.jpg");
     pmpTextures["moon"] = pTextureHandler->LoadTextureFromFile("resources/textures/moon.jpg");
     pmpTextures["skybox"] = pTextureHandler->LoadTextureFromFile("resources/textures/skybox.jpg");
+    pmpTextures["grey"] = pTextureHandler->LoadTextureFromFile("resources/textures/grey.jpg");
 }
 
 void cStreetScene::LoadGeometries(cLogicalDevice* pLogicalDevice)
@@ -69,6 +80,7 @@ void cStreetScene::LoadGeometries(cLogicalDevice* pLogicalDevice)
     pmpGeometries["sphere"] = cGeometry::FromOBJFile("resources/geometries/sphere.obj", pLogicalDevice);
     pmpGeometries["cylinder"] = cGeometry::FromOBJFile("resources/geometries/cylinder32.obj", pLogicalDevice);
     pmpGeometries["skybox"] = cGeometry::FromOBJFile("resources/geometries/skybox.obj", pLogicalDevice);
+    pmpGeometries["bus"] = cGeometry::FromOBJFile("resources/geometries/American_School_Bus.obj", pLogicalDevice);
 
     pmpGeometries["houseBase"] = cGeometry::FromOBJFile("resources/geometries/houseBase.obj", pLogicalDevice, 3);
     pmpGeometries["roof"] = cGeometry::FromOBJFile("resources/geometries/roof.obj", pLogicalDevice, 5);
@@ -88,6 +100,7 @@ void cStreetScene::LoadMeshes()
     pmpMeshes["tree"] = new cMesh(pmpGeometries["tree"], pmpTextures["grass"]);
     pmpMeshes["pole"] = new cMesh(pmpGeometries["cylinder"], pmpTextures["stoneHouse"]);
     pmpMeshes["skybox"] = new cMesh(pmpGeometries["skybox"], pmpTextures["skybox"]);
+    pmpMeshes["bus"] = new cMesh(pmpGeometries["bus"], pmpTextures["grey"]);
 }
 
 void cStreetScene::LoadModels()
@@ -106,6 +119,8 @@ void cStreetScene::LoadModels()
 
     pmpModels["roof"] = new cModel(pmpMeshes["roof"]);
     pmpModels["roof"]->setPosition(glm::vec3(0, 12.5, 0));
+
+    pmpModels["bus"] = new cModel(pmpMeshes["bus"]);
 }
 
 void cStreetScene::LoadObjects()
@@ -119,6 +134,11 @@ void cStreetScene::LoadObjects()
 
     pmpObjects["street"] = new cBaseObject(*pmpModels["street"]);
     pmpObjects["street"]->setScale(glm::vec3(200, 1, 100));
+
+    pmpObjects["bus"] = new cBaseObject(*pmpModels["bus"]);
+    pmpObjects["bus"]->setScale(glm::vec3(1.5, 1.5, 1.5));
+    pmpObjects["bus"]->setPosition(glm::vec3(30, 0, 15));
+    pmpObjects["bus"]->setRotation(glm::vec3(270, 0, 0));
 
     /*pmpObjects["grasslawn1"] = new cBaseObject(*pmpModels["grasslawn"]);
     pmpObjects["grasslawn1"]->setPosition(glm::vec3(80.0, 0.01, 0));

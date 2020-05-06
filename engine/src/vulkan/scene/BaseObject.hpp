@@ -21,6 +21,7 @@ public:
     void setRotation(const glm::vec3 poRotation);
     void setPosition(const glm::vec3 poPosition);
     void setScale(const glm::vec3 poScale);
+    glm::vec3* getPosition();
 };
 
 cBaseObject::cBaseObject(cMesh* pMesh) : ppMesh(pMesh)
@@ -86,6 +87,11 @@ void cBaseObject::setScale(const glm::vec3 oScale)
     poScale.x = oScale.x;
     poScale.y = oScale.y;
     poScale.z = oScale.z;
+}
+
+glm::vec3* cBaseObject::getPosition()
+{
+    return &poPosition;
 }
 
 typedef cBaseObject cModel;

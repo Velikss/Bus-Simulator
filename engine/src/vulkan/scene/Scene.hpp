@@ -15,7 +15,7 @@ private:
     bool bQuit;
 
 protected:
-    Camera poCamera;
+    Camera *poCamera = new FirstPersonFlyCamera;
 
     std::map<string, cTexture*> pmpTextures;
     std::map<string, cGeometry*> pmpGeometries;
@@ -82,7 +82,7 @@ cScene::~cScene()
 
 void cScene::Update()
 {
-    poCamera.ProcessUpdates();
+    poCamera->ProcessUpdates();
 }
 
 uint cScene::GetObjectCount()
@@ -97,7 +97,7 @@ std::map<string, cBaseObject*>& cScene::GetObjects()
 
 Camera& cScene::GetCamera()
 {
-    return poCamera;
+    return *poCamera;
 }
 
 void cScene::Quit()
@@ -112,7 +112,7 @@ bool cScene::ShouldQuit()
 
 void cScene::HandleMouse(uint uiDeltaX, uint uiDeltaY)
 {
-    poCamera.LookMouseDiff(uiDeltaX, uiDeltaY);
+    poCamera->LookMouseDiff(uiDeltaX, uiDeltaY);
 }
 
 void cScene::HandleKey(uint uiKeyCode, uint uiAction)

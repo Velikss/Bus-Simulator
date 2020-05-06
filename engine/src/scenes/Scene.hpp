@@ -22,7 +22,7 @@ protected:
 	int screenCenter_X, screenCenter_Y;
 public:
 	string name; // name of the scene.
-	Camera camera;
+	Camera *camera;
 
 	// all buffers for the scene.
 	std::map<string, Texture*> textures;
@@ -49,7 +49,7 @@ public:
 
 	virtual void Update()
 	{
-		camera.ProcessUpdates();
+		camera->ProcessUpdates();
 		for (auto& animation : animations)
 			animation->Update();
 	}
@@ -60,7 +60,7 @@ public:
 	{
 		for (auto& shader : shaders)
 		{
-			camera.SetTransformationOnShader(shader.second);
+			camera->SetTransformationOnShader(shader.second);
 			shader.second->setInt("lightsSize", shaders.size());
 			shader.second->setInt("skybox", 0);
 			for(int i = 0; i < lights.size(); i++)
@@ -92,6 +92,6 @@ public:
         x *= sensitivity;
         y *= sensitivity;
 
-		camera.LookMouseDiff(x, y);
+		camera->LookMouseDiff(x, y);
 	}
 };
