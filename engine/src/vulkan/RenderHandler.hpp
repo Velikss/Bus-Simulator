@@ -34,7 +34,7 @@ public:
 
     void CreateSemaphores(void);
 
-    void DrawFrame(cScene* pScene, cTextHandler* pTest, cCommandBuffer* pCommandBuffer);
+    void DrawFrame(cScene* pScene, cTextHandler* pTextHandler, cCommandBuffer* pCommandBuffer);
 
     void SetUniformHandlers(iUniformHandler** pUniformHandlers, uint uiUniformHandlerCount);
 };
@@ -93,7 +93,7 @@ void cRenderHandler::CreateSemaphores()
     }
 }
 
-void cRenderHandler::DrawFrame(cScene* pScene, cTextHandler* pTest, cCommandBuffer* pCommandBuffer)
+void cRenderHandler::DrawFrame(cScene* pScene, cTextHandler* pTextHandler, cCommandBuffer* pCommandBuffer)
 {
 #ifdef ENABLE_FPS_COUNT
     static auto startTime = std::chrono::high_resolution_clock::now();
@@ -109,8 +109,8 @@ void cRenderHandler::DrawFrame(cScene* pScene, cTextHandler* pTest, cCommandBuff
         static uint test = 0;
         char text[64];
         sprintf(text, "%u fps", frameCount);
-        pTest->UpdateText(text);
-        pCommandBuffer->RecordBuffers(pTest->GetCommandRecorder());
+        pTextHandler->UpdateText(text);
+        pCommandBuffer->RecordBuffers(pTextHandler->GetCommandRecorder());
         startTime = currentTime;
         frameCount = 0;
     }

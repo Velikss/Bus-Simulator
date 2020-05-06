@@ -1,5 +1,7 @@
 #pragma once
 
+#define MAX_CHARACTER_COUNT 512
+
 #include <pch.hpp>
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/geometry/BufferHelper.hpp>
@@ -13,23 +15,26 @@ private:
     VkDeviceMemory poBufferMemory;
 
     cLogicalDevice* ppLogicalDevice;
+    cWindow* ppWindow;
 
     int puiNumLetters = 0;
 
 public:
-    cText(cLogicalDevice* pLogicalDevice);
+    cText(cLogicalDevice* pLogicalDevice, cWindow* pWindow);
     ~cText();
 
-    void UpdateText(string sText, float fFontSize, stb_fontchar* stbFontData);
+    void UpdateText(string sText, float fFontSize, stb_fontchar* stbFontData, int iPosX, int iPosY);
     void BindVertexBuffer(VkCommandBuffer& oCommandBuffer);
     uint GetNumLetters();
 };
 
-cText::cText(cLogicalDevice* pLogicalDevice)
+cText::cText(cLogicalDevice* pLogicalDevice, cWindow* pWindow)
 {
     ppLogicalDevice = pLogicalDevice;
+    ppWindow = pWindow;
 
-    VkDeviceSize uiSize = 2048 * sizeof(tVertex2D);
+    // Create a buffer for the text data
+    VkDeviceSize uiSize = MAX_CHARACTER_COUNT * 4 * sizeof(tVertex2D);
     cBufferHelper::CreateBuffer(pLogicalDevice, uiSize,
                                 VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
@@ -42,23 +47,23 @@ cText::~cText()
     ppLogicalDevice->FreeMemory(poBufferMemory, nullptr);
 }
 
-void cText::UpdateText(string sText, float fFontSize, stb_fontchar* stbFontData)
+void cText::UpdateText(string sText, float fFontSize, stb_fontchar* stbFontData, int iPosX, int iPosY)
 {
-    tVertex2D* mapped;
-    ppLogicalDevice->MapMemory(poBufferMemory, 0, VK_WHOLE_SIZE, 0, (void**) &mapped);
 
-    float x = 10;
-    float y = 10;
+    float x = iPosX;
+    float y = iPosY;
 
-    const uint32_t firstChar = STB_FONT_consolas_24_latin1_FIRST_CHAR;
+    const uint32_t firstChar = STB_FONT_arial_50_usascii_FIRST_CHAR;
 
-    assert(mapped != nullptr);
+    const uint uiScreenWidth = ppWindow->WIDTH;
+    const uint uiScreenHeight = ppWindow->HEIGHT;
 
-    const float charW = fFontSize / 2500;
-    const float charH = fFontSize / 1300;
+    // Calculate text size
+    const float charW = fFontSize / uiScreenWidth;
+    const float charH = fFontSize / uiScreenHeight;
 
-    float fbW = (float) 2500;
-    float fbH = (float) 1300;
+    float fbW = (float) uiScreenWidth;
+    float fbH = (float) uiScreenHeight;
     x = (x / fbW * 2.0f) - 1.0f;
     y = (y / fbH * 2.0f) - 1.0f;
 
@@ -71,6 +76,12 @@ void cText::UpdateText(string sText, float fFontSize, stb_fontchar* stbFontData)
     }
 
     puiNumLetters = 0;
+
+    // Map the memory for the text buffer to a pointer
+    tVertex2D* mapped;
+    ppLogicalDevice->MapMemory(poBufferMemory, 0, VK_WHOLE_SIZE, 0, (void**) &mapped);
+
+    assert(mapped != nullptr);
 
     // Generate a uv mapped quad per char in the new text
     for (auto letter : sText)
@@ -106,6 +117,7 @@ void cText::UpdateText(string sText, float fFontSize, stb_fontchar* stbFontData)
         puiNumLetters++;
     }
 
+    // Unmap the memory again
     ppLogicalDevice->UnmapMemory(poBufferMemory);
 }
 

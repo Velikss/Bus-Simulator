@@ -24,7 +24,7 @@ private:
     cOverlayCommandBufferRecorder* ppCommandRecorder;
 
 public:
-    cTextHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
+    cTextHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain, cWindow* pWindow);
     ~cTextHandler();
 
     void UpdateText(string sText);
@@ -33,7 +33,7 @@ public:
     iUniformHandler* GetUniformHandler();
 };
 
-cTextHandler::cTextHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain)
+cTextHandler::cTextHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain, cWindow* pWindow)
 {
     stb_font_arial_50_usascii(stbFontData, font24pixels, fontHeight);
     ppFont = new cFont(pLogicalDevice, fontWidth, fontHeight, &font24pixels[0][0]);
@@ -43,6 +43,8 @@ cTextHandler::cTextHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChai
     ppRenderPass = new cOverlayRenderPass(pLogicalDevice, pSwapChain);
     ppPipeline = new cOverlayPipeline(pSwapChain, pLogicalDevice, ppRenderPass, ppUniformHandler);
     ppText = new cText(pLogicalDevice);
+
+    ppText->UpdateText("Loading...", 2.5f, stbFontData, (pWindow->WIDTH / 2) - 100, pWindow->HEIGHT / 2);
 
     ppCommandRecorder = new cOverlayCommandBufferRecorder(ppRenderPass, pSwapChain, ppPipeline,
                                                           ppUniformHandler, ppText);
@@ -59,7 +61,7 @@ cTextHandler::~cTextHandler()
 
 void cTextHandler::UpdateText(string sText)
 {
-    ppText->UpdateText(sText, 1.5f, stbFontData);
+    ppText->UpdateText(sText, 1.5f, stbFontData, 10, 10);
 }
 
 iCommandBufferRecorder* cTextHandler::GetCommandRecorder()

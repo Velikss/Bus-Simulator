@@ -172,7 +172,7 @@ void cOverlayUniformHandler::CreateDescriptorSet()
 void cOverlayUniformHandler::UpdateUniformBuffers(cScene* pScene)
 {
     tOverlayUniformObject tObject = {};
-    tObject.color = glm::vec3(pScene->color);
+    tObject.color = glm::vec3(pScene == nullptr ? glm::vec3(1, 1, 1) : pScene->color);
 
     void* data;
     ppLogicalDevice->MapMemory(poBufferMemory, 0, sizeof(tObject), 0, &data);

@@ -8,21 +8,21 @@
 class cClearScreenRecorder : public iCommandBufferRecorder
 {
 private:
-    cGraphicsRenderPass* ppRenderPass;
+    cRenderPass* ppRenderPass;
     cSwapChain* ppSwapChain;
 
     VkRenderPassBeginInfo ptRenderPassInfo = {};
     std::array<VkClearValue, 2> paoClearValues = {};
 
 public:
-    cClearScreenRecorder(cGraphicsRenderPass* pRenderPass,
+    cClearScreenRecorder(cRenderPass* pRenderPass,
                          cSwapChain* pSwapChain);
 
     void Setup(uint uiIndex) override;
     void RecordCommands(VkCommandBuffer& oCommandBuffer, uint uiIndex) override;
 };
 
-cClearScreenRecorder::cClearScreenRecorder(cGraphicsRenderPass* pRenderPass,
+cClearScreenRecorder::cClearScreenRecorder(cRenderPass* pRenderPass,
                                            cSwapChain* pSwapChain)
 {
     ppRenderPass = pRenderPass;

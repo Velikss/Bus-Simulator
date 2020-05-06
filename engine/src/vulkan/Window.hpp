@@ -120,7 +120,7 @@ void cWindow::HandleEvents(void)
 {
     assert(ppWindow != nullptr); // window must be created first
 
-    glfwPollEvents();
+    if (ppInputHandler != nullptr) glfwPollEvents();
 }
 
 void cWindow::Close(void)

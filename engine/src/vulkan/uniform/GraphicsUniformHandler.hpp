@@ -62,6 +62,7 @@ cGraphicsUniformHandler::cGraphicsUniformHandler(cLogicalDevice* pLogicalDevice,
     ppLogicalDevice = pLogicalDevice;
     ppSwapChain = pSwapChain;
 
+    // Binding for the uniform data for every object
     VkDescriptorSetLayoutBinding tUBOLayoutBinding = {};
     tUBOLayoutBinding.binding = 0;
     tUBOLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -69,6 +70,7 @@ cGraphicsUniformHandler::cGraphicsUniformHandler(cLogicalDevice* pLogicalDevice,
     tUBOLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
     tUBOLayoutBinding.pImmutableSamplers = nullptr;
 
+    // Binding for the texture sampler
     VkDescriptorSetLayoutBinding tSamplerLayoutBinding = {};
     tSamplerLayoutBinding.binding = 1;
     tSamplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -115,9 +117,9 @@ void cGraphicsUniformHandler::CreateUniformBuffers(cScene* pScene)
     VkDeviceSize bufferSize = sizeof(tUniformBufferObject);
     uint uiCount = pScene->GetObjectCount();
 
+    // Create a buffer for every object in the scene
     paoUniformBuffers.resize(uiCount);
     paoUniformBuffersMemory.resize(uiCount);
-
     for (uint i = 0; i < uiCount; i++)
     {
         cBufferHelper::CreateBuffer(ppLogicalDevice, bufferSize,
@@ -129,8 +131,10 @@ void cGraphicsUniformHandler::CreateUniformBuffers(cScene* pScene)
 
 void cGraphicsUniformHandler::UpdateUniformBuffers(cScene* pScene)
 {
-    assert(pScene != nullptr);
+    // We don't want to do anything before the scene is loaded
+    if (pScene == nullptr) return;
 
+    // Camera perspective is currently fixed, see comment below
     static VkExtent2D tExtent = ppSwapChain->ptSwapChainExtent;
     static glm::mat4 oProjection = glm::perspective(
             glm::radians(45.0f),

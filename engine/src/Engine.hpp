@@ -42,8 +42,8 @@ private:
     cTextureHandler* ppTextureHandler;
     cRenderHandler* ppRenderHandler;
 
-    cScene* ppScene;
-    cTextHandler* ppTest;
+    cScene* ppScene = nullptr;
+    cTextHandler* ppTextHandler;
 
 public:
     // Initializes and starts the engine and all of it's sub-components
@@ -98,6 +98,7 @@ void Engine::InitVulkan(void)
     // Create the graphics pipeline. Handles the shaders and fixed-function operations for the graphics pipeline.
     ppGraphicsPipeline = new cGraphicsPipeline(ppSwapChain, ppLogicalDevice, ppRenderPass, ppUniformHandler);
 
+    // Setup the command pool
     cCommandHelper::SetupCommandPool(ppLogicalDevice);
 
     // Create and setup the depth resources
@@ -106,13 +107,13 @@ void Engine::InitVulkan(void)
     // Create the framebuffers for the swap chain
     ppSwapChain->CreateFramebuffers(ppRenderPass->poRenderPass);
 
-    ppTest = new cTextHandler(ppLogicalDevice, ppSwapChain);
+    ppTextHandler = new cTextHandler(ppLogicalDevice, ppSwapChain, ppWindow);
 
     papCommandBuffers[0] = new cCommandBuffer(ppLogicalDevice, ppSwapChain);
     papCommandBuffers[1] = new cCommandBuffer(ppLogicalDevice, ppSwapChain);
 
     papUniformHandlers[0] = ppUniformHandler;
-    papUniformHandlers[1] = ppTest->GetUniformHandler();
+    papUniformHandlers[1] = ppTextHandler->GetUniformHandler();
 
     // Create the rendering handler. Acquires the frames from the swapChain, submits them to the graphics queue
     // to execute the commands, then submits them to the presentation queue to show them on the screen
@@ -122,18 +123,10 @@ void Engine::InitVulkan(void)
     // Create the texture handler. This deals with loading, binding and sampling the textures
     ppTextureHandler = new cTextureHandler(ppLogicalDevice);
 
-    ppScene = new cStreetScene();
-    ppScene->Load(ppTextureHandler, ppLogicalDevice);
-    ppWindow->ppInputHandler = ppScene;
+    cClearScreenRecorder clearRecorder(ppRenderPass, ppSwapChain);
+    papCommandBuffers[0]->RecordBuffers(&clearRecorder);
 
-    // Setup the buffers for uniform variables
-    ppUniformHandler->SetupUniformBuffers(ppTextureHandler, ppScene);
-
-    cIndexedRenderRecorder recorder(ppRenderPass, ppSwapChain, ppGraphicsPipeline,
-                                    ppUniformHandler, ppScene);
-    papCommandBuffers[0]->RecordBuffers(&recorder);
-
-    papCommandBuffers[1]->RecordBuffers(ppTest->GetCommandRecorder());
+    papCommandBuffers[1]->RecordBuffers(ppTextHandler->GetCommandRecorder());
 }
 
 void Engine::MainLoop(void)
@@ -144,16 +137,46 @@ void Engine::MainLoop(void)
         // Let the window do it's thing
         ppWindow->HandleEvents();
 
-        // Update the scene
-        ppScene->Update();
-
-        if (ppScene->ShouldQuit())
+        if (ppScene != nullptr)
         {
-            ppWindow->Close();
+            // Update the scene
+            ppScene->Update();
+
+            // If the scene is signalling it wants to
+            // quit, pass it on to the window
+            if (ppScene->ShouldQuit())
+            {
+                ppWindow->Close();
+            }
         }
 
         // Draw a frame
-        ppRenderHandler->DrawFrame(ppScene, ppTest, papCommandBuffers[1]);
+        ppRenderHandler->DrawFrame(ppScene, ppTextHandler, papCommandBuffers[1]);
+
+        // If the scene hasn't been loaded, load it now
+        // We want to draw at least one frame before loading the
+        // scene, to allow loading text to be displayed
+        if (ppScene == nullptr)
+        {
+            // Create and load the scene
+            ppScene = new cStreetScene();
+            ppScene->Load(ppTextureHandler, ppLogicalDevice);
+
+            // The scene will handle the input
+            ppWindow->ppInputHandler = ppScene;
+
+            // Setup the buffers for uniform variables
+            ppUniformHandler->SetupUniformBuffers(ppTextureHandler, ppScene);
+
+            // We cannot (re-)record command buffers while the GPU is
+            // using them, so we have to wait until it's idle.
+            ppLogicalDevice->WaitUntilIdle();
+
+            // Record the commands for rendering to the command buffer.
+            cIndexedRenderRecorder recorder(ppRenderPass, ppSwapChain, ppGraphicsPipeline,
+                                            ppUniformHandler, ppScene);
+            papCommandBuffers[0]->RecordBuffers(&recorder);
+        }
     }
 
     // Wait until the logical device is idle before returning
@@ -164,7 +187,7 @@ void Engine::Cleanup(void)
 {
     delete ppScene;
     delete ppRenderHandler;
-    delete ppTest;
+    delete ppTextHandler;
     delete ppTextureHandler;
     for (auto oBuffer : papCommandBuffers)
     {
