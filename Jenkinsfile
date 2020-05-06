@@ -19,7 +19,7 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    sh '/usr/bin/ctest -T test --output-on-failure'
+                    sh '/usr/bin/ctest -T test --verbose'
                 }
             }
         }
