@@ -78,7 +78,7 @@ TEST(ServerClientTests, BindSSL)
 {
     pSSLServerSettings = std::make_shared<cNetworkConnection::tNetworkInitializationSettings>();
     pSSLServerSettings->sAddress = "127.0.0.1";
-    pSSLServerSettings->usPort = 8001;
+    pSSLServerSettings->usPort = 8002;
     pSSLServerSettings->bUseSSL = true;
     pSSLServerSettings->sCertFile = "./test.cert";
     pSSLServerSettings->sKeyFile = "./test.key";
@@ -97,7 +97,7 @@ TEST(ServerClientTests, ConnectSSL)
 {
     pSSLClientSettings = std::make_shared<cNetworkConnection::tNetworkInitializationSettings>();
     pSSLClientSettings->sAddress = "127.0.0.1";
-    pSSLClientSettings->usPort = 8001;
+    pSSLClientSettings->usPort = 8002;
     pSSLClientSettings->bUseSSL = true;
     pSSLClientSettings->eIPVersion = cNetworkConnection::cIPVersion::eV4;
     pSSLClientSettings->eConnectionType = cNetworkConnection::cConnectionType::eTCP;
