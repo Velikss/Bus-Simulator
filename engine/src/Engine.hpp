@@ -1,6 +1,6 @@
 #pragma once
 
-#define ENABLE_FPS_COUNT
+//#define ENABLE_FPS_COUNT
 
 #include <pch.hpp>
 #include <GLFW/glfw3.h>

@@ -150,10 +150,14 @@ cLogicalDevice::cLogicalDevice()
     ptQueueIndices = pPhysicalDevice->FindQueueFamilies();
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-    uint uniqueQueueFamilies[] = {
-            ptQueueIndices.oulGraphicsFamily.value(),
-            ptQueueIndices.oulPresentFamily.value()
-    };
+    uint graphicsQueueIndex = ptQueueIndices.oulGraphicsFamily.value();
+    uint presentQueueIndex = ptQueueIndices.oulPresentFamily.value();
+    std::vector<uint> uniqueQueueFamilies;
+    uniqueQueueFamilies.push_back(graphicsQueueIndex);
+    if (presentQueueIndex != graphicsQueueIndex)
+    {
+        uniqueQueueFamilies.push_back(presentQueueIndex);
+    }
 
     // Struct with information about the physical device features we want to enable
     VkPhysicalDeviceFeatures tDeviceFeatures = {};
