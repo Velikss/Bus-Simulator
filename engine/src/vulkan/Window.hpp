@@ -21,8 +21,8 @@ public:
     GLFWwindow* ppWindow = nullptr;
 
     // Window size
-    static const uint WIDTH = 2500;
-    static const uint HEIGHT = 1300;
+    static const uint WIDTH = 1920;
+    static const uint HEIGHT = 1080;
 
     iInputHandler* ppInputHandler;
 

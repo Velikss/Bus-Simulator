@@ -54,6 +54,7 @@ public:
     // is the end op the passthrough from the mouse input.
     virtual void LookMouseDiff(int x, int y) = 0;
     // process the commits to the pv.
+    virtual void LookMouseWheelDiff(float x, float y) = 0;
     virtual void ProcessUpdates() = 0;
     // sets the pv and position on the passed shader.
     virtual void SetTransformationOnShader(ShaderProgram* shader) = 0;
@@ -133,6 +134,11 @@ public:
             pitch = -80;
         if (pitch > 80)
             pitch = 80;
+    }
+
+    void LookMouseWheelDiff(float x, float y)
+    {
+        
     }
 
     // process the commits to the pv.

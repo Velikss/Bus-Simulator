@@ -9,6 +9,8 @@ class cStreetScene : public cScene
 public:
     void Update() override;
 
+    void HandleScroll(double dOffsetX, double dOffsetY) override;
+
 protected:
     void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice) override;
 
@@ -59,6 +61,11 @@ void cStreetScene::Update()
         Quit();
 
     cScene::Update();
+}
+
+void cStreetScene::HandleScroll(double dOffsetX, double dOffsetY)
+{
+    poCamera->LookMouseWheelDiff((float)dOffsetX, (float)dOffsetY);
 }
 
 void cStreetScene::LoadTextures(cTextureHandler* pTextureHandler)

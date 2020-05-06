@@ -70,7 +70,7 @@ public:
             pitch = 80;
     }
 
-    void LookMouseWheelDiff(int x, int y)
+    void LookMouseWheelDiff(float x, float y)
     {
         if(y < 0 && orbitDistance < 55.0f)
         {
@@ -95,9 +95,10 @@ public:
         glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraFront));
         cameraUp = glm::normalize(glm::cross(cameraFront, cameraRight));
 
-        view = glm::lookAt(cameraPos, glm::vec3(cameraPivot->x + cameraPivotChanges.x,
-                                                cameraPivot->y + cameraPivotChanges.y,
-                                                cameraPivot->z + cameraPivotChanges.z) + cameraFront, cameraUp);
+//        view = glm::lookAt(cameraPos, glm::vec3(cameraPivot->x + cameraPivotChanges.x,
+//                                                cameraPivot->y + cameraPivotChanges.y,
+//                                                cameraPivot->z + cameraPivotChanges.z) + cameraFront, cameraUp);
+        view = glm::lookAt(cameraPos, *cameraPivot + cameraPivotChanges + cameraFront, cameraUp);
 
         proj = glm::perspective(
                 FoV,
