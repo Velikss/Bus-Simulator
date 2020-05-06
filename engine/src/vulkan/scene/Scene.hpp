@@ -43,6 +43,7 @@ public:
 
     void HandleMouse(uint uiDeltaX, uint uiDeltaY) override;
     void HandleKey(uint uiKeyCode, uint uiAction) override;
+    void HandleScroll(double dOffsetX, double dOffsetY) override;
 
 protected:
     void Quit();
@@ -122,4 +123,9 @@ void cScene::HandleKey(uint uiKeyCode, uint uiAction)
         if (uiAction == GLFW_PRESS) paKeys[uiKeyCode] = true;
         if (uiAction == GLFW_RELEASE) paKeys[uiKeyCode] = false;
     }
+}
+
+void cScene::HandleScroll(double dOffsetX, double dOffsetY)
+{
+
 }
