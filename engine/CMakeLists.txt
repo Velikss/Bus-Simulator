@@ -9,7 +9,10 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
-find_package(duktape REQUIRED)
+
+IF (WIN32)
+    find_package(duktape REQUIRED)
+ENDIF()
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
