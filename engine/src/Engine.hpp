@@ -108,11 +108,11 @@ void Engine::InitVulkan(void)
     ppTest = new TextTest(ppLogicalDevice, ppSwapChain);
 
     papCommandBuffers[0] = new cCommandBuffer(ppLogicalDevice, ppSwapChain);
-    papCommandBuffers[1] = new cCommandBuffer(ppLogicalDevice, ppSwapChain);
+//    papCommandBuffers[1] = new cCommandBuffer(ppLogicalDevice, ppSwapChain);
 
     // Create the rendering handler. Acquires the frames from the swapChain, submits them to the graphics queue
     // to execute the commands, then submits them to the presentation queue to show them on the screen
-    ppRenderHandler = new cRenderHandler(ppLogicalDevice, ppSwapChain, papCommandBuffers, 2);
+    ppRenderHandler = new cRenderHandler(ppLogicalDevice, ppSwapChain, papCommandBuffers, 1);
     ppRenderHandler->SetUniformHandler(ppUniformHandler);
 
     // Create the texture handler. This deals with loading, binding and sampling the textures
@@ -129,7 +129,7 @@ void Engine::InitVulkan(void)
                                     ppUniformHandler, ppScene);
     papCommandBuffers[0]->RecordBuffers(&recorder);
 
-    papCommandBuffers[1]->RecordBuffers(ppTest->GetCommandRecorder());
+//    papCommandBuffers[1]->RecordBuffers(ppTest->GetCommandRecorder());
 }
 
 void Engine::MainLoop(void)
