@@ -3,6 +3,7 @@
 #include <pch.hpp>
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/texture/Texture.hpp>
+#include <util/Formatter.hpp>
 
 // Class for loading and managing textures
 class cTextureHandler
@@ -55,7 +56,7 @@ cTexture* cTextureHandler::LoadTextureFromFile(const char* sFilePath)
     // Make sure the texture was loaded correctly
     if (pcPixels == nullptr)
     {
-        throw std::runtime_error("unable to load texture");
+        throw std::runtime_error(cFormatter() << "unable to load texture '" << sFilePath << "'");
     }
 
     // Check if the texture is valid

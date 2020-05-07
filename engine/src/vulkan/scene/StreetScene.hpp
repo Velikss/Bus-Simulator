@@ -29,6 +29,7 @@ void cStreetScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogic
     LoadMeshes();
     LoadModels();
     LoadObjects();
+    cScene::Load(pTextureHandler, pLogicalDevice);
 }
 
 void cStreetScene::Update()

@@ -32,6 +32,8 @@ glm::mat4 cBaseObject::GetModelMatrix()
 {
     glm::mat4 oModel(1.0f);
 
+    // TODO: Maybe cache the value and only recalculate when needed
+
     // Translation
     oModel = glm::translate(oModel, poPosition);
 

@@ -40,8 +40,7 @@ std::vector<char> cPipelineHelper::ReadFile(const string& sFilename)
 
     if (!oFileStream.is_open())
     {
-        printf("Unable to open file %s", sFilename.c_str());
-        throw std::runtime_error("failed to open file!");
+        throw std::runtime_error(cFormatter() << "failed to open shader file '" << sFilename << "'");
     }
 
     size_t uiFileSize = (size_t) oFileStream.tellg();

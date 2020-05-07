@@ -40,7 +40,7 @@ public:
 
     bool ShouldQuit();
 
-    virtual void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice) = 0;
+    virtual void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice);
 
     void HandleMouse(uint uiDeltaX, uint uiDeltaY) override;
     void HandleKey(uint uiKeyCode, uint uiAction) override;
@@ -78,6 +78,34 @@ cScene::~cScene()
     for (auto oTexture : pmpTextures)
     {
         delete oTexture.second;
+    }
+}
+
+void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice)
+{
+    for (auto oModel : pmpModels)
+    {
+        assert(oModel.second != nullptr);
+    }
+
+    for (auto oObject : pmpObjects)
+    {
+        assert(oObject.second != nullptr);
+    }
+
+    for (auto oMesh : pmpMeshes)
+    {
+        assert(oMesh.second != nullptr);
+    }
+
+    for (auto oGeometry : pmpGeometries)
+    {
+        assert(oGeometry.second != nullptr);
+    }
+
+    for (auto oTexture : pmpTextures)
+    {
+        assert(oTexture.second != nullptr);
     }
 }
 
