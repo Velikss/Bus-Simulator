@@ -11,7 +11,6 @@ find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(PkgConfig)
 find_package(glfw3 REQUIRED)
-find_package(glm REQUIRED)
 find_package(Vulkan REQUIRED)
 
 set(CMAKE_C_STANDARD 99)
