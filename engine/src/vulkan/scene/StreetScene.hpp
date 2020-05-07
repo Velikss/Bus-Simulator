@@ -58,7 +58,7 @@ void cStreetScene::Update()
         poCamera = new BusCamera;
         poCamera->cameraPivot = pmpObjects["bus"]->getPosition();
         poCamera->cameraHeight = 15.0f;
-        poCamera->cameraPivotChanges = glm::vec3(0.0f, 5.0f, 0.0f);
+        poCamera->cameraPivotChanges = glm::vec3(5.0f, 5.0f, 0.0f);
     }
 
     // temporary flight controls
@@ -97,7 +97,7 @@ void cStreetScene::LoadGeometries(cLogicalDevice *pLogicalDevice)
     pmpGeometries["sphere"] = cGeometry::FromOBJFile("resources/geometries/sphere.obj", pLogicalDevice);
     pmpGeometries["cylinder"] = cGeometry::FromOBJFile("resources/geometries/cylinder32.obj", pLogicalDevice);
     pmpGeometries["skybox"] = cGeometry::FromOBJFile("resources/geometries/skybox.obj", pLogicalDevice);
-    pmpGeometries["bus"] = cGeometry::FromOBJFile("resources/geometries/American_School_Bus.obj", pLogicalDevice);
+    pmpGeometries["bus"] = cGeometry::FromOBJFile("resources/geometries/SchoolBus.obj", pLogicalDevice);
 
     pmpGeometries["houseBase"] = cGeometry::FromOBJFile("resources/geometries/houseBase.obj", pLogicalDevice, 3);
     pmpGeometries["roof"] = cGeometry::FromOBJFile("resources/geometries/roof.obj", pLogicalDevice, 5);
@@ -155,7 +155,7 @@ void cStreetScene::LoadObjects()
     pmpObjects["bus"] = new cBaseObject(*pmpModels["bus"]);
     pmpObjects["bus"]->setScale(glm::vec3(1.5, 1.5, 1.5));
     pmpObjects["bus"]->setPosition(glm::vec3(30, 0, 15));
-    pmpObjects["bus"]->setRotation(glm::vec3(270, 0, 0));
+//    pmpObjects["bus"]->setRotation(glm::vec3(270, 0, 0));
 
     /*pmpObjects["grasslawn1"] = new cBaseObject(*pmpModels["grasslawn"]);
     pmpObjects["grasslawn1"]->setPosition(glm::vec3(80.0, 0.01, 0));

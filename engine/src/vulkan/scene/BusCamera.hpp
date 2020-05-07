@@ -85,20 +85,21 @@ public:
     // process the commits to the pv.
     void ProcessUpdates()
     {
-        cameraPos.x = sin(glm::radians(yaw)) * orbitDistance + cameraPivot->x;
-        cameraPos.y = cameraPivot->y + cameraHeight;
-        cameraPos.z = cos(glm::radians(yaw)) * orbitDistance + cameraPivot->z;
+        //TODO move camera pivot with bus rotation
+        cameraPos.x = sin(glm::radians(yaw)) * orbitDistance + cameraPivot->x + cameraPivotChanges.x;
+        cameraPos.y = cameraPivot->y + cameraHeight + cameraPivotChanges.y;
+        cameraPos.z = cos(glm::radians(yaw)) * orbitDistance + cameraPivot->z + cameraPivotChanges.z;
 
 
-        cameraFront = glm::normalize(*cameraPivot - cameraPos);
+        cameraFront = glm::normalize((*cameraPivot + cameraPivotChanges) - cameraPos);
         glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
         glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraFront));
         cameraUp = glm::normalize(glm::cross(cameraFront, cameraRight));
 
-//        view = glm::lookAt(cameraPos, glm::vec3(cameraPivot->x + cameraPivotChanges.x,
-//                                                cameraPivot->y + cameraPivotChanges.y,
-//                                                cameraPivot->z + cameraPivotChanges.z) + cameraFront, cameraUp);
-        view = glm::lookAt(cameraPos, *cameraPivot + cameraPivotChanges + cameraFront, cameraUp);
+        view = glm::lookAt(cameraPos, glm::vec3(cameraPivot->x + cameraPivotChanges.x,
+                                                cameraPivot->y + cameraPivotChanges.y,
+                                                cameraPivot->z + cameraPivotChanges.z) + cameraFront, cameraUp);
+//        view = glm::lookAt(cameraPos, *cameraPivot + cameraPivotChanges + cameraFront, cameraUp);
 
         proj = glm::perspective(
                 FoV,
