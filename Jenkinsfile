@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         VULKAN_SDK = '/opt/vulkan/1.2.135.0/x86_64'
+        glfw3_DIR = '/opt/glfw'
     }
     stages {
         stage('Init') {
