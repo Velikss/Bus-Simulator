@@ -5,13 +5,17 @@
 // them using the provided 'compile.sh' (Linux) script.
 // This will also show you any errors in your shaders
 
+// Texture sampler
 layout(binding = 1) uniform sampler2D texSampler;
 
-layout(location = 0) in vec3 fragColor;
-layout(location = 1) in vec2 fragTexCoord;
+// Inputs from the vertex shader
+layout(location = 0) in vec3 inColor;
+layout(location = 1) in vec2 inTexCoord;
 
+// Final color for this fragment
 layout(location = 0) out vec4 outColor;
 
 void main() {
-    outColor = texture(texSampler, fragTexCoord);
+    // Set the color based on the texture
+    outColor = texture(texSampler, inTexCoord);
 }

@@ -8,11 +8,7 @@ The camera class, it is however FP based and should have its own sub-class in a 
 */
 class Camera
 {
-    float ZNear = 0.1f;
-    float zFar = 250;
-    float speed = 0.05f;
-    float FoV = glm::radians(45.0);
-
+private:
     glm::vec3 cameraPos = glm::vec3(2.0f, 7.0f, 2.0f);
     glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -27,11 +23,12 @@ class Camera
     float mouseSpeed = 0.07f;
 
     glm::mat4 view;
-    glm::mat4 proj;
-    glm::mat4 pv;
 public:
+    float fFoV = 45.0;
+    float fZNear = 1.0;
+    float fZFar = 500.0;
+
     float cameraHeight = 1.75f;
-    float aspectRatio = 800.0f / 600.0f;
 
     bool lockHeight = true;
     bool lockMovement = false;
@@ -108,37 +105,19 @@ public:
 
         cameraPos.y = cameraHeight;
         view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-
-        proj = glm::perspective(
-                FoV,
-                aspectRatio,
-                ZNear,
-                zFar);
-
-        pv = proj * view;
     }
 
     // sets the pv and position on the passed shader.
     void SetTransformationOnShader(ShaderProgram* shader)
     {
         shader->Bind();
-        shader->setMat4("pv", this->pv);
+        //shader->setMat4("pv", this->pv);
         shader->setVec3("viewPos", this->GetPosition());
-    }
-
-    glm::mat4& GetProjectionView()
-    {
-        return this->pv;
     }
 
     glm::mat4& GetViewMatrix()
     {
         return this->view;
-    }
-
-    glm::mat4& GetProjectionMatrix()
-    {
-        return this->proj;
     }
 
     glm::vec3 GetPosition()

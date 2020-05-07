@@ -29,7 +29,7 @@ void changeSize(int w, int h)
 {
     float ratio = w * 1.0 / h;
     glViewport(0, 0, w, h);
-    activeScene->camera.aspectRatio = ratio;
+//    activeScene->camera.fAspectRatio = ratio;
 }
 
 void InitGLFW(void)
