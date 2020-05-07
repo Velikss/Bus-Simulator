@@ -50,6 +50,9 @@ public:
 
     VkSurfaceKHR& GetSurface(void);
 
+private:
+    void HandleJoystick();
+
     static void mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY);
     static void keyCallback(GLFWwindow* pWindow, int iKey, int iScanCode, int iAction, int iMods);
 };
@@ -120,7 +123,11 @@ void cWindow::HandleEvents(void)
 {
     assert(ppWindow != nullptr); // window must be created first
 
-    if (ppInputHandler != nullptr) glfwPollEvents();
+    if (ppInputHandler != nullptr)
+    {
+        glfwPollEvents();
+        HandleJoystick();
+    }
 }
 
 void cWindow::Close(void)
@@ -133,6 +140,41 @@ VkSurfaceKHR& cWindow::GetSurface(void)
     assert(poSurface != VK_NULL_HANDLE);
 
     return poSurface;
+}
+
+void cWindow::HandleJoystick()
+{
+    // Check if a joystick is connected
+    if (glfwJoystickPresent(GLFW_JOYSTICK_1))
+    {
+        // Get the value of each axis
+        int iAxisCount;
+        const float* afAxes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &iAxisCount);
+
+        // We need five axes in order to use it
+        if (iAxisCount >= 5)
+        {
+            // Pass the right stick on as mouse input
+            ppInputHandler->HandleMouse(afAxes[3], afAxes[4]);
+
+            // Temporary mapping for the left stick to keyboard keys
+            if (afAxes[1] < -0.1) ppInputHandler->HandleKey(GLFW_KEY_W, GLFW_PRESS);
+            else if (afAxes[1] > 0.1) ppInputHandler->HandleKey(GLFW_KEY_S, GLFW_PRESS);
+            else
+            {
+                ppInputHandler->HandleKey(GLFW_KEY_W, GLFW_RELEASE);
+                ppInputHandler->HandleKey(GLFW_KEY_S, GLFW_RELEASE);
+            }
+
+            if (afAxes[0] < -0.1) ppInputHandler->HandleKey(GLFW_KEY_A, GLFW_PRESS);
+            else if (afAxes[0] > 0.1) ppInputHandler->HandleKey(GLFW_KEY_D, GLFW_PRESS);
+            else
+            {
+                ppInputHandler->HandleKey(GLFW_KEY_A, GLFW_RELEASE);
+                ppInputHandler->HandleKey(GLFW_KEY_D, GLFW_RELEASE);
+            }
+        }
+    }
 }
 
 void cWindow::mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY)
