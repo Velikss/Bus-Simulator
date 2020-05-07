@@ -230,10 +230,7 @@ namespace cHttp
         {
             string sContentLength = oRequest.GetHeader("content-length");
             if (sContentLength.size() == 0) return 0;
-            long iContentLength = std::stoi(sContentLength);
-            lBodyBegin = sRequest.find(C_LINE_END + C_LINE_END) + 4;
-            if (lBodyBegin == string::npos) throw std::runtime_error("could not find begin of body event though content length has been specified.");
-            return iContentLength;
+            return std::stoi(sContentLength);
         }
     public:
         string &GetResource()
@@ -286,16 +283,15 @@ namespace cHttp
             oRequest.SetResource(sResource);
             oRequest.SetHeaders(aHeaders);
             oRequest.SetVersion(eVersion);
-
             long iContentLength = GetContentLengthOfString(sRequest, oRequest, lBodyBegin);
-            oRequest.SetMissingContent(sRequest.size() - (lBodyBegin + iContentLength));
+            oRequest.SetMissingContent(sRequest.size() - (lBodyBegin + iContentLength + 4));
         }
 
         static void DeserializeContent(const std::string_view& sRequest, cRequest & oRequest)
         {
             size_t lBodyBegin = 0;
             long iContentLength = GetContentLengthOfString(sRequest, oRequest, lBodyBegin);
-            oRequest.SetMissingContent(sRequest.size() - (lBodyBegin + iContentLength));
+            oRequest.SetMissingContent(sRequest.size() - (lBodyBegin + 4 + iContentLength));
             oRequest.SetBody(string(sRequest, lBodyBegin, iContentLength));
         }
 

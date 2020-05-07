@@ -104,15 +104,14 @@ TEST(SSOTests, Handshake)
     oRequest.SetMethod(cMethod::ePOST);
     oRequest.SetResource("/player");
     oRequest.SetHeaders(aHeaders);
-    oRequest.SetBody("hallo");
 
     string sRequest = oRequest.Serialize();
-    //EXPECT_TRUE(sRequest.compare("POST /player HTTP/1.1\r\n"
-    //                             "Host: 127.0.0.1\n\r"
-    //                             "Connection: keep-alive\r\n"
-    //                             "\r\n\r\n"));
+    EXPECT_TRUE(sRequest.compare("POST /player HTTP/1.1\r\n"
+                                 "Host: 127.0.0.1\n\r"
+                                 "Connection: keep-alive\r\n"
+                                 "\r\n\r\n"));
     poGameClient->SendBytes((const byte*)sRequest.c_str(), sRequest.size());
-    sleep(200);
+    sleep(50);
 }
 
 TEST(SSOTests, Stop)
