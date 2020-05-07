@@ -1,5 +1,3 @@
-#define NDEBUG
-
 #include <pch.hpp>
 #include <iostream>
 #include <Engine.hpp>
@@ -20,4 +18,3 @@ int main(int argc, char** argv)
 
     return EXIT_SUCCESS;
 }
-
