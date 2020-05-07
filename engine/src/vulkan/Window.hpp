@@ -51,7 +51,8 @@ public:
     VkSurfaceKHR& GetSurface(void);
 
 private:
-    void HandleJoystick();
+    void FindAndHandleGamepad();
+    void HandleGamepad(uint uiJoystickId);
 
     static void mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY);
     static void keyCallback(GLFWwindow* pWindow, int iKey, int iScanCode, int iAction, int iMods);
@@ -126,7 +127,7 @@ void cWindow::HandleEvents(void)
     if (ppInputHandler != nullptr)
     {
         glfwPollEvents();
-        HandleJoystick();
+        FindAndHandleGamepad();
     }
 }
 
@@ -142,37 +143,56 @@ VkSurfaceKHR& cWindow::GetSurface(void)
     return poSurface;
 }
 
-void cWindow::HandleJoystick()
+void cWindow::FindAndHandleGamepad()
 {
-    // Check if a joystick is connected
-    if (glfwJoystickPresent(GLFW_JOYSTICK_1))
+    for (uint uiJoystickId = GLFW_JOYSTICK_1; uiJoystickId < GLFW_JOYSTICK_LAST; uiJoystickId++)
     {
-        // Get the value of each axis
-        int iAxisCount;
-        const float* afAxes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &iAxisCount);
-
-        // We need five axes in order to use it
-        if (iAxisCount >= 5)
+        // Check if the joystick is a gamepad
+        if (glfwJoystickIsGamepad(uiJoystickId))
         {
-            // Pass the right stick on as mouse input
-            ppInputHandler->HandleMouse(afAxes[3], afAxes[4]);
+            HandleGamepad(uiJoystickId);
+        }
+    }
+}
 
-            // Temporary mapping for the left stick to keyboard keys
-            if (afAxes[1] < -0.1) ppInputHandler->HandleKey(GLFW_KEY_W, GLFW_PRESS);
-            else if (afAxes[1] > 0.1) ppInputHandler->HandleKey(GLFW_KEY_S, GLFW_PRESS);
-            else
-            {
-                ppInputHandler->HandleKey(GLFW_KEY_W, GLFW_RELEASE);
-                ppInputHandler->HandleKey(GLFW_KEY_S, GLFW_RELEASE);
-            }
+void cWindow::HandleGamepad(uint uiJoystickId)
+{
+    GLFWgamepadstate tState;
+    if (glfwGetGamepadState(uiJoystickId, &tState))
+    {
+        // Pass the right stick on as mouse input
+        ppInputHandler->HandleMouse(tState.axes[GLFW_GAMEPAD_AXIS_RIGHT_X],
+                                    tState.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
 
-            if (afAxes[0] < -0.1) ppInputHandler->HandleKey(GLFW_KEY_A, GLFW_PRESS);
-            else if (afAxes[0] > 0.1) ppInputHandler->HandleKey(GLFW_KEY_D, GLFW_PRESS);
-            else
-            {
-                ppInputHandler->HandleKey(GLFW_KEY_A, GLFW_RELEASE);
-                ppInputHandler->HandleKey(GLFW_KEY_D, GLFW_RELEASE);
-            }
+        // Temporary mapping for the left stick to keyboard keys
+        float fMoveY = tState.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
+        if (fMoveY < -0.1) ppInputHandler->HandleKey(GLFW_KEY_W, GLFW_PRESS);
+        else if (fMoveY > 0.1) ppInputHandler->HandleKey(GLFW_KEY_S, GLFW_PRESS);
+        else
+        {
+            ppInputHandler->HandleKey(GLFW_KEY_W, GLFW_RELEASE);
+            ppInputHandler->HandleKey(GLFW_KEY_S, GLFW_RELEASE);
+        }
+
+        float fMoveX = tState.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
+        if (fMoveX < -0.1) ppInputHandler->HandleKey(GLFW_KEY_A, GLFW_PRESS);
+        else if (fMoveX > 0.1) ppInputHandler->HandleKey(GLFW_KEY_D, GLFW_PRESS);
+        else
+        {
+            ppInputHandler->HandleKey(GLFW_KEY_A, GLFW_RELEASE);
+            ppInputHandler->HandleKey(GLFW_KEY_D, GLFW_RELEASE);
+        }
+
+        // Temporary mapping for the back, start and menu buttons to the escape key
+        if (tState.buttons[GLFW_GAMEPAD_BUTTON_BACK] ||
+            tState.buttons[GLFW_GAMEPAD_BUTTON_START] ||
+            tState.buttons[GLFW_GAMEPAD_BUTTON_GUIDE])
+        {
+            ppInputHandler->HandleKey(GLFW_KEY_ESCAPE, GLFW_PRESS);
+        }
+        else
+        {
+            ppInputHandler->HandleKey(GLFW_KEY_ESCAPE, GLFW_RELEASE);
         }
     }
 }
