@@ -87,7 +87,7 @@ bool cGameServer::OnRecieve(cNetworkConnection *pConnection)
     if (iRequestLength >= 8192)
     {
         byte* aNewBuffer = new byte[iRequestLength];
-        memcpy(aNewBuffer, aBytes, sBytes.size());
+        memcpy(aNewBuffer, aBytes, size);
         delete[] aBytes;
         aBytes = aNewBuffer;
         sBytes = std::string_view((const char*)aBytes, size);
@@ -98,7 +98,7 @@ bool cGameServer::OnRecieve(cNetworkConnection *pConnection)
     size_t lMissingContent = 0;
     while ((lMissingContent = oRequest.GetMissingContent()) != 0)
     {
-        size = pConnection->ReceiveBytes(aBytes, lMissingContent);
+        size += pConnection->ReceiveBytes(aBytes + size, lMissingContent);
         cHttp::cRequest::DeserializeContent(sBytes, oRequest);
     }
 
