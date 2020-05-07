@@ -3,18 +3,18 @@
 #include <server/src/ODBC/cODBCInstance.hpp>
 #include <server/src/cNetworkServer.hpp>
 
-class cSSOServer : protected cNetworkServer
+class cGameServer : protected cNetworkServer
 {
     std::map<string, bool> aRequiredTables {
-            {"User", false}
+            //{"User", false}
     };
     std::shared_ptr<cODBCInstance> poDB;
 public:
-    cSSOServer(cNetworkConnection::tNetworkInitializationSettings* tSettings) : cNetworkServer(tSettings)
+    cGameServer(cNetworkConnection::tNetworkInitializationSettings* tSettings) : cNetworkServer(tSettings)
     {
-        std::function<bool(cNetworkConnection*)> _OnConnect = std::bind(&cSSOServer::OnConnect, this, std::placeholders::_1);
-        std::function<bool(cNetworkConnection*)> _OnRecieve = std::bind(&cSSOServer::OnRecieve, this, std::placeholders::_1);
-        std::function<void(cNetworkConnection*)> _OnDisconnect = std::bind(&cSSOServer::OnDisconnect, this, std::placeholders::_1);
+        std::function<bool(cNetworkConnection*)> _OnConnect = std::bind(&cGameServer::OnConnect, this, std::placeholders::_1);
+        std::function<bool(cNetworkConnection*)> _OnRecieve = std::bind(&cGameServer::OnRecieve, this, std::placeholders::_1);
+        std::function<void(cNetworkConnection*)> _OnDisconnect = std::bind(&cGameServer::OnDisconnect, this, std::placeholders::_1);
         SetOnConnectEvent(_OnConnect);
         SetOnRecieveEvent(_OnRecieve);
         SetOnDisconnectEvent(_OnDisconnect);
@@ -38,7 +38,7 @@ public:
         for(auto& [sKey, bExists] : aRequiredTables)
         {
             if(!bExists)
-                if(!poDB->ExecFile("./SQL/CreateSSO" + sKey + ".sql"))
+                if(!poDB->ExecFile("./SQL/CreateGame" + sKey + ".sql"))
                     return false;
                 else
                     aRequiredTables[sKey] = true;
@@ -69,17 +69,32 @@ public:
     void OnDisconnect(cNetworkConnection* pConnection);
 };
 
-bool cSSOServer::OnConnect(cNetworkConnection* pConnection)
+bool cGameServer::OnConnect(cNetworkConnection* pConnection)
 {
     return true;
 }
 
-bool cSSOServer::OnRecieve(cNetworkConnection *pConnection)
+bool cGameServer::OnRecieve(cNetworkConnection *pConnection)
 {
+    byte aBytes[8192];
+    const long size = pConnection->ReceiveBytes(aBytes, 8192);
+    std::string_view sBytes((const char*)aBytes, size);
+    cHttp::cRequest oRequest;
+    cHttp::cRequest::DeserializeMeta(sBytes, oRequest);
+
+    size_t lMissingContent = 0;
+    while ((lMissingContent = oRequest.GetMissingContent()) != 0)
+    {
+        std::cout << "missing content..." << std::endl;
+        cHttp::cRequest::DeserializeContent(sBytes, oRequest);
+    }
+
+    cUri oUri = cUri::ParseFromRequest(oRequest.GetResource());
+
     return true;
 }
 
-void cSSOServer::OnDisconnect(cNetworkConnection *pConnection)
+void cGameServer::OnDisconnect(cNetworkConnection *pConnection)
 {
 
 }

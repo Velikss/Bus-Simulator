@@ -3,43 +3,75 @@
 #include <server/src/SSO/SSOHelper.hpp>
 #include <server/vendor/StdUuid.hpp>
 #include <server/src/SSO/SsoServer.hpp>
+#include <server/src/GameServer/CGameServer.hpp>
+#include <server/src/cNetworkClient.hpp>
 
 using namespace SSO;
 
 TEST(SSOTests, Hash)
 {
-    try
-    {
-        byte aHash[64];
-        uint uiHashSize = 0;
-        string sMessage = "test123";
-        SSO_STATUS iStatus = Blake2Hash((const unsigned char *) (sMessage.c_str()), sMessage.size(),
-                                        (unsigned char **) (&aHash), &uiHashSize);
-        string sEncoded = base64_encode(aHash, uiHashSize);
-        EXPECT_EQ(iStatus, cSSO_OK);
-        EXPECT_TRUE(sEncoded.compare("UNs2NQkCAADMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzA=="));
-    }
-    catch (std::exception& ex)
-    {
-        EXPECT_TRUE(false);
-    }
+    byte aHash[64];
+    uint uiHashSize = 0;
+    string sMessage = "test123";
+    SSO_STATUS iStatus = Blake2Hash((const unsigned char *) (sMessage.c_str()), sMessage.size(),
+                                    (unsigned char **) (&aHash), &uiHashSize);
+    string sEncoded = base64_encode(aHash, uiHashSize);
+    EXPECT_EQ(iStatus, cSSO_OK);
+    EXPECT_TRUE(sEncoded.compare(
+            "UNs2NQkCAADMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzA=="));
+}
+
+TEST(SSOTests, UuidGeneration)
+{
+    using namespace uuids;
+    const uuid oId = uuids::uuid_system_generator{}();
+    EXPECT_TRUE(!oId.is_nil());
+    string sId = to_string(oId);
+    std::cout << sId << std::endl;
+    EXPECT_TRUE(sId.size() > 0);
 }
 
 std::shared_ptr<cSSOServer> poSSOServer;
-std::shared_ptr<cNetworkConnection::tNetworkInitializationSettings> pSSOServerSettings = nullptr;
+std::shared_ptr<cGameServer> poGameServer;
+std::shared_ptr<cNetworkClient> poGameClient;
+std::shared_ptr<cNetworkConnection::tNetworkInitializationSettings> ptSSOServerSettings = nullptr;
+std::shared_ptr<cNetworkConnection::tNetworkInitializationSettings> ptGameServerSettings = nullptr;
+std::shared_ptr<cNetworkConnection::tNetworkInitializationSettings> ptGameClientSettings = nullptr;
+
 TEST(SSOTests, SetupSSOServer)
 {
-    pSSOServerSettings = std::make_shared<cNetworkConnection::tNetworkInitializationSettings>();
-    pSSOServerSettings->sAddress = "127.0.0.1";
-    pSSOServerSettings->usPort = 8000;
-    pSSOServerSettings->eIPVersion = cNetworkConnection::cIPVersion::eV4;
-    pSSOServerSettings->eConnectionType = cNetworkConnection::cConnectionType::eTCP;
-    pSSOServerSettings->eMode = cNetworkConnection::cMode::eNonBlocking;
+    ptSSOServerSettings = std::make_shared<cNetworkConnection::tNetworkInitializationSettings>();
+    ptSSOServerSettings->sAddress = "127.0.0.1";
+    ptSSOServerSettings->usPort = 8000;
+    ptSSOServerSettings->eIPVersion = cNetworkConnection::cIPVersion::eV4;
+    ptSSOServerSettings->eConnectionType = cNetworkConnection::cConnectionType::eTCP;
+    ptSSOServerSettings->eMode = cNetworkConnection::cMode::eNonBlocking;
 
-    poSSOServer = std::make_shared<cSSOServer>(pSSOServerSettings.get());
+    ptGameServerSettings = std::make_shared<cNetworkConnection::tNetworkInitializationSettings>();
+    ptGameServerSettings->sAddress = "127.0.0.1";
+    ptGameServerSettings->usPort = 14000;
+    ptGameServerSettings->eIPVersion = cNetworkConnection::cIPVersion::eV4;
+    ptGameServerSettings->eConnectionType = cNetworkConnection::cConnectionType::eTCP;
+    ptGameServerSettings->eMode = cNetworkConnection::cMode::eNonBlocking;
+
+    ptGameClientSettings = std::make_shared<cNetworkConnection::tNetworkInitializationSettings>();
+    ptGameClientSettings->sAddress = "127.0.0.1";
+    ptGameClientSettings->usPort = 14000;
+    ptGameClientSettings->eIPVersion = cNetworkConnection::cIPVersion::eV4;
+    ptGameClientSettings->eConnectionType = cNetworkConnection::cConnectionType::eTCP;
+    ptGameClientSettings->eMode = cNetworkConnection::cMode::eNonBlocking;
+
+    poSSOServer = std::make_shared<cSSOServer>(ptSSOServerSettings.get());
     EXPECT_TRUE(poSSOServer->Init("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test;"));
+    EXPECT_TRUE(poSSOServer->Listen());
 
-    //EXPECT_TRUE(poSSOServer->Listen());
+    poGameServer = std::make_shared<cGameServer>(ptGameServerSettings.get());
+    EXPECT_TRUE(poGameServer->Init("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=game;pwd=game;database=game;"));
+    EXPECT_TRUE(poGameServer->Listen());
+
+    poGameClient = std::make_shared<cNetworkClient>(ptGameClientSettings.get());
+    EXPECT_TRUE(poGameClient->Connect());
+
 //    EXPECT_TRUE(oSSOInstance.Connect("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test;"));
 //    std::vector<SQLROW> aRows;
 //    EXPECT_TRUE(oSSOInstance.Fetch("SELECT * FROM User", &aRows));
@@ -60,11 +92,34 @@ TEST(SSOTests, SetupSSOServer)
 //    }
 }
 
-TEST(SSOTests, UuidGeneration)
+TEST(SSOTests, Handshake)
 {
-    using namespace uuids;
-    const uuid oId = uuids::uuid_system_generator{}();
-    EXPECT_TRUE(!oId.is_nil());
-    string sId = to_string(oId);
-    EXPECT_TRUE(sId.size() > 0);
+    using namespace cHttp;
+    cRequest oRequest;
+    std::vector<cHeader> aHeaders;
+
+    aHeaders.push_back({"Host", "127.0.0.1"});
+    aHeaders.push_back({"Connection", "keep-alive"});
+
+    oRequest.SetMethod(cMethod::ePOST);
+    oRequest.SetResource("/player");
+    oRequest.SetHeaders(aHeaders);
+    oRequest.SetBody("hallo");
+
+    string sRequest = oRequest.Serialize();
+    //EXPECT_TRUE(sRequest.compare("POST /player HTTP/1.1\r\n"
+    //                             "Host: 127.0.0.1\n\r"
+    //                             "Connection: keep-alive\r\n"
+    //                             "\r\n\r\n"));
+    poGameClient->SendBytes((const byte*)sRequest.c_str(), sRequest.size());
+    sleep(200);
+}
+
+TEST(SSOTests, Stop)
+{
+    poGameClient->Disconnect();
+    poGameServer->Stop();
+    poSSOServer->Stop();
+    EXPECT_TRUE(poGameServer->DestroyDB());
+    EXPECT_TRUE(poSSOServer->DestroyDB());
 }

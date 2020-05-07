@@ -147,7 +147,17 @@ namespace cHttp
         cVersion peVersion = cVersion::eHTTP_1_1;
         std::vector<cHeader> paHeaders;
         string psBody;
+        size_t plMissingContent = 0;
     public:
+        size_t& GetMissingContent()
+        {
+            return this->plMissingContent;
+        }
+        void SetMissingContent(size_t lMissingContent)
+        {
+            this->plMissingContent = lMissingContent;
+        }
+
         std::vector<cHeader> &GetHeaders()
         {
             return this->paHeaders;
@@ -157,11 +167,19 @@ namespace cHttp
             this->paHeaders = aHeaders;
         }
 
+        string GetHeader(string sKey)
+        {
+            for (auto &oHeader : paHeaders)
+                if (oHeader.GetKey() == sKey)
+                    return oHeader.GetValue();
+            return "";
+        }
+
         const string &GetBody()
         {
             return this->psBody;
         }
-        void SetBody(string &sBody)
+        void SetBody(string sBody)
         {
             this->psBody = sBody;
         }
@@ -207,12 +225,22 @@ namespace cHttp
     {
         string psResource;
         cMethod peMethod = cMethod::eGET;
+
+        static long GetContentLengthOfString(const std::string_view& sRequest, cRequest & oRequest, size_t & lBodyBegin)
+        {
+            string sContentLength = oRequest.GetHeader("content-length");
+            if (sContentLength.size() == 0) return 0;
+            long iContentLength = std::stoi(sContentLength);
+            lBodyBegin = sRequest.find(C_LINE_END + C_LINE_END) + 4;
+            if (lBodyBegin == string::npos) throw std::runtime_error("could not find begin of body event though content length has been specified.");
+            return iContentLength;
+        }
     public:
         string &GetResource()
         {
             return this->psResource;
         }
-        void SetResource(string &sResource)
+        void SetResource(string sResource)
         {
             this->psResource = sResource;
         }
@@ -221,7 +249,7 @@ namespace cHttp
         {
             return this->peMethod;
         }
-        void SetMethod(cMethod& eMethod)
+        void SetMethod(cMethod eMethod)
         {
             this->peMethod = eMethod;
         }
@@ -236,10 +264,13 @@ namespace cHttp
             sTarget += C_LINE_END;
         }
 
-        static cRequest Deserialize(const string &sRequest)
+        static void DeserializeMeta(const std::string_view& sRequest, cRequest & oRequest)
         {
-            std::vector<string> aSections = split(sRequest, C_LINE_END + C_LINE_END);
-            std::vector<string> aLines = split(aSections[0], C_LINE_END);
+            string sBodySplit = C_LINE_END + C_LINE_END;
+            size_t lBodyBegin = sRequest.find(sBodySplit);
+            if(lBodyBegin == string::npos) throw std::runtime_error("could not find end of meta.");
+            std::string sMeta(sRequest.data(), lBodyBegin);
+            std::vector<string> aLines = split((string)sMeta, C_LINE_END);
 
             std::vector<string> aMetaSegments = split(aLines[0], " ");
 
@@ -251,16 +282,29 @@ namespace cHttp
             for (size_t i = 1; i < aLines.size(); i++)
                 aHeaders.push_back(cHeader::Deserialize(aLines[i]));
 
-            string sBody;
-            if(aSections.size() > 1)
-                sBody = concat(aSections, C_LINE_END + C_LINE_END, 1);
-
-            cRequest oRequest;
             oRequest.SetMethod(eMethod);
             oRequest.SetResource(sResource);
             oRequest.SetHeaders(aHeaders);
             oRequest.SetVersion(eVersion);
-            oRequest.SetBody(sBody);
+
+            long iContentLength = GetContentLengthOfString(sRequest, oRequest, lBodyBegin);
+            oRequest.SetMissingContent(sRequest.size() - (lBodyBegin + iContentLength));
+        }
+
+        static void DeserializeContent(const std::string_view& sRequest, cRequest & oRequest)
+        {
+            size_t lBodyBegin = 0;
+            long iContentLength = GetContentLengthOfString(sRequest, oRequest, lBodyBegin);
+            oRequest.SetMissingContent(sRequest.size() - (lBodyBegin + iContentLength));
+            oRequest.SetBody(string(sRequest, lBodyBegin, iContentLength));
+        }
+
+        static cRequest Deserialize(const std::string_view & sRequest)
+        {
+            cRequest oRequest;
+
+            DeserializeMeta(sRequest, oRequest);
+            DeserializeContent(sRequest, oRequest);
 
             return oRequest;
         }
