@@ -42,7 +42,7 @@ cTextHandler::cTextHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChai
     ppUniformHandler->SetupUniformBuffers(nullptr, nullptr);
     ppRenderPass = new cOverlayRenderPass(pLogicalDevice, pSwapChain);
     ppPipeline = new cOverlayPipeline(pSwapChain, pLogicalDevice, ppRenderPass, ppUniformHandler);
-    ppText = new cText(pLogicalDevice);
+    ppText = new cText(pLogicalDevice, pWindow);
 
     ppText->UpdateText("Loading...", 2.5f, stbFontData, (pWindow->WIDTH / 2) - 100, pWindow->HEIGHT / 2);
 
