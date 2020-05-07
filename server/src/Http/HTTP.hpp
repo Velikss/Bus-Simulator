@@ -225,14 +225,21 @@ namespace cHttp
     {
         string psResource;
         cMethod peMethod = cMethod::eGET;
+        size_t piMetaLength = 0;
 
-        static long GetContentLengthOfString(const std::string_view& sRequest, cRequest & oRequest, size_t & lBodyBegin)
+        static long GetContentLengthOfString(const std::string_view& sRequest, cRequest & oRequest, size_t & lEndMeta)
         {
             string sContentLength = oRequest.GetHeader("content-length");
+            lEndMeta = sRequest.find(C_LINE_END + C_LINE_END);
             if (sContentLength.size() == 0) return 0;
             return std::stoi(sContentLength);
         }
     public:
+        size_t &GetMetaLength()
+        {
+            return this->piMetaLength;
+        }
+
         string &GetResource()
         {
             return this->psResource;
@@ -265,7 +272,9 @@ namespace cHttp
         {
             string sBodySplit = C_LINE_END + C_LINE_END;
             size_t lBodyBegin = sRequest.find(sBodySplit);
-            if(lBodyBegin == string::npos) throw std::runtime_error("could not find end of meta.");
+
+            oRequest.piMetaLength = lBodyBegin + 4;
+
             std::string sMeta(sRequest.data(), lBodyBegin);
             std::vector<string> aLines = split((string)sMeta, C_LINE_END);
 

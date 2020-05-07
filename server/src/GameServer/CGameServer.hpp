@@ -76,16 +76,29 @@ bool cGameServer::OnConnect(cNetworkConnection* pConnection)
 
 bool cGameServer::OnRecieve(cNetworkConnection *pConnection)
 {
-    byte aBytes[8192];
-    const long size = pConnection->ReceiveBytes(aBytes, 8192);
+    byte* aBytes = new byte[8192];
+    size_t size = pConnection->ReceiveBytes(aBytes, 8192);
     std::string_view sBytes((const char*)aBytes, size);
     cHttp::cRequest oRequest;
     cHttp::cRequest::DeserializeMeta(sBytes, oRequest);
 
+    int iContentLength = std::atoi(oRequest.GetHeader("content-length").c_str());
+    int iRequestLength = iContentLength + oRequest.GetMetaLength();
+    if (iRequestLength >= 8192)
+    {
+        byte* aNewBuffer = new byte[iRequestLength];
+        memcpy(aNewBuffer, aBytes, sBytes.size());
+        delete[] aBytes;
+        aBytes = aNewBuffer;
+        sBytes = std::string_view((const char*)aBytes, size);
+    }
+
+    cHttp::cRequest::DeserializeContent(sBytes, oRequest);
+
     size_t lMissingContent = 0;
     while ((lMissingContent = oRequest.GetMissingContent()) != 0)
     {
-        std::cout << "missing content..." << std::endl;
+        size = pConnection->ReceiveBytes(aBytes, lMissingContent);
         cHttp::cRequest::DeserializeContent(sBytes, oRequest);
     }
 
