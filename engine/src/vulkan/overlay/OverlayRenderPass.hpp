@@ -21,6 +21,8 @@ protected:
 cOverlayRenderPass::cOverlayRenderPass(cLogicalDevice* pLogicalDevice,
                                        cSwapChain* pSwapChain) : cRenderPass(pLogicalDevice)
 {
+    assert(pSwapChain != nullptr);
+
     ppSwapChain = pSwapChain;
     CreateRenderPass();
 }

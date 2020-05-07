@@ -17,9 +17,11 @@
 #include <array>
 
 #define STB_IMAGE_IMPLEMENTATION
+#define TINYOBJLOADER_IMPLEMENTATION
 
 #include <vendor/stb_image.h>
 #include <vendor/stb_font_arial_50_usascii.inl>
+#include <vendor/tiny_obj_loader.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>

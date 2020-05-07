@@ -23,18 +23,22 @@ public:
     cText(cLogicalDevice* pLogicalDevice, cWindow* pWindow);
     ~cText();
 
-    void UpdateText(string sText, float fFontSize, stb_fontchar* stbFontData, int iPosX, int iPosY);
+    void UpdateText(string sText, float fFontSize, stb_fontchar* stbFontData, uint iPosX, uint iPosY);
     void BindVertexBuffer(VkCommandBuffer& oCommandBuffer);
     uint GetNumLetters();
 };
 
 cText::cText(cLogicalDevice* pLogicalDevice, cWindow* pWindow)
 {
+    assert(pLogicalDevice != nullptr);
+    assert(pWindow != nullptr);
+
     ppLogicalDevice = pLogicalDevice;
     ppWindow = pWindow;
 
     // Create a buffer for the text data
     VkDeviceSize uiSize = MAX_CHARACTER_COUNT * 4 * sizeof(tVertex2D);
+    assert(uiSize > 0); // must be enough room for at least one character
     cBufferHelper::CreateBuffer(pLogicalDevice, uiSize,
                                 VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
@@ -47,16 +51,21 @@ cText::~cText()
     ppLogicalDevice->FreeMemory(poBufferMemory, nullptr);
 }
 
-void cText::UpdateText(string sText, float fFontSize, stb_fontchar* stbFontData, int iPosX, int iPosY)
+void cText::UpdateText(string sText, float fFontSize, stb_fontchar* stbFontData, uint iPosX, uint iPosY)
 {
+    const uint uiScreenWidth = ppWindow->WIDTH;
+    const uint uiScreenHeight = ppWindow->HEIGHT;
+
+    assert(sText.size() <= MAX_CHARACTER_COUNT);
+    assert(fFontSize > 0);          // font size can't be 0
+    assert(stbFontData != nullptr); // font data must exist
+    assert(iPosX < uiScreenWidth);  // x must be less than the screen width
+    assert(iPosY < uiScreenHeight); // y must be less than the screen height
 
     float x = iPosX;
     float y = iPosY;
 
     const uint32_t firstChar = STB_FONT_arial_50_usascii_FIRST_CHAR;
-
-    const uint uiScreenWidth = ppWindow->WIDTH;
-    const uint uiScreenHeight = ppWindow->HEIGHT;
 
     // Calculate text size
     const float charW = fFontSize / uiScreenWidth;

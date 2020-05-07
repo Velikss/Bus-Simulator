@@ -17,6 +17,8 @@ public:
 
 cRenderPass::cRenderPass(cLogicalDevice* pLogicalDevice)
 {
+    assert(pLogicalDevice != nullptr);
+
     ppLogicalDevice = pLogicalDevice;
 }
 

@@ -48,6 +48,9 @@ private:
 
 cOverlayUniformHandler::cOverlayUniformHandler(cLogicalDevice* pLogicalDevice, cFont* pFont)
 {
+    assert(pLogicalDevice != nullptr);
+    assert(pFont != nullptr);
+
     ppLogicalDevice = pLogicalDevice;
     ppFont = pFont;
 
@@ -172,6 +175,8 @@ void cOverlayUniformHandler::CreateDescriptorSet()
 void cOverlayUniformHandler::UpdateUniformBuffers(cScene* pScene)
 {
     tOverlayUniformObject tObject = {};
+
+    // If no scene is loaded, just use white
     tObject.color = glm::vec3(pScene == nullptr ? glm::vec3(1, 1, 1) : pScene->color);
 
     void* data;

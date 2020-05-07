@@ -1,7 +1,6 @@
 #pragma once
 
 #include <pch.hpp>
-#include <shaders/ShaderProgram.hpp>
 
 /*
 The camera class, it is however FP based and should have its own sub-class in a later version.
@@ -108,12 +107,12 @@ public:
     }
 
     // sets the pv and position on the passed shader.
-    void SetTransformationOnShader(ShaderProgram* shader)
+    /*void SetTransformationOnShader(ShaderProgram* shader)
     {
         shader->Bind();
         //shader->setMat4("pv", this->pv);
         shader->setVec3("viewPos", this->GetPosition());
-    }
+    }*/
 
     glm::mat4& GetViewMatrix()
     {

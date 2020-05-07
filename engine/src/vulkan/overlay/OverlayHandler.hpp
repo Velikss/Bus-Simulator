@@ -6,7 +6,7 @@
 #include "OverlayUniformHandler.hpp"
 #include "OverlayCommandBufferRecorder.hpp"
 
-class cTextHandler
+class cOverlayHandler
 {
 private:
     static const uint fontWidth = STB_FONT_arial_50_usascii_BITMAP_WIDTH;
@@ -24,8 +24,8 @@ private:
     cOverlayCommandBufferRecorder* ppCommandRecorder;
 
 public:
-    cTextHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain, cWindow* pWindow);
-    ~cTextHandler();
+    cOverlayHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain, cWindow* pWindow);
+    ~cOverlayHandler();
 
     void UpdateText(string sText);
 
@@ -33,8 +33,12 @@ public:
     iUniformHandler* GetUniformHandler();
 };
 
-cTextHandler::cTextHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain, cWindow* pWindow)
+cOverlayHandler::cOverlayHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain, cWindow* pWindow)
 {
+    assert(pLogicalDevice != nullptr);
+    assert(pSwapChain != nullptr);
+    assert(pWindow != nullptr);
+
     stb_font_arial_50_usascii(stbFontData, font24pixels, fontHeight);
     ppFont = new cFont(pLogicalDevice, fontWidth, fontHeight, &font24pixels[0][0]);
 
@@ -50,7 +54,7 @@ cTextHandler::cTextHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChai
                                                           ppUniformHandler, ppText);
 }
 
-cTextHandler::~cTextHandler()
+cOverlayHandler::~cOverlayHandler()
 {
     delete ppFont;
     delete ppUniformHandler;
@@ -59,17 +63,17 @@ cTextHandler::~cTextHandler()
     delete ppText;
 }
 
-void cTextHandler::UpdateText(string sText)
+void cOverlayHandler::UpdateText(string sText)
 {
     ppText->UpdateText(sText, 1.5f, stbFontData, 10, 10);
 }
 
-iCommandBufferRecorder* cTextHandler::GetCommandRecorder()
+iCommandBufferRecorder* cOverlayHandler::GetCommandRecorder()
 {
     return ppCommandRecorder;
 }
 
-iUniformHandler* cTextHandler::GetUniformHandler()
+iUniformHandler* cOverlayHandler::GetUniformHandler()
 {
     return ppUniformHandler;
 }

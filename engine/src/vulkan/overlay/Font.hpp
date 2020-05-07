@@ -28,6 +28,10 @@ private:
 
 cFont::cFont(cLogicalDevice* pLogicalDevice, uint uiFontWidth, uint uiFontHeight, byte* abFont24pixels)
 {
+    assert(pLogicalDevice != nullptr);           // logical device must exist
+    assert(uiFontWidth > 0 && uiFontHeight > 0); // font must have a valid size
+    assert(abFont24pixels != nullptr);           // font data must exist
+
     ppLogicalDevice = pLogicalDevice;
 
     CreateFontImage(pLogicalDevice, uiFontWidth, uiFontHeight, abFont24pixels);

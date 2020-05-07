@@ -22,7 +22,7 @@
 #include <vulkan/command/ClearScreenRecorder.hpp>
 #include <vulkan/scene/TestScene.hpp>
 #include <vulkan/scene/StreetScene.hpp>
-#include <vulkan/overlay/TextHandler.hpp>
+#include <vulkan/overlay/OverlayHandler.hpp>
 
 class Engine
 {
@@ -39,11 +39,13 @@ private:
 
     cCommandBuffer* papCommandBuffers[2];
     iUniformHandler* papUniformHandlers[2];
+
     cTextureHandler* ppTextureHandler;
     cRenderHandler* ppRenderHandler;
 
+    cOverlayHandler* ppOverlayHandler;
+
     cScene* ppScene = nullptr;
-    cTextHandler* ppTextHandler;
 
 public:
     // Initializes and starts the engine and all of it's sub-components
@@ -107,13 +109,15 @@ void Engine::InitVulkan(void)
     // Create the framebuffers for the swap chain
     ppSwapChain->CreateFramebuffers(ppRenderPass->poRenderPass);
 
-    ppTextHandler = new cTextHandler(ppLogicalDevice, ppSwapChain, ppWindow);
+    ppOverlayHandler = new cOverlayHandler(ppLogicalDevice, ppSwapChain, ppWindow);
 
+    // Create two command buffers, one for the graphics, one for the overlay
     papCommandBuffers[0] = new cCommandBuffer(ppLogicalDevice, ppSwapChain);
     papCommandBuffers[1] = new cCommandBuffer(ppLogicalDevice, ppSwapChain);
 
+    // Get the two uniform handlers
     papUniformHandlers[0] = ppUniformHandler;
-    papUniformHandlers[1] = ppTextHandler->GetUniformHandler();
+    papUniformHandlers[1] = ppOverlayHandler->GetUniformHandler();
 
     // Create the rendering handler. Acquires the frames from the swapChain, submits them to the graphics queue
     // to execute the commands, then submits them to the presentation queue to show them on the screen
@@ -123,10 +127,12 @@ void Engine::InitVulkan(void)
     // Create the texture handler. This deals with loading, binding and sampling the textures
     ppTextureHandler = new cTextureHandler(ppLogicalDevice);
 
+    // Record a clear screen to the graphics command buffer
     cClearScreenRecorder clearRecorder(ppRenderPass, ppSwapChain);
     papCommandBuffers[0]->RecordBuffers(&clearRecorder);
 
-    papCommandBuffers[1]->RecordBuffers(ppTextHandler->GetCommandRecorder());
+    // Record the overlay to the overlay command buffer
+    papCommandBuffers[1]->RecordBuffers(ppOverlayHandler->GetCommandRecorder());
 }
 
 void Engine::MainLoop(void)
@@ -151,7 +157,7 @@ void Engine::MainLoop(void)
         }
 
         // Draw a frame
-        ppRenderHandler->DrawFrame(ppScene, ppTextHandler, papCommandBuffers[1]);
+        ppRenderHandler->DrawFrame(ppScene, ppOverlayHandler, papCommandBuffers[1]);
 
         // If the scene hasn't been loaded, load it now
         // We want to draw at least one frame before loading the
@@ -187,7 +193,7 @@ void Engine::Cleanup(void)
 {
     delete ppScene;
     delete ppRenderHandler;
-    delete ppTextHandler;
+    delete ppOverlayHandler;
     delete ppTextureHandler;
     for (auto oBuffer : papCommandBuffers)
     {

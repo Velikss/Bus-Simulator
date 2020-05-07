@@ -34,6 +34,11 @@ cOverlayPipeline::cOverlayPipeline(cSwapChain* pSwapChain,
                                    cRenderPass* pRenderPass,
                                    iUniformHandler* pUniformHandler)
 {
+    assert(pSwapChain != nullptr);
+    assert(pLogicalDevice != nullptr);
+    assert(pRenderPass != nullptr);
+    assert(pUniformHandler != nullptr);
+
     ppLogicalDevice = pLogicalDevice;
 
     // Read the shader files

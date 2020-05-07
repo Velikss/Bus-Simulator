@@ -21,8 +21,8 @@ public:
     GLFWwindow* ppWindow = nullptr;
 
     // Window size
-    static const uint WIDTH = 2500;
-    static const uint HEIGHT = 1300;
+    static const uint WIDTH = 800;
+    static const uint HEIGHT = 600;
 
     iInputHandler* ppInputHandler;
 
@@ -182,6 +182,8 @@ void cWindow::mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY)
     static bool bFirstMouse = true;
     static float uiLastX = WIDTH, uiLastY = HEIGHT;
 
+    // If this is the first time the mouse is moved, set
+    // the last position to the current
     if (bFirstMouse)
     {
         uiLastX = dPosX;
@@ -189,15 +191,20 @@ void cWindow::mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY)
         bFirstMouse = false;
     }
 
+    // Calculate the delta between the last and current position
     float uiDeltaX = dPosX - uiLastX;
     float uiDeltaY = dPosY - uiLastY;
+
+    // Set the last position to the current
     uiLastX = dPosX;
     uiLastY = dPosY;
 
+    // Apply a sensitivity factor
     const float fSensitivity = 2.5f;
     uiDeltaX *= fSensitivity;
     uiDeltaY *= fSensitivity;
 
+    // Pass the delta X and Y on to the input handler
     poInstance->ppInputHandler->HandleMouse(uiDeltaX, uiDeltaY);
 }
 

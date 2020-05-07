@@ -185,4 +185,5 @@ cGraphicsPipeline::~cGraphicsPipeline()
 {
     ppLogicalDevice->DestroyPipeline(poGraphicsPipeline, nullptr);
     ppLogicalDevice->DestroyPipelineLayout(poPipelineLayout, nullptr);
+
 }

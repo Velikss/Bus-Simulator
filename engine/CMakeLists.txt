@@ -20,6 +20,7 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
 set(Headers
         ${PROJECT_SOURCE_DIR}/src/pch.hpp
+        ${PROJECT_SOURCE_DIR}/src/vendor/tiny_obj_loader.h
         ${PROJECT_SOURCE_DIR}/src/shaders/glsl.hpp
         ${PROJECT_SOURCE_DIR}/src/shaders/shader.hpp
         ${PROJECT_SOURCE_DIR}/src/shaders/ShaderProgram.hpp
@@ -31,7 +32,6 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/buffers/Buffer.hpp
         ${PROJECT_SOURCE_DIR}/src/geometries/Geometry.hpp
         ${PROJECT_SOURCE_DIR}/src/geometries/SkyBoxGeometry.hpp
-        ${PROJECT_SOURCE_DIR}/src/vendor/tiny_obj_loader.h
         ${PROJECT_SOURCE_DIR}/src/loaders/fileloader.hpp
         ${PROJECT_SOURCE_DIR}/src/loaders/objectloader.hpp
         ${PROJECT_SOURCE_DIR}/src/vendor/stb_image.h
@@ -73,7 +73,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/TestScene.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/InputHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/StreetScene.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/TextHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/OverlayHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/OverlayPipeline.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/PipelineHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/Vertex2D.hpp src/vulkan/overlay/OverlayRenderPass.hpp
