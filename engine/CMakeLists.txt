@@ -10,8 +10,9 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(PkgConfig)
-find_package(glfw3 REQUIRED)
 find_package(Vulkan REQUIRED)
+
+add_subdirectory(glfw)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
