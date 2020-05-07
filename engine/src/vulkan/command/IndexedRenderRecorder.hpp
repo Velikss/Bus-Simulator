@@ -11,8 +11,8 @@ class cIndexedRenderRecorder : public iCommandBufferRecorder
 private:
     cRenderPass* ppRenderPass;
     cSwapChain* ppSwapChain;
-    cGraphicsPipeline* ppGraphicsPipeline;
-    cGraphicsUniformHandler* ppUniformHandler;
+    cRenderPipeline* ppGraphicsPipeline;
+    iUniformHandler* ppUniformHandler;
     cScene* ppScene;
 
     VkRenderPassBeginInfo ptRenderPassInfo = {};
@@ -21,8 +21,8 @@ private:
 public:
     cIndexedRenderRecorder(cRenderPass* pRenderPass,
                            cSwapChain* pSwapChain,
-                           cGraphicsPipeline* pGraphicsPipeline,
-                           cGraphicsUniformHandler* pUniformHandler,
+                           cRenderPipeline* pGraphicsPipeline,
+                           iUniformHandler* pUniformHandler,
                            cScene* pScene);
 
     void Setup(uint uiIndex) override;
@@ -31,8 +31,8 @@ public:
 
 cIndexedRenderRecorder::cIndexedRenderRecorder(cRenderPass* pRenderPass,
                                                cSwapChain* pSwapChain,
-                                               cGraphicsPipeline* pGraphicsPipeline,
-                                               cGraphicsUniformHandler* pUniformHandler,
+                                               cRenderPipeline* pGraphicsPipeline,
+                                               iUniformHandler* pUniformHandler,
                                                cScene* pScene)
 {
     ppRenderPass = pRenderPass;
@@ -48,7 +48,7 @@ void cIndexedRenderRecorder::Setup(uint uiIndex)
     ptRenderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 
     // Set the render pass and framebuffer
-    ptRenderPassInfo.renderPass = ppRenderPass->poRenderPass;
+    ptRenderPassInfo.renderPass = ppRenderPass->GetRenderPass();
     ptRenderPassInfo.framebuffer = ppSwapChain->GetFramebuffer(uiIndex);
 
     // Set the render area size
@@ -69,7 +69,7 @@ void cIndexedRenderRecorder::RecordCommands(VkCommandBuffer& oCommandBuffer, uin
 
     // Bind the graphics pipeline
     vkCmdBindPipeline(oCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                      ppGraphicsPipeline->poGraphicsPipeline);
+                      ppGraphicsPipeline->GetPipeline());
 
     uint uiGeometryIndex = 0;
     for (auto oObject : ppScene->GetObjects())
@@ -84,7 +84,7 @@ void cIndexedRenderRecorder::RecordCommands(VkCommandBuffer& oCommandBuffer, uin
 
         // Bind the descriptor sets
         ppUniformHandler->CmdBindDescriptorSets(oCommandBuffer,
-                                                ppGraphicsPipeline->poPipelineLayout,
+                                                ppGraphicsPipeline->GetLayout(),
                                                 uiGeometryIndex++);
 
         // Draw the vertices

@@ -74,8 +74,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/TestScene.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/InputHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/StreetScene.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/OverlayHandler.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/OverlayPipeline.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/OverlayPipeline.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/PipelineHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/Vertex2D.hpp src/vulkan/overlay/OverlayRenderPass.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/OverlayCommandBufferRecorder.hpp
@@ -83,7 +82,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/uniform/UniformHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/OverlayUniformHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/Text.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/renderpass/RenderPass.hpp src/util/Formatter.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/renderpass/RenderPass.hpp src/util/Formatter.hpp src/vulkan/module/RenderModule.hpp src/vulkan/pipeline/RenderPipeline.hpp src/vulkan/overlay/OverlayRenderModule.hpp src/vulkan/GraphicsRenderModule.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 

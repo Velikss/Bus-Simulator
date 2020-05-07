@@ -5,7 +5,7 @@
 #include <vulkan/SwapChain.hpp>
 #include <vulkan/uniform/GraphicsUniformHandler.hpp>
 #include "OverlayRenderPass.hpp"
-#include "OverlayPipeline.hpp"
+#include "vulkan/pipeline/OverlayPipeline.hpp"
 #include "Text.hpp"
 
 class cOverlayCommandBufferRecorder : public iCommandBufferRecorder
@@ -13,7 +13,7 @@ class cOverlayCommandBufferRecorder : public iCommandBufferRecorder
 private:
     cRenderPass* ppRenderPass;
     cSwapChain* ppSwapChain;
-    cOverlayPipeline* ppGraphicsPipeline;
+    cRenderPipeline* ppPipeline;
     iUniformHandler* ppUniformHandler;
 
     VkRenderPassBeginInfo ptRenderPassInfo = {};
@@ -24,7 +24,7 @@ private:
 public:
     cOverlayCommandBufferRecorder(cRenderPass* pRenderPass,
                                   cSwapChain* pSwapChain,
-                                  cOverlayPipeline* pGraphicsPipeline,
+                                  cRenderPipeline* pGraphicsPipeline,
                                   iUniformHandler* pUniformHandler,
                                   cText* pText);
 
@@ -34,13 +34,13 @@ public:
 
 cOverlayCommandBufferRecorder::cOverlayCommandBufferRecorder(cRenderPass* pRenderPass,
                                                              cSwapChain* pSwapChain,
-                                                             cOverlayPipeline* pGraphicsPipeline,
+                                                             cRenderPipeline* pGraphicsPipeline,
                                                              iUniformHandler* pUniformHandler,
                                                              cText* pText)
 {
     ppRenderPass = pRenderPass;
     ppSwapChain = pSwapChain;
-    ppGraphicsPipeline = pGraphicsPipeline;
+    ppPipeline = pGraphicsPipeline;
     ppUniformHandler = pUniformHandler;
     ppText = pText;
 }
@@ -51,7 +51,7 @@ void cOverlayCommandBufferRecorder::Setup(uint uiIndex)
     ptRenderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 
     // Set the render pass and framebuffer
-    ptRenderPassInfo.renderPass = ppRenderPass->poRenderPass;
+    ptRenderPassInfo.renderPass = ppRenderPass->GetRenderPass();
     ptRenderPassInfo.framebuffer = ppSwapChain->GetFramebuffer(uiIndex);
 
     // Set the render area size
@@ -72,9 +72,9 @@ void cOverlayCommandBufferRecorder::RecordCommands(VkCommandBuffer& oCommandBuff
 
     // Bind the graphics pipeline
     vkCmdBindPipeline(oCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                      ppGraphicsPipeline->poGraphicsPipeline);
+                      ppPipeline->GetPipeline());
 
-    ppUniformHandler->CmdBindDescriptorSets(oCommandBuffer, ppGraphicsPipeline->poPipelineLayout, 0);
+    ppUniformHandler->CmdBindDescriptorSets(oCommandBuffer, ppPipeline->GetLayout(), 0);
 
     ppText->BindVertexBuffer(oCommandBuffer);
 

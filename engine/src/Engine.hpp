@@ -22,7 +22,8 @@
 #include <vulkan/command/ClearScreenRecorder.hpp>
 #include <vulkan/scene/TestScene.hpp>
 #include <vulkan/scene/StreetScene.hpp>
-#include <vulkan/overlay/OverlayHandler.hpp>
+#include <vulkan/overlay/OverlayRenderModule.hpp>
+#include <vulkan/GraphicsRenderModule.hpp>
 
 class Engine
 {
@@ -31,11 +32,9 @@ private:
     cVulkanInstance* ppVulkanInstance;
 
     cLogicalDevice* ppLogicalDevice;
-
     cSwapChain* ppSwapChain;
-    cGraphicsUniformHandler* ppUniformHandler;
-    cGraphicsPipeline* ppGraphicsPipeline;
-    cRenderPass* ppRenderPass;
+
+    cRenderModule* ppRenderModule;
 
     cCommandBuffer* papCommandBuffers[2];
     iUniformHandler* papUniformHandlers[2];
@@ -43,7 +42,7 @@ private:
     cTextureHandler* ppTextureHandler;
     cRenderHandler* ppRenderHandler;
 
-    cOverlayHandler* ppOverlayHandler;
+    cOverlayRenderModule* ppOverlayRenderModule;
 
     cScene* ppScene = nullptr;
 
@@ -90,15 +89,7 @@ void Engine::InitVulkan(void)
     // Create the swap chain. The swap chain holds the frames before we present them to the screen
     ppSwapChain = new cSwapChain(ppLogicalDevice, ppWindow);
 
-    // Create the render pass. This holds information about the frames we want to render.
-    // will probably be moved somewhere else later
-    ppRenderPass = new cGraphicsRenderPass(ppLogicalDevice, ppSwapChain);
-
-    // Create the uniform handler. This is responsible for the uniform variables
-    ppUniformHandler = new cGraphicsUniformHandler(ppLogicalDevice, ppSwapChain);
-
-    // Create the graphics pipeline. Handles the shaders and fixed-function operations for the graphics pipeline.
-    ppGraphicsPipeline = new cGraphicsPipeline(ppSwapChain, ppLogicalDevice, ppRenderPass, ppUniformHandler);
+    ppRenderModule = new cGraphicsRenderModule(ppLogicalDevice, ppSwapChain);
 
     // Setup the command pool
     cCommandHelper::SetupCommandPool(ppLogicalDevice);
@@ -107,17 +98,17 @@ void Engine::InitVulkan(void)
     ppSwapChain->CreateDepthResources();
 
     // Create the framebuffers for the swap chain
-    ppSwapChain->CreateFramebuffers(ppRenderPass->poRenderPass);
+    ppSwapChain->CreateFramebuffers(ppRenderModule->GetRenderPass()->GetRenderPass());
 
-    ppOverlayHandler = new cOverlayHandler(ppLogicalDevice, ppSwapChain, ppWindow);
+    ppOverlayRenderModule = new cOverlayRenderModule(ppLogicalDevice, ppSwapChain, ppWindow);
 
     // Create two command buffers, one for the graphics, one for the overlay
     papCommandBuffers[0] = new cCommandBuffer(ppLogicalDevice, ppSwapChain);
     papCommandBuffers[1] = new cCommandBuffer(ppLogicalDevice, ppSwapChain);
 
     // Get the two uniform handlers
-    papUniformHandlers[0] = ppUniformHandler;
-    papUniformHandlers[1] = ppOverlayHandler->GetUniformHandler();
+    papUniformHandlers[0] = ppRenderModule->GetUniformHandler();
+    papUniformHandlers[1] = ppOverlayRenderModule->GetUniformHandler();
 
     // Create the rendering handler. Acquires the frames from the swapChain, submits them to the graphics queue
     // to execute the commands, then submits them to the presentation queue to show them on the screen
@@ -128,11 +119,11 @@ void Engine::InitVulkan(void)
     ppTextureHandler = new cTextureHandler(ppLogicalDevice);
 
     // Record a clear screen to the graphics command buffer
-    cClearScreenRecorder clearRecorder(ppRenderPass, ppSwapChain);
+    cClearScreenRecorder clearRecorder(ppRenderModule->GetRenderPass(), ppSwapChain);
     papCommandBuffers[0]->RecordBuffers(&clearRecorder);
 
     // Record the overlay to the overlay command buffer
-    papCommandBuffers[1]->RecordBuffers(ppOverlayHandler->GetCommandRecorder());
+    papCommandBuffers[1]->RecordBuffers(ppOverlayRenderModule->GetCommandRecorder());
 }
 
 void Engine::MainLoop(void)
@@ -157,7 +148,7 @@ void Engine::MainLoop(void)
         }
 
         // Draw a frame
-        ppRenderHandler->DrawFrame(ppScene, ppOverlayHandler, papCommandBuffers[1]);
+        ppRenderHandler->DrawFrame(ppScene, ppOverlayRenderModule, papCommandBuffers[1]);
 
         // If the scene hasn't been loaded, load it now
         // We want to draw at least one frame before loading the
@@ -172,15 +163,16 @@ void Engine::MainLoop(void)
             ppWindow->ppInputHandler = ppScene;
 
             // Setup the buffers for uniform variables
-            ppUniformHandler->SetupUniformBuffers(ppTextureHandler, ppScene);
+            ppRenderModule->GetUniformHandler()->SetupUniformBuffers(ppTextureHandler, ppScene);
 
             // We cannot (re-)record command buffers while the GPU is
             // using them, so we have to wait until it's idle.
             ppLogicalDevice->WaitUntilIdle();
 
             // Record the commands for rendering to the command buffer.
-            cIndexedRenderRecorder recorder(ppRenderPass, ppSwapChain, ppGraphicsPipeline,
-                                            ppUniformHandler, ppScene);
+            cIndexedRenderRecorder recorder(ppRenderModule->GetRenderPass(), ppSwapChain,
+                                            ppRenderModule->GetRenderPipeline(),
+                                            ppRenderModule->GetUniformHandler(), ppScene);
             papCommandBuffers[0]->RecordBuffers(&recorder);
         }
     }
@@ -193,16 +185,14 @@ void Engine::Cleanup(void)
 {
     delete ppScene;
     delete ppRenderHandler;
-    delete ppOverlayHandler;
+    delete ppOverlayRenderModule;
     delete ppTextureHandler;
     for (auto oBuffer : papCommandBuffers)
     {
         delete oBuffer;
     }
     ppLogicalDevice->DestroyCommandPool(cCommandHelper::poCommandPool, nullptr);
-    delete ppGraphicsPipeline;
-    delete ppUniformHandler;
-    delete ppRenderPass;
+    delete ppRenderModule;
     delete ppSwapChain;
     delete ppLogicalDevice;
     ppWindow->DestroyWindowSurface(); // surface must be destroyed before the instance

@@ -1,39 +1,66 @@
 #pragma once
 
 #include <pch.hpp>
-#include <fstream>
-#include <glm/glm.hpp>
 #include <vulkan/vulkan.h>
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/SwapChain.hpp>
-#include <vulkan/GraphicsRenderPass.hpp>
 #include <vulkan/geometry/Vertex.hpp>
 #include <vulkan/uniform/GraphicsUniformHandler.hpp>
 #include <vulkan/pipeline/PipelineHelper.hpp>
+#include <vulkan/pipeline/RenderPipeline.hpp>
 
-class cGraphicsPipeline
+class cGraphicsPipeline : public cRenderPipeline
 {
-private:
-    cLogicalDevice* ppLogicalDevice;
-
 public:
-    VkPipeline poGraphicsPipeline;
-    VkPipelineLayout poPipelineLayout;
-
     cGraphicsPipeline(cSwapChain* pSwapChain,
                       cLogicalDevice* pLogicalDevice,
                       cRenderPass* pRenderPass,
-                      cGraphicsUniformHandler* pUniformHandler);
-    ~cGraphicsPipeline(void);
+                      iUniformHandler* pUniformHandler);
+
+protected:
+    void CreatePipelineLayout(cSwapChain* pSwapChain,
+                              cLogicalDevice* pLogicalDevice,
+                              cRenderPass* pRenderPass,
+                              iUniformHandler* pUniformHandler) override;
+    void CreatePipeline(cSwapChain* pSwapChain,
+                        cLogicalDevice* pLogicalDevice,
+                        cRenderPass* pRenderPass,
+                        iUniformHandler* pUniformHandler) override;
 };
 
 cGraphicsPipeline::cGraphicsPipeline(cSwapChain* pSwapChain,
                                      cLogicalDevice* pLogicalDevice,
                                      cRenderPass* pRenderPass,
-                                     cGraphicsUniformHandler* pUniformHandler)
+                                     iUniformHandler* pUniformHandler)
 {
-    ppLogicalDevice = pLogicalDevice;
+    Init(pSwapChain, pLogicalDevice, pRenderPass, pUniformHandler);
+}
 
+void cGraphicsPipeline::CreatePipelineLayout(cSwapChain* pSwapChain,
+                                             cLogicalDevice* pLogicalDevice,
+                                             cRenderPass* pRenderPass,
+                                             iUniformHandler* pUniformHandler)
+{
+    // Struct with information about the pipeline layout
+    VkPipelineLayoutCreateInfo tPipelineLayoutInfo = {};
+    tPipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    tPipelineLayoutInfo.setLayoutCount = pUniformHandler->GetDescriptorSetLayoutCount();
+    tPipelineLayoutInfo.pSetLayouts = pUniformHandler->GetDescriptorSetLayouts();
+    tPipelineLayoutInfo.pushConstantRangeCount = 0;
+    tPipelineLayoutInfo.pPushConstantRanges = nullptr;
+
+    // Create the pipeline layout
+    if (!pLogicalDevice->CreatePipelineLayout(&tPipelineLayoutInfo, nullptr, &poPipelineLayout))
+    {
+        throw std::runtime_error("failed to create pipeline layout!");
+    }
+}
+
+void cGraphicsPipeline::CreatePipeline(cSwapChain* pSwapChain,
+                                       cLogicalDevice* pLogicalDevice,
+                                       cRenderPass* pRenderPass,
+                                       iUniformHandler* pUniformHandler)
+{
     // Read the shader files
     std::vector<char> acVertShaderCode = cPipelineHelper::ReadFile("shaders/vert.spv");
     std::vector<char> acFragShaderCode = cPipelineHelper::ReadFile("shaders/frag.spv");
@@ -99,20 +126,6 @@ cGraphicsPipeline::cGraphicsPipeline(cSwapChain* pSwapChain,
     tColorBlending.attachmentCount = 1;
     tColorBlending.pAttachments = &tColorBlendAttachment;
 
-    // Struct with information about the pipeline layout
-    VkPipelineLayoutCreateInfo tPipelineLayoutInfo = {};
-    tPipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    tPipelineLayoutInfo.setLayoutCount = pUniformHandler->GetDescriptorSetLayoutCount();
-    tPipelineLayoutInfo.pSetLayouts = pUniformHandler->GetDescriptorSetLayouts();
-    tPipelineLayoutInfo.pushConstantRangeCount = 0;
-    tPipelineLayoutInfo.pPushConstantRanges = nullptr;
-
-    // Create the pipeline layout
-    if (!pLogicalDevice->CreatePipelineLayout(&tPipelineLayoutInfo, nullptr, &poPipelineLayout))
-    {
-        throw std::runtime_error("failed to create pipeline layout!");
-    }
-
     // Struct with information for creating the graphics pipeline
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -162,7 +175,7 @@ cGraphicsPipeline::cGraphicsPipeline(cSwapChain* pSwapChain,
     pipelineInfo.layout = poPipelineLayout;
 
     // Set the render pass and the subpass index
-    pipelineInfo.renderPass = pRenderPass->poRenderPass;
+    pipelineInfo.renderPass = pRenderPass->GetRenderPass();
     pipelineInfo.subpass = 0;
 
     // To change any of the above configurations during runtime (except the ones defined in the dynamic state)
@@ -171,7 +184,7 @@ cGraphicsPipeline::cGraphicsPipeline(cSwapChain* pSwapChain,
     pipelineInfo.basePipelineIndex = -1;
 
     // Create the graphics pipeline
-    if (!ppLogicalDevice->CreateGraphicsPipeline(1, &pipelineInfo, &poGraphicsPipeline))
+    if (!ppLogicalDevice->CreateGraphicsPipeline(1, &pipelineInfo, &poPipeline))
     {
         throw std::runtime_error("failed to create graphics pipeline!");
     }
@@ -179,11 +192,4 @@ cGraphicsPipeline::cGraphicsPipeline(cSwapChain* pSwapChain,
     // After the pipeline has been created, the shader modules can be destroyed
     pLogicalDevice->DestroyShaderModule(oVertShaderModule, nullptr);
     pLogicalDevice->DestroyShaderModule(oFragShaderModule, nullptr);
-}
-
-cGraphicsPipeline::~cGraphicsPipeline()
-{
-    ppLogicalDevice->DestroyPipeline(poGraphicsPipeline, nullptr);
-    ppLogicalDevice->DestroyPipelineLayout(poPipelineLayout, nullptr);
-
 }

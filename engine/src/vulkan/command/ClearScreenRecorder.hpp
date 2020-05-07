@@ -35,7 +35,7 @@ void cClearScreenRecorder::Setup(uint uiIndex)
     ptRenderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 
     // Set the render pass and framebuffer
-    ptRenderPassInfo.renderPass = ppRenderPass->poRenderPass;
+    ptRenderPassInfo.renderPass = ppRenderPass->GetRenderPass();
     ptRenderPassInfo.framebuffer = ppSwapChain->GetFramebuffer(uiIndex);
 
     // Set the render area size

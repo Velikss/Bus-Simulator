@@ -6,13 +6,15 @@
 class cRenderPass
 {
 protected:
+    VkRenderPass poRenderPass = VK_NULL_HANDLE;
+
     cLogicalDevice* ppLogicalDevice;
 
 public:
-    VkRenderPass poRenderPass = VK_NULL_HANDLE;
-
     cRenderPass(cLogicalDevice* pLogicalDevice);
     ~cRenderPass();
+
+    VkRenderPass& GetRenderPass();
 };
 
 cRenderPass::cRenderPass(cLogicalDevice* pLogicalDevice)
@@ -28,4 +30,11 @@ cRenderPass::~cRenderPass()
     {
         vkDestroyRenderPass(ppLogicalDevice->GetDevice(), poRenderPass, nullptr);
     }
+}
+
+VkRenderPass& cRenderPass::GetRenderPass()
+{
+    assert(poRenderPass != VK_NULL_HANDLE);
+
+    return poRenderPass;
 }
