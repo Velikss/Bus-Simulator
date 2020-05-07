@@ -2,7 +2,7 @@
 
 #include <pch.hpp>
 #include <vulkan/scene/Scene.hpp>
-#include <scenes/BusCamera.hpp>
+#include <vulkan/scene/BusCamera.hpp>
 
 class cStreetScene : public cScene
 {
@@ -12,17 +12,23 @@ public:
     void HandleScroll(double dOffsetX, double dOffsetY) override;
 
 protected:
-    void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice) override;
+    void Load(cTextureHandler *pTextureHandler, cLogicalDevice *pLogicalDevice) override;
 
 private:
-    void LoadTextures(cTextureHandler* pTextureHandler);
-    void LoadGeometries(cLogicalDevice* pLogicalDevice);
+    void LoadTextures(cTextureHandler *pTextureHandler);
+
+    void LoadGeometries(cLogicalDevice *pLogicalDevice);
+
     void LoadMeshes();
+
     void LoadModels();
+
     void LoadObjects();
+
+    bool BusCentered = false;
 };
 
-void cStreetScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice)
+void cStreetScene::Load(cTextureHandler *pTextureHandler, cLogicalDevice *pLogicalDevice)
 {
     LoadTextures(pTextureHandler);
     LoadGeometries(pLogicalDevice);
@@ -34,17 +40,21 @@ void cStreetScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogic
 void cStreetScene::Update()
 {
     if (paKeys[GLFW_KEY_W])
-        poCamera->Forward();
+        BusCentered ? pmpObjects["bus"]->MoveForward() : poCamera->Forward();
     if (paKeys[GLFW_KEY_S])
-        poCamera->BackWard();
+        BusCentered ? pmpObjects["bus"]->MoveBackward() : poCamera->BackWard();
     if (paKeys[GLFW_KEY_A])
-        poCamera->MoveLeft();
+        BusCentered ? pmpObjects["bus"]->MoveLeft(0.3) : poCamera->MoveLeft();
     if (paKeys[GLFW_KEY_D])
-        poCamera->MoveRight();
+        BusCentered ? pmpObjects["bus"]->MoveRight(0.3) : poCamera->MoveRight();
     if (paKeys[GLFW_KEY_C])
+    {
+        BusCentered = false;
         poCamera = new FirstPersonFlyCamera;
+    }
     if (paKeys[GLFW_KEY_B])
     {
+        BusCentered = true;
         poCamera = new BusCamera;
         poCamera->cameraPivot = pmpObjects["bus"]->getPosition();
         poCamera->cameraHeight = 15.0f;
@@ -65,10 +75,10 @@ void cStreetScene::Update()
 
 void cStreetScene::HandleScroll(double dOffsetX, double dOffsetY)
 {
-    poCamera->LookMouseWheelDiff((float)dOffsetX, (float)dOffsetY);
+    poCamera->LookMouseWheelDiff((float) dOffsetX, (float) dOffsetY);
 }
 
-void cStreetScene::LoadTextures(cTextureHandler* pTextureHandler)
+void cStreetScene::LoadTextures(cTextureHandler *pTextureHandler)
 {
     pmpTextures["roof"] = pTextureHandler->LoadTextureFromFile("resources/textures/roof.jpg");
     pmpTextures["stoneHouse"] = pTextureHandler->LoadTextureFromFile("resources/textures/stone.jpg");
@@ -79,7 +89,7 @@ void cStreetScene::LoadTextures(cTextureHandler* pTextureHandler)
     pmpTextures["grey"] = pTextureHandler->LoadTextureFromFile("resources/textures/grey.jpg");
 }
 
-void cStreetScene::LoadGeometries(cLogicalDevice* pLogicalDevice)
+void cStreetScene::LoadGeometries(cLogicalDevice *pLogicalDevice)
 {
     pmpGeometries["tree"] = cGeometry::FromOBJFile("resources/geometries/tree.obj", pLogicalDevice);
     pmpGeometries["plane"] = cGeometry::FromOBJFile("resources/geometries/plane.obj", pLogicalDevice);
