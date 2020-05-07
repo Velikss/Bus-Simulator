@@ -51,6 +51,7 @@ public:
     tQueueFamilyIndices FindQueueFamilies(void);
     tSwapChainSupportDetails QuerySwapChainSupport(void);
     VkSampleCountFlagBits GetMaxSampleCount(void);
+    float GetMaxAnisotropy(void);
 
     bool CreateLogicalDevice(VkDeviceCreateInfo* pCreateInfo,
                              VkAllocationCallbacks* pAllocator,
@@ -74,6 +75,7 @@ private:
     tQueueFamilyIndices FindQueueFamilies(VkPhysicalDevice& oDevice);
     tSwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice& oDevice);
     VkSampleCountFlagBits GetMaxSampleCount(VkPhysicalDevice& oDevice);
+    float GetMaxAnisotropy(VkPhysicalDevice& oDevice);
 };
 
 cPhysicalDevice* cPhysicalDevice::poInstance = new cPhysicalDevice();
@@ -260,6 +262,14 @@ VkSampleCountFlagBits cPhysicalDevice::GetMaxSampleCount(VkPhysicalDevice& oDevi
     return VK_SAMPLE_COUNT_1_BIT;
 }
 
+float cPhysicalDevice::GetMaxAnisotropy(VkPhysicalDevice& oDevice)
+{
+    VkPhysicalDeviceProperties tPhysicalDeviceProperties;
+    vkGetPhysicalDeviceProperties(oDevice, &tPhysicalDeviceProperties);
+
+    return tPhysicalDeviceProperties.limits.maxSamplerAnisotropy;
+}
+
 tQueueFamilyIndices cPhysicalDevice::FindQueueFamilies(void)
 {
     return FindQueueFamilies(poPhysicalDevice);
@@ -273,6 +283,11 @@ tSwapChainSupportDetails cPhysicalDevice::QuerySwapChainSupport(void)
 VkSampleCountFlagBits cPhysicalDevice::GetMaxSampleCount(void)
 {
     return puiMaxSampleCount;
+}
+
+float cPhysicalDevice::GetMaxAnisotropy(void)
+{
+    return GetMaxAnisotropy(poPhysicalDevice);
 }
 
 bool cPhysicalDevice::CreateLogicalDevice(VkDeviceCreateInfo* pCreateInfo,

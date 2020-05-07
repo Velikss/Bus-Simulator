@@ -89,7 +89,7 @@ void cTextureHandler::CreateTextureSampler(void)
 
     // Configure anisotropic filtering
     tSamplerInfo.anisotropyEnable = VK_TRUE;
-    tSamplerInfo.maxAnisotropy = 16; // higher = better quality, max is 16 TODO: max actually depends on device
+    tSamplerInfo.maxAnisotropy = cPhysicalDevice::GetInstance()->GetMaxAnisotropy();
 
     // When sampling outside the image, what color to use
     // irrelevant when using REPEAT addressing mode
