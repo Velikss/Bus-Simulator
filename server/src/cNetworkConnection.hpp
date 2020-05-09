@@ -86,7 +86,7 @@ public:
 
 	void SendBytes(const byte* pBuffer, size_t uiNumBytes)
     {
-        long lResult = 0;
+        long long lResult = 0;
         if (ppConnectionSSL)
             lResult = SSL_write(ppConnectionSSL, pBuffer, uiNumBytes);
         else
@@ -99,7 +99,7 @@ public:
 
     long ReceiveBytes(byte* pBuffer, size_t uiNumBytes)
     {
-        long size = 0;
+        long long size = 0;
         if(ppConnectionSSL)
             size = SSL_read(ppConnectionSSL, (char*) pBuffer, uiNumBytes);
         else

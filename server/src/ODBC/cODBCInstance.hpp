@@ -62,12 +62,12 @@ namespace dt
         return tNow;
     }
 
-    string to_string(SQL_TIMESTAMP_STRUCT tTimeStamp)
+    string to_string(const SQL_TIMESTAMP_STRUCT& tTimeStamp)
     {
         std::stringstream ss;
         ss << std::setw(2) << std::setfill('0') << tTimeStamp.day << "-";
         ss << std::setw(2) << std::setfill('0') << tTimeStamp.month << "-";
-        ss << std::setw(4) << std::setfill('0') << tTimeStamp.year << " ";
+        ss << std::setw(4) << std::setfill('0') << tTimeStamp.year << " "; //-V112
         ss << std::setw(2) << std::setfill('0') << tTimeStamp.hour << ":";
         ss << std::setw(2) << std::setfill('0') << tTimeStamp.minute << ":";
         ss << std::setw(2) << std::setfill('0') << tTimeStamp.second;
@@ -359,7 +359,7 @@ bool cODBCInstance::Fetch(string sQuery, std::vector<SQLROW>* aRows)
             for (auto& [sName, tColumnDef] : aColumns)
             {
                 void* vValueBuffer = malloc(tColumnDef.uiSize);
-                memset(vValueBuffer, ' ', tColumnDef.uiSize);
+                memset(vValueBuffer, ' ', tColumnDef.uiSize); //-V575
                 SQLLEN sLen = 0;
                 auto result = SQLGetData(stmt, tColumnDef.sIndex, tColumnDef.sType, vValueBuffer, tColumnDef.uiSize, &sLen);
                 if (result != SQL_SUCCESS && result != SQL_SUCCESS_WITH_INFO)

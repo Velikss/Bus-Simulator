@@ -4428,7 +4428,7 @@ struct wide_string_input_helper
                 utf8_bytes[1] = static_cast<std::char_traits<char>::int_type>(0x80u | ((wc >> 12u) & 0x3Fu));
                 utf8_bytes[2] = static_cast<std::char_traits<char>::int_type>(0x80u | ((wc >> 6u) & 0x3Fu));
                 utf8_bytes[3] = static_cast<std::char_traits<char>::int_type>(0x80u | (wc & 0x3Fu));
-                utf8_bytes_filled = 4;
+                utf8_bytes_filled = 4; //-V112
             }
             else
             {
@@ -4491,7 +4491,7 @@ struct wide_string_input_helper<WideStringType, 2>
                     utf8_bytes[1] = static_cast<std::char_traits<char>::int_type>(0x80u | ((charcode >> 12u) & 0x3Fu));
                     utf8_bytes[2] = static_cast<std::char_traits<char>::int_type>(0x80u | ((charcode >> 6u) & 0x3Fu));
                     utf8_bytes[3] = static_cast<std::char_traits<char>::int_type>(0x80u | (charcode & 0x3Fu));
-                    utf8_bytes_filled = 4;
+                    utf8_bytes_filled = 4; //-V112
                 }
                 else
                 {
@@ -4980,15 +4980,15 @@ class json_sax_dom_parser
             return &root;
         }
 
-        assert(ref_stack.back()->is_array() or ref_stack.back()->is_object());
+        assert(ref_stack.back()->is_array() or ref_stack.back()->is_object()); // -V807
 
-        if (ref_stack.back()->is_array())
+        if (ref_stack.back()->is_array()) // -V807
         {
-            ref_stack.back()->m_value.array->emplace_back(std::forward<Value>(v));
-            return &(ref_stack.back()->m_value.array->back());
+            ref_stack.back()->m_value.array->emplace_back(std::forward<Value>(v)); // -V807
+            return &(ref_stack.back()->m_value.array->back()); // -V807
         }
 
-        assert(ref_stack.back()->is_object());
+        assert(ref_stack.back()->is_object()); // -V807
         assert(object_element);
         *object_element = BasicJsonType(std::forward<Value>(v));
         return object_element;
@@ -5154,7 +5154,7 @@ class json_sax_dom_callback_parser
         keep_stack.pop_back();
 
         if (not ref_stack.empty() and ref_stack.back() and ref_stack.back()->is_object())
-        {
+        { //-V807
             // remove discarded value
             for (auto it = ref_stack.back()->begin(); it != ref_stack.back()->end(); ++it)
             {
@@ -5301,13 +5301,13 @@ class json_sax_dom_callback_parser
         }
 
         // we now only expect arrays and objects
-        assert(ref_stack.back()->is_array() or ref_stack.back()->is_object());
+        assert(ref_stack.back()->is_array() or ref_stack.back()->is_object()); //-V807
 
         // array
-        if (ref_stack.back()->is_array())
+        if (ref_stack.back()->is_array())  //-V807
         {
-            ref_stack.back()->m_value.array->push_back(std::move(value));
-            return {true, &(ref_stack.back()->m_value.array->back())};
+            ref_stack.back()->m_value.array->push_back(std::move(value));  //-V807
+            return {true, &(ref_stack.back()->m_value.array->back())};  //-V807
         }
 
         // object
@@ -5591,7 +5591,7 @@ namespace detail
 template<typename BasicJsonType, typename SAX = json_sax_dom_parser<BasicJsonType>>
 class binary_reader
 {
-    using number_integer_t = typename BasicJsonType::number_integer_t;
+    using number_integer_t = typename BasicJsonType::number_integer_t; //-V802
     using number_unsigned_t = typename BasicJsonType::number_unsigned_t;
     using number_float_t = typename BasicJsonType::number_float_t;
     using string_t = typename BasicJsonType::string_t;
@@ -8016,7 +8016,7 @@ class lexer
         assert(current == 'u');
         int codepoint = 0;
 
-        const auto factors = { 12u, 8u, 4u, 0u };
+        const auto factors = { 12u, 8u, 4u, 0u }; //-V112
         for (const auto factor : factors)
         {
             get();
@@ -9304,11 +9304,11 @@ scan_number_done:
 
             // literals
             case 't':
-                return scan_literal("true", 4, token_type::literal_true);
+                return scan_literal("true", 4, token_type::literal_true); //-V112
             case 'f':
                 return scan_literal("false", 5, token_type::literal_false);
             case 'n':
-                return scan_literal("null", 4, token_type::literal_null);
+                return scan_literal("null", 4, token_type::literal_null); //-V112
 
             // string
             case '\"':
@@ -9445,7 +9445,7 @@ class parser
 
     /// a parser reading from an input adapter
     explicit parser(detail::input_adapter_t&& adapter,
-                    const parser_callback_t cb = nullptr,
+                    const parser_callback_t cb = nullptr, //-V801
                     const bool allow_exceptions_ = true)
         : callback(cb), m_lexer(std::move(adapter)), allow_exceptions(allow_exceptions_)
     {
@@ -13636,21 +13636,21 @@ struct diyfp // f * 2^e
         //
         //   = p_lo + 2^64 p_hi
 
-        const std::uint64_t u_lo = x.f & 0xFFFFFFFFu;
-        const std::uint64_t u_hi = x.f >> 32u;
-        const std::uint64_t v_lo = y.f & 0xFFFFFFFFu;
-        const std::uint64_t v_hi = y.f >> 32u;
+        const std::uint64_t u_lo = x.f & 0xFFFFFFFFu; //-V112
+        const std::uint64_t u_hi = x.f >> 32u; //-V112
+        const std::uint64_t v_lo = y.f & 0xFFFFFFFFu; //-V112
+        const std::uint64_t v_hi = y.f >> 32u; //-V112
 
         const std::uint64_t p0 = u_lo * v_lo;
         const std::uint64_t p1 = u_lo * v_hi;
         const std::uint64_t p2 = u_hi * v_lo;
         const std::uint64_t p3 = u_hi * v_hi;
 
-        const std::uint64_t p0_hi = p0 >> 32u;
-        const std::uint64_t p1_lo = p1 & 0xFFFFFFFFu;
-        const std::uint64_t p1_hi = p1 >> 32u;
-        const std::uint64_t p2_lo = p2 & 0xFFFFFFFFu;
-        const std::uint64_t p2_hi = p2 >> 32u;
+        const std::uint64_t p0_hi = p0 >> 32u; //-V112
+        const std::uint64_t p1_lo = p1 & 0xFFFFFFFFu; //-V112
+        const std::uint64_t p1_hi = p1 >> 32u; //-V112
+        const std::uint64_t p2_lo = p2 & 0xFFFFFFFFu; //-V112
+        const std::uint64_t p2_hi = p2 >> 32u; //-V112
 
         std::uint64_t Q = p0_hi + p1_lo + p2_lo;
 
@@ -13663,9 +13663,9 @@ struct diyfp // f * 2^e
         // Effectively we only need to add the highest bit in p_lo to p_hi (and
         // Q_hi + 1 does not overflow).
 
-        Q += std::uint64_t{1} << (64u - 32u - 1u); // round, ties up
+        Q += std::uint64_t{1} << (64u - 32u - 1u); // round, ties up //-V112
 
-        const std::uint64_t h = p3 + p2_hi + p1_hi + (Q >> 32u);
+        const std::uint64_t h = p3 + p2_hi + p1_hi + (Q >> 32u); //-V112
 
         return {h, x.e + y.e + 64};
     }
@@ -13771,7 +13771,7 @@ boundaries compute_boundaries(FloatType value)
     const bool lower_boundary_is_closer = F == 0 and E > 1;
     const diyfp m_plus = diyfp(2 * v.f + 1, v.e - 1);
     const diyfp m_minus = lower_boundary_is_closer
-                          ? diyfp(4 * v.f - 1, v.e - 2)  // (B)
+                          ? diyfp(4 * v.f - 1, v.e - 2)  // (B) //-V112
                           : diyfp(2 * v.f - 1, v.e - 1); // (A)
 
     // Determine the normalized w+ = m+.
@@ -13839,7 +13839,7 @@ boundaries compute_boundaries(FloatType value)
 //      -e <= 60   or   e >= -60 := alpha
 
 constexpr int kAlpha = -60;
-constexpr int kGamma = -32;
+constexpr int kGamma = -32; //-V112
 
 struct cached_power // c = f * 2^e ~= 10^k
 {
@@ -14056,7 +14056,7 @@ inline int find_largest_pow10(const std::uint32_t n, std::uint32_t& pow10)
     else if (n >= 1000)
     {
         pow10 = 1000;
-        return  4;
+        return  4; //-V112
     }
     else if (n >= 100)
     {
@@ -14106,8 +14106,8 @@ inline void grisu2_round(char* buf, int len, std::uint64_t dist, std::uint64_t d
             and delta - rest >= ten_k
             and (rest + ten_k < dist or dist - rest > rest + ten_k - dist))
     {
-        assert(buf[len - 1] != '0');
-        buf[len - 1]--;
+        assert(buf[len - 1] != '0'); //-V108
+        buf[len - 1]--; //-V108
         rest += ten_k;
     }
 }
@@ -14117,7 +14117,7 @@ Generates V = buffer * 10^decimal_exponent, such that M- <= V <= M+.
 M- and M+ must be normalized and share the same exponent -60 <= e <= -32.
 */
 inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
-                             diyfp M_minus, diyfp w, diyfp M_plus)
+                             diyfp M_minus, diyfp w, diyfp M_plus) //-V813
 {
     static_assert(kAlpha >= -60, "internal error");
     static_assert(kGamma <= -32, "internal error");
@@ -14193,7 +14193,7 @@ inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
         //         = (buffer * 10 + d) * 10^(n-1) + (r + p2 * 2^e)
         //
         assert(d <= 9);
-        buffer[length++] = static_cast<char>('0' + d); // buffer := buffer * 10 + d
+        buffer[length++] = static_cast<char>('0' + d); // buffer := buffer * 10 + d //-V108
         //
         //      M+ = buffer * 10^(n-1) + (r + p2 * 2^e)
         //
@@ -14300,7 +14300,7 @@ inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
         //         = (buffer * 10 + d) * 10^(-m-1) + 10^(-m-1) * r * 2^e
         //
         assert(d <= 9);
-        buffer[length++] = static_cast<char>('0' + d); // buffer := buffer * 10 + d
+        buffer[length++] = static_cast<char>('0' + d); // buffer := buffer * 10 + d //-V108
         //
         //      M+ = buffer * 10^(-m-1) + 10^(-m-1) * r * 2^e
         //
@@ -14358,7 +14358,7 @@ The buffer must be large enough, i.e. >= max_digits10.
 */
 JSON_HEDLEY_NON_NULL(1)
 inline void grisu2(char* buf, int& len, int& decimal_exponent,
-                   diyfp m_minus, diyfp v, diyfp m_plus)
+                   diyfp m_minus, diyfp v, diyfp m_plus) //-V813
 {
     assert(m_plus.e == m_minus.e);
     assert(m_plus.e == v.e);
@@ -14527,10 +14527,10 @@ inline char* format_buffer(char* buf, int len, int decimal_exponent,
         // digits[000]
         // len <= max_exp + 2
 
-        std::memset(buf + k, '0', static_cast<size_t>(n) - static_cast<size_t>(k));
+        std::memset(buf + k, '0', static_cast<size_t>(n) - static_cast<size_t>(k)); //-V104
         // Make it look like a floating-point number (#362, #378)
-        buf[n + 0] = '.';
-        buf[n + 1] = '0';
+        buf[n + 0] = '.'; //-V108
+        buf[n + 1] = '0'; //-V108
         return buf + (static_cast<size_t>(n) + 2);
     }
 
@@ -14541,8 +14541,8 @@ inline char* format_buffer(char* buf, int len, int decimal_exponent,
 
         assert(k > n);
 
-        std::memmove(buf + (static_cast<size_t>(n) + 1), buf + n, static_cast<size_t>(k) - static_cast<size_t>(n));
-        buf[n] = '.';
+        std::memmove(buf + (static_cast<size_t>(n) + 1), buf + n, static_cast<size_t>(k) - static_cast<size_t>(n)); //-V104
+        buf[n] = '.'; //-V108
         return buf + (static_cast<size_t>(k) + 1);
     }
 
@@ -14555,7 +14555,7 @@ inline char* format_buffer(char* buf, int len, int decimal_exponent,
         buf[0] = '0';
         buf[1] = '.';
         std::memset(buf + 2, '0', static_cast<size_t>(-n));
-        return buf + (2 + static_cast<size_t>(-n) + k);
+        return buf + (2 + static_cast<size_t>(-n) + k); //-V104
     }
 
     if (k == 1)
@@ -14615,7 +14615,7 @@ char* to_chars(char* first, const char* last, FloatType value)
         return first;
     }
 
-    assert(last - first >= std::numeric_limits<FloatType>::max_digits10);
+    assert(last - first >= std::numeric_limits<FloatType>::max_digits10); //-V104
 
     // Compute v = buffer * 10^decimal_exponent.
     // The decimal digits are stored in the buffer, which needs to be interpreted
@@ -14628,13 +14628,13 @@ char* to_chars(char* first, const char* last, FloatType value)
     assert(len <= std::numeric_limits<FloatType>::max_digits10);
 
     // Format the buffer like printf("%.*g", prec, value)
-    constexpr int kMinExp = -4;
+    constexpr int kMinExp = -4; //-V112
     // Use digits10 here to increase compatibility with version 2.
     constexpr int kMaxExp = std::numeric_limits<FloatType>::digits10;
 
-    assert(last - first >= kMaxExp + 2);
-    assert(last - first >= 2 + (-kMinExp - 1) + std::numeric_limits<FloatType>::max_digits10);
-    assert(last - first >= std::numeric_limits<FloatType>::max_digits10 + 6);
+    assert(last - first >= kMaxExp + 2); //-V104
+    assert(last - first >= 2 + (-kMinExp - 1) + std::numeric_limits<FloatType>::max_digits10); //-V104
+    assert(last - first >= std::numeric_limits<FloatType>::max_digits10 + 6); //-V104
 
     return dtoa_impl::format_buffer(first, len, decimal_exponent, kMinExp, kMaxExp);
 }
@@ -14756,7 +14756,7 @@ class serializer
                     auto i = val.m_value.object->cbegin();
                     for (std::size_t cnt = 0; cnt < val.m_value.object->size() - 1; ++cnt, ++i)
                     {
-                        o->write_characters(indent_string.c_str(), new_indent);
+                        o->write_characters(indent_string.c_str(), new_indent); //-V106
                         o->write_character('\"');
                         dump_escaped(i->first, ensure_ascii);
                         o->write_characters("\": ", 3);
@@ -14767,14 +14767,14 @@ class serializer
                     // last element
                     assert(i != val.m_value.object->cend());
                     assert(std::next(i) == val.m_value.object->cend());
-                    o->write_characters(indent_string.c_str(), new_indent);
+                    o->write_characters(indent_string.c_str(), new_indent); //-V106
                     o->write_character('\"');
                     dump_escaped(i->first, ensure_ascii);
                     o->write_characters("\": ", 3);
                     dump(i->second, true, ensure_ascii, indent_step, new_indent);
 
                     o->write_character('\n');
-                    o->write_characters(indent_string.c_str(), current_indent);
+                    o->write_characters(indent_string.c_str(), current_indent); //-V106
                     o->write_character('}');
                 }
                 else
@@ -14829,18 +14829,18 @@ class serializer
                     for (auto i = val.m_value.array->cbegin();
                             i != val.m_value.array->cend() - 1; ++i)
                     {
-                        o->write_characters(indent_string.c_str(), new_indent);
+                        o->write_characters(indent_string.c_str(), new_indent); //-V106
                         dump(*i, true, ensure_ascii, indent_step, new_indent);
                         o->write_characters(",\n", 2);
                     }
 
                     // last element
                     assert(not val.m_value.array->empty());
-                    o->write_characters(indent_string.c_str(), new_indent);
+                    o->write_characters(indent_string.c_str(), new_indent); //-V106
                     dump(val.m_value.array->back(), true, ensure_ascii, indent_step, new_indent);
 
                     o->write_character('\n');
-                    o->write_characters(indent_string.c_str(), current_indent);
+                    o->write_characters(indent_string.c_str(), current_indent); //-V106
                     o->write_character(']');
                 }
                 else
@@ -14926,7 +14926,7 @@ class serializer
             {
                 if (val.m_value.boolean)
                 {
-                    o->write_characters("true", 4);
+                    o->write_characters("true", 4); //-V112
                 }
                 else
                 {
@@ -14961,7 +14961,7 @@ class serializer
 
             case value_t::null:
             {
-                o->write_characters("null", 4);
+                o->write_characters("null", 4); //-V112
                 return;
             }
 
@@ -15263,7 +15263,7 @@ class serializer
                 return n_digits + 3;
             }
             x = x / 10000u;
-            n_digits += 4;
+            n_digits += 4; //-V112
         }
     }
 
@@ -15356,7 +15356,7 @@ class serializer
             *(--buffer_ptr) = static_cast<char>('0' + abs_value);
         }
 
-        o->write_characters(number_buffer.data(), n_chars);
+        o->write_characters(number_buffer.data(), n_chars); //-V106
     }
 
     /*!
@@ -15372,7 +15372,7 @@ class serializer
         // NaN / inf
         if (not std::isfinite(x))
         {
-            o->write_characters("null", 4);
+            o->write_characters("null", 4); //-V112
             return;
         }
 
@@ -22094,7 +22094,7 @@ class basic_json
     JSON_HEDLEY_WARN_UNUSED_RESULT
     static basic_json parse(detail::input_adapter&& i,
                             const parser_callback_t cb = nullptr,
-                            const bool allow_exceptions = true)
+                            const bool allow_exceptions = true) //-V801
     {
         basic_json result;
         parser(i, cb, allow_exceptions).parse(true, result);
@@ -22226,7 +22226,7 @@ class basic_json
                      typename std::iterator_traits<IteratorType>::iterator_category>::value, int>::type = 0>
     static basic_json parse(IteratorType first, IteratorType last,
                             const parser_callback_t cb = nullptr,
-                            const bool allow_exceptions = true)
+                            const bool allow_exceptions = true) //-V801
     {
         basic_json result;
         parser(detail::input_adapter(first, last), cb, allow_exceptions).parse(true, result);

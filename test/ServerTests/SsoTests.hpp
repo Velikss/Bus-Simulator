@@ -71,7 +71,6 @@ TEST(SSOTests, SetupSSOServer)
 
     poGameClient = std::make_shared<cNetworkClient>(ptGameClientSettings.get());
     EXPECT_TRUE(poGameClient->Connect());
-
 //    EXPECT_TRUE(oSSOInstance.Connect("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test;"));
 //    std::vector<SQLROW> aRows;
 //    EXPECT_TRUE(oSSOInstance.Fetch("SELECT * FROM User", &aRows));
@@ -110,6 +109,7 @@ TEST(SSOTests, Handshake)
                                  "Host: 127.0.0.1\n\r"
                                  "Connection: keep-alive\r\n"
                                  "\r\n\r\n"));
+
     poGameClient->SendBytes((const byte*)sRequest.c_str(), sRequest.size());
     sleep(50);
 }

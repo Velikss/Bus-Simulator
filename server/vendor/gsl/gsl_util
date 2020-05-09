@@ -136,7 +136,7 @@ constexpr auto at(Cont& cont, const index i) -> decltype(cont[cont.size()])
 }
 
 template <class T>
-constexpr T at(const std::initializer_list<T> cont, const index i)
+constexpr T at(const std::initializer_list<T> cont, const index i) //-V801
 {
     Expects(i >= 0 && i < narrow_cast<index>(cont.size()));
     return *(cont.begin() + i);

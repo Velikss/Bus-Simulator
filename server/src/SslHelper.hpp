@@ -58,7 +58,7 @@ public:
         return ctx;
     }
 
-    static bool LoadCertificate(SSL_CTX* ctx, string sCertFile, string sKeyFile)
+    static bool LoadCertificate(SSL_CTX* ctx, const string& sCertFile, const string& sKeyFile)
     {
         if(!is_file_exist(sCertFile)) return false;
         if(!is_file_exist(sKeyFile)) return false;
@@ -118,8 +118,6 @@ void cSSLHelper::Init()
     SSL_load_error_strings();   /* load all error messages */
 
     paMutex = new std::mutex[CRYPTO_num_locks()];
-    if(!paMutex)
-        throw std::runtime_error("error during setup of mutex's");
 
     CRYPTO_set_id_callback(cSSLHelper::GetId())
     CRYPTO_set_locking_callback(cSSLHelper::Lock())

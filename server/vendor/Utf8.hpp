@@ -159,7 +159,7 @@ SOFTWARE.*/
 	/**
 	 * This is the Unicode replacement character (�) encoded as UTF-8.
 	 */
-	const std::vector< uint8_t > UTF8_ENCODED_REPLACEMENT_CHARACTER = { 0xEF, 0xBF, 0xBD };
+	const std::vector< uint8_t > UTF8_ENCODED_REPLACEMENT_CHARACTER = { 0xEF, 0xBF, 0xBD }; //-V1043
 
 	/**
 	 * This is the Unicode replacement character (�) as a code point.
@@ -208,7 +208,7 @@ SOFTWARE.*/
 	/**
 	 * This contains the private properties of a Utf8 instance.
 	 */
-	struct Utf8::Impl {
+	struct Utf8::Impl { //-V802
 		/**
 		 * This is where we keep the current character
 		 * that is being decoded.
@@ -340,7 +340,7 @@ SOFTWARE.*/
 							&& (impl_->currentCharacterBeingDecoded < 0x00800)
 							)
 						|| (
-						(impl_->bytesTotalToDecodeCurrentCharacter >= 4)
+						(impl_->bytesTotalToDecodeCurrentCharacter >= 4) //-V112
 							&& (impl_->currentCharacterBeingDecoded < 0x10000)
 							)
 						) {

@@ -30,13 +30,13 @@ public:
     std::map<string, string> pasParameters;
     bool IsValidUri() const { return valid; }
 
-    static cUri ParseFromString(string in);
-    static cUri ParseFromRequest(string in);
+    static cUri ParseFromString(const string& in);
+    static cUri ParseFromRequest(const string& in);
 
     string ToString();
 };
 
-cUri cUri::ParseFromString(string in)
+cUri cUri::ParseFromString(const string& in)
 {
     cUri oUri;
 
@@ -80,8 +80,8 @@ cUri cUri::ParseFromString(string in)
         if (in.find(':', uiPortLastIndex + 1) != string::npos) return oUri;
 
         // Parse Port
-        const cstring pBegin = &in[uiPortIndex] + 1;
-        cstring pEnd = &in[uiPortLastIndex];
+        cstring pBegin = const_cast<cstring>(&in[uiPortIndex] + 1);
+        cstring pEnd = const_cast<cstring>(&in[uiPortLastIndex]);
         try
         {
             oUri.pusPort = (ushort) std::strtoul(pBegin, &pEnd, 0);
@@ -192,7 +192,7 @@ string cUri::ToString()
     return sUri;
 }
 
-cUri cUri::ParseFromRequest(string in)
+cUri cUri::ParseFromRequest(const string& in)
 {
     cUri oUri;
     if(in.find('/') != 0) return oUri;
@@ -231,7 +231,6 @@ cUri cUri::ParseFromRequest(string in)
     // Try to find any eGET parameters
     if(uiGetParamIndex != string::npos)
     {
-        if (uiGetParamIndex < uiHostNameEnd) return oUri;
         do
         {
             // Find whether there is another parameters.

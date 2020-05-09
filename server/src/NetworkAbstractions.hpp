@@ -75,7 +75,7 @@ void cNetworkAbstractions::SetBlocking(NET_SOCK oSock, bool bBlocking)
     u_long ulArgument = (bBlocking) ? 0 : 1;
     ioctlsocket(oSock, FIONBIO, &ulArgument);
 #else
-    const int flags = fcntl(oSock, F_GETFL, 0);
+      const int flags = fcntl(oSock, F_GETFL, 0);
     fcntl(oSock, F_SETFL, bBlocking ? flags ^ O_NONBLOCK : flags | O_NONBLOCK);
 #endif
 }

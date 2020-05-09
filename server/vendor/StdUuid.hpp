@@ -97,7 +97,7 @@ namespace uuids
 
             inline static uint32_t left_rotate(uint32_t value, size_t const count)
             {
-                return (value << count) ^ (value >> (32 - count));
+                return (value << count) ^ (value >> (32 - count)); //-V112
             }
 
             sha1() { reset(); }
@@ -209,10 +209,10 @@ namespace uuids
             {
                 uint32_t w[80];
                 for (size_t i = 0; i < 16; i++) {
-                    w[i] = (m_block[i * 4 + 0] << 24);
-                    w[i] |= (m_block[i * 4 + 1] << 16);
-                    w[i] |= (m_block[i * 4 + 2] << 8);
-                    w[i] |= (m_block[i * 4 + 3]);
+                    w[i] = (m_block[i * 4 + 0] << 24); //-V112
+                    w[i] |= (m_block[i * 4 + 1] << 16); //-V112
+                    w[i] |= (m_block[i * 4 + 2] << 8); //-V112
+                    w[i] |= (m_block[i * 4 + 3]); //-V112
                 }
                 for (size_t i = 16; i < 80; i++) {
                     w[i] = left_rotate((w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16]), 1);
@@ -427,7 +427,7 @@ namespace uuids
             if constexpr(std::is_same_v<CharT, char>)
                 size = strlen(str);
             else
-                size = wcslen(str);
+                size = wcslen(str); //-V595
 
             if (str == nullptr || size == 0)
                 return false;
@@ -484,7 +484,7 @@ namespace uuids
             if constexpr(std::is_same_v<CharT, char>)
                 size = strlen(str);
             else
-                size = wcslen(str);
+                size = wcslen(str); //-V595
 
             std::array<uint8_t, 16> data{ { 0 } };
 
@@ -731,8 +731,8 @@ namespace uuids
         uuid operator()()
         {
             uint8_t bytes[16];
-            for (int i = 0; i < 16; i += 4)
-                *reinterpret_cast<uint32_t*>(bytes + i) = distribution(*generator);
+            for (int i = 0; i < 16; i += 4) //-V112
+                *reinterpret_cast<uint32_t*>(bytes + i) = distribution(*generator); //-V1032
 
             // variant must be 10xxxxxx
             bytes[8] &= 0xBF;
@@ -892,7 +892,7 @@ namespace uuids
                 auto ptm = reinterpret_cast<uuids::uuid::value_type*>(&tm);
                 ptm[0] &= 0x0F;
 
-                memcpy(&data[0], ptm + 4, 4);
+                memcpy(&data[0], ptm + 4, 4); //-V112
                 memcpy(&data[4], ptm + 2, 2);
                 memcpy(&data[6], ptm, 2);
 

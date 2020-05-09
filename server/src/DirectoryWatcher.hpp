@@ -73,5 +73,5 @@ void cDirectoryWatcher::Start(const std::function<void(std::string, FileStatus)>
 void cDirectoryWatcher::Stop()
 {
     pbRunning = false;
-    while(!pbClosable){}
+    while(!pbClosable){sleep(50);}
 }

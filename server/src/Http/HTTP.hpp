@@ -167,7 +167,7 @@ namespace cHttp
             this->paHeaders = aHeaders;
         }
 
-        string GetHeader(string sKey)
+        string GetHeader(const string& sKey)
         {
             for (auto &oHeader : paHeaders)
                 if (oHeader.GetKey() == sKey)
@@ -179,7 +179,7 @@ namespace cHttp
         {
             return this->psBody;
         }
-        void SetBody(string sBody)
+        void SetBody(const string& sBody)
         {
             this->psBody = sBody;
         }
@@ -244,7 +244,7 @@ namespace cHttp
         {
             return this->psResource;
         }
-        void SetResource(string sResource)
+        void SetResource(const string& sResource)
         {
             this->psResource = sResource;
         }
@@ -273,7 +273,7 @@ namespace cHttp
             string sBodySplit = C_LINE_END + C_LINE_END;
             size_t lBodyBegin = sRequest.find(sBodySplit);
 
-            oRequest.piMetaLength = lBodyBegin + 4;
+            oRequest.piMetaLength = lBodyBegin + 4; //-V112
 
             std::string sMeta(sRequest.data(), lBodyBegin);
             std::vector<string> aLines = split((string)sMeta, C_LINE_END);
@@ -286,22 +286,22 @@ namespace cHttp
 
             std::vector<cHeader> aHeaders;
             for (size_t i = 1; i < aLines.size(); i++)
-                aHeaders.push_back(cHeader::Deserialize(aLines[i]));
+                aHeaders.emplace_back(cHeader::Deserialize(aLines[i]));
 
             oRequest.SetMethod(eMethod);
             oRequest.SetResource(sResource);
             oRequest.SetHeaders(aHeaders);
             oRequest.SetVersion(eVersion);
             long iContentLength = GetContentLengthOfString(sRequest, oRequest, lBodyBegin);
-            oRequest.SetMissingContent(sRequest.size() - (lBodyBegin + iContentLength + 4));
+            oRequest.SetMissingContent(sRequest.size() - (lBodyBegin + iContentLength + 4)); //-V112
         }
 
         static void DeserializeContent(const std::string_view& sRequest, cRequest & oRequest)
         {
             size_t lBodyBegin = 0;
             long iContentLength = GetContentLengthOfString(sRequest, oRequest, lBodyBegin);
-            oRequest.SetMissingContent(sRequest.size() - (lBodyBegin + 4 + iContentLength));
-            oRequest.SetBody(string(sRequest, lBodyBegin, iContentLength));
+            oRequest.SetMissingContent(sRequest.size() - (lBodyBegin + 4 + iContentLength)); //-V112 //-V104
+            oRequest.SetBody(string(sRequest, lBodyBegin, iContentLength)); //-V106
         }
 
         static cRequest Deserialize(const std::string_view & sRequest)
@@ -346,7 +346,7 @@ namespace cHttp
 
             std::vector<cHeader> aHeaders;
             for (size_t i = 1; i < aLines.size(); i++)
-                aHeaders.push_back(cHeader::Deserialize(aLines[i]));
+                aHeaders.emplace_back(cHeader::Deserialize(aLines[i]));
 
             string sBody;
             if(aSections.size() > 1)

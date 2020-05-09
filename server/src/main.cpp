@@ -150,8 +150,6 @@ int main()
         else
             std::cout << "security: no-ssl." << std::endl;
     }
-    tNetworkSettings.eIPVersion = cNetworkConnection::cIPVersion::eV4;
-    tNetworkSettings.eConnectionType = cNetworkConnection::cConnectionType::eTCP;
     tNetworkSettings.eMode = cNetworkConnection::cMode::eNonBlocking;
 
     cNetworkServer server(&tNetworkSettings);
@@ -167,8 +165,6 @@ int main()
     tConnectNetworkSettings.sAddress = "127.0.0.1";
     tConnectNetworkSettings.usPort = 8080;
     tConnectNetworkSettings.bUseSSL = true;
-    tConnectNetworkSettings.eIPVersion = cNetworkConnection::cIPVersion::eV4;
-    tConnectNetworkSettings.eConnectionType = cNetworkConnection::cConnectionType::eTCP;
     tConnectNetworkSettings.eMode = cNetworkConnection::cMode::eNonBlocking;
 
     cNetworkClient client(&tConnectNetworkSettings);
