@@ -88,6 +88,24 @@ pipeline {
                         {
                             sh '/usr/bin/ctest -T test --verbose'
                         }
+                        post
+                        {
+                            xunit (
+                                testTimeMargin: '3000',
+                                thresholdMode: 1,
+                                thresholds: [
+                                  skipped(failureThreshold: '0'),
+                                  failed(failureThreshold: '0')
+                                ],
+                                tools: [CTest(
+                                    pattern: 'Testing/**/*.xml',
+                                    deleteOutputFiles: true,
+                                    failIfNotNew: false,
+                                    skipNoTestFiles: true,
+                                    stopProcessingIfError: true
+                                  )]
+                            )
+                        }
                     }
                 }
                 stage('Windows')
@@ -101,6 +119,24 @@ pipeline {
                         script
                         {
                             bat 'ctest -C Debug -T test --verbose'
+                        }
+                        post
+                        {
+                            xunit (
+                                testTimeMargin: '3000',
+                                thresholdMode: 1,
+                                thresholds: [
+                                  skipped(failureThreshold: '0'),
+                                  failed(failureThreshold: '0')
+                                ],
+                                tools: [CTest(
+                                    pattern: 'Testing/**/*.xml',
+                                    deleteOutputFiles: true,
+                                    failIfNotNew: false,
+                                    skipNoTestFiles: true,
+                                    stopProcessingIfError: true
+                                  )]
+                            )
                         }
                     }
                 }
