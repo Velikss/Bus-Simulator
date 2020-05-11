@@ -1,5 +1,6 @@
 #pragma once
 
+//#define ENABLE_OVERLAY
 //#define ENABLE_FPS_COUNT
 
 #include <pch.hpp>
@@ -38,13 +39,13 @@ private:
 
     cRenderModule* ppLightsRenderModule;
 
-    cCommandBuffer* papCommandBuffers[2];
-    iUniformHandler* papUniformHandlers[2];
+    cCommandBuffer* papCommandBuffers[3];
+    iUniformHandler* papUniformHandlers[3];
 
     cTextureHandler* ppTextureHandler;
     cRenderHandler* ppRenderHandler;
 
-    //cOverlayRenderModule* ppOverlayRenderModule;
+    cOverlayRenderModule* ppOverlayRenderModule = nullptr;
     cMRTRenderModule* ppMRTRenderModule;
 
     cScene* ppScene = nullptr;
@@ -100,26 +101,37 @@ void Engine::InitVulkan(void)
 
     ppLightsRenderModule = new cLightsRenderModule(ppLogicalDevice, ppSwapChain);
     ppMRTRenderModule = new cMRTRenderModule(ppLogicalDevice, ppSwapChain);
+#ifdef ENABLE_OVERLAY
+    ppOverlayRenderModule = new cOverlayRenderModule(ppLogicalDevice, ppSwapChain, ppWindow);
+#endif
 
     // Create the framebuffers for the swap chain
     ppSwapChain->CreateFramebuffers(ppLightsRenderModule->GetRenderPass()->GetRenderPass(),
                                     ppMRTRenderModule->GetRenderPass()->GetRenderPass());
 
-    //ppOverlayRenderModule = new cOverlayRenderModule(ppLogicalDevice, ppSwapChain, ppWindow);
-
     // Create two command buffers, one for the graphics, one for the overlay
     papCommandBuffers[0] = new cCommandBuffer(ppLogicalDevice, ppSwapChain);
     papCommandBuffers[1] = new cCommandBuffer(ppLogicalDevice, ppSwapChain);
+#ifdef ENABLE_OVERLAY
+    papCommandBuffers[2] = new cCommandBuffer(ppLogicalDevice, ppSwapChain);
+#endif
 
     // Get the two uniform handlers
     papUniformHandlers[0] = ppLightsRenderModule->GetUniformHandler();
     papUniformHandlers[1] = ppMRTRenderModule->GetUniformHandler();
-    //papUniformHandlers[1] = ppOverlayRenderModule->GetUniformHandler();
+#ifdef ENABLE_OVERLAY
+    papUniformHandlers[2] = ppOverlayRenderModule->GetUniformHandler();
+#endif
 
     // Create the rendering handler. Acquires the frames from the swapChain, submits them to the graphics queue
     // to execute the commands, then submits them to the presentation queue to show them on the screen
-    ppRenderHandler = new cRenderHandler(ppLogicalDevice, ppSwapChain, papCommandBuffers, 1);
+#ifdef ENABLE_OVERLAY
+    ppRenderHandler = new cRenderHandler(ppLogicalDevice, ppSwapChain, papCommandBuffers, 3);
+    ppRenderHandler->SetUniformHandlers(papUniformHandlers, 3);
+#else
+    ppRenderHandler = new cRenderHandler(ppLogicalDevice, ppSwapChain, papCommandBuffers, 2);
     ppRenderHandler->SetUniformHandlers(papUniformHandlers, 2);
+#endif
 
     // Create the texture handler. This deals with loading, binding and sampling the textures
     ppTextureHandler = new cTextureHandler(ppLogicalDevice);
@@ -129,8 +141,10 @@ void Engine::InitVulkan(void)
     papCommandBuffers[0]->RecordBuffers(&clearRecorder);
     papCommandBuffers[1]->RecordBuffers(&clearRecorder);
 
+#ifdef ENABLE_OVERLAY
     // Record the overlay to the overlay command buffer
-    //papCommandBuffers[1]->RecordBuffers(ppOverlayRenderModule->GetCommandRecorder());
+    papCommandBuffers[2]->RecordBuffers(ppOverlayRenderModule->GetCommandRecorder());
+#endif
 }
 
 void Engine::MainLoop(void)
@@ -155,7 +169,7 @@ void Engine::MainLoop(void)
         }
 
         // Draw a frame
-        ppRenderHandler->DrawFrame(ppScene, nullptr, papCommandBuffers[1]);
+        ppRenderHandler->DrawFrame(ppScene, ppOverlayRenderModule, papCommandBuffers[1]);
 
         // If the scene hasn't been loaded, load it now
         // We want to draw at least one frame before loading the
@@ -197,7 +211,9 @@ void Engine::Cleanup(void)
 {
     delete ppScene;
     delete ppRenderHandler;
-    //delete ppOverlayRenderModule;
+#ifdef ENABLE_OVERLAY
+    delete ppOverlayRenderModule;
+#endif
     delete ppTextureHandler;
     for (auto oBuffer : papCommandBuffers)
     {

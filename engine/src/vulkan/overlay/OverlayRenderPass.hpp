@@ -29,7 +29,7 @@ cOverlayRenderPass::cOverlayRenderPass(cLogicalDevice* pLogicalDevice,
 
 void cOverlayRenderPass::CreateRenderPass()
 {
-    VkAttachmentDescription tAttachments[2] = {};
+    VkAttachmentDescription tAttachments[1] = {};
 
     // Color attachment
     tAttachments[0].format = ppSwapChain->peSwapChainImageFormat;
@@ -41,16 +41,6 @@ void cOverlayRenderPass::CreateRenderPass()
     tAttachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     tAttachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     tAttachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-    // Depth attachment
-    tAttachments[1].format = cImageHelper::FindDepthFormat();
-    tAttachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
-    tAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    tAttachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    tAttachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    tAttachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    tAttachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    tAttachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     VkAttachmentReference tColorReference = {};
     tColorReference.attachment = 0;
@@ -85,18 +75,18 @@ void cOverlayRenderPass::CreateRenderPass()
     tSubpassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     tSubpassDescription.flags = 0;
     tSubpassDescription.inputAttachmentCount = 0;
-    tSubpassDescription.pInputAttachments = NULL;
+    tSubpassDescription.pInputAttachments = nullptr;
     tSubpassDescription.colorAttachmentCount = 1;
     tSubpassDescription.pColorAttachments = &tColorReference;
-    tSubpassDescription.pResolveAttachments = NULL;
-    tSubpassDescription.pDepthStencilAttachment = &depthReference;
+    tSubpassDescription.pResolveAttachments = nullptr;
+    tSubpassDescription.pDepthStencilAttachment = nullptr;
     tSubpassDescription.preserveAttachmentCount = 0;
-    tSubpassDescription.pPreserveAttachments = NULL;
+    tSubpassDescription.pPreserveAttachments = nullptr;
 
     VkRenderPassCreateInfo tRenderPassInfo = {};
     tRenderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     tRenderPassInfo.pNext = NULL;
-    tRenderPassInfo.attachmentCount = 2;
+    tRenderPassInfo.attachmentCount = 1;
     tRenderPassInfo.pAttachments = tAttachments;
     tRenderPassInfo.subpassCount = 1;
     tRenderPassInfo.pSubpasses = &tSubpassDescription;

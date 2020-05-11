@@ -17,7 +17,7 @@ private:
     iUniformHandler* ppUniformHandler;
 
     VkRenderPassBeginInfo ptRenderPassInfo = {};
-    std::array<VkClearValue, 2> paoClearValues = {};
+    std::array<VkClearValue, 1> paoClearValues = {};
 
     cText* ppText;
 
@@ -60,7 +60,6 @@ void cOverlayCommandBufferRecorder::Setup(uint uiIndex)
 
     // Defines the clear color value to use
     paoClearValues[0].color = {0.0f, 0.0f, 0.0f, 0.0f}; // black with 100% opacity
-    paoClearValues[1].depthStencil = {1.0f, 0}; // furthest possible depth
     ptRenderPassInfo.clearValueCount = paoClearValues.size();
     ptRenderPassInfo.pClearValues = paoClearValues.data();
 }

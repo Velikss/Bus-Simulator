@@ -134,6 +134,7 @@ void cStreetScene::LoadObjects()
     pmpObjects["skybox"] = new cBaseObject(pmpMeshes["skybox"]);
     pmpObjects["skybox"]->setScale(glm::vec3(500, 500, 500));
     pmpObjects["skybox"]->setPosition(glm::vec3(0, -250, 0));
+    pmpObjects["skybox"]->bLighting = false;
 
     pmpObjects["moon"] = new cBaseObject(pmpMeshes["moon"]);
     pmpObjects["moon"]->setScale(glm::vec3(2, 2, 2));
@@ -141,7 +142,7 @@ void cStreetScene::LoadObjects()
     pmpObjects["street"] = new cBaseObject(*pmpModels["street"]);
     pmpObjects["street"]->setScale(glm::vec3(200, 1, 100));
 
-    pmpObjects["grasslawn1"] = new cBaseObject(*pmpModels["grasslawn"]);
+    /*pmpObjects["grasslawn1"] = new cBaseObject(*pmpModels["grasslawn"]);
     pmpObjects["grasslawn1"]->setPosition(glm::vec3(80.0, 0.01, 0));
 
     pmpObjects["grasslawn2"] = new cBaseObject(*pmpModels["grasslawn"]);
@@ -149,7 +150,7 @@ void cStreetScene::LoadObjects()
     pmpObjects["grasslawn2"]->setScale(glm::vec3(80, 1, 20));
 
     pmpObjects["grasslawn3"] = new cBaseObject(*pmpModels["grasslawn"]);
-    pmpObjects["grasslawn3"]->setPosition(glm::vec3(-80.0, 0.01, 0));
+    pmpObjects["grasslawn3"]->setPosition(glm::vec3(-80.0, 0.01, 0));*/
 
     for (int i = 0; i < 20; i++)
     {

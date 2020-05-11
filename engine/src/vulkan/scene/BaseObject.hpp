@@ -13,6 +13,8 @@ private:
     glm::vec3 poScale = glm::vec3(1.0f, 1.0f, 1.0f);
 
 public:
+    bool bLighting = true;
+
     cBaseObject(cMesh* pMesh);
 
     glm::mat4 GetModelMatrix();

@@ -157,9 +157,9 @@ void cLightsUniformHandler::UpdateUniformBuffers(cScene* pScene)
     tLights.atLights[4].color = glm::vec3(0.0f, 1.0f, 0.2f);
     tLights.atLights[4].radius = 5.0f;
     // Yellow
-    tLights.atLights[5].position = glm::vec4(0.0f, 5.0f, 0.0f, 0.0f);
+    tLights.atLights[5].position = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
     tLights.atLights[5].color = glm::vec3(1.0f, 0.7f, 0.3f);
-    tLights.atLights[5].radius = 500.0f;
+    tLights.atLights[5].radius = 25.0f;
 
     tLights.atLights[0].position.x = sin(glm::radians(360.0f * 1)) * 5.0f;
     tLights.atLights[0].position.z = cos(glm::radians(360.0f * 1)) * 5.0f;

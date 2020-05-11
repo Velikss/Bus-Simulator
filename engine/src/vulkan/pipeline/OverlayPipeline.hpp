@@ -162,7 +162,6 @@ void cOverlayPipeline::CreatePipeline(cSwapChain* pSwapChain,
 
     VkPipelineRasterizationStateCreateInfo tRasterizer =
             cPipelineHelper::GetRasterizerCreateInfo(VK_FRONT_FACE_CLOCKWISE);
-    VkPipelineDepthStencilStateCreateInfo tDepthStencil = cPipelineHelper::GetDepthStencilCreateInfo();
 
     // Set the configuration for all the fixed-function stages we defined earlier
     pipelineInfo.pVertexInputState = &tVertexInputInfo;
@@ -170,7 +169,7 @@ void cOverlayPipeline::CreatePipeline(cSwapChain* pSwapChain,
     pipelineInfo.pViewportState = &tViewportState;
     pipelineInfo.pRasterizationState = &tRasterizer;
     pipelineInfo.pMultisampleState = &tMultisampling;
-    pipelineInfo.pDepthStencilState = &tDepthStencil;
+    pipelineInfo.pDepthStencilState = nullptr;
     pipelineInfo.pColorBlendState = &tColorBlending;
     pipelineInfo.pDynamicState = nullptr; // TODO: Enable dynamic states
 

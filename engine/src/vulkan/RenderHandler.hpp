@@ -163,9 +163,19 @@ void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandle
     // Specifies which semaphores to wait on
     tSubmitInfo.pWaitSemaphores = &aoMRTFinishedSemaphores[uiCurrentFrame];
 
+    VkCommandBuffer aoBuffers[2];
+    aoBuffers[0] = ppCommandBuffers[1]->GetBuffer(uiImageIndex);
+#ifdef ENABLE_OVERLAY
+    aoBuffers[1] = ppCommandBuffers[2]->GetBuffer(uiImageIndex);
+#endif
+
     // Specify which command buffers to submit
+#ifdef ENABLE_OVERLAY
+    tSubmitInfo.commandBufferCount = 2;
+#else
     tSubmitInfo.commandBufferCount = 1;
-    tSubmitInfo.pCommandBuffers = &ppCommandBuffers[1]->GetBuffer(uiImageIndex);
+#endif
+    tSubmitInfo.pCommandBuffers = aoBuffers;
 
     // Specify which semaphores to signal once the command buffer(s) finish
     tSubmitInfo.signalSemaphoreCount = 1;

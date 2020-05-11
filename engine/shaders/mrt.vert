@@ -40,7 +40,7 @@ void main() {
     gl_Position = cam.proj * cam.view * obj.model * pos;
 
     outTexCoord = inTexCoord;
-    outTexCoord.t = 1.0 - outTexCoord.t;
+    //outTexCoord.t = 1.0 - outTexCoord.t;
 
     if (obj.lighting)
     {
