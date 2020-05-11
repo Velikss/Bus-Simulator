@@ -99,13 +99,13 @@ glm::vec3* cBaseObject::getPosition()
     return &poPosition;
 }
 
-void cBaseObject::MoveForward(float fMultiplier = 1.0)
+void cBaseObject::MoveForward(float fMultiplier = 0.1)
 {
     glm::vec3 direction(sin(glm::radians(poRotation.y)), 0, cos(glm::radians(poRotation.y)));
     poPosition -= (direction * fMultiplier);
 }
 
- void cBaseObject::MoveBackward(float fMultiplier = 1.0)
+ void cBaseObject::MoveBackward(float fMultiplier = 0.1)
 {
     glm::vec3 direction(sin(glm::radians(poRotation.y)), 0, cos(glm::radians(poRotation.y)));
     poPosition += (direction * fMultiplier);

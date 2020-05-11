@@ -83,7 +83,9 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/uniform/UniformHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/OverlayUniformHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/Text.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/renderpass/RenderPass.hpp src/vulkan/scene/BusCamera.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/renderpass/RenderPass.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/BusCamera.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/BusWorldScene.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 

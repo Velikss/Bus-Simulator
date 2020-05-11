@@ -22,6 +22,7 @@
 #include <vulkan/scene/TestScene.hpp>
 #include <vulkan/scene/StreetScene.hpp>
 #include <vulkan/overlay/TextTest.hpp>
+#include <vulkan/scene/BusWorldScene.hpp>
 
 class Engine
 {
@@ -117,7 +118,8 @@ void Engine::InitVulkan(void)
     // Create the texture handler. This deals with loading, binding and sampling the textures
     ppTextureHandler = new cTextureHandler(ppLogicalDevice);
 
-    ppScene = new cStreetScene();
+//    ppScene = new cStreetScene();
+    ppScene = new cBusWorldScene();
     ppScene->Load(ppTextureHandler, ppLogicalDevice);
     ppWindow->ppInputHandler = ppScene;
 
