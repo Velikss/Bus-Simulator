@@ -21,7 +21,7 @@ set(OPENSSL_USE_STATIC_LIBS TRUE)
 find_package(OpenSSL REQUIRED)
 find_package(ODBC REQUIRED)
 
-include_directories( ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/src ${OPENSSL_INCLUDE_DIR} ${ODBC_INCLUDE_DIR})
+include_directories( ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../ ${PROJECT_SOURCE_DIR}/src ${OPENSSL_INCLUDE_DIR} ${ODBC_INCLUDE_DIR})
 add_library(${This} STATIC ${Sources} ${Headers})
 add_executable(${This}-bin ${Sources} ${Headers})
 target_link_libraries(${This} PUBLIC OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY})
