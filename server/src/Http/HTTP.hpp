@@ -1,5 +1,6 @@
 #pragma once
 #include <pch.hpp>
+#include <server/src/cNetworkConnection.hpp>
 
 namespace cHttp
 {
@@ -366,4 +367,35 @@ namespace cHttp
             return oResponse;
         }
     };
+
+    cRequest RecieveRequest(cNetworkConnection* pConnection)
+    {
+        byte* aBytes = new byte[8192];
+        size_t size = pConnection->ReceiveBytes(aBytes, 8192);
+        std::string_view sBytes((const char*)aBytes, size);
+        cHttp::cRequest oRequest;
+        cHttp::cRequest::DeserializeMeta(sBytes, oRequest);
+
+        int iContentLength = std::atoi(oRequest.GetHeader("content-length").c_str());
+        int iRequestLength = iContentLength + oRequest.GetMetaLength();
+        if (iRequestLength >= 8192)
+        {
+            byte* aNewBuffer = new byte[iRequestLength];
+            memcpy(aNewBuffer, aBytes, size);
+            delete[] aBytes;
+            aBytes = aNewBuffer;
+            sBytes = std::string_view((const char*)aBytes, size);
+        }
+
+        cHttp::cRequest::DeserializeContent(sBytes, oRequest);
+
+        size_t lMissingContent = 0;
+        while ((lMissingContent = oRequest.GetMissingContent()) != 0)
+        {
+            size += pConnection->ReceiveBytes(aBytes + size, lMissingContent);
+            cHttp::cRequest::DeserializeContent(sBytes, oRequest);
+        }
+
+        return oRequest;
+    }
 }
