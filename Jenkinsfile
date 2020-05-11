@@ -50,7 +50,7 @@ pipeline {
                     {
                         script
                         {
-                            sh 'cmake .'
+                            sh 'cmake -Dgtest_disable_pthreads=OFF .'
                             sh 'cmake --build .'
                         }
                     }
@@ -65,7 +65,7 @@ pipeline {
                     {
                         script
                         {
-                            bat 'cmake -DCMAKE_TOOLCHAIN_FILE=C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake .'
+                            bat 'cmake -Dgtest_disable_pthreads=OFF -DCMAKE_TOOLCHAIN_FILE=C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake .'
                             bat 'cmake --build .'
                         }
                     }
