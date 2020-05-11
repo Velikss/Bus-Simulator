@@ -2,97 +2,106 @@ pipeline {
     agent none
     stages
     {
-        parallel
+        stage("Init")
         {
-            stage('Init Linux')
+            parallel
             {
-                agent
+                stage('Linux')
                 {
-                    label "Linux"
-                }
-                steps
-                {
-                    script
+                    agent
                     {
-                        sh 'git submodule update --init --recursive'
+                        label "Linux"
+                    }
+                    steps
+                    {
+                        script
+                        {
+                            sh 'git submodule update --init --recursive'
+                        }
                     }
                 }
-            }
-            stage('Init Windows')
-            {
-                agent
+                stage('Windows')
                 {
-                    label "Windows"
-                }
-                steps
-                {
-                    script
+                    agent
                     {
-                        bat 'git submodule update --init --recursive'
+                        label "Windows"
+                    }
+                    steps
+                    {
+                        script
+                        {
+                            bat 'git submodule update --init --recursive'
+                        }
                     }
                 }
             }
         }
-        parallel
+        stage("Build")
         {
-            stage('Build Linux')
+            parallel
             {
-                agent
+                stage('Linux')
                 {
-                    label "Linux"
-                }
-                steps
-                {
-                    script
+                    agent
                     {
-                        sh 'cmake .'
-                        sh 'cmake --build .'
+                        label "Linux"
+                    }
+                    steps
+                    {
+                        script
+                        {
+                            sh 'cmake .'
+                            sh 'cmake --build .'
+                        }
                     }
                 }
-            }
-            stage('Build Windows')
-            {
-                agent
+                stage('Windows')
                 {
-                    label "Windows"
-                }
-                steps
-                {
-                    script
+                    agent
                     {
-                        bat 'cmake .'
-                        bat 'cmake --build .'
+                        label "Windows"
+                    }
+                    steps
+                    {
+                        script
+                        {
+                            bat 'cmake .'
+                            bat 'cmake --build .'
+                        }
                     }
                 }
             }
         }
-        parallel
+        stage("Test")
         {
-            stage('Test Linux')
+            parallel
             {
-                agent
+                stage('Linux')
                 {
-                    label "Linux"
-                }
-                steps
-                {
-                    script
+                    agent
                     {
-                        sh '/usr/bin/ctest -T test --verbose'
+                        label "Linux"
+                    }
+                    steps
+                    {
+                        script
+                        {
+                            sh '/usr/bin/ctest -T test --verbose'
+                        }
                     }
                 }
-            }
-            stage('Test Windows')
-            {
-                agent
+                stage('Windows')
                 {
-                    label "Windows"
-                }
-                steps
-                {
-                    script
+                    agent
                     {
-                        bat 'ctest -T test --verbose'
+                        label "Windows"
+                    }
+                    steps
+                    {
+                        script
+                        {
+                            bat 'ctest -T test --verbose'
+                        }
                     }
                 }
             }
