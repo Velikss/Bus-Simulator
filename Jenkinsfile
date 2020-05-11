@@ -100,7 +100,6 @@ pipeline {
                     {
                         script
                         {
-                            bat 'move "./test/SQL" "./test/Debug/SQL"'
                             bat 'ctest -C Debug -T test --verbose'
                         }
                     }
