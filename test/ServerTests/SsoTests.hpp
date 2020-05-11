@@ -5,6 +5,7 @@
 #include <server/src/SSO/SsoServer.hpp>
 #include <server/src/GameServer/CGameServer.hpp>
 #include <server/src/cNetworkClient.hpp>
+#include <filesystem>
 
 using namespace SSO;
 
@@ -64,7 +65,7 @@ TEST(SSOTests, SetupSSOServer)
     poSSOServer = std::make_shared<cSSOServer>(ptSSOServerSettings.get());
     poGameServer = std::make_shared<cGameServer>(ptGameServerSettings.get());
     poGameClient = std::make_shared<cNetworkClient>(ptGameClientSettings.get());
-
+    std::cout << std::filesystem::current_path() << std::endl;
     std::cout << "made shares"<< std::endl;
     EXPECT_TRUE(poSSOServer->Init("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=sso;pwd=hiddenhand;database=test;"));
     std::cout << "made SSO_Server Connect to db."<< std::endl;
