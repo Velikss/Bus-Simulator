@@ -2,4 +2,5 @@
 	path = googletest
 	url = https://github.com/google/googletest
 [submodule "engine/glfw"]
+	path = engine/glfw
 	url = https://github.com/glfw/glfw.git
