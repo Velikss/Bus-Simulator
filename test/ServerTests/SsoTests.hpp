@@ -66,10 +66,15 @@ TEST(SSOTests, SetupSSOServer)
     poGameServer = std::make_shared<cGameServer>(ptGameServerSettings.get());
     poGameClient = std::make_shared<cNetworkClient>(ptGameClientSettings.get());
 
-    EXPECT_TRUE(poSSOServer->Init("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=sso;pwd=hiddenhand;database=test;"));
+    string sGameServerUuid = uuids::to_string(uuids::uuid_system_generator{}());
+
+    EXPECT_TRUE(poSSOServer->InitDB("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=sso;pwd=hiddenhand;database=test;"));
+    poSSOServer->RegisterUuid(sGameServerUuid);
     EXPECT_TRUE(poSSOServer->Listen());
 
-    EXPECT_TRUE(poGameServer->Init("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=game;pwd=game;database=game;"));
+    EXPECT_TRUE(poGameServer->InitDB(
+            "driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=game;pwd=game;database=game;"));
+    EXPECT_TRUE(poGameServer->ConnectToSSOServer(sGameServerUuid, "127.0.0.1", 14001));
     EXPECT_TRUE(poGameServer->Listen());
 
     EXPECT_TRUE(poGameClient->Connect());

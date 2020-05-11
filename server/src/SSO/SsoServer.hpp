@@ -3,12 +3,15 @@
 #include <server/src/ODBC/cODBCInstance.hpp>
 #include <server/src/cNetworkServer.hpp>
 
+using namespace cHttp;
+
 class cSSOServer : protected cNetworkServer
 {
     std::map<string, bool> aRequiredTables {
             {"User", false}
     };
     std::shared_ptr<cODBCInstance> poDB;
+    std::map<string, cNetworkConnection*> paServices;
 public:
     cSSOServer(cNetworkConnection::tNetworkInitializationSettings* tSettings) : cNetworkServer(tSettings)
     {
@@ -20,7 +23,7 @@ public:
         SetOnDisconnectEvent(_OnDisconnect);
     }
 
-    bool Init(const string& sODBCConnectionString)
+    bool InitDB(const string& sODBCConnectionString)
     {
         poDB = std::make_shared<cODBCInstance>();
         std::vector<SQLROW> aTables;
@@ -56,6 +59,11 @@ public:
         return true;
     }
 
+    void RegisterUuid(const string& sUuid)
+    {
+        paServices.insert({sUuid, nullptr});
+    }
+
     bool Listen()
     {
         return cNetworkServer::Listen();
@@ -73,6 +81,15 @@ public:
 
 bool cSSOServer::OnConnect(cNetworkConnection* pConnection)
 {
+    cRequest oRequest;
+    if(!cHttp::RecieveRequest(pConnection, oRequest)) return false;
+    cUri oUri = cUri::ParseFromRequest(oRequest.GetResource());
+
+    cResponse oResponse;
+    oResponse.SetResponseCode(200);
+    string sResponse = oResponse.Serialize();
+    pConnection->SendBytes((byte*)sResponse.c_str(), sResponse.size());
+    std::cout << "sent response" << std::endl;
     return true;
 }
 

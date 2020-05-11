@@ -1,16 +1,17 @@
 #pragma once
 #include <pch.hpp>
 #include <server/src/ODBC/cODBCInstance.hpp>
-#include <server/src/cNetworkServer.hpp>
+#include <server/src/SSO/SsoService.hpp>
 
-class cGameServer : protected cNetworkServer
+class cGameServer : public cSsoService
 {
     std::map<string, bool> aRequiredTables {
             //{"User", false}
     };
+
     std::shared_ptr<cODBCInstance> poDB;
 public:
-    cGameServer(cNetworkConnection::tNetworkInitializationSettings* tSettings) : cNetworkServer(tSettings)
+    cGameServer(cNetworkConnection::tNetworkInitializationSettings* tSettings) : cSsoService(tSettings)
     {
         std::function<bool(cNetworkConnection*)> _OnConnect = std::bind(&cGameServer::OnConnect, this, std::placeholders::_1);
         std::function<bool(cNetworkConnection*)> _OnRecieve = std::bind(&cGameServer::OnRecieve, this, std::placeholders::_1);
@@ -20,7 +21,7 @@ public:
         SetOnDisconnectEvent(_OnDisconnect);
     }
 
-    bool Init(string sODBCConnectionString)
+    bool InitDB(string sODBCConnectionString)
     {
         poDB = std::make_shared<cODBCInstance>();
         std::vector<SQLROW> aTables;
@@ -54,6 +55,8 @@ public:
         return true;
     }
 
+public:
+
     bool Listen()
     {
         return cNetworkServer::Listen();
@@ -71,15 +74,24 @@ public:
 
 bool cGameServer::OnConnect(cNetworkConnection* pConnection)
 {
+
     return true;
 }
 
 bool cGameServer::OnRecieve(cNetworkConnection *pConnection)
 {
-    cHttp::cRequest oRequest = cHttp::RecieveRequest(pConnection);
-
+    using namespace cHttp;
+    cRequest oRequest;
+    if (!cHttp::RecieveRequest(pConnection, oRequest)) return false;
     cUri oUri = cUri::ParseFromRequest(oRequest.GetResource());
-    std::cout << oUri.ToString() << std::endl;
+    const string sSessionKey = oRequest.GetHeader("Session-key");
+
+    if (!SessionExists(sSessionKey))
+    {
+        return true;
+    }
+
+    // the session-data was found.
 
     return true;
 }

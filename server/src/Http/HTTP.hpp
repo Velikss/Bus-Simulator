@@ -149,6 +149,15 @@ namespace cHttp
         std::vector<cHeader> paHeaders;
         string psBody;
         size_t plMissingContent = 0;
+        size_t piMetaLength = 0;
+
+        static long GetContentLengthOfString(const std::string_view& sMessage, cHttpMessage & oMessage, size_t & lEndMeta)
+        {
+            string sContentLength = oMessage.GetHeader("content-length");
+            lEndMeta = sMessage.find(C_LINE_END + C_LINE_END);
+            if (sContentLength.size() == 0) return 0;
+            return std::stoi(sContentLength);
+        }
     public:
         size_t& GetMissingContent()
         {
@@ -220,27 +229,26 @@ namespace cHttp
             if (psBody.size() > 0)
                 sTarget += psBody;
         }
+
+        static void DeserializeContent(const std::string_view& sMessage, cHttpMessage & oMessage)
+        {
+            size_t lBodyBegin = 0;
+            long iContentLength = GetContentLengthOfString(sMessage, oMessage, lBodyBegin);
+            oMessage.SetMissingContent(sMessage.size() - (lBodyBegin + 4 + iContentLength)); //-V112 //-V104
+            oMessage.SetBody(string(sMessage, lBodyBegin, iContentLength)); //-V106
+        }
+
+        size_t &GetMetaLength()
+        {
+            return this->piMetaLength;
+        }
     };
 
     class cRequest : public cHttpMessage
     {
         string psResource;
         cMethod peMethod = cMethod::eGET;
-        size_t piMetaLength = 0;
-
-        static long GetContentLengthOfString(const std::string_view& sRequest, cRequest & oRequest, size_t & lEndMeta)
-        {
-            string sContentLength = oRequest.GetHeader("content-length");
-            lEndMeta = sRequest.find(C_LINE_END + C_LINE_END);
-            if (sContentLength.size() == 0) return 0;
-            return std::stoi(sContentLength);
-        }
     public:
-        size_t &GetMetaLength()
-        {
-            return this->piMetaLength;
-        }
-
         string &GetResource()
         {
             return this->psResource;
@@ -297,14 +305,6 @@ namespace cHttp
             oRequest.SetMissingContent(sRequest.size() - (lBodyBegin + iContentLength + 4)); //-V112
         }
 
-        static void DeserializeContent(const std::string_view& sRequest, cRequest & oRequest)
-        {
-            size_t lBodyBegin = 0;
-            long iContentLength = GetContentLengthOfString(sRequest, oRequest, lBodyBegin);
-            oRequest.SetMissingContent(sRequest.size() - (lBodyBegin + 4 + iContentLength)); //-V112 //-V104
-            oRequest.SetBody(string(sRequest, lBodyBegin, iContentLength)); //-V106
-        }
-
         static cRequest Deserialize(const std::string_view & sRequest)
         {
             cRequest oRequest;
@@ -324,7 +324,7 @@ namespace cHttp
         {
             return this->pusResponseCode;
         }
-        void SetResponseCode(unsigned short &usResponseCode)
+        void SetResponseCode(const unsigned short &usResponseCode)
         {
             this->pusResponseCode = usResponseCode;
         }
@@ -337,43 +337,60 @@ namespace cHttp
             sTarget += C_LINE_END;
         }
 
-        static cResponse Deserialize(const string &sResponse)
+        static void DeserializeMeta(const std::string_view& sRequest, cResponse & oResponse)
         {
-            std::vector<string> aSections = split(sResponse, C_LINE_END + C_LINE_END);
-            std::vector<string> aLines = split(aSections[0], C_LINE_END);
+            string sBodySplit = C_LINE_END + C_LINE_END;
+            size_t lBodyBegin = sRequest.find(sBodySplit);
+
+            oResponse.piMetaLength = lBodyBegin + 4; //-V112
+
+            std::string sMeta(sRequest.data(), lBodyBegin);
+            std::vector<string> aLines = split((string)sMeta, C_LINE_END);
 
             std::vector<string> aMetaSegments = split(aLines[0], " ");
             cVersion eVersion = aVersionStrToVersion.at(aMetaSegments[0]);
-
-            std::vector<cHeader> aHeaders;
-            for (size_t i = 1; i < aLines.size(); i++)
-                aHeaders.emplace_back(cHeader::Deserialize(aLines[i]));
-
-            string sBody;
-            if(aSections.size() > 1)
-                sBody = concat(aSections, "", 1);
 
             unsigned short usResponseCode = 0;
             const char* pBegin = aMetaSegments[1].c_str();
             char* pEnd = (char*)aMetaSegments[1].c_str() + aMetaSegments[1].size() - 1;
             usResponseCode = (unsigned short) std::strtoul(pBegin, &pEnd, 0);
 
-            cResponse oResponse;
+            std::vector<cHeader> aHeaders;
+            for (size_t i = 1; i < aLines.size(); i++)
+                aHeaders.emplace_back(cHeader::Deserialize(aLines[i]));
+
+            long iContentLength = GetContentLengthOfString(sRequest, oResponse, lBodyBegin);
+            oResponse.SetMissingContent(sRequest.size() - (lBodyBegin + iContentLength + 4)); //-V112
+
             oResponse.SetResponseCode(usResponseCode);
             oResponse.SetHeaders(aHeaders);
             oResponse.SetVersion(eVersion);
-            oResponse.SetBody(sBody);
+        }
+
+        static cResponse Deserialize(const std::string_view & sResponse)
+        {
+            cResponse oResponse;
+
+            DeserializeMeta(sResponse, oResponse);
+            DeserializeContent(sResponse, oResponse);
 
             return oResponse;
         }
     };
 
-    cRequest RecieveRequest(cNetworkConnection* pConnection)
+    bool RecieveRequest(cNetworkConnection* pConnection, cRequest& oRequest)
     {
+        unsigned short usTimeOut = 0;
+        while (!pConnection->Available())
+        {
+            if(usTimeOut > 5) return false;
+            usTimeOut++;
+            sleep(10);
+        }
+
         byte* aBytes = new byte[8192];
         size_t size = pConnection->ReceiveBytes(aBytes, 8192);
         std::string_view sBytes((const char*)aBytes, size);
-        cHttp::cRequest oRequest;
         cHttp::cRequest::DeserializeMeta(sBytes, oRequest);
 
         int iContentLength = std::atoi(oRequest.GetHeader("content-length").c_str());
@@ -396,6 +413,44 @@ namespace cHttp
             cHttp::cRequest::DeserializeContent(sBytes, oRequest);
         }
 
-        return oRequest;
+        return true;
+    }
+
+    bool RecieveResponse(cNetworkConnection* pConnection, cResponse& oResponse)
+    {
+        unsigned short usTimeOut = 0;
+        while (!pConnection->Available())
+        {
+            if(usTimeOut > 5) return false;
+            usTimeOut++;
+            sleep(10);
+        }
+
+        byte* aBytes = new byte[8192];
+        size_t size = pConnection->ReceiveBytes(aBytes, 8192);
+        std::string_view sBytes((const char*)aBytes, size);
+        cHttp::cResponse::DeserializeMeta(sBytes, oResponse);
+
+        int iContentLength = std::atoi(oResponse.GetHeader("content-length").c_str());
+        int iRequestLength = iContentLength + oResponse.GetMetaLength();
+        if (iRequestLength >= 8192)
+        {
+            byte* aNewBuffer = new byte[iRequestLength];
+            memcpy(aNewBuffer, aBytes, size);
+            delete[] aBytes;
+            aBytes = aNewBuffer;
+            sBytes = std::string_view((const char*)aBytes, size);
+        }
+
+        cHttp::cResponse::DeserializeContent(sBytes, oResponse);
+
+        size_t lMissingContent = 0;
+        while ((lMissingContent = oResponse.GetMissingContent()) != 0)
+        {
+            size += pConnection->ReceiveBytes(aBytes + size, lMissingContent);
+            cHttp::cResponse::DeserializeContent(sBytes, oResponse);
+        }
+
+        return true;
     }
 }
