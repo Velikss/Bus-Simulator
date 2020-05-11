@@ -100,7 +100,7 @@ pipeline {
                     {
                         script
                         {
-                            bat 'ctest -T test --verbose'
+                            bat 'ctest -C Debug -T test --verbose'
                         }
                     }
                 }
