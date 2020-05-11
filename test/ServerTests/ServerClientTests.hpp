@@ -69,7 +69,7 @@ TEST(ServerClientTests, Connect)
     pPlainClient->Disconnect();
 }
 
-std::shared_ptr<cNetworkServer> pSSLServer = nullptr;
+/*std::shared_ptr<cNetworkServer> pSSLServer = nullptr;
 std::shared_ptr<cNetworkClient> pSSLClient = nullptr;
 std::shared_ptr<cNetworkConnection::tNetworkInitializationSettings> pSSLServerSettings = nullptr;
 std::shared_ptr<cNetworkConnection::tNetworkInitializationSettings> pSSLClientSettings = nullptr;
@@ -111,4 +111,4 @@ TEST(ServerClientTests, ConnectSSL)
     EXPECT_EQ(iTimesRecieved, 2);
     pSSLServer->Stop();
     pSSLClient->Disconnect();
-}
+}*/
