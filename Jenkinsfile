@@ -1,47 +1,107 @@
 pipeline {
-    agent any
-    stages {
-        stage('Init') {
-            steps {
-                script {
-                    sh 'git submodule update --init --recursive'
+    agent none
+    parallel
+    {
+        stages
+        {
+            stage('Init Linux')
+            {
+                agent
+                {
+                    label "Linux"
+                }
+                steps
+                {
+                    script
+                    {
+                        sh 'git submodule update --init --recursive'
+                    }
                 }
             }
-        }
-        stage('Build') {
-            steps {
-                script {
-                    sh 'cmake .'
-                    sh 'cmake --build .'
+            stage('Init Windows')
+            {
+                agent
+                {
+                    label "Windows"
                 }
-            }
-        }
-        stage('Test') {
-            steps {
-                script {
-                    sh '/usr/bin/ctest -T test --verbose'
+                steps
+                {
+                    script
+                    {
+                        bat 'git submodule update --init --recursive'
+                    }
                 }
             }
         }
     }
-	post {
-        always {
-            xunit (
-                testTimeMargin: '3000',
-                thresholdMode: 1,
-                thresholds: [
-                  skipped(failureThreshold: '0'),
-                  failed(failureThreshold: '0')
-                ],
-                tools: [CTest(
-                    pattern: 'Testing/**/*.xml',
-                    deleteOutputFiles: true,
-                    failIfNotNew: false,
-                    skipNoTestFiles: true,
-                    stopProcessingIfError: true
-                  )]
-            )
-            //deleteDir()
+    parallel
+    {
+        stages
+        {
+            stage('Build Linux')
+            {
+                agent
+                {
+                    label "Linux"
+                }
+                steps
+                {
+                    script
+                    {
+                        sh 'cmake .'
+                        sh 'cmake --build .'
+                    }
+                }
+            }
+            stage('Build Windows')
+            {
+                agent
+                {
+                    label "Windows"
+                }
+                steps
+                {
+                    script
+                    {
+                        bat 'cmake .'
+                        bat 'cmake --build .'
+                    }
+                }
+            }
+        }
+    }
+    parallel
+    {
+        stages
+        {
+            stage('Test Linux')
+            {
+                agent
+                {
+                    label "Linux"
+                }
+                steps
+                {
+                    script
+                    {
+                        sh '/usr/bin/ctest -T test --verbose'
+                    }
+                }
+            }
+            stage('Test Windows')
+            {
+                agent
+                {
+                    label "Windows"
+                }
+                steps
+                {
+                    script
+                    {
+                        bat 'ctest -T test --verbose'
+                    }
+                }
+            }
         }
     }
 }

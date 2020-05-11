@@ -7,7 +7,7 @@
 const uint C_MAX_URI_SIZE = 131072; // 128 kB
 const uint C_MAX_PROTOCOL_CHAR_SIZE = 6;
 const uint C_MAX_PORT_CHAR_SIZE = 5;
-std::map<string, ushort> C_PROTOCOL_PORT = {
+const std::map<string, ushort> C_PROTOCOL_PORT = {
         {"https", 443},
         {"http", 80}
 };

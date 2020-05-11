@@ -29,7 +29,8 @@ TEST(ODBCTests, Exe)
 TEST(ODBCTests, Fetch)
 {
     std::vector<SQLROW> aUsers;
-    EXPECT_TRUE(oInstance.Fetch("SELECT * FROM UserTest", &aUsers));
+    EXPECT_TRUE(oInstance.Fetch("SELECT * FROM UserTest LIMIT 1", &aUsers));
+    EXPECT_TRUE(aUsers.size() == 1);
 }
 
 TEST(ODBCTests, DisConnect)
