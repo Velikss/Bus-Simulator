@@ -62,15 +62,20 @@ TEST(SSOTests, SetupSSOServer)
     ptGameClientSettings->eMode = cNetworkConnection::cMode::eNonBlocking;
 
     poSSOServer = std::make_shared<cSSOServer>(ptSSOServerSettings.get());
+    poGameServer = std::make_shared<cGameServer>(ptGameServerSettings.get());
+    poGameClient = std::make_shared<cNetworkClient>(ptGameClientSettings.get());
+
+    std::cout << "made shares"<< std::endl;
     EXPECT_TRUE(poSSOServer->Init("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test;"));
     EXPECT_TRUE(poSSOServer->Listen());
+    std::cout << "made SSO_Server listen"<< std::endl;
 
-    poGameServer = std::make_shared<cGameServer>(ptGameServerSettings.get());
     EXPECT_TRUE(poGameServer->Init("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=game;pwd=game;database=game;"));
     EXPECT_TRUE(poGameServer->Listen());
+    std::cout << "made GAME_Server listen"<< std::endl;
 
-    poGameClient = std::make_shared<cNetworkClient>(ptGameClientSettings.get());
     EXPECT_TRUE(poGameClient->Connect());
+    std::cout << "made CONNECTED Game client"<< std::endl;
 //    EXPECT_TRUE(oSSOInstance.Connect("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test;"));
 //    std::vector<SQLROW> aRows;
 //    EXPECT_TRUE(oSSOInstance.Fetch("SELECT * FROM User", &aRows));

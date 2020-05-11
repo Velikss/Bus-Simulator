@@ -13,7 +13,6 @@ CMAKE_C_FLAGS_RELEASE
 foreach(CompilerFlag ${CompilerFlags})
 string(REPLACE "/MT" "/MD" ${CompilerFlag} "${${CompilerFlag}}")
 endforeach()
-message('${CMAKE_PREFIX_PATH}')
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
