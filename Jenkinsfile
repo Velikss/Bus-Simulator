@@ -1,8 +1,8 @@
 pipeline {
     agent none
-    parallel
+    stages
     {
-        stages
+        parallel
         {
             stage('Init Linux')
             {
@@ -33,10 +33,7 @@ pipeline {
                 }
             }
         }
-    }
-    parallel
-    {
-        stages
+        parallel
         {
             stage('Build Linux')
             {
@@ -69,10 +66,7 @@ pipeline {
                 }
             }
         }
-    }
-    parallel
-    {
-        stages
+        parallel
         {
             stage('Test Linux')
             {
