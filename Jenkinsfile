@@ -65,7 +65,7 @@ pipeline {
                     {
                         script
                         {
-                            bat 'cmake -DCMAKE_TOOLCHAIN_FILE=C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake .'
+                            bat 'cmake -CMAKE_PREFIX_PATH=C:/dev/vcpkg/installed/x64-windows/debugC:/dev/vcpkg/installed/x64-windows -DCMAKE_TOOLCHAIN_FILE=C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake .'
                             bat 'cmake --build .'
                         }
                     }
