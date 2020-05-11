@@ -20,12 +20,14 @@ public:
         SetOnDisconnectEvent(_OnDisconnect);
     }
 
-    bool Init(string sODBCConnectionString)
+    bool Init(const string& sODBCConnectionString)
     {
         poDB = std::make_shared<cODBCInstance>();
         std::vector<SQLROW> aTables;
-        if(!poDB->Connect(sODBCConnectionString)) return false;
-        if(!poDB->Fetch("SHOW TABLES", &aTables)) return false;
+        if(!poDB->Connect(sODBCConnectionString))
+            return false;
+        if(!poDB->Fetch("SHOW TABLES", &aTables))
+            return false;
         for(auto& oEntry : aTables)
             for(auto& [sKey, oValue] : oEntry)
             {

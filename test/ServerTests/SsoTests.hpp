@@ -10,23 +10,15 @@ using namespace SSO;
 
 TEST(SSOTests, Hash)
 {
-    try
-    {
-        byte *aHash = new byte[128];
-        uint uiHashSize = 0;
-        string sMessage = "test123";
-        SSO_STATUS iStatus = Blake2Hash((const unsigned char *) (sMessage.c_str()), sMessage.size(),
-                                        (unsigned char **) (&aHash), &uiHashSize);
-        string sEncoded = base64_encode(aHash, uiHashSize);
-        EXPECT_EQ(iStatus, cSSO_OK);
-        EXPECT_TRUE(sEncoded.compare(
-                "UNs2NQkCAADMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzA=="));
-    }
-    catch (std::exception& ex)
-    {
-        std::cout << "Seg failure." << std::endl;
-        EXPECT_TRUE(true);
-    }
+    byte *aHash = new byte[128];
+    uint uiHashSize = 0;
+    string sMessage = "test123";
+    SSO_STATUS iStatus = Blake2Hash((const unsigned char *) (sMessage.c_str()), sMessage.size(),
+                                    (unsigned char **) (&aHash), &uiHashSize);
+    string sEncoded = base64_encode(aHash, uiHashSize);
+    EXPECT_EQ(iStatus, cSSO_OK);
+    EXPECT_TRUE(sEncoded.compare(
+            "UNs2NQkCAADMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzA=="));
 }
 
 TEST(SSOTests, UuidGeneration)
@@ -74,7 +66,7 @@ TEST(SSOTests, SetupSSOServer)
     poGameClient = std::make_shared<cNetworkClient>(ptGameClientSettings.get());
 
     std::cout << "made shares"<< std::endl;
-    EXPECT_TRUE(poSSOServer->Init("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test;"));
+    EXPECT_TRUE(poSSOServer->Init("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=sso;pwd=hiddenhand;database=test;"));
     std::cout << "made SSO_Server Connect to db."<< std::endl;
     EXPECT_TRUE(poSSOServer->Listen());
     std::cout << "made SSO_Server listen"<< std::endl;

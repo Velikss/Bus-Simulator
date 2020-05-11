@@ -2,17 +2,18 @@
 #include <pch.hpp>
 #include <server/src/ODBC/cODBCInstance.hpp>
 
-cODBCInstance oInstance;
+std::shared_ptr<cODBCInstance> poInstance;
 string sUnicodeUTF8 = "おはようございます";
 
 TEST(ODBCTests, Connect)
 {
-    EXPECT_TRUE(oInstance.Connect("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test;"));
+    poInstance = std::make_shared<cODBCInstance>();
+    EXPECT_TRUE(poInstance->Connect("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test;"));
 }
 
 TEST(ODBCTests, Exe)
 {
-    EXPECT_TRUE(oInstance.Exec("INSERT INTO UserTest (UserName, Password) VALUES('" + sUnicodeUTF8 + "', 'TEST');"));
+    EXPECT_TRUE(poInstance->Exec("INSERT INTO UserTest (UserName, Password) VALUES('" + sUnicodeUTF8 + "', 'TEST');"));
 }
 
 /*TEST(ODBCTests, Unicode)
@@ -29,11 +30,11 @@ TEST(ODBCTests, Exe)
 TEST(ODBCTests, Fetch)
 {
     std::vector<SQLROW> aUsers;
-    EXPECT_TRUE(oInstance.Fetch("SELECT * FROM UserTest LIMIT 1", &aUsers));
+    EXPECT_TRUE(poInstance->Fetch("SELECT * FROM UserTest LIMIT 1", &aUsers));
     EXPECT_TRUE(aUsers.size() == 1);
 }
 
 TEST(ODBCTests, DisConnect)
 {
-    EXPECT_TRUE(oInstance.Disconnect());
+    EXPECT_TRUE(poInstance->Disconnect());
 }

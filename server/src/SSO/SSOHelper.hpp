@@ -29,7 +29,11 @@ namespace SSO
         if(1 != EVP_DigestUpdate(mdctx, message, message_len))
             return cSSO_FAIL_UPDATE;
 
-        if((*digest = (unsigned char *)OPENSSL_malloc(EVP_MD_size(EVP_sha256()))) == NULL)
+#if defined(x86_64)
+        if ((*digest = (unsigned char*)OPENSSL_malloc(EVP_MD_size(EVP_sha512()))) == NULL)
+#else
+        if ((*digest = (unsigned char*)OPENSSL_malloc(EVP_MD_size(EVP_sha256()))) == NULL)
+#endif
             return cSSO_FAIL_UPDATE;
 
         if(1 != EVP_DigestFinal_ex(mdctx, *digest, digest_len))

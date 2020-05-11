@@ -232,7 +232,7 @@ bool cODBCInstance::Connect(string sConnectionString)
 
     try
     {
-        result = SQLDriverConnectA(hdbc,    /* Connection handle */
+        result = SQLDriverConnect(hdbc,    /* Connection handle */
             0,                     /* Window handle */
             (SQLCHAR*)sConnectionString.c_str(), /* Connection string */
             SQL_NTS,               /* This is a null-terminated string */
@@ -243,9 +243,7 @@ bool cODBCInstance::Connect(string sConnectionString)
     }
     catch (std::exception& ex)
     {
-        std::cout << "connecting too fast?" << std::endl;
-        SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
-        SQLFreeHandle(SQL_HANDLE_ENV, henv);
+        Disconnect();
         return false;
     }
 
@@ -257,14 +255,24 @@ bool cODBCInstance::Disconnect()
     SQLRETURN result = SQL_SUCCESS;
     if (hdbc)
     {
-        /* Disconnect from the database. */
-        result = SQLDisconnect(hdbc);
+        try
+        {
+            /* Disconnect from the database. */
+            result = SQLDisconnect(hdbc);
+        }
+        catch (std::exception& ex)
+        {
+            std::cout << "failed disconnect." << std::endl;
+        }
 
         /* Free the connection handle. */
         SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 
         /* Free the environment handle. */
         SQLFreeHandle(SQL_HANDLE_ENV, henv);
+
+        hdbc = nullptr;
+        henv = nullptr;
     }
 
     return (result == SQL_SUCCESS || result == SQL_SUCCESS_WITH_INFO);
@@ -320,11 +328,11 @@ bool cODBCInstance::Fetch(string sQuery, std::vector<SQLROW>* aRows)
             switch (columnType)
             {
                 case SQL_CHAR:
-                    sLen = columnLength;
+                    sLen = columnLength + 1;
                     break;
                 case SQL_VARCHAR:
                     columnType = SQL_CHAR;
-                    sLen = columnLength;
+                    sLen = columnLength + 1;
                     break;
                 case SQL_NUMERIC:
                     sLen = sizeof(SQLNUMERIC);
@@ -359,7 +367,13 @@ bool cODBCInstance::Fetch(string sQuery, std::vector<SQLROW>* aRows)
             for (auto& [sName, tColumnDef] : aColumns)
             {
                 void* vValueBuffer = malloc(tColumnDef.uiSize);
-                memset(vValueBuffer, ' ', tColumnDef.uiSize); //-V575
+                if (tColumnDef.sType == SQL_CHAR)
+                {
+                    memset(vValueBuffer, ' ', tColumnDef.uiSize - 1);
+                    ((char*)vValueBuffer)[tColumnDef.uiSize - 1] = '\0';
+                }
+                else
+                    memset(vValueBuffer, ' ', tColumnDef.uiSize); //-V575
                 SQLLEN sLen = 0;
                 auto result = SQLGetData(stmt, tColumnDef.sIndex, tColumnDef.sType, vValueBuffer, tColumnDef.uiSize, &sLen);
                 if (result != SQL_SUCCESS && result != SQL_SUCCESS_WITH_INFO)
