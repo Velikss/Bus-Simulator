@@ -75,6 +75,7 @@ TEST(SSOTests, SetupSSOServer)
 
     std::cout << "made shares"<< std::endl;
     EXPECT_TRUE(poSSOServer->Init("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test;"));
+    std::cout << "made SSO_Server Connect to db."<< std::endl;
     EXPECT_TRUE(poSSOServer->Listen());
     std::cout << "made SSO_Server listen"<< std::endl;
 
