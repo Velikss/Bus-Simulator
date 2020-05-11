@@ -3,7 +3,6 @@
 //#define ENABLE_FPS_COUNT
 
 #include <pch.hpp>
-#include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
 #include <cstring>
 #include <optional>
