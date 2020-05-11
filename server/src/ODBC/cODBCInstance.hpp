@@ -163,6 +163,8 @@ public:
     }
 };
 
+
+
 typedef std::map<string, cODBCValue*> SQLROW;
 
 class cODBCInstance

@@ -117,11 +117,11 @@ int toInteger(string& str, long long& value)
     }
 }
 
-std::vector<string> split(string str, const string& delim) noexcept
+std::vector<string> split(string str, string delim) noexcept
 {
     std::vector<string>result;
     while (str.size()) {
-        size_t index = str.find(delim);
+        int index = str.find(delim);
         if (index != string::npos) {
             result.push_back(str.substr(0, index));
             str = str.substr(index + delim.size());
@@ -129,7 +129,7 @@ std::vector<string> split(string str, const string& delim) noexcept
         }
         else {
             result.push_back(str);
-            str.clear();
+            str = "";
         }
     }
     return result;
@@ -138,7 +138,7 @@ std::vector<string> split(string str, const string& delim) noexcept
 string concat(const std::vector<string>& strings, const string& delim = "", uint from = 0) noexcept
 {
     string s;
-    for (size_t i = from; i < strings.size(); i++)
+    for (unsigned int i = from; i < strings.size(); i++)
     {
         if (i == strings.size() - 1)
             s += strings[i];
