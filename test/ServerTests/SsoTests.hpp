@@ -25,7 +25,7 @@ TEST(SSOTests, Hash)
     catch (std::exception& ex)
     {
         std::cout << "Seg failure." << std::endl;
-        EXPECT_TRUE(TRUE);
+        EXPECT_TRUE(true);
     }
 }
 
