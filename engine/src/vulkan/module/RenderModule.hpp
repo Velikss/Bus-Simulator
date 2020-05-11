@@ -9,12 +9,12 @@
 class cRenderModule
 {
 protected:
-    iUniformHandler* ppUniformHandler;
-    cRenderPass* ppRenderPass;
-    cRenderPipeline* ppRenderPipeline;
+    iUniformHandler* ppUniformHandler = nullptr;
+    cRenderPass* ppRenderPass = nullptr;
+    cRenderPipeline* ppRenderPipeline = nullptr;
 
-    cLogicalDevice* ppLogicalDevice;
-    cSwapChain* ppSwapChain;
+    cLogicalDevice* ppLogicalDevice = nullptr;
+    cSwapChain* ppSwapChain = nullptr;
 
 public:
     cRenderModule(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);

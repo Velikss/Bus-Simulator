@@ -5,17 +5,17 @@
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/SwapChain.hpp>
 #include <vulkan/geometry/Vertex.hpp>
-#include <vulkan/uniform/GraphicsUniformHandler.hpp>
+#include <vulkan/deferred/DeferredUniformHandler.hpp>
 #include <vulkan/pipeline/PipelineHelper.hpp>
 #include <vulkan/pipeline/RenderPipeline.hpp>
 
-class cGraphicsPipeline : public cRenderPipeline
+class cLightsPipeline : public cRenderPipeline
 {
 public:
-    cGraphicsPipeline(cSwapChain* pSwapChain,
-                      cLogicalDevice* pLogicalDevice,
-                      cRenderPass* pRenderPass,
-                      iUniformHandler* pUniformHandler);
+    cLightsPipeline(cSwapChain* pSwapChain,
+                    cLogicalDevice* pLogicalDevice,
+                    cRenderPass* pRenderPass,
+                    iUniformHandler* pUniformHandler);
 
 protected:
     void CreatePipelineLayout(cSwapChain* pSwapChain,
@@ -28,18 +28,18 @@ protected:
                         iUniformHandler* pUniformHandler) override;
 };
 
-cGraphicsPipeline::cGraphicsPipeline(cSwapChain* pSwapChain,
-                                     cLogicalDevice* pLogicalDevice,
-                                     cRenderPass* pRenderPass,
-                                     iUniformHandler* pUniformHandler)
+cLightsPipeline::cLightsPipeline(cSwapChain* pSwapChain,
+                                 cLogicalDevice* pLogicalDevice,
+                                 cRenderPass* pRenderPass,
+                                 iUniformHandler* pUniformHandler)
 {
     Init(pSwapChain, pLogicalDevice, pRenderPass, pUniformHandler);
 }
 
-void cGraphicsPipeline::CreatePipelineLayout(cSwapChain* pSwapChain,
-                                             cLogicalDevice* pLogicalDevice,
-                                             cRenderPass* pRenderPass,
-                                             iUniformHandler* pUniformHandler)
+void cLightsPipeline::CreatePipelineLayout(cSwapChain* pSwapChain,
+                                           cLogicalDevice* pLogicalDevice,
+                                           cRenderPass* pRenderPass,
+                                           iUniformHandler* pUniformHandler)
 {
     // Struct with information about the pipeline layout
     VkPipelineLayoutCreateInfo tPipelineLayoutInfo = {};
@@ -56,10 +56,10 @@ void cGraphicsPipeline::CreatePipelineLayout(cSwapChain* pSwapChain,
     }
 }
 
-void cGraphicsPipeline::CreatePipeline(cSwapChain* pSwapChain,
-                                       cLogicalDevice* pLogicalDevice,
-                                       cRenderPass* pRenderPass,
-                                       iUniformHandler* pUniformHandler)
+void cLightsPipeline::CreatePipeline(cSwapChain* pSwapChain,
+                                     cLogicalDevice* pLogicalDevice,
+                                     cRenderPass* pRenderPass,
+                                     iUniformHandler* pUniformHandler)
 {
     // Read the shader files
     std::vector<char> acVertShaderCode = cPipelineHelper::ReadFile("shaders/vert.spv");
@@ -158,7 +158,7 @@ void cGraphicsPipeline::CreatePipeline(cSwapChain* pSwapChain,
     tViewportState.pScissors = &tScissors;
 
     VkPipelineRasterizationStateCreateInfo tRasterizer =
-            cPipelineHelper::GetRasterizerCreateInfo(VK_FRONT_FACE_COUNTER_CLOCKWISE);
+            cPipelineHelper::GetRasterizerCreateInfo(VK_FRONT_FACE_CLOCKWISE);
     VkPipelineDepthStencilStateCreateInfo tDepthStencil = cPipelineHelper::GetDepthStencilCreateInfo();
 
     // Set the configuration for all the fixed-function stages we defined earlier

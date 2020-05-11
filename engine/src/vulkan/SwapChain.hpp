@@ -6,20 +6,30 @@
 #include <vulkan/PhysicalDevice.hpp>
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/ImageHelper.hpp>
+#include <vulkan/SwapChainHelper.hpp>
+
+struct tOffScreenBuffer
+{
+    tFrameBufferAttachment ptPositionAttachment;
+    tFrameBufferAttachment ptNormalsAttachment;
+    tFrameBufferAttachment ptAlbedoAttachment;
+    tFrameBufferAttachment ptDepthAttachment;
+
+    VkFramebuffer poFramebuffer;
+
+    VkSampler poSampler; // TODO: This probably doesn't belong here
+};
 
 class cSwapChain
 {
 private:
     cLogicalDevice* ppLogicalDevice;
 
-
     std::vector<VkImage> paoSwapChainImages;
     std::vector<VkImageView> paoSwapChainImageViews;
     std::vector<VkFramebuffer> paoSwapChainFramebuffers;
 
-    VkImage poDepthImage;
-    VkDeviceMemory poDepthImageMemory;
-    VkImageView poDepthImageView;
+    tOffScreenBuffer ptOffScreenBuffer;
 
 public:
     VkSwapchainKHR poSwapChain; // TODO: Remove public access
@@ -31,11 +41,14 @@ public:
                cWindow* pWindow);
     ~cSwapChain(void);
 
-    void CreateFramebuffers(VkRenderPass& oRenderPass);
-    void CreateDepthResources(void);
+    void CreateFramebuffers(VkRenderPass& oFinalRenderPass, VkRenderPass oOffScreenRenderPass);
+    void CreateResources(void);
 
     uint GetFramebufferSize(void);
     VkFramebuffer& GetFramebuffer(uint index);
+    tFrameBufferAttachment& GetAttachment(uint uiIndex);
+    VkSampler& GetSampler();
+    VkFramebuffer& GetOffScreenFramebuffer();
 
     void AcquireNextImage(int64 ulTimeout,
                           VkSemaphore& oSemaphore,
@@ -72,15 +85,16 @@ cSwapChain::~cSwapChain()
 {
     VkDevice& oDevice = ppLogicalDevice->GetDevice(); // TODO: Use internal cLogicalDevice methods
 
-    vkDestroyImageView(oDevice, poDepthImageView, nullptr);
-    vkDestroyImage(oDevice, poDepthImage, nullptr);
-    ppLogicalDevice->FreeMemory(poDepthImageMemory, nullptr);
+    /*vkDestroyImageView(oDevice, ptDepthAttachment.oView, nullptr);
+    vkDestroyImage(oDevice, ptDepthAttachment.oImage, nullptr);
+    ppLogicalDevice->FreeMemory(ptDepthAttachment.oMemory, nullptr);*/
 
     // Destroy all the framebuffers
     for (VkFramebuffer framebuffer : paoSwapChainFramebuffers)
     {
         vkDestroyFramebuffer(oDevice, framebuffer, nullptr);
     }
+    vkDestroyFramebuffer(oDevice, ptOffScreenBuffer.poFramebuffer, nullptr);
 
     // Destroy all the image views
     for (VkImageView imageView : paoSwapChainImageViews)
@@ -275,7 +289,7 @@ void cSwapChain::CreateImageViews(void)
     }
 }
 
-void cSwapChain::CreateFramebuffers(VkRenderPass& oRenderPass)
+void cSwapChain::CreateFramebuffers(VkRenderPass& oFinalRenderPass, VkRenderPass oOffScreenRenderPass)
 {
     // Resize the framebuffers list to fit the image views
     paoSwapChainFramebuffers.resize(paoSwapChainImageViews.size());
@@ -284,44 +298,87 @@ void cSwapChain::CreateFramebuffers(VkRenderPass& oRenderPass)
     {
 
         // Struct with information about the framebuffer
-        VkFramebufferCreateInfo framebufferInfo = {};
-        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        VkFramebufferCreateInfo tFramebufferInfo = {};
+        tFramebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 
         // Render pass we want to use
-        framebufferInfo.renderPass = oRenderPass;
+        tFramebufferInfo.renderPass = oFinalRenderPass;
 
         // Which attachments want to bind
-        std::array<VkImageView, 2> aoAttachments = {paoSwapChainImageViews[i], poDepthImageView};
-        framebufferInfo.attachmentCount = aoAttachments.size();
-        framebufferInfo.pAttachments = aoAttachments.data();
+        tFramebufferInfo.attachmentCount = 1;
+        tFramebufferInfo.pAttachments = &paoSwapChainImageViews[i];
 
         // With, height and number of layers
-        framebufferInfo.width = ptSwapChainExtent.width;
-        framebufferInfo.height = ptSwapChainExtent.height;
-        framebufferInfo.layers = 1;
+        tFramebufferInfo.width = ptSwapChainExtent.width;
+        tFramebufferInfo.height = ptSwapChainExtent.height;
+        tFramebufferInfo.layers = 1;
 
         // Create the framebuffer
-        if (vkCreateFramebuffer(ppLogicalDevice->GetDevice(), &framebufferInfo, nullptr,
+        if (vkCreateFramebuffer(ppLogicalDevice->GetDevice(), &tFramebufferInfo, nullptr,
                                 &paoSwapChainFramebuffers[i]) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create framebuffer!");
         }
     }
+
+    std::array<VkImageView, 4> atAttachments;
+    atAttachments[0] = ptOffScreenBuffer.ptPositionAttachment.oView;
+    atAttachments[1] = ptOffScreenBuffer.ptNormalsAttachment.oView;
+    atAttachments[2] = ptOffScreenBuffer.ptAlbedoAttachment.oView;
+    atAttachments[3] = ptOffScreenBuffer.ptDepthAttachment.oView;
+
+    VkFramebufferCreateInfo tFramebufferInfo = {};
+    tFramebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    tFramebufferInfo.pNext = NULL;
+    tFramebufferInfo.renderPass = oOffScreenRenderPass;
+    tFramebufferInfo.pAttachments = atAttachments.data();
+    tFramebufferInfo.attachmentCount = atAttachments.size();
+    tFramebufferInfo.width = ptSwapChainExtent.width;
+    tFramebufferInfo.height = ptSwapChainExtent.height;
+    tFramebufferInfo.layers = 1;
+
+    // Create the framebuffer
+    if (vkCreateFramebuffer(ppLogicalDevice->GetDevice(), &tFramebufferInfo, nullptr,
+                            &ptOffScreenBuffer.poFramebuffer) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create offscreen framebuffer!");
+    }
 }
 
-void cSwapChain::CreateDepthResources(void)
+void cSwapChain::CreateResources(void)
 {
     VkFormat eDepthFormat = cImageHelper::FindDepthFormat();
+    cSwapChainHelper::CreateAttachment(eDepthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                                       &ptOffScreenBuffer.ptDepthAttachment, ppLogicalDevice, ptSwapChainExtent);
 
-    cImageHelper::CreateImage(ptSwapChainExtent.width, ptSwapChainExtent.height,
-                              eDepthFormat, VK_IMAGE_TILING_OPTIMAL,
-                              VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                              poDepthImage, poDepthImageMemory, ppLogicalDevice);
+    cSwapChainHelper::CreateAttachment(VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+                                       &ptOffScreenBuffer.ptPositionAttachment, ppLogicalDevice, ptSwapChainExtent);
 
-    cImageHelper::CreateImageView(poDepthImage, eDepthFormat,
-                                  ppLogicalDevice, &poDepthImageView,
-                                  VK_IMAGE_ASPECT_DEPTH_BIT);
+    cSwapChainHelper::CreateAttachment(VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+                                       &ptOffScreenBuffer.ptNormalsAttachment, ppLogicalDevice, ptSwapChainExtent);
+
+    cSwapChainHelper::CreateAttachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+                                       &ptOffScreenBuffer.ptAlbedoAttachment, ppLogicalDevice, ptSwapChainExtent);
+
+    // Create sampler to sample from the color attachments
+    VkSamplerCreateInfo tSampler = {};
+    tSampler.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    tSampler.magFilter = VK_FILTER_NEAREST;
+    tSampler.minFilter = VK_FILTER_NEAREST;
+    tSampler.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+    tSampler.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    tSampler.addressModeV = tSampler.addressModeU;
+    tSampler.addressModeW = tSampler.addressModeU;
+    tSampler.mipLodBias = 0.0f;
+    tSampler.maxAnisotropy = 1.0f;
+    tSampler.minLod = 0.0f;
+    tSampler.maxLod = 1.0f;
+    tSampler.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+
+    if (!ppLogicalDevice->CreateSampler(&tSampler, nullptr, &ptOffScreenBuffer.poSampler))
+    {
+        throw std::runtime_error("failed to create offscreen sampler!");
+    }
 }
 
 uint cSwapChain::GetFramebufferSize(void)
@@ -340,4 +397,29 @@ void cSwapChain::AcquireNextImage(int64 ulTimeout,
                                   uint* pImageIndex)
 {
     vkAcquireNextImageKHR(ppLogicalDevice->GetDevice(), poSwapChain, ulTimeout, oSemaphore, oFence, pImageIndex);
+}
+
+tFrameBufferAttachment& cSwapChain::GetAttachment(uint uiIndex)
+{
+    switch (uiIndex)
+    {
+        case 0:
+            return ptOffScreenBuffer.ptPositionAttachment;
+        case 1:
+            return ptOffScreenBuffer.ptNormalsAttachment;
+        case 2:
+            return ptOffScreenBuffer.ptAlbedoAttachment;
+        case 3:
+            return ptOffScreenBuffer.ptDepthAttachment;
+    }
+}
+
+VkSampler& cSwapChain::GetSampler()
+{
+    return ptOffScreenBuffer.poSampler;
+}
+
+VkFramebuffer& cSwapChain::GetOffScreenFramebuffer()
+{
+    return ptOffScreenBuffer.poFramebuffer;
 }

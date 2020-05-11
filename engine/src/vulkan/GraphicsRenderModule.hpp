@@ -2,13 +2,13 @@
 
 #include <pch.hpp>
 #include <vulkan/module/RenderModule.hpp>
-#include <vulkan/uniform/GraphicsUniformHandler.hpp>
 #include <vulkan/GraphicsRenderPass.hpp>
+#include <vulkan/uniform/LightsUniformHandler.hpp>
 
-class cGraphicsRenderModule : public cRenderModule
+class cLightsRenderModule : public cRenderModule
 {
 public:
-    cGraphicsRenderModule(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
+    cLightsRenderModule(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
 
 protected:
     void CreateUniformHandler() override;
@@ -16,27 +16,27 @@ protected:
     void CreatePipeline() override;
 };
 
-cGraphicsRenderModule::cGraphicsRenderModule(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain)
+cLightsRenderModule::cLightsRenderModule(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain)
         : cRenderModule(pLogicalDevice, pSwapChain)
 {
     Init();
 }
 
-void cGraphicsRenderModule::CreateUniformHandler()
+void cLightsRenderModule::CreateUniformHandler()
 {
     // Create the uniform handler. This is responsible for the uniform variables
-    ppUniformHandler = new cGraphicsUniformHandler(ppLogicalDevice, ppSwapChain);
+    ppUniformHandler = new cLightsUniformHandler(ppLogicalDevice, ppSwapChain);
 }
 
-void cGraphicsRenderModule::CreateRenderPass()
+void cLightsRenderModule::CreateRenderPass()
 {
     // Create the render pass. This holds information about the frames we want to render.
     // will probably be moved somewhere else later
-    ppRenderPass = new cGraphicsRenderPass(ppLogicalDevice, ppSwapChain);
+    ppRenderPass = new cLightsRenderPass(ppLogicalDevice, ppSwapChain);
 }
 
-void cGraphicsRenderModule::CreatePipeline()
+void cLightsRenderModule::CreatePipeline()
 {
     // Create the graphics pipeline. Handles the shaders and fixed-function operations for the graphics pipeline.
-    ppRenderPipeline = new cGraphicsPipeline(ppSwapChain, ppLogicalDevice, ppRenderPass, ppUniformHandler);
+    ppRenderPipeline = new cLightsPipeline(ppSwapChain, ppLogicalDevice, ppRenderPass, ppUniformHandler);
 }

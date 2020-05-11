@@ -27,6 +27,7 @@ protected:
 
 public:
     glm::vec3 color = glm::vec3(0, 1, 0);
+    cGeometry* pQuadsGeometry;
 
     cScene();
     virtual ~cScene();
@@ -83,6 +84,8 @@ cScene::~cScene()
 
 void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice)
 {
+    pQuadsGeometry = cGeometry::DisplayQuads(pLogicalDevice);
+
     for (auto oModel : pmpModels)
     {
         assert(oModel.second != nullptr);

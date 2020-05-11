@@ -3,7 +3,7 @@
 #include <pch.hpp>
 #include <vulkan/command/CommandBufferRecorder.hpp>
 #include <vulkan/SwapChain.hpp>
-#include <vulkan/uniform/GraphicsUniformHandler.hpp>
+#include <vulkan/deferred/DeferredUniformHandler.hpp>
 #include "OverlayRenderPass.hpp"
 #include "vulkan/pipeline/OverlayPipeline.hpp"
 #include "Text.hpp"

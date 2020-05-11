@@ -13,11 +13,12 @@
 #include <vulkan/scene/Scene.hpp>
 #include "vulkan/pipeline/GraphicsPipeline.hpp"
 #include "vulkan/texture/TextureHandler.hpp"
-#include "UniformHandler.hpp"
+#include "vulkan/uniform/UniformHandler.hpp"
 
 struct tObjectUniformData
 {
     glm::mat4 tModel;
+    bool bLighting;
 };
 
 struct tCameraUniformData
@@ -26,7 +27,7 @@ struct tCameraUniformData
     glm::mat4 tProjection;
 };
 
-class cGraphicsUniformHandler : public iUniformHandler
+class cMRTUniformHandler : public iUniformHandler
 {
 private:
     cLogicalDevice* ppLogicalDevice;
@@ -38,8 +39,8 @@ private:
 
     std::vector<VkBuffer> paoObjectUniformBuffers;
     std::vector<VkDeviceMemory> paoObjectUniformBuffersMemory;
-    VkBuffer poCameraUniformBuffer;
-    VkDeviceMemory poCameraUniformBufferMemory;
+    VkBuffer poCameraUniformBuffer = VK_NULL_HANDLE;
+    VkDeviceMemory poCameraUniformBufferMemory = VK_NULL_HANDLE;
 
     VkDescriptorPool poDescriptorPool;
     std::vector<VkDescriptorSet> poObjectDescriptorSets;
@@ -48,8 +49,8 @@ private:
     VkDescriptorSet paoCurrentDescriptorSets[2];
 
 public:
-    cGraphicsUniformHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
-    ~cGraphicsUniformHandler() override;
+    cMRTUniformHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
+    ~cMRTUniformHandler() override;
 
     void SetupUniformBuffers(cTextureHandler* pTextureHandler, cScene* pScene) override;
     void UpdateUniformBuffers(cScene* pScene) override;
@@ -69,8 +70,8 @@ private:
     void CopyToDeviceMemory(VkDeviceMemory& oDeviceMemory, void* pData, uint uiDataSize);
 };
 
-cGraphicsUniformHandler::cGraphicsUniformHandler(cLogicalDevice* pLogicalDevice,
-                                                 cSwapChain* pSwapChain)
+cMRTUniformHandler::cMRTUniformHandler(cLogicalDevice* pLogicalDevice,
+                                       cSwapChain* pSwapChain)
 {
     ppLogicalDevice = pLogicalDevice;
     ppSwapChain = pSwapChain;
@@ -124,7 +125,7 @@ cGraphicsUniformHandler::cGraphicsUniformHandler(cLogicalDevice* pLogicalDevice,
 }
 
 
-cGraphicsUniformHandler::~cGraphicsUniformHandler()
+cMRTUniformHandler::~cMRTUniformHandler()
 {
     ppLogicalDevice->DestroyDescriptorSetLayout(poObjectDescriptorSetLayout, nullptr);
     ppLogicalDevice->DestroyDescriptorSetLayout(poCameraDescriptorSetLayout, nullptr);
@@ -140,15 +141,15 @@ cGraphicsUniformHandler::~cGraphicsUniformHandler()
     ppLogicalDevice->DestroyDescriptorPool(poDescriptorPool, nullptr);
 }
 
-void cGraphicsUniformHandler::SetupUniformBuffers(cTextureHandler* pTextureHandler,
-                                                  cScene* pScene)
+void cMRTUniformHandler::SetupUniformBuffers(cTextureHandler* pTextureHandler,
+                                             cScene* pScene)
 {
     CreateUniformBuffers(pScene);
     CreateDescriptorPool();
     CreateDescriptorSets(pTextureHandler, pScene);
 }
 
-void cGraphicsUniformHandler::CreateUniformBuffers(cScene* pScene)
+void cMRTUniformHandler::CreateUniformBuffers(cScene* pScene)
 {
     VkDeviceSize bufferSize = sizeof(tObjectUniformData);
     uint uiCount = pScene->GetObjectCount();
@@ -170,7 +171,7 @@ void cGraphicsUniformHandler::CreateUniformBuffers(cScene* pScene)
                                 poCameraUniformBuffer, poCameraUniformBufferMemory);
 }
 
-void cGraphicsUniformHandler::UpdateUniformBuffers(cScene* pScene)
+void cMRTUniformHandler::UpdateUniformBuffers(cScene* pScene)
 {
     // We don't want to do anything before the scene is loaded
     if (pScene == nullptr) return;
@@ -202,6 +203,8 @@ void cGraphicsUniformHandler::UpdateUniformBuffers(cScene* pScene)
         // Struct with uniforms for the object
         tObjectUniformData tObjectData = {};
 
+        tObjectData.bLighting = true;
+
         // Set the model matrix of the object
         tObjectData.tModel = oObject.second->GetModelMatrix();
 
@@ -210,7 +213,7 @@ void cGraphicsUniformHandler::UpdateUniformBuffers(cScene* pScene)
     }
 }
 
-void cGraphicsUniformHandler::CopyToDeviceMemory(VkDeviceMemory& oDeviceMemory, void* pData, uint uiDataSize)
+void cMRTUniformHandler::CopyToDeviceMemory(VkDeviceMemory& oDeviceMemory, void* pData, uint uiDataSize)
 {
     void* pMappedMemory;
     ppLogicalDevice->MapMemory(oDeviceMemory, 0, uiDataSize, 0, &pMappedMemory);
@@ -220,7 +223,7 @@ void cGraphicsUniformHandler::CopyToDeviceMemory(VkDeviceMemory& oDeviceMemory, 
     ppLogicalDevice->UnmapMemory(oDeviceMemory);
 }
 
-void cGraphicsUniformHandler::CreateDescriptorPool()
+void cMRTUniformHandler::CreateDescriptorPool()
 {
     std::array<VkDescriptorPoolSize, 3> atPoolSizes = {};
     atPoolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -243,7 +246,7 @@ void cGraphicsUniformHandler::CreateDescriptorPool()
     }
 }
 
-void cGraphicsUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, cScene* pScene)
+void cMRTUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, cScene* pScene)
 {
     std::vector<VkDescriptorSetLayout> aoLayouts(paoObjectUniformBuffers.size(), poObjectDescriptorSetLayout);
 
@@ -327,19 +330,19 @@ void cGraphicsUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHand
                                           0, nullptr);
 }
 
-uint cGraphicsUniformHandler::GetDescriptorSetLayoutCount(void)
+uint cMRTUniformHandler::GetDescriptorSetLayoutCount(void)
 {
     return 2;
 }
 
-VkDescriptorSetLayout* cGraphicsUniformHandler::GetDescriptorSetLayouts(void)
+VkDescriptorSetLayout* cMRTUniformHandler::GetDescriptorSetLayouts(void)
 {
     return paoDescriptorSetLayouts;
 }
 
-void cGraphicsUniformHandler::CmdBindDescriptorSets(VkCommandBuffer& commandBuffer,
-                                                    VkPipelineLayout& oPipelineLayout,
-                                                    uint uiIndex)
+void cMRTUniformHandler::CmdBindDescriptorSets(VkCommandBuffer& commandBuffer,
+                                               VkPipelineLayout& oPipelineLayout,
+                                               uint uiIndex)
 {
     paoCurrentDescriptorSets[0] = poObjectDescriptorSets[uiIndex];
     paoCurrentDescriptorSets[1] = poCameraDescriptorSet;

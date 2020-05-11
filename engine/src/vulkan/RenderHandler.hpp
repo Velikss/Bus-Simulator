@@ -20,6 +20,7 @@ private:
     uint puiUniformHandlerCount;
 
     std::vector<VkSemaphore> aoImageAvailableSemaphores;
+    std::vector<VkSemaphore> aoMRTFinishedSemaphores;
     std::vector<VkSemaphore> aoRenderFinishedSemaphores;
     std::vector<VkFence> aoInFlightFences;
 
@@ -69,6 +70,7 @@ void cRenderHandler::CreateSemaphores()
 
     // Resize all the semaphore & fence lists to the max amount of frames in flight
     aoImageAvailableSemaphores.resize(uiMAX_FRAMES_IN_FLIGHT);
+    aoMRTFinishedSemaphores.resize(uiMAX_FRAMES_IN_FLIGHT);
     aoRenderFinishedSemaphores.resize(uiMAX_FRAMES_IN_FLIGHT);
     aoInFlightFences.resize(uiMAX_FRAMES_IN_FLIGHT);
 
@@ -85,6 +87,7 @@ void cRenderHandler::CreateSemaphores()
     {
         // For every frame, create the two semaphores and the fence
         if (vkCreateSemaphore(oDevice, &tSemaphoreInfo, nullptr, &aoImageAvailableSemaphores[i]) != VK_SUCCESS ||
+            vkCreateSemaphore(oDevice, &tSemaphoreInfo, nullptr, &aoMRTFinishedSemaphores[i]) != VK_SUCCESS ||
             vkCreateSemaphore(oDevice, &tSemaphoreInfo, nullptr, &aoRenderFinishedSemaphores[i]) != VK_SUCCESS ||
             vkCreateFence(oDevice, &tFenceInfo, nullptr, &aoInFlightFences[i]) != VK_SUCCESS)
         {
@@ -96,6 +99,8 @@ void cRenderHandler::CreateSemaphores()
 void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandler, cCommandBuffer* pCommandBuffer)
 {
 #ifdef ENABLE_FPS_COUNT
+    assert(pTextHandler != nullptr);
+
     static auto startTime = std::chrono::high_resolution_clock::now();
     static uint frameCount = 0;
 
@@ -135,26 +140,36 @@ void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandle
     tSubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
     // Specifies which semaphores to wait on and in which stage(s) of the pipeline to wait
-    VkSemaphore aoWaitSemaphores[] = {aoImageAvailableSemaphores[uiCurrentFrame]};
     VkPipelineStageFlags aeWaitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     tSubmitInfo.waitSemaphoreCount = 1;
-    tSubmitInfo.pWaitSemaphores = aoWaitSemaphores;
+    tSubmitInfo.pWaitSemaphores = &aoImageAvailableSemaphores[uiCurrentFrame];
     tSubmitInfo.pWaitDstStageMask = aeWaitStages;
 
     // Specify which command buffers to submit
-    std::vector<VkCommandBuffer> aBuffers;
-    for (uint i = 0; i < puiCommandBufferCount; i++)
-    {
-        aBuffers.push_back(ppCommandBuffers[i]->GetBuffer(uiImageIndex));
-    }
-
-    tSubmitInfo.commandBufferCount = aBuffers.size();
-    tSubmitInfo.pCommandBuffers = aBuffers.data();
+    tSubmitInfo.commandBufferCount = 1;
+    tSubmitInfo.pCommandBuffers = &ppCommandBuffers[0]->GetBuffer(uiImageIndex);
 
     // Specify which semaphores to signal once the command buffer(s) finish
-    VkSemaphore aoSignalSemaphores[] = {aoRenderFinishedSemaphores[uiCurrentFrame]};
     tSubmitInfo.signalSemaphoreCount = 1;
-    tSubmitInfo.pSignalSemaphores = aoSignalSemaphores;
+    tSubmitInfo.pSignalSemaphores = &aoMRTFinishedSemaphores[uiCurrentFrame];
+
+    // Submit the command buffer to the queue
+    VkFence oFence = VK_NULL_HANDLE;
+    if (!ppLogicalDevice->GraphicsQueueSubmit(1, &tSubmitInfo, oFence))
+    {
+        throw std::runtime_error("failed to submit draw command buffer!");
+    }
+
+    // Specifies which semaphores to wait on
+    tSubmitInfo.pWaitSemaphores = &aoMRTFinishedSemaphores[uiCurrentFrame];
+
+    // Specify which command buffers to submit
+    tSubmitInfo.commandBufferCount = 1;
+    tSubmitInfo.pCommandBuffers = &ppCommandBuffers[1]->GetBuffer(uiImageIndex);
+
+    // Specify which semaphores to signal once the command buffer(s) finish
+    tSubmitInfo.signalSemaphoreCount = 1;
+    tSubmitInfo.pSignalSemaphores = &aoRenderFinishedSemaphores[uiCurrentFrame];
 
     // Submit the command buffer to the queue
     if (!ppLogicalDevice->GraphicsQueueSubmit(1, &tSubmitInfo, aoInFlightFences[uiCurrentFrame]))
@@ -168,7 +183,7 @@ void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandle
 
     // Specify which semaphores to wait on before presenting
     tPresentInfo.waitSemaphoreCount = 1;
-    tPresentInfo.pWaitSemaphores = aoSignalSemaphores;
+    tPresentInfo.pWaitSemaphores = &aoRenderFinishedSemaphores[uiCurrentFrame];
 
     // Specify the swap chains and the index of the image for each swap chain
     VkSwapchainKHR swapChains[] = {ppSwapChain->poSwapChain};

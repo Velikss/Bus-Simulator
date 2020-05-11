@@ -30,6 +30,7 @@ private:
 public:
     // Create a new Geometry from an OBJ file
     static cGeometry* FromOBJFile(const char* sFilePath, cLogicalDevice* pLogicalDevice, float fUVScale = 1.0f);
+    static cGeometry* DisplayQuads(cLogicalDevice* pLogicalDevice);
 
     // Cleans up the buffers and frees the memory on the device which is used for this geometry
     ~cGeometry();
@@ -69,6 +70,65 @@ cGeometry* cGeometry::FromOBJFile(const char* sFilePath, cLogicalDevice* pLogica
             tVertex.texCoord *= fUVScale;
         }
     }
+
+    // Setup the buffers on the device and copy the data there
+    pGeometry->CopyToDevice(pLogicalDevice);
+
+    // Clear the vertices and indices now that they've been loaded on the device
+    pGeometry->patVertices.clear();
+    pGeometry->paiIndices.clear();
+
+    return pGeometry;
+}
+
+cGeometry* cGeometry::DisplayQuads(cLogicalDevice* pLogicalDevice)
+{
+    cGeometry* pGeometry = new cGeometry();
+
+    float x = 0.0f;
+    float y = 0.0f;
+    for (uint32_t i = 0; i < 3; i++)
+    {
+        // Last component of normal is used for debug display sampler index
+        pGeometry->patVertices.push_back({{x + 1.0f, y + 1.0f, 0.0f},
+                                          {1.0f,     1.0f,     1.0f},
+                                          {0.0f,     0.0f,     (float) i},
+                                          {1.0f,     1.0f}});
+        pGeometry->patVertices.push_back({{x,    y + 1.0f, 0.0f},
+                                          {1.0f, 1.0f,     1.0f},
+                                          {0.0f, 0.0f,     (float) i},
+                                          {0.0f, 1.0f}});
+        pGeometry->patVertices.push_back({{x,    y,    0.0f},
+                                          {1.0f, 1.0f, 1.0f},
+                                          {0.0f, 0.0f, (float) i},
+                                          {0.0f, 0.0f}});
+        pGeometry->patVertices.push_back({{x + 1.0f, y,    0.0f},
+                                          {1.0f,     1.0f, 1.0f},
+                                          {0.0f,     0.0f, (float) i},
+                                          {1.0f,     0.0f}});
+        x += 1.0f;
+        if (x > 1.0f)
+        {
+            x = 0.0f;
+            y += 1.0f;
+        }
+    }
+
+    for (uint32_t i = 0; i < 3; ++i)
+    {
+        uint32_t indices[6] = {0, 1, 2, 2, 3, 0};
+        for (auto index : indices)
+        {
+            pGeometry->paiIndices.push_back(i * 4 + index);
+        }
+    }
+
+    // Get the amount of vertices and indices
+    pGeometry->puiVertexCount = pGeometry->patVertices.size();
+    pGeometry->puiIndexCount = pGeometry->paiIndices.size();
+
+    assert(pGeometry->puiVertexCount > 0);  // there should be vertices
+    assert(pGeometry->puiIndexCount > 0);   // there should be indices
 
     // Setup the buffers on the device and copy the data there
     pGeometry->CopyToDevice(pLogicalDevice);

@@ -82,7 +82,20 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/uniform/UniformHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/OverlayUniformHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/Text.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/renderpass/RenderPass.hpp src/util/Formatter.hpp src/vulkan/module/RenderModule.hpp src/vulkan/pipeline/RenderPipeline.hpp src/vulkan/overlay/OverlayRenderModule.hpp src/vulkan/GraphicsRenderModule.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/renderpass/RenderPass.hpp
+        ${PROJECT_SOURCE_DIR}/src/util/Formatter.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/RenderModule.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/RenderPipeline.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/OverlayRenderModule.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/GraphicsRenderModule.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/SwapChainHelper.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/deferred/DeferredRenderModule.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/deferred/DeferredRenderPass.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/deferred/DeferredPipeline.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/deferred/DeferredUniformHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/uniform/LightsUniformHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/Light.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/command/DeferredRenderRecorder.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 

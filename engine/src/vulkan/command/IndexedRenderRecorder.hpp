@@ -6,7 +6,7 @@
 #include <vulkan/pipeline/GraphicsPipeline.hpp>
 #include "CommandBufferRecorder.hpp"
 
-class cIndexedRenderRecorder : public iCommandBufferRecorder
+class cMRTRenderRecorder : public iCommandBufferRecorder
 {
 private:
     cRenderPass* ppRenderPass;
@@ -16,24 +16,24 @@ private:
     cScene* ppScene;
 
     VkRenderPassBeginInfo ptRenderPassInfo = {};
-    std::array<VkClearValue, 2> paoClearValues = {};
+    std::array<VkClearValue, 4> paoClearValues = {};
 
 public:
-    cIndexedRenderRecorder(cRenderPass* pRenderPass,
-                           cSwapChain* pSwapChain,
-                           cRenderPipeline* pGraphicsPipeline,
-                           iUniformHandler* pUniformHandler,
-                           cScene* pScene);
+    cMRTRenderRecorder(cRenderPass* pRenderPass,
+                       cSwapChain* pSwapChain,
+                       cRenderPipeline* pGraphicsPipeline,
+                       iUniformHandler* pUniformHandler,
+                       cScene* pScene);
 
     void Setup(uint uiIndex) override;
     void RecordCommands(VkCommandBuffer& oCommandBuffer, uint uiIndex) override;
 };
 
-cIndexedRenderRecorder::cIndexedRenderRecorder(cRenderPass* pRenderPass,
-                                               cSwapChain* pSwapChain,
-                                               cRenderPipeline* pGraphicsPipeline,
-                                               iUniformHandler* pUniformHandler,
-                                               cScene* pScene)
+cMRTRenderRecorder::cMRTRenderRecorder(cRenderPass* pRenderPass,
+                                       cSwapChain* pSwapChain,
+                                       cRenderPipeline* pGraphicsPipeline,
+                                       iUniformHandler* pUniformHandler,
+                                       cScene* pScene)
 {
     ppRenderPass = pRenderPass;
     ppSwapChain = pSwapChain;
@@ -42,14 +42,14 @@ cIndexedRenderRecorder::cIndexedRenderRecorder(cRenderPass* pRenderPass,
     ppScene = pScene;
 }
 
-void cIndexedRenderRecorder::Setup(uint uiIndex)
+void cMRTRenderRecorder::Setup(uint uiIndex)
 {
     // Struct with information about our render pass
     ptRenderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 
     // Set the render pass and framebuffer
     ptRenderPassInfo.renderPass = ppRenderPass->GetRenderPass();
-    ptRenderPassInfo.framebuffer = ppSwapChain->GetFramebuffer(uiIndex);
+    ptRenderPassInfo.framebuffer = ppSwapChain->GetOffScreenFramebuffer();
 
     // Set the render area size
     ptRenderPassInfo.renderArea.offset = {0, 0};
@@ -57,12 +57,14 @@ void cIndexedRenderRecorder::Setup(uint uiIndex)
 
     // Defines the clear color value to use
     paoClearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f}; // black with 100% opacity
-    paoClearValues[1].depthStencil = {1.0f, 0}; // furthest possible depth
+    paoClearValues[1].color = {0.0f, 0.0f, 0.0f, 1.0f}; // black with 100% opacity
+    paoClearValues[2].color = {0.0f, 0.0f, 0.0f, 1.0f}; // black with 100% opacity
+    paoClearValues[3].depthStencil = {1.0f, 0}; // furthest possible depth
     ptRenderPassInfo.clearValueCount = paoClearValues.size();
     ptRenderPassInfo.pClearValues = paoClearValues.data();
 }
 
-void cIndexedRenderRecorder::RecordCommands(VkCommandBuffer& oCommandBuffer, uint uiIndex)
+void cMRTRenderRecorder::RecordCommands(VkCommandBuffer& oCommandBuffer, uint uiIndex)
 {
     // Begin the render pass
     vkCmdBeginRenderPass(oCommandBuffer, &ptRenderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
