@@ -10,7 +10,6 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(PkgConfig)
-find_package(glfw3 REQUIRED)
 find_package(Vulkan REQUIRED)
 
 set(CMAKE_C_STANDARD 99)
@@ -90,3 +89,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src ${GLEW_INCLUDE_DIRS} ${OPENGL_INCL
 add_library(${This} STATIC ${Sources} ${Headers})
 add_executable(${This}-bin ${Sources} ${Headers})
 target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw ${Vulkan_LIBRARIES})
+
+IF (NOT WIN32)
+    add_custom_command(TARGET ${This}-bin PRE_BUILD COMMAND cd ${PROJECT_SOURCE_DIR}/shaders && ./compile.sh)
+ENDIF ()
