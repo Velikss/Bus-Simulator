@@ -63,6 +63,7 @@ private:
 
     static void mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY);
     static void keyCallback(GLFWwindow* pWindow, int iKey, int iScanCode, int iAction, int iMods);
+    static void scrollCallback(GLFWwindow* pWindow, double dOffsetX, double dOffsetY);
 };
 
 cWindow* cWindow::poInstance;
@@ -102,6 +103,7 @@ void cWindow::CreateGLWindow()
     glfwSetCursorPosCallback(ppWindow, mouseCallback);
     //glfwSetInputMode(ppWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetKeyCallback(ppWindow, keyCallback);
+    glfwSetScrollCallback(ppWindow, scrollCallback);
 }
 
 bool cWindow::CreateWindowSurface(cVulkanInstance* pVulkanInstance)
@@ -238,4 +240,9 @@ void cWindow::mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY)
 void cWindow::keyCallback(GLFWwindow* pWindow, int iKey, int iScanCode, int iAction, int iMods)
 {
     poInstance->ppInputHandler->HandleKey(iKey, iAction);
+}
+
+void cWindow::scrollCallback(GLFWwindow* pWindow, double dOffsetX, double dOffsetY)
+{
+    poInstance->ppInputHandler->HandleScroll(dOffsetX, dOffsetY);
 }

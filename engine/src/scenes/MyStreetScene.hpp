@@ -30,22 +30,22 @@ public:
 
         // for smoothing key presses are cached and performed in the update function.
         if (keys['w'])
-            camera.Forward();
+            camera->Forward();
         if (keys['s'])
-            camera.BackWard();
+            camera->BackWard();
         if (keys['a'])
-            camera.MoveLeft();
+            camera->MoveLeft();
         if (keys['d'])
-            camera.MoveRight();
+            camera->MoveRight();
 
         if (keys['i'])
-            camera.LookUp();
+            camera->LookUp();
         if (keys['k'])
-            camera.LookDown();
+            camera->LookDown();
         if (keys['j'])
-            camera.LookLeft();
+            camera->LookLeft();
         if (keys['l'])
-            camera.LookRight();
+            camera->LookRight();
 
         // Move the car with a certains peed.
         const float speed = 0.6;
@@ -64,10 +64,10 @@ public:
 //            objects.at("car")->MoveRight(-angle_diff);
 
         // if godmode is enabled with space and c one is able to fly.
-        if (keys[' '] && !camera.lockHeight)
-            camera.cameraHeight += 0.1f;
-        if (keys['c'] && !camera.lockHeight)
-            camera.cameraHeight -= 0.1f;
+        if (keys[' '] && !camera->lockHeight)
+            camera->cameraHeight += 0.1f;
+        if (keys['c'] && !camera->lockHeight)
+            camera->cameraHeight -= 0.1f;
     }
 
 	void Load()
@@ -90,32 +90,32 @@ public:
         else if (k == 'v')
         {
             // toggle the view mode, we know use caching with the properties above, later maybe cameraStates/multiple cameras?
-            camera.lockHeight = !camera.lockHeight;
-            if (!camera.lockHeight)
+            camera->lockHeight = !camera->lockHeight;
+            if (!camera->lockHeight)
             {
-                camera.cameraHeight = cameraGodHeight;
-                cameraCachePos = camera.GetPosition();
+                camera->cameraHeight = cameraGodHeight;
+                cameraCachePos = camera->GetPosition();
 
-                cameraCachePos = camera.GetPosition();
-                cameraCachePitch = camera.GetPitch();
-                cameraCacheYaw = camera.GetYaw();
+                cameraCachePos = camera->GetPosition();
+                cameraCachePitch = camera->GetPitch();
+                cameraCacheYaw = camera->GetYaw();
                 if (cameraCachePosGod.x != 0.0f && cameraCachePosGod.z != 0.000f)
-                    camera.SetPosition(cameraCachePosGod);
+                    camera->SetPosition(cameraCachePosGod);
                 if (cameraCachePitchGod != 0.0f)
-                    camera.SetPitch(cameraCachePitchGod);
+                    camera->SetPitch(cameraCachePitchGod);
                 if (cameraCacheYawGod != 0.0f)
-                    camera.SetYaw(cameraCacheYawGod);
+                    camera->SetYaw(cameraCacheYawGod);
             }
             else
             {
-                cameraGodHeight = camera.cameraHeight;
-                camera.cameraHeight = 1.75f;
-                cameraCachePosGod = camera.GetPosition();
-                cameraCachePitchGod = camera.GetPitch();
-                cameraCacheYawGod = camera.GetYaw();
-                camera.SetPosition(cameraCachePos);
-                camera.SetPitch(cameraCachePitch);
-                camera.SetYaw(cameraCacheYaw);
+                cameraGodHeight = camera->cameraHeight;
+                camera->cameraHeight = 1.75f;
+                cameraCachePosGod = camera->GetPosition();
+                cameraCachePitchGod = camera->GetPitch();
+                cameraCacheYawGod = camera->GetYaw();
+                camera->SetPosition(cameraCachePos);
+                camera->SetPitch(cameraCachePitch);
+                camera->SetYaw(cameraCacheYaw);
             }
         }
         else // call base if it isn't a special key but a movement key.

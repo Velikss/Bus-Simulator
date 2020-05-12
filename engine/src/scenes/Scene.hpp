@@ -7,7 +7,7 @@
 #include <scenes/Camera.hpp>
 #include <animations/Animation.hpp>
 //#include <animations/Animation.hpp>
-#include <GLFW/glfw3.h>
+//#include <GLFW/glfw3.h>
 
 class Scene
 {
@@ -24,6 +24,8 @@ protected:
 public:
     string name; // name of the scene.
     Camera camera;
+	string name; // name of the scene.
+	Camera *camera;
 
     // all buffers for the scene.
     std::map<string, Texture*> textures;
@@ -54,6 +56,12 @@ public:
         for (auto& animation : animations)
             animation->Update();
     }
+	virtual void Update()
+	{
+		camera->ProcessUpdates();
+		for (auto& animation : animations)
+			animation->Update();
+	}
 
     virtual void Load() = 0;
 
@@ -71,6 +79,20 @@ public:
             light->Render();
         for (auto& obj : objects)
             obj.second->Render();
+	void Render()
+	{
+		for (auto& shader : shaders)
+		{
+			camera->SetTransformationOnShader(shader.second);
+			shader.second->setInt("lightsSize", shaders.size());
+			shader.second->setInt("skybox", 0);
+			for(int i = 0; i < lights.size(); i++)
+				lights[i]->PutOnShader(shader.second, i);
+		}
+		for (auto& light : lights)
+			light->Render();
+		for (auto& obj : objects)
+			obj.second->Render();
 
         glDepthFunc(GL_LEQUAL);
         skybox->Render();
@@ -96,4 +118,6 @@ public:
 
         camera.LookMouseDiff(x, y);
     }
+		camera->LookMouseDiff(x, y);
+	}
 };

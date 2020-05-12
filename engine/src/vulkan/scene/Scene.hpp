@@ -16,7 +16,7 @@ private:
     bool bQuit;
 
 protected:
-    Camera poCamera;
+    Camera *poCamera = new FirstPersonFlyCamera;
 
     std::map<string, cTexture*> pmpTextures;
     std::map<string, cGeometry*> pmpGeometries;
@@ -48,6 +48,7 @@ public:
 
     void HandleMouse(uint uiDeltaX, uint uiDeltaY) override;
     void HandleKey(uint uiKeyCode, uint uiAction) override;
+    void HandleScroll(double dOffsetX, double dOffsetY) override;
 
 protected:
     void Quit();
@@ -120,7 +121,7 @@ void cScene::Tick()
 
 void cScene::Update()
 {
-    poCamera.ProcessUpdates();
+    poCamera->ProcessUpdates();
 }
 
 uint cScene::GetObjectCount()
@@ -135,7 +136,7 @@ std::map<string, cBaseObject*>& cScene::GetObjects()
 
 Camera& cScene::GetCamera()
 {
-    return poCamera;
+    return *poCamera;
 }
 
 void cScene::Quit()
@@ -150,7 +151,7 @@ bool cScene::ShouldQuit()
 
 void cScene::HandleMouse(uint uiDeltaX, uint uiDeltaY)
 {
-    poCamera.LookMouseDiff(uiDeltaX, uiDeltaY);
+    poCamera->LookMouseDiff(uiDeltaX, uiDeltaY);
 }
 
 void cScene::HandleKey(uint uiKeyCode, uint uiAction)
@@ -160,4 +161,9 @@ void cScene::HandleKey(uint uiKeyCode, uint uiAction)
         if (uiAction == GLFW_PRESS) paKeys[uiKeyCode] = true;
         if (uiAction == GLFW_RELEASE) paKeys[uiKeyCode] = false;
     }
+}
+
+void cScene::HandleScroll(double dOffsetX, double dOffsetY)
+{
+
 }

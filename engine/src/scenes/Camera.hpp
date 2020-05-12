@@ -7,7 +7,11 @@ The camera class, it is however FP based and should have its own sub-class in a 
 */
 class Camera
 {
-private:
+public:
+    float fFoV = 45.0;
+    float fZNear = 1.0;
+    float fZFar = 500.0;
+
     glm::vec3 cameraPos = glm::vec3(2.0f, 7.0f, 2.0f);
     glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -21,17 +25,52 @@ private:
     const float cameraSpeedLook = 1.0f;
     float mouseSpeed = 0.07f;
 
-    glm::mat4 view;
+    glm::mat4 view = glm::mat4(1.0f);
 public:
-    float fFoV = 45.0;
-    float fZNear = 1.0;
-    float fZFar = 500.0;
-
     float cameraHeight = 1.75f;
 
     bool lockHeight = true;
     bool lockMovement = false;
 
+    // bus camera
+    const float cameraScrollSpeed = 0.5f;
+    float orbitDistance = 30.0f;
+    glm::vec3* cameraPivot;
+    glm::vec3 cameraPivotChanges = glm::vec3(0.0f, 0.0f, 0.0f);
+
+    virtual void Forward() = 0;
+    virtual void BackWard() = 0;
+    virtual void MoveLeft() = 0;
+    virtual void MoveRight() = 0;
+    virtual void MoveUp() = 0;
+    virtual void MoveDown() = 0;
+    virtual void LookUp() = 0;
+    virtual void LookDown() = 0;
+    virtual void LookLeft() = 0;
+    virtual void LookRight() = 0;
+    // is the end op the passthrough from the mouse input.
+    virtual void LookMouseDiff(int x, int y) = 0;
+    // process the commits to the pv.
+    virtual void LookMouseWheelDiff(float x, float y) = 0;
+    virtual void ProcessUpdates() = 0;
+    // sets the pv and position on the passed shader.
+    virtual void SetTransformationOnShader(ShaderProgram* shader) = 0;
+    virtual glm::mat4& GetProjectionView() = 0;
+    virtual glm::mat4& GetViewMatrix() = 0;
+    virtual glm::mat4& GetProjectionMatrix() = 0;
+    virtual glm::vec3 GetPosition() = 0;
+    virtual void SetPosition(glm::vec3& position) = 0;
+    virtual glm::vec3 GetFront() = 0;
+    virtual void SetFront(glm::vec3& front) = 0;
+    virtual float GetPitch() = 0;
+    virtual void SetPitch(float pitch) = 0;
+    virtual float GetYaw() = 0;
+    virtual void SetYaw(float yaw) = 0;
+};
+
+class FirstPersonFlyCamera : public Camera
+{
+public:
     void Forward()
     {
         if (!lockMovement)
@@ -59,7 +98,15 @@ public:
     void MoveUp()
     {
         if (!lockMovement)
-            cameraPos += cameraSpeed * cameraUp;
+            cameraHeight += cameraSpeed;
+//            cameraPos += cameraSpeed * cameraUp;
+    }
+
+    void MoveDown()
+    {
+        if (!lockMovement)
+            cameraHeight -= cameraSpeed;
+//            cameraPos -= cameraSpeed * cameraUp;
     }
 
     void LookUp()
@@ -92,6 +139,11 @@ public:
             pitch = -80;
         if (pitch > 80)
             pitch = 80;
+    }
+
+    void LookMouseWheelDiff(float x, float y)
+    {
+
     }
 
     // process the commits to the pv.

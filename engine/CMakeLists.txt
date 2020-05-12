@@ -1,6 +1,17 @@
 cmake_minimum_required(VERSION 3.13.4)
 
 set(This engine)
+set(CompilerFlags
+        CMAKE_CXX_FLAGS
+        CMAKE_CXX_FLAGS_DEBUG
+        CMAKE_CXX_FLAGS_RELEASE
+        CMAKE_C_FLAGS
+        CMAKE_C_FLAGS_DEBUG
+        CMAKE_C_FLAGS_RELEASE
+        )
+foreach(CompilerFlag ${CompilerFlags})
+    string(REPLACE "/MT" "/MD" ${CompilerFlag} "${${CompilerFlag}}")
+endforeach()
 project(${This} C CXX)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -10,7 +21,10 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(PkgConfig)
-find_package(Vulkan REQUIRED)
+
+IF(NOT WIN32)
+    find_package(Vulkan REQUIRED)
+ENDIF()
 
 add_subdirectory(glfw)
 
@@ -102,7 +116,9 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/loop/TickTask.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/LightObject.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/util/EngineLog.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/ViewportQuadGeometry.hpp src/vulkan/texture/TextureSampler.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/ViewportQuadGeometry.hpp src/vulkan/texture/TextureSampler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/BusCamera.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/BusWorldScene.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 

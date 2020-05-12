@@ -3,6 +3,7 @@
 #include <pch.hpp>
 #include <vulkan/scene/Scene.hpp>
 #include "LightObject.hpp"
+#include <vulkan/scene/BusCamera.hpp>
 
 class cStreetScene : public cScene
 {
@@ -11,6 +12,8 @@ private:
 
 public:
     void Update() override;
+
+    void HandleScroll(double dOffsetX, double dOffsetY) override;
 
 protected:
     void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice) override;
@@ -46,9 +49,9 @@ void cStreetScene::Update()
 
     // temporary flight controls
     if (paKeys[GLFW_KEY_SPACE])
-        poCamera.cameraHeight += 0.1f;
+        poCamera->cameraHeight += 0.01;
     if (paKeys[GLFW_KEY_LEFT_SHIFT])
-        poCamera.cameraHeight -= 0.1f;
+        poCamera->cameraHeight -= 0.01;
 
     if (paKeys[GLFW_KEY_ESCAPE])
         Quit();
@@ -73,13 +76,19 @@ void cStreetScene::Update()
     cScene::Update();
 }
 
-void cStreetScene::LoadTextures(cTextureHandler* pTextureHandler)
+void cStreetScene::HandleScroll(double dOffsetX, double dOffsetY)
+{
+    poCamera->LookMouseWheelDiff((float) dOffsetX, (float) dOffsetY);
+}
+
+void cStreetScene::LoadTextures(cTextureHandler *pTextureHandler)
 {
     pmpTextures["roof"] = pTextureHandler->LoadTextureFromFile("resources/textures/roof.jpg");
     pmpTextures["stoneHouse"] = pTextureHandler->LoadTextureFromFile("resources/textures/stone.jpg");
     pmpTextures["grass"] = pTextureHandler->LoadTextureFromFile("resources/textures/grass.jpg");
     pmpTextures["street"] = pTextureHandler->LoadTextureFromFile("resources/textures/street.jpg");
     pmpTextures["moon"] = pTextureHandler->LoadTextureFromFile("resources/textures/moon.jpg");
+    pmpTextures["grey"] = pTextureHandler->LoadTextureFromFile("resources/textures/grey.jpg");
     pmpTextures["skybox"] = pTextureHandler->LoadTextureFromFile("resources/textures/skybox.jpg",
                                                                  pTextureHandler->GetSkyboxSampler());
 }

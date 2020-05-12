@@ -31,6 +31,7 @@
 #include <vulkan/module/mrt/MRTRenderModule.hpp>
 #include <vulkan/module/lighting/LightingRenderRecorder.hpp>
 #include <vulkan/loop/GameLoop.hpp>
+#include <vulkan/scene/BusWorldScene.hpp>
 #include <thread>
 #include <chrono>
 
@@ -202,7 +203,7 @@ void Engine::MainLoop(void)
             ENGINE_LOG("Loading scene...");
 
             // Create and load the scene
-            ppScene = new cStreetScene();
+            ppScene = new cBusWorldScene();
             ppScene->Load(ppTextureHandler, ppLogicalDevice);
 
             // The scene will handle the input

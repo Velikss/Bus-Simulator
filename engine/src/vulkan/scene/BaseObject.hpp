@@ -24,8 +24,12 @@ public:
     void setRotation(const glm::vec3 poRotation);
     void setPosition(const glm::vec3 poPosition);
     void setScale(const glm::vec3 poScale);
+    glm::vec3* getPosition();
+    void MoveForward(float fMultiplier);
+    void MoveBackward(float fMultiplier);
+    void MoveLeft(float fAngleDiff);
+    void MoveRight(float fAngleDiff);
 
-    glm::vec3 GetPosition();
 };
 
 cBaseObject::cBaseObject(cMesh* pMesh) : ppMesh(pMesh)
@@ -95,9 +99,35 @@ void cBaseObject::setScale(const glm::vec3 oScale)
     poScale.z = oScale.z;
 }
 
-glm::vec3 cBaseObject::GetPosition()
+glm::vec3* cBaseObject::getPosition()
 {
-    return poPosition;
+    return &poPosition;
+}
+
+void cBaseObject::MoveForward(float fMultiplier = 0.01)
+{
+    glm::vec3 direction(sin(glm::radians(poRotation.y)), 0, cos(glm::radians(poRotation.y)));
+    poPosition -= (direction * fMultiplier);
+}
+
+ void cBaseObject::MoveBackward(float fMultiplier = 0.01)
+{
+    glm::vec3 direction(sin(glm::radians(poRotation.y)), 0, cos(glm::radians(poRotation.y)));
+    poPosition += (direction * fMultiplier);
+}
+
+ void cBaseObject::MoveLeft(float fAngleDiff)
+{
+    if (poRotation.y >= 360.0f)
+        poRotation.y = 0;
+    poRotation.y += fAngleDiff;
+}
+
+ void cBaseObject::MoveRight(float fAngleDiff)
+{
+    if (poRotation.y < 0.0f)
+        poRotation.y = 360.0f;
+    poRotation.y -= fAngleDiff;
 }
 
 cBaseObject::~cBaseObject()
