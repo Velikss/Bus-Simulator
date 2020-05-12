@@ -20,7 +20,7 @@ struct tLights
     glm::vec4 viewPos;
 };
 
-class cLightsUniformHandler : public iUniformHandler
+class cLightingUniformHandler : public iUniformHandler
 {
 private:
     cLogicalDevice* ppLogicalDevice;
@@ -35,8 +35,8 @@ private:
     VkDescriptorSet poDescriptorSet;
 
 public:
-    cLightsUniformHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
-    ~cLightsUniformHandler() override;
+    cLightingUniformHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
+    ~cLightingUniformHandler() override;
 
     void SetupUniformBuffers(cTextureHandler* pTextureHandler, cScene* pScene) override;
     void UpdateUniformBuffers(cScene* pScene) override;
@@ -56,8 +56,8 @@ private:
     void CopyToDeviceMemory(VkDeviceMemory& oDeviceMemory, void* pData, uint uiDataSize);
 };
 
-cLightsUniformHandler::cLightsUniformHandler(cLogicalDevice* pLogicalDevice,
-                                             cSwapChain* pSwapChain)
+cLightingUniformHandler::cLightingUniformHandler(cLogicalDevice* pLogicalDevice,
+                                                 cSwapChain* pSwapChain)
 {
     ppLogicalDevice = pLogicalDevice;
     ppSwapChain = pSwapChain;
@@ -100,7 +100,7 @@ cLightsUniformHandler::cLightsUniformHandler(cLogicalDevice* pLogicalDevice,
 }
 
 
-cLightsUniformHandler::~cLightsUniformHandler()
+cLightingUniformHandler::~cLightingUniformHandler()
 {
     ppLogicalDevice->DestroyDescriptorSetLayout(poDescriptorSetLayout, nullptr);
 
@@ -110,15 +110,15 @@ cLightsUniformHandler::~cLightsUniformHandler()
     ppLogicalDevice->DestroyDescriptorPool(poDescriptorPool, nullptr);
 }
 
-void cLightsUniformHandler::SetupUniformBuffers(cTextureHandler* pTextureHandler,
-                                                cScene* pScene)
+void cLightingUniformHandler::SetupUniformBuffers(cTextureHandler* pTextureHandler,
+                                                  cScene* pScene)
 {
     CreateUniformBuffers(pScene);
     CreateDescriptorPool();
     CreateDescriptorSets(pTextureHandler, pScene);
 }
 
-void cLightsUniformHandler::CreateUniformBuffers(cScene* pScene)
+void cLightingUniformHandler::CreateUniformBuffers(cScene* pScene)
 {
     cBufferHelper::CreateBuffer(ppLogicalDevice, sizeof(tLights),
                                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
@@ -126,7 +126,7 @@ void cLightsUniformHandler::CreateUniformBuffers(cScene* pScene)
                                 poUniformBuffer, poUniformBufferMemory);
 }
 
-void cLightsUniformHandler::UpdateUniformBuffers(cScene* pScene)
+void cLightingUniformHandler::UpdateUniformBuffers(cScene* pScene)
 {
     // We don't want to do anything before the scene is loaded
     if (pScene == nullptr) return;
@@ -182,7 +182,7 @@ void cLightsUniformHandler::UpdateUniformBuffers(cScene* pScene)
     CopyToDeviceMemory(poUniformBufferMemory, &tLights, sizeof(tLights));
 }
 
-void cLightsUniformHandler::CopyToDeviceMemory(VkDeviceMemory& oDeviceMemory, void* pData, uint uiDataSize)
+void cLightingUniformHandler::CopyToDeviceMemory(VkDeviceMemory& oDeviceMemory, void* pData, uint uiDataSize)
 {
     void* pMappedMemory;
     ppLogicalDevice->MapMemory(oDeviceMemory, 0, uiDataSize, 0, &pMappedMemory);
@@ -192,7 +192,7 @@ void cLightsUniformHandler::CopyToDeviceMemory(VkDeviceMemory& oDeviceMemory, vo
     ppLogicalDevice->UnmapMemory(oDeviceMemory);
 }
 
-void cLightsUniformHandler::CreateDescriptorPool()
+void cLightingUniformHandler::CreateDescriptorPool()
 {
     std::array<VkDescriptorPoolSize, 2> atPoolSizes = {};
     atPoolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -213,7 +213,7 @@ void cLightsUniformHandler::CreateDescriptorPool()
     }
 }
 
-void cLightsUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, cScene* pScene)
+void cLightingUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, cScene* pScene)
 {
     VkDescriptorSetAllocateInfo tAllocateInfo = {};
     tAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -285,19 +285,19 @@ void cLightsUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandle
                                           0, nullptr);
 }
 
-uint cLightsUniformHandler::GetDescriptorSetLayoutCount(void)
+uint cLightingUniformHandler::GetDescriptorSetLayoutCount(void)
 {
     return 1;
 }
 
-VkDescriptorSetLayout* cLightsUniformHandler::GetDescriptorSetLayouts(void)
+VkDescriptorSetLayout* cLightingUniformHandler::GetDescriptorSetLayouts(void)
 {
     return &poDescriptorSetLayout;
 }
 
-void cLightsUniformHandler::CmdBindDescriptorSets(VkCommandBuffer& commandBuffer,
-                                                  VkPipelineLayout& oPipelineLayout,
-                                                  uint uiIndex)
+void cLightingUniformHandler::CmdBindDescriptorSets(VkCommandBuffer& commandBuffer,
+                                                    VkPipelineLayout& oPipelineLayout,
+                                                    uint uiIndex)
 {
     vkCmdBindDescriptorSets(commandBuffer,
                             VK_PIPELINE_BIND_POINT_GRAPHICS,

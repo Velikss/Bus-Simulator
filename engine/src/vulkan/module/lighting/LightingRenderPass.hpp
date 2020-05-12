@@ -6,17 +6,17 @@
 #include <vulkan/renderpass/RenderPass.hpp>
 #include <vulkan/SwapChain.hpp>
 
-class cLightsRenderPass : public cRenderPass
+class cLightingRenderPass : public cRenderPass
 {
 public:
-    cLightsRenderPass(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
+    cLightingRenderPass(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
 
 private:
     void GetColorAttachment(VkAttachmentDescription& tColorAttachment, cSwapChain* pSwapChain);
 };
 
-cLightsRenderPass::cLightsRenderPass(cLogicalDevice* pLogicalDevice,
-                                     cSwapChain* pSwapChain) : cRenderPass(pLogicalDevice)
+cLightingRenderPass::cLightingRenderPass(cLogicalDevice* pLogicalDevice,
+                                         cSwapChain* pSwapChain) : cRenderPass(pLogicalDevice)
 {
     // Struct with information about the color attachment
     VkAttachmentDescription tColorAttachment = {};
@@ -66,7 +66,7 @@ cLightsRenderPass::cLightsRenderPass(cLogicalDevice* pLogicalDevice,
     }
 }
 
-void cLightsRenderPass::GetColorAttachment(VkAttachmentDescription& tColorAttachment, cSwapChain* pSwapChain)
+void cLightingRenderPass::GetColorAttachment(VkAttachmentDescription& tColorAttachment, cSwapChain* pSwapChain)
 {
     // Set the format to the format of our swap chain images
     tColorAttachment.format = pSwapChain->peSwapChainImageFormat;

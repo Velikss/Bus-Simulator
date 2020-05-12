@@ -3,7 +3,7 @@
 #include <pch.hpp>
 #include <vulkan/vulkan.h>
 #include <vulkan/LogicalDevice.hpp>
-#include <vulkan/overlay/OverlayRenderModule.hpp>
+#include <vulkan/module/overlay/OverlayRenderModule.hpp>
 #include <vulkan/SwapChain.hpp>
 #include <vulkan/command/CommandBuffer.hpp>
 

@@ -3,10 +3,10 @@
 #include <pch.hpp>
 #include <vulkan/command/CommandBufferRecorder.hpp>
 #include <vulkan/SwapChain.hpp>
-#include <vulkan/deferred/DeferredUniformHandler.hpp>
+#include <vulkan/module/mrt/MRTUniformHandler.hpp>
 #include "OverlayRenderPass.hpp"
-#include "vulkan/pipeline/OverlayPipeline.hpp"
-#include "Text.hpp"
+#include "OverlayPipeline.hpp"
+#include "vulkan/module/overlay/text/Text.hpp"
 
 class cOverlayCommandBufferRecorder : public iCommandBufferRecorder
 {

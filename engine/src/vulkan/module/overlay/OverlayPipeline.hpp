@@ -6,18 +6,21 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/SwapChain.hpp>
+#include <vulkan/module/lighting/LightingRenderPass.hpp>
 #include <vulkan/geometry/Vertex.hpp>
+#include <vulkan/module/mrt/MRTUniformHandler.hpp>
 #include <vulkan/pipeline/PipelineHelper.hpp>
-#include <vulkan/pipeline/RenderPipeline.hpp>
-#include <vulkan/overlay/Vertex2D.hpp>
+#include <vulkan/module/overlay/text/Vertex2D.hpp>
+#include <vulkan/module/overlay/OverlayRenderPass.hpp>
+#include <vulkan/Shaders.hpp>
 
-class cMRTPipeline : public cRenderPipeline
+class cOverlayPipeline : public cRenderPipeline
 {
 public:
-    cMRTPipeline(cSwapChain* pSwapChain,
-                 cLogicalDevice* pLogicalDevice,
-                 cRenderPass* pRenderPass,
-                 iUniformHandler* pUniformHandler);
+    cOverlayPipeline(cSwapChain* pSwapChain,
+                     cLogicalDevice* pLogicalDevice,
+                     cRenderPass* pRenderPass,
+                     iUniformHandler* pUniformHandler);
 
 protected:
     void CreatePipelineLayout(cSwapChain* pSwapChain,
@@ -30,18 +33,18 @@ protected:
                         iUniformHandler* pUniformHandler) override;
 };
 
-cMRTPipeline::cMRTPipeline(cSwapChain* pSwapChain,
-                           cLogicalDevice* pLogicalDevice,
-                           cRenderPass* pRenderPass,
-                           iUniformHandler* pUniformHandler)
+cOverlayPipeline::cOverlayPipeline(cSwapChain* pSwapChain,
+                                   cLogicalDevice* pLogicalDevice,
+                                   cRenderPass* pRenderPass,
+                                   iUniformHandler* pUniformHandler)
 {
     Init(pSwapChain, pLogicalDevice, pRenderPass, pUniformHandler);
 }
 
-void cMRTPipeline::CreatePipelineLayout(cSwapChain* pSwapChain,
-                                        cLogicalDevice* pLogicalDevice,
-                                        cRenderPass* pRenderPass,
-                                        iUniformHandler* pUniformHandler)
+void cOverlayPipeline::CreatePipelineLayout(cSwapChain* pSwapChain,
+                                            cLogicalDevice* pLogicalDevice,
+                                            cRenderPass* pRenderPass,
+                                            iUniformHandler* pUniformHandler)
 {
     // Struct with information about the pipeline layout
     VkPipelineLayoutCreateInfo tPipelineLayoutInfo = {};
@@ -58,14 +61,14 @@ void cMRTPipeline::CreatePipelineLayout(cSwapChain* pSwapChain,
     }
 }
 
-void cMRTPipeline::CreatePipeline(cSwapChain* pSwapChain,
-                                  cLogicalDevice* pLogicalDevice,
-                                  cRenderPass* pRenderPass,
-                                  iUniformHandler* pUniformHandler)
+void cOverlayPipeline::CreatePipeline(cSwapChain* pSwapChain,
+                                      cLogicalDevice* pLogicalDevice,
+                                      cRenderPass* pRenderPass,
+                                      iUniformHandler* pUniformHandler)
 {
     // Read the shader files
-    std::vector<char> acVertShaderCode = cPipelineHelper::ReadFile("shaders/mrt.vert.spv");
-    std::vector<char> acFragShaderCode = cPipelineHelper::ReadFile("shaders/mrt.frag.spv");
+    std::vector<char> acVertShaderCode = cPipelineHelper::ReadFile(TEXT_VERT_SHADER);
+    std::vector<char> acFragShaderCode = cPipelineHelper::ReadFile(TEXT_FRAG_SHADER);
 
     // Load the shader code into modules
     VkShaderModule oVertShaderModule = cPipelineHelper::CreateShaderModule(acVertShaderCode, pLogicalDevice);
@@ -88,21 +91,21 @@ void cMRTPipeline::CreatePipeline(cSwapChain* pSwapChain,
     VkPipelineShaderStageCreateInfo atShaderStages[] = {tVertShaderStageInfo, tFragShaderStageInfo};
 
     // Get the vertex binding description and attribute descriptions
-    auto atBindingDescription = Vertex::GetBindingDescription();
-    auto atAttributeDescriptions = Vertex::GetAttributeDescriptions();
+    auto atBindingDescriptions = tVertex2D::GetBindingDescriptions();
+    auto atAttributeDescriptions = tVertex2D::GetAttributeDescriptions();
 
     // Struct with information about the data we want to pass into the vertex shader
     VkPipelineVertexInputStateCreateInfo tVertexInputInfo = {};
     tVertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    tVertexInputInfo.vertexBindingDescriptionCount = 1;
-    tVertexInputInfo.pVertexBindingDescriptions = &atBindingDescription;
+    tVertexInputInfo.vertexBindingDescriptionCount = atBindingDescriptions.size();
+    tVertexInputInfo.pVertexBindingDescriptions = atBindingDescriptions.data();
     tVertexInputInfo.vertexAttributeDescriptionCount = atAttributeDescriptions.size();
     tVertexInputInfo.pVertexAttributeDescriptions = atAttributeDescriptions.data();
 
     // Struct with information about the kind of geometry we want to draw
     VkPipelineInputAssemblyStateCreateInfo tInputAssemblyInfo = {};
     tInputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    tInputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    tInputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
     tInputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
 
     // Struct with information to configure multisampling
@@ -116,42 +119,16 @@ void cMRTPipeline::CreatePipeline(cSwapChain* pSwapChain,
     tMultisampling.alphaToCoverageEnable = VK_FALSE;
     tMultisampling.alphaToOneEnable = VK_FALSE;
 
-    std::array<VkPipelineColorBlendAttachmentState, 3> atBlendAttachments;
-    atBlendAttachments[0].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+    VkPipelineColorBlendAttachmentState tColorBlendAttachment = {};
+    tColorBlendAttachment.blendEnable = VK_FALSE;
+    tColorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
                                            VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-    atBlendAttachments[0].blendEnable = VK_FALSE;
-    atBlendAttachments[0].srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
-    atBlendAttachments[0].dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
-    atBlendAttachments[0].colorBlendOp = VK_BLEND_OP_ADD; // Optional
-    atBlendAttachments[0].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
-    atBlendAttachments[0].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
-    atBlendAttachments[0].alphaBlendOp = VK_BLEND_OP_ADD; // Optional
-
-    atBlendAttachments[1].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-                                           VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-    atBlendAttachments[1].blendEnable = VK_FALSE;
-    atBlendAttachments[1].srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
-    atBlendAttachments[1].dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
-    atBlendAttachments[1].colorBlendOp = VK_BLEND_OP_ADD; // Optional
-    atBlendAttachments[1].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
-    atBlendAttachments[1].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
-    atBlendAttachments[1].alphaBlendOp = VK_BLEND_OP_ADD; // Optional
-
-    atBlendAttachments[2].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-                                           VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-    atBlendAttachments[2].blendEnable = VK_FALSE;
-    atBlendAttachments[2].srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
-    atBlendAttachments[2].dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
-    atBlendAttachments[2].colorBlendOp = VK_BLEND_OP_ADD; // Optional
-    atBlendAttachments[2].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
-    atBlendAttachments[2].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
-    atBlendAttachments[2].alphaBlendOp = VK_BLEND_OP_ADD; // Optional
 
     VkPipelineColorBlendStateCreateInfo tColorBlending = {};
     tColorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     tColorBlending.logicOpEnable = VK_FALSE;
-    tColorBlending.attachmentCount = atBlendAttachments.size();
-    tColorBlending.pAttachments = atBlendAttachments.data();
+    tColorBlending.attachmentCount = 1;
+    tColorBlending.pAttachments = &tColorBlendAttachment;
 
     // Struct with information for creating the graphics pipeline
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
@@ -185,8 +162,7 @@ void cMRTPipeline::CreatePipeline(cSwapChain* pSwapChain,
     tViewportState.pScissors = &tScissors;
 
     VkPipelineRasterizationStateCreateInfo tRasterizer =
-            cPipelineHelper::GetRasterizerCreateInfo(VK_FRONT_FACE_COUNTER_CLOCKWISE);
-    VkPipelineDepthStencilStateCreateInfo tDepthStencil = cPipelineHelper::GetDepthStencilCreateInfo();
+            cPipelineHelper::GetRasterizerCreateInfo(VK_FRONT_FACE_CLOCKWISE);
 
     // Set the configuration for all the fixed-function stages we defined earlier
     pipelineInfo.pVertexInputState = &tVertexInputInfo;
@@ -194,7 +170,7 @@ void cMRTPipeline::CreatePipeline(cSwapChain* pSwapChain,
     pipelineInfo.pViewportState = &tViewportState;
     pipelineInfo.pRasterizationState = &tRasterizer;
     pipelineInfo.pMultisampleState = &tMultisampling;
-    pipelineInfo.pDepthStencilState = &tDepthStencil;
+    pipelineInfo.pDepthStencilState = nullptr;
     pipelineInfo.pColorBlendState = &tColorBlending;
     pipelineInfo.pDynamicState = nullptr; // TODO: Enable dynamic states
 

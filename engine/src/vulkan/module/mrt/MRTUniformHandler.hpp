@@ -11,7 +11,7 @@
 #include <chrono>
 #include <vulkan/mesh/Mesh.hpp>
 #include <vulkan/scene/Scene.hpp>
-#include "vulkan/pipeline/GraphicsPipeline.hpp"
+#include "vulkan/module/lighting/LightingPipeline.hpp"
 #include "vulkan/texture/TextureHandler.hpp"
 #include "vulkan/uniform/UniformHandler.hpp"
 

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <pch.hpp>
-#include <vulkan/GraphicsRenderPass.hpp>
+#include <vulkan/module/lighting/LightingRenderPass.hpp>
 #include <vulkan/SwapChain.hpp>
-#include <vulkan/pipeline/GraphicsPipeline.hpp>
+#include <vulkan/module/lighting/LightingPipeline.hpp>
 #include "CommandBufferRecorder.hpp"
 
 class cLightingRenderRecorder : public iCommandBufferRecorder

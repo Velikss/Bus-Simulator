@@ -1,7 +1,7 @@
 #pragma once
 
 #include <pch.hpp>
-#include <vulkan/GraphicsRenderPass.hpp>
+#include <vulkan/module/lighting/LightingRenderPass.hpp>
 #include <vulkan/SwapChain.hpp>
 #include <vulkan/command/CommandBufferRecorder.hpp>
 

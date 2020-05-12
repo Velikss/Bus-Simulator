@@ -12,8 +12,8 @@ layout (location = 0) out vec4 outFragColor;
 
 void main(void)
 {
-    // The texture shows contains all the letters in the
-    // red channel, so we're using that as the value for
+    // The texture shows contains all the letters in white,
+    // so we're using the red channel as the value for
     // our alpha channel, and combining it with the color
     // from the uniform object
     float alpha = texture(samplerFont, inUV).r;

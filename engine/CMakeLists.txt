@@ -53,7 +53,6 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/PhysicalDevice.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/LogicalDevice.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/SwapChain.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/GraphicsPipeline.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/RenderHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/uniform/UniformHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/ImageHelper.hpp
@@ -74,28 +73,32 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/TestScene.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/InputHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/StreetScene.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/OverlayPipeline.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/PipelineHelper.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/Vertex2D.hpp src/vulkan/overlay/OverlayRenderPass.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/OverlayCommandBufferRecorder.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/Font.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/uniform/UniformHandler.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/OverlayUniformHandler.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/Text.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/renderpass/RenderPass.hpp
         ${PROJECT_SOURCE_DIR}/src/util/Formatter.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/RenderModule.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/RenderPipeline.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/OverlayRenderModule.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/GraphicsRenderModule.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/SwapChainHelper.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/deferred/DeferredRenderModule.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/deferred/DeferredRenderPass.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/deferred/DeferredPipeline.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/deferred/DeferredUniformHandler.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/uniform/LightsUniformHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/Light.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/command/DeferredRenderRecorder.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/command/DeferredRenderRecorder.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/Shaders.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/mrt/MRTPipeline.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/mrt/MRTRenderModule.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/mrt/MRTRenderPass.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/mrt/MRTUniformHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/lighting/LightingPipeline.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/lighting/LightingRenderModule.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/lighting/LightingRenderPass.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/lighting/LightingUniformHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/OverlayPipeline.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/OverlayRenderModule.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/OverlayRenderPass.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/OverlayUniformHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/OverlayCommandBufferRecorder.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/text/Vertex2D.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/text/Text.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/text/Font.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 

@@ -2,9 +2,9 @@
 
 #include <pch.hpp>
 #include <vulkan/module/RenderModule.hpp>
-#include <vulkan/deferred/DeferredRenderPass.hpp>
-#include <vulkan/deferred/DeferredPipeline.hpp>
-#include <vulkan/deferred/DeferredUniformHandler.hpp>
+#include <vulkan/module/mrt/MRTRenderPass.hpp>
+#include <vulkan/module/mrt/MRTPipeline.hpp>
+#include <vulkan/module/mrt/MRTUniformHandler.hpp>
 
 class cMRTRenderModule : public cRenderModule
 {

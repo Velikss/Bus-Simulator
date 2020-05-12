@@ -7,6 +7,7 @@
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/ImageHelper.hpp>
 #include <vulkan/SwapChainHelper.hpp>
+#include <util/Formatter.hpp>
 
 struct tOffScreenBuffer
 {
@@ -412,6 +413,7 @@ tFrameBufferAttachment& cSwapChain::GetAttachment(uint uiIndex)
         case 3:
             return ptOffScreenBuffer.ptDepthAttachment;
     }
+    throw std::runtime_error(cFormatter() << "Cannot find attachment " << uiIndex);
 }
 
 VkSampler& cSwapChain::GetSampler()

@@ -1,12 +1,12 @@
 #pragma once
 
 #include <pch.hpp>
-#include <vulkan/overlay/Text.hpp>
+#include <vulkan/module/overlay/text/Text.hpp>
 #include <vulkan/module/RenderModule.hpp>
-#include <vulkan/overlay/OverlayUniformHandler.hpp>
-#include <vulkan/overlay/OverlayRenderPass.hpp>
-#include <vulkan/pipeline/OverlayPipeline.hpp>
-#include <vulkan/overlay/OverlayCommandBufferRecorder.hpp>
+#include <vulkan/module/overlay/OverlayUniformHandler.hpp>
+#include <vulkan/module/overlay/OverlayRenderPass.hpp>
+#include <vulkan/module/overlay/OverlayPipeline.hpp>
+#include <vulkan/module/overlay/OverlayCommandBufferRecorder.hpp>
 
 class cOverlayRenderModule : public cRenderModule
 {

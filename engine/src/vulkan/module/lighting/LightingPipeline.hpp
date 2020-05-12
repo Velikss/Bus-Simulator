@@ -1,25 +1,22 @@
 #pragma once
 
 #include <pch.hpp>
-#include <fstream>
-#include <glm/glm.hpp>
 #include <vulkan/vulkan.h>
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/SwapChain.hpp>
-#include <vulkan/GraphicsRenderPass.hpp>
 #include <vulkan/geometry/Vertex.hpp>
-#include <vulkan/deferred/DeferredUniformHandler.hpp>
+#include <vulkan/module/mrt/MRTUniformHandler.hpp>
 #include <vulkan/pipeline/PipelineHelper.hpp>
-#include <vulkan/overlay/Vertex2D.hpp>
-#include "vulkan/overlay/OverlayRenderPass.hpp"
+#include <vulkan/pipeline/RenderPipeline.hpp>
+#include <vulkan/Shaders.hpp>
 
-class cOverlayPipeline : public cRenderPipeline
+class cLightingPipeline : public cRenderPipeline
 {
 public:
-    cOverlayPipeline(cSwapChain* pSwapChain,
-                     cLogicalDevice* pLogicalDevice,
-                     cRenderPass* pRenderPass,
-                     iUniformHandler* pUniformHandler);
+    cLightingPipeline(cSwapChain* pSwapChain,
+                      cLogicalDevice* pLogicalDevice,
+                      cRenderPass* pRenderPass,
+                      iUniformHandler* pUniformHandler);
 
 protected:
     void CreatePipelineLayout(cSwapChain* pSwapChain,
@@ -32,18 +29,18 @@ protected:
                         iUniformHandler* pUniformHandler) override;
 };
 
-cOverlayPipeline::cOverlayPipeline(cSwapChain* pSwapChain,
-                                   cLogicalDevice* pLogicalDevice,
-                                   cRenderPass* pRenderPass,
-                                   iUniformHandler* pUniformHandler)
+cLightingPipeline::cLightingPipeline(cSwapChain* pSwapChain,
+                                     cLogicalDevice* pLogicalDevice,
+                                     cRenderPass* pRenderPass,
+                                     iUniformHandler* pUniformHandler)
 {
     Init(pSwapChain, pLogicalDevice, pRenderPass, pUniformHandler);
 }
 
-void cOverlayPipeline::CreatePipelineLayout(cSwapChain* pSwapChain,
-                                            cLogicalDevice* pLogicalDevice,
-                                            cRenderPass* pRenderPass,
-                                            iUniformHandler* pUniformHandler)
+void cLightingPipeline::CreatePipelineLayout(cSwapChain* pSwapChain,
+                                             cLogicalDevice* pLogicalDevice,
+                                             cRenderPass* pRenderPass,
+                                             iUniformHandler* pUniformHandler)
 {
     // Struct with information about the pipeline layout
     VkPipelineLayoutCreateInfo tPipelineLayoutInfo = {};
@@ -60,14 +57,14 @@ void cOverlayPipeline::CreatePipelineLayout(cSwapChain* pSwapChain,
     }
 }
 
-void cOverlayPipeline::CreatePipeline(cSwapChain* pSwapChain,
-                                      cLogicalDevice* pLogicalDevice,
-                                      cRenderPass* pRenderPass,
-                                      iUniformHandler* pUniformHandler)
+void cLightingPipeline::CreatePipeline(cSwapChain* pSwapChain,
+                                       cLogicalDevice* pLogicalDevice,
+                                       cRenderPass* pRenderPass,
+                                       iUniformHandler* pUniformHandler)
 {
     // Read the shader files
-    std::vector<char> acVertShaderCode = cPipelineHelper::ReadFile("shaders/text.vert.spv");
-    std::vector<char> acFragShaderCode = cPipelineHelper::ReadFile("shaders/text.frag.spv");
+    std::vector<char> acVertShaderCode = cPipelineHelper::ReadFile(LIGHTING_VERT_SHADER);
+    std::vector<char> acFragShaderCode = cPipelineHelper::ReadFile(LIGHTING_FRAG_SHADER);
 
     // Load the shader code into modules
     VkShaderModule oVertShaderModule = cPipelineHelper::CreateShaderModule(acVertShaderCode, pLogicalDevice);
@@ -90,21 +87,21 @@ void cOverlayPipeline::CreatePipeline(cSwapChain* pSwapChain,
     VkPipelineShaderStageCreateInfo atShaderStages[] = {tVertShaderStageInfo, tFragShaderStageInfo};
 
     // Get the vertex binding description and attribute descriptions
-    auto atBindingDescriptions = tVertex2D::GetBindingDescriptions();
-    auto atAttributeDescriptions = tVertex2D::GetAttributeDescriptions();
+    auto tBindingDescription = Vertex::GetBindingDescription();
+    auto atAttributeDescriptions = Vertex::GetAttributeDescriptions();
 
     // Struct with information about the data we want to pass into the vertex shader
     VkPipelineVertexInputStateCreateInfo tVertexInputInfo = {};
     tVertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    tVertexInputInfo.vertexBindingDescriptionCount = atBindingDescriptions.size();
-    tVertexInputInfo.pVertexBindingDescriptions = atBindingDescriptions.data();
-    tVertexInputInfo.vertexAttributeDescriptionCount = atAttributeDescriptions.size();
+    tVertexInputInfo.vertexBindingDescriptionCount = 1;
+    tVertexInputInfo.pVertexBindingDescriptions = &tBindingDescription;
+    tVertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint>(atAttributeDescriptions.size());
     tVertexInputInfo.pVertexAttributeDescriptions = atAttributeDescriptions.data();
 
     // Struct with information about the kind of geometry we want to draw
     VkPipelineInputAssemblyStateCreateInfo tInputAssemblyInfo = {};
     tInputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    tInputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+    tInputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     tInputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
 
     // Struct with information to configure multisampling
@@ -118,11 +115,12 @@ void cOverlayPipeline::CreatePipeline(cSwapChain* pSwapChain,
     tMultisampling.alphaToCoverageEnable = VK_FALSE;
     tMultisampling.alphaToOneEnable = VK_FALSE;
 
+    // Allows you to blend the new color values with values already in the framebuffer
+    // We will just be ignoring this
     VkPipelineColorBlendAttachmentState tColorBlendAttachment = {};
-    tColorBlendAttachment.blendEnable = VK_FALSE;
     tColorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
                                            VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-
+    tColorBlendAttachment.blendEnable = VK_FALSE;
     VkPipelineColorBlendStateCreateInfo tColorBlending = {};
     tColorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     tColorBlending.logicOpEnable = VK_FALSE;
@@ -162,6 +160,7 @@ void cOverlayPipeline::CreatePipeline(cSwapChain* pSwapChain,
 
     VkPipelineRasterizationStateCreateInfo tRasterizer =
             cPipelineHelper::GetRasterizerCreateInfo(VK_FRONT_FACE_CLOCKWISE);
+    VkPipelineDepthStencilStateCreateInfo tDepthStencil = cPipelineHelper::GetDepthStencilCreateInfo();
 
     // Set the configuration for all the fixed-function stages we defined earlier
     pipelineInfo.pVertexInputState = &tVertexInputInfo;
@@ -169,7 +168,7 @@ void cOverlayPipeline::CreatePipeline(cSwapChain* pSwapChain,
     pipelineInfo.pViewportState = &tViewportState;
     pipelineInfo.pRasterizationState = &tRasterizer;
     pipelineInfo.pMultisampleState = &tMultisampling;
-    pipelineInfo.pDepthStencilState = nullptr;
+    pipelineInfo.pDepthStencilState = &tDepthStencil;
     pipelineInfo.pColorBlendState = &tColorBlending;
     pipelineInfo.pDynamicState = nullptr; // TODO: Enable dynamic states
 

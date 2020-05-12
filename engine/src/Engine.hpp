@@ -13,8 +13,8 @@
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/VulkanInstance.hpp>
 #include <vulkan/SwapChain.hpp>
-#include <vulkan/pipeline/GraphicsPipeline.hpp>
-#include <vulkan/GraphicsRenderPass.hpp>
+#include <vulkan/module/lighting/LightingPipeline.hpp>
+#include <vulkan/module/lighting/LightingRenderPass.hpp>
 #include <vulkan/RenderHandler.hpp>
 #include <vulkan/geometry/Geometry.hpp>
 #include <vulkan/mesh/Mesh.hpp>
@@ -23,9 +23,9 @@
 #include <vulkan/command/ClearScreenRecorder.hpp>
 #include <vulkan/scene/TestScene.hpp>
 #include <vulkan/scene/StreetScene.hpp>
-#include <vulkan/overlay/OverlayRenderModule.hpp>
-#include <vulkan/GraphicsRenderModule.hpp>
-#include <vulkan/deferred/DeferredRenderModule.hpp>
+#include <vulkan/module/overlay/OverlayRenderModule.hpp>
+#include <vulkan/module/lighting/LightingRenderModule.hpp>
+#include <vulkan/module/mrt/MRTRenderModule.hpp>
 #include <vulkan/command/DeferredRenderRecorder.hpp>
 
 class Engine
@@ -99,7 +99,7 @@ void Engine::InitVulkan(void)
     // Create and setup the depth resources
     ppSwapChain->CreateResources();
 
-    ppLightsRenderModule = new cLightsRenderModule(ppLogicalDevice, ppSwapChain);
+    ppLightsRenderModule = new cLightingRenderModule(ppLogicalDevice, ppSwapChain);
     ppMRTRenderModule = new cMRTRenderModule(ppLogicalDevice, ppSwapChain);
 #ifdef ENABLE_OVERLAY
     ppOverlayRenderModule = new cOverlayRenderModule(ppLogicalDevice, ppSwapChain, ppWindow);
