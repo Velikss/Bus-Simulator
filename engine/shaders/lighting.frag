@@ -1,8 +1,5 @@
 #version 450
 
-#define lightCount 6
-#define ambient 0.6
-
 layout (binding = 1) uniform sampler2D samplerposition;
 layout (binding = 2) uniform sampler2D samplerNormal;
 layout (binding = 3) uniform sampler2D samplerAlbedo;
@@ -17,10 +14,12 @@ struct Light {
     float radius;
 };
 
-layout (binding = 0) uniform UBO
+layout (binding = 0) readonly buffer Buffer
 {
-    Light lights[6];
     vec4 viewPos;
+    float ambientLight;
+    uint lightsCount;
+    Light lights[];
 } ubo;
 
 
@@ -39,9 +38,9 @@ void main()
         vec3 normal = texture(samplerNormal, inTexCoord).rgb;
 
         // Ambient part
-        vec3 fragcolor  = albedo.rgb * ambient;
+        vec3 fragcolor  = albedo.rgb * ubo.ambientLight;
 
-        for (int i = 0; i < lightCount; ++i)
+        for (int i = 0; i < ubo.lightsCount; ++i)
         {
             if (ubo.lights[i].radius > 0)
             {

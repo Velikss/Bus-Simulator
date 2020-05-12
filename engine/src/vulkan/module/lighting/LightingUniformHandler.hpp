@@ -21,10 +21,11 @@ struct tLight
     float fRadius;
 };
 
-struct tLights
+struct tLightsInfo
 {
-    tLight atLights[6];
-    glm::vec4 viewPos;
+    glm::vec4 tViewPos;
+    float fAmbientLight;
+    uint uiLightsCount;
 };
 
 class cLightingUniformHandler : public iUniformHandler
@@ -40,6 +41,9 @@ private:
 
     VkDescriptorPool poDescriptorPool;
     VkDescriptorSet poDescriptorSet;
+
+    uint puiLightsCount;
+    size_t puiLightsMemorySize;
 
 public:
     cLightingUniformHandler(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
@@ -59,8 +63,6 @@ private:
     void CreateUniformBuffers(cScene* pScene);
     void CreateDescriptorPool();
     void CreateDescriptorSets(cTextureHandler* pTextureHandler, cScene* pScene);
-
-    void CopyToDeviceMemory(VkDeviceMemory& oDeviceMemory, void* pData, uint uiDataSize);
 };
 
 cLightingUniformHandler::cLightingUniformHandler(cLogicalDevice* pLogicalDevice,
@@ -72,7 +74,7 @@ cLightingUniformHandler::cLightingUniformHandler(cLogicalDevice* pLogicalDevice,
     std::array<VkDescriptorSetLayoutBinding, 4> atLayoutBindings;
 
     atLayoutBindings[0].binding = 0;
-    atLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    atLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     atLayoutBindings[0].descriptorCount = 1;
     atLayoutBindings[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
     atLayoutBindings[0].pImmutableSamplers = nullptr;
@@ -127,8 +129,23 @@ void cLightingUniformHandler::SetupUniformBuffers(cTextureHandler* pTextureHandl
 
 void cLightingUniformHandler::CreateUniformBuffers(cScene* pScene)
 {
-    cBufferHelper::CreateBuffer(ppLogicalDevice, sizeof(tLights),
-                                VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+    puiLightsCount = 0;
+    for (auto pObject : pScene->GetObjects())
+    {
+        if (instanceof<cLightObject>(pObject.second))
+        {
+            puiLightsCount++;
+        }
+    }
+
+    // The code below assumes that tLightsInfo is less than or
+    // equal to 32 bytes, and tLight is exactly 32 bytes.
+    static_assert(sizeof(tLightsInfo) <= 32, "Alignment code needs to be updated when tLightsInfo changes");
+    static_assert(sizeof(tLight) == 32, "Alignment code needs to be updated when tLight changes");
+
+    puiLightsMemorySize = 32 + (sizeof(tLight) * puiLightsCount);
+    cBufferHelper::CreateBuffer(ppLogicalDevice, puiLightsMemorySize,
+                                VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
                                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                                 poUniformBuffer, poUniformBufferMemory);
 }
@@ -138,49 +155,51 @@ void cLightingUniformHandler::UpdateUniformBuffers(cScene* pScene)
     // We don't want to do anything before the scene is loaded
     if (pScene == nullptr) return;
 
-    // Get the camera and screen extent
+    // Get the camera
     Camera* pCamera = &pScene->GetCamera();
 
-    tLights tLights = {};
+    // Lights info consists of amount of lights, camera pos and ambient light level
+    tLightsInfo tLightsInfo = {};
+    tLightsInfo.uiLightsCount = puiLightsCount;
+    tLightsInfo.tViewPos = glm::vec4(pCamera->GetPosition(), 0.0f) * glm::vec4(-1.0f, 1.0f, -1.0f, 1.0f);
+    tLightsInfo.fAmbientLight = pScene->pfAmbientLight;
 
-    uint uiIndex = 0;
+    // Loop over all the objects in the scene. If the object is a
+    //  light, add it to the list of lights
+    std::vector<tLight> atLights;
     for (auto pObject : pScene->GetObjects())
     {
         if (instanceof<cLightObject>(pObject.second))
         {
             cLightObject* pLight = dynamic_cast<cLightObject*>(pObject.second);
-            tLights.atLights[uiIndex].tPosition = glm::vec4(pLight->GetPosition(), 0.0f);
-            tLights.atLights[uiIndex].tColor = pLight->GetColor();
-            tLights.atLights[uiIndex].fRadius = pLight->GetRadius();
-
-            uiIndex++;
-            if (uiIndex >= sizeof(tLights.atLights) / sizeof(tLights.atLights[0]))
-            {
-                break;
-            }
+            tLight tLight = {};
+            tLight.tPosition = glm::vec4(pLight->GetPosition(), 0.0f);
+            tLight.tColor = pLight->GetColor();
+            tLight.fRadius = pLight->GetRadius();
+            atLights.push_back(tLight);
         }
     }
 
-    tLights.viewPos = glm::vec4(pCamera->GetPosition(), 0.0f) * glm::vec4(-1.0f, 1.0f, -1.0f, 1.0f);
+    // The code below assumes that tLightsInfo is less than or
+    // equal to 32 bytes, and tLight is exactly 32 bytes.
+    static_assert(sizeof(tLightsInfo) <= 32, "Alignment code needs to be updated when tLightsInfo changes");
+    static_assert(sizeof(tLight) == 32, "Alignment code needs to be updated when tLight changes");
 
     // Copy the data to memory
-    CopyToDeviceMemory(poUniformBufferMemory, &tLights, sizeof(tLights));
-}
-
-void cLightingUniformHandler::CopyToDeviceMemory(VkDeviceMemory& oDeviceMemory, void* pData, uint uiDataSize)
-{
-    void* pMappedMemory;
-    ppLogicalDevice->MapMemory(oDeviceMemory, 0, uiDataSize, 0, &pMappedMemory);
+    byte* pMappedMemory;
+    ppLogicalDevice->MapMemory(poUniformBufferMemory, 0, puiLightsMemorySize,
+                               0, reinterpret_cast<void**>(&pMappedMemory));
     {
-        memcpy(pMappedMemory, pData, uiDataSize);
+        memcpy(pMappedMemory, &tLightsInfo, sizeof(tLightsInfo));
+        memcpy(pMappedMemory + 32, &atLights[0], puiLightsMemorySize - 32);
     }
-    ppLogicalDevice->UnmapMemory(oDeviceMemory);
+    ppLogicalDevice->UnmapMemory(poUniformBufferMemory);
 }
 
 void cLightingUniformHandler::CreateDescriptorPool()
 {
     std::array<VkDescriptorPoolSize, 2> atPoolSizes = {};
-    atPoolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    atPoolSizes[0].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     atPoolSizes[0].descriptorCount = 1;
     atPoolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     atPoolSizes[1].descriptorCount = 3;
@@ -215,7 +234,7 @@ void cLightingUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHand
     VkDescriptorBufferInfo tCameraBufferInfo = {};
     tCameraBufferInfo.buffer = poUniformBuffer;
     tCameraBufferInfo.offset = 0;
-    tCameraBufferInfo.range = sizeof(tLights);
+    tCameraBufferInfo.range = VK_WHOLE_SIZE;
 
     VkDescriptorImageInfo tPositionInfo = {};
     tPositionInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -238,7 +257,7 @@ void cLightingUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHand
     atDescriptorWrites[0].dstSet = poDescriptorSet;
     atDescriptorWrites[0].dstBinding = 0;
     atDescriptorWrites[0].dstArrayElement = 0;
-    atDescriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    atDescriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     atDescriptorWrites[0].descriptorCount = 1;
     atDescriptorWrites[0].pBufferInfo = &tCameraBufferInfo;
 

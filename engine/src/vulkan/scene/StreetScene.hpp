@@ -61,7 +61,7 @@ void cStreetScene::Update()
             float g = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
             float b = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 
-            color = glm::vec3(r, g, b);
+            textColor = glm::vec3(r, g, b);
         }
         pressed = true;
     }
@@ -144,9 +144,21 @@ void cStreetScene::LoadObjects()
     pmpObjects["street"] = new cBaseObject(*pmpModels["street"]);
     pmpObjects["street"]->setScale(glm::vec3(200, 1, 100));
 
-    pmpObjects["light1"] = new cLightObject(pmpMeshes["light_source"], glm::vec3(1, 0, 0), 25.0f);
+    pmpObjects["light1"] = new cLightObject(pmpMeshes["light_source"], glm::vec3(0, 1, 0), 50.0f);
     pmpObjects["light1"]->setScale(glm::vec3(0, 0, 0));
     pmpObjects["light1"]->setPosition(glm::vec3(5, 5, 5));
+
+    pmpObjects["light2"] = new cLightObject(pmpMeshes["light_source"], glm::vec3(1, 0, 1), 50.0f);
+    pmpObjects["light2"]->setScale(glm::vec3(0, 0, 0));
+    pmpObjects["light2"]->setPosition(glm::vec3(-5, 5, 5));
+
+    pmpObjects["light3"] = new cLightObject(pmpMeshes["light_source"], glm::vec3(1, 0, 0), 50.0f);
+    pmpObjects["light3"]->setScale(glm::vec3(0, 0, 0));
+    pmpObjects["light3"]->setPosition(glm::vec3(5, 5, -5));
+
+    pmpObjects["light4"] = new cLightObject(pmpMeshes["light_source"], glm::vec3(0, 1, 1), 50.0f);
+    pmpObjects["light4"]->setScale(glm::vec3(0, 0, 0));
+    pmpObjects["light4"]->setPosition(glm::vec3(-5, 5, -5));
 
     /*pmpObjects["grasslawn1"] = new cBaseObject(*pmpModels["grasslawn"]);
     pmpObjects["grasslawn1"]->setPosition(glm::vec3(80.0, 0.01, 0));
@@ -181,8 +193,8 @@ void cStreetScene::LoadObjects()
         pmpObjects[sPoleName] = new cBaseObject(pmpMeshes["pole"]);
         pmpObjects[sPoleName]->setScale(glm::vec3(0.1, 6, 0.1));
         pmpObjects[sPoleName]->setPosition(glm::vec3(-90 + 10 * i, 0, 30));
-        string sLightName = "light" + std::to_string(i);
-        pmpObjects[sLightName] = new cBaseObject(pmpMeshes["poleLight"]);
+        string sLightName = "poleLight" + std::to_string(i);
+        pmpObjects[sLightName] = new cLightObject(pmpMeshes["poleLight"], glm::vec3(1, 1, 1), 100.0f);
         pmpObjects[sLightName]->setScale(glm::vec3(0.3, 0.3, 0.3));
         pmpObjects[sLightName]->setPosition(glm::vec3(-90 + 10 * i, 6, 30));
     }

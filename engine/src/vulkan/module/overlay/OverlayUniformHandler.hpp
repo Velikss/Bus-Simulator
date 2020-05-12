@@ -177,7 +177,7 @@ void cOverlayUniformHandler::UpdateUniformBuffers(cScene* pScene)
     tOverlayUniformObject tObject = {};
 
     // If no scene is loaded, just use white
-    tObject.color = glm::vec3(pScene == nullptr ? glm::vec3(1, 1, 1) : pScene->color);
+    tObject.color = glm::vec3(pScene == nullptr ? glm::vec3(1, 1, 1) : pScene->textColor);
 
     void* data;
     ppLogicalDevice->MapMemory(poBufferMemory, 0, sizeof(tObject), 0, &data);

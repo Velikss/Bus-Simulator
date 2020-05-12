@@ -27,8 +27,9 @@ protected:
     bool paKeys[GLFW_KEY_LAST] = {false};
 
 public:
-    glm::vec3 color = glm::vec3(0, 1, 0);
+    glm::vec3 textColor = glm::vec3(0, 1, 0);
     cGeometry* pQuadsGeometry;
+    float pfAmbientLight = 0.6;
 
     cScene();
     virtual ~cScene();

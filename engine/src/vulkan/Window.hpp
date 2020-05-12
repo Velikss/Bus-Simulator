@@ -1,5 +1,7 @@
 #pragma once
 
+#define QUAD_HD_RESOLUTION
+
 #include <pch.hpp>
 #include <GLFW/glfw3.h>
 #include <vulkan/VulkanInstance.hpp>
@@ -21,8 +23,13 @@ public:
     GLFWwindow* ppWindow = nullptr;
 
     // Window size
+#ifdef QUAD_HD_RESOLUTION
+    static const uint WIDTH = 2560;
+    static const uint HEIGHT = 1380;
+#else
     static const uint WIDTH = 1200;
     static const uint HEIGHT = 800;
+#endif
 
     iInputHandler* ppInputHandler;
 
