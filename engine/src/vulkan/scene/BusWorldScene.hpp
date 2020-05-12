@@ -94,7 +94,7 @@ void cBusWorldScene::LoadTextures(cTextureHandler *pTextureHandler)
     pmpTextures["road"] = pTextureHandler->LoadTextureFromFile("resources/textures/streets/road.png");
     pmpTextures["threeWayCrossing"] = pTextureHandler->LoadTextureFromFile("resources/textures/streets/threeWayCrossing.png");
     pmpTextures["fourWayCrossing"] = pTextureHandler->LoadTextureFromFile("resources/textures/streets/fourWayCrossing.png");
-    // buses
+    // busesaa
     pmpTextures["schoolBus"] = pTextureHandler->LoadTextureFromFile("resources/textures/buses/schoolBus.png");
 }
 
@@ -343,6 +343,14 @@ void cBusWorldScene::LoadObjects()
     // Traffic lights
     pmpObjects["trafficLight1"] = new cBaseObject(*pmpModels["trafficLight"]);
     pmpObjects["trafficLight1"]->setPosition(glm::vec3(34.0f, 0.15f, 2.0f));
+
+    pmpObjects["trafficLight2"] = new cBaseObject(*pmpModels["trafficLight"]);
+    pmpObjects["trafficLight2"]->setRotation(glm::vec3(0.0f, 270.0f, 0.0f));
+    pmpObjects["trafficLight2"]->setPosition(glm::vec3(33.0f, 0.15f, -11.0f));
+
+    pmpObjects["trafficLight3"] = new cBaseObject(*pmpModels["trafficLight"]);
+    pmpObjects["trafficLight3"]->setRotation(glm::vec3(0.0f, 180.0f, 0.0f));
+    pmpObjects["trafficLight3"]->setPosition(glm::vec3(46.0f, 0.15f, -12.0f));
 
     // Buildings
     pmpObjects["building"] = new cBaseObject(*pmpModels["building"]);
