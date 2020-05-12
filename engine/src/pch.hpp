@@ -32,3 +32,9 @@ typedef unsigned int uint;
 typedef long long int64;
 typedef unsigned long long uint64;
 typedef unsigned char byte;
+
+template<typename Base, typename T>
+inline bool instanceof(const T* ptr)
+{
+    return dynamic_cast<const Base*>(ptr) != nullptr;
+}

@@ -100,7 +100,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/text/Text.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/text/Font.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/loop/GameLoop.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/loop/TickTask.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/loop/TickTask.hpp src/vulkan/scene/LightObject.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 

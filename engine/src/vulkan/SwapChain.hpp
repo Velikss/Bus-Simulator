@@ -346,7 +346,7 @@ void cSwapChain::CreateFramebuffers(VkRenderPass& oFinalRenderPass, VkRenderPass
     }
 }
 
-void cSwapChain::CreateResources(void)
+void cSwapChain::CreateResources(void) // TODO: This might belong somewhere else
 {
     VkFormat eDepthFormat = cImageHelper::FindDepthFormat();
     cSwapChainHelper::CreateAttachment(eDepthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,

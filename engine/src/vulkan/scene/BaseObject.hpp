@@ -16,6 +16,7 @@ public:
     bool bLighting = true;
 
     cBaseObject(cMesh* pMesh);
+    virtual ~cBaseObject();
 
     glm::mat4 GetModelMatrix();
     cMesh* GetMesh();
@@ -23,6 +24,8 @@ public:
     void setRotation(const glm::vec3 poRotation);
     void setPosition(const glm::vec3 poPosition);
     void setScale(const glm::vec3 poScale);
+
+    glm::vec3 GetPosition();
 };
 
 cBaseObject::cBaseObject(cMesh* pMesh) : ppMesh(pMesh)
@@ -90,6 +93,15 @@ void cBaseObject::setScale(const glm::vec3 oScale)
     poScale.x = oScale.x;
     poScale.y = oScale.y;
     poScale.z = oScale.z;
+}
+
+glm::vec3 cBaseObject::GetPosition()
+{
+    return poPosition;
+}
+
+cBaseObject::~cBaseObject()
+{
 }
 
 typedef cBaseObject cModel;

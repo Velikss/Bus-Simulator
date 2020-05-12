@@ -2,6 +2,7 @@
 
 #include <pch.hpp>
 #include <vulkan/scene/Scene.hpp>
+#include "LightObject.hpp"
 
 class cStreetScene : public cScene
 {
@@ -109,6 +110,7 @@ void cStreetScene::LoadMeshes()
     pmpMeshes["tree"] = new cMesh(pmpGeometries["tree"], pmpTextures["grass"]);
     pmpMeshes["pole"] = new cMesh(pmpGeometries["cylinder"], pmpTextures["stoneHouse"]);
     pmpMeshes["skybox"] = new cMesh(pmpGeometries["skybox"], pmpTextures["skybox"]);
+    pmpMeshes["light_source"] = new cMesh(pmpGeometries["cube"], pmpTextures["stoneHouse"]);
 }
 
 void cStreetScene::LoadModels()
@@ -141,6 +143,10 @@ void cStreetScene::LoadObjects()
 
     pmpObjects["street"] = new cBaseObject(*pmpModels["street"]);
     pmpObjects["street"]->setScale(glm::vec3(200, 1, 100));
+
+    pmpObjects["light1"] = new cLightObject(pmpMeshes["light_source"], glm::vec3(1, 0, 0), 25.0f);
+    pmpObjects["light1"]->setScale(glm::vec3(0, 0, 0));
+    pmpObjects["light1"]->setPosition(glm::vec3(5, 5, 5));
 
     /*pmpObjects["grasslawn1"] = new cBaseObject(*pmpModels["grasslawn"]);
     pmpObjects["grasslawn1"]->setPosition(glm::vec3(80.0, 0.01, 0));

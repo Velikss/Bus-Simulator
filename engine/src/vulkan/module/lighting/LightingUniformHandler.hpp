@@ -10,9 +10,16 @@
 
 #include <vulkan/mesh/Mesh.hpp>
 #include <vulkan/scene/Scene.hpp>
-#include <vulkan/Light.hpp>
 #include <vulkan/uniform/UniformHandler.hpp>
 #include <vulkan/SwapChain.hpp>
+#include <vulkan/scene/LightObject.hpp>
+
+struct tLight
+{
+    glm::vec4 tPosition;
+    glm::vec3 tColor;
+    float fRadius;
+};
 
 struct tLights
 {
@@ -136,45 +143,23 @@ void cLightingUniformHandler::UpdateUniformBuffers(cScene* pScene)
 
     tLights tLights = {};
 
-    // White
-    tLights.atLights[0].position = glm::vec4(0.0f, 0.0f, 1.0f, 0.0f);
-    tLights.atLights[0].color = glm::vec3(1.5f);
-    tLights.atLights[0].radius = 15.0f * 0.25f;
-    // Red
-    tLights.atLights[1].position = glm::vec4(-2.0f, 0.0f, 0.0f, 0.0f);
-    tLights.atLights[1].color = glm::vec3(1.0f, 0.0f, 0.0f);
-    tLights.atLights[1].radius = 15.0f;
-    // Blue
-    tLights.atLights[2].position = glm::vec4(2.0f, 1.0f, 0.0f, 0.0f);
-    tLights.atLights[2].color = glm::vec3(0.0f, 0.0f, 2.5f);
-    tLights.atLights[2].radius = 5.0f;
-    // Yellow
-    tLights.atLights[3].position = glm::vec4(0.0f, 0.9f, 0.5f, 0.0f);
-    tLights.atLights[3].color = glm::vec3(1.0f, 1.0f, 0.0f);
-    tLights.atLights[3].radius = 2.0f;
-    // Green
-    tLights.atLights[4].position = glm::vec4(0.0f, 0.5f, 0.0f, 0.0f);
-    tLights.atLights[4].color = glm::vec3(0.0f, 1.0f, 0.2f);
-    tLights.atLights[4].radius = 5.0f;
-    // Yellow
-    tLights.atLights[5].position = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
-    tLights.atLights[5].color = glm::vec3(1.0f, 0.7f, 0.3f);
-    tLights.atLights[5].radius = 25.0f;
+    uint uiIndex = 0;
+    for (auto pObject : pScene->GetObjects())
+    {
+        if (instanceof<cLightObject>(pObject.second))
+        {
+            cLightObject* pLight = dynamic_cast<cLightObject*>(pObject.second);
+            tLights.atLights[uiIndex].tPosition = glm::vec4(pLight->GetPosition(), 0.0f);
+            tLights.atLights[uiIndex].tColor = pLight->GetColor();
+            tLights.atLights[uiIndex].fRadius = pLight->GetRadius();
 
-    tLights.atLights[0].position.x = sin(glm::radians(360.0f * 1)) * 5.0f;
-    tLights.atLights[0].position.z = cos(glm::radians(360.0f * 1)) * 5.0f;
-
-    tLights.atLights[1].position.x = -4.0f + sin(glm::radians(360.0f * 1) + 45.0f) * 2.0f;
-    tLights.atLights[1].position.z = 0.0f + cos(glm::radians(360.0f * 1) + 45.0f) * 2.0f;
-
-    tLights.atLights[2].position.x = 4.0f + sin(glm::radians(360.0f * 1)) * 2.0f;
-    tLights.atLights[2].position.z = 0.0f + cos(glm::radians(360.0f * 1)) * 2.0f;
-
-    tLights.atLights[4].position.x = 0.0f + sin(glm::radians(360.0f * 1 + 90.0f)) * 5.0f;
-    tLights.atLights[4].position.z = 0.0f - cos(glm::radians(360.0f * 1 + 45.0f)) * 5.0f;
-
-    tLights.atLights[5].position.x = 0.0f + sin(glm::radians(-360.0f * 1 + 135.0f)) * 10.0f;
-    tLights.atLights[5].position.z = 0.0f - cos(glm::radians(-360.0f * 1 - 45.0f)) * 10.0f;
+            uiIndex++;
+            if (uiIndex >= sizeof(tLights.atLights) / sizeof(tLights.atLights[0]))
+            {
+                break;
+            }
+        }
+    }
 
     tLights.viewPos = glm::vec4(pCamera->GetPosition(), 0.0f) * glm::vec4(-1.0f, 1.0f, -1.0f, 1.0f);
 
