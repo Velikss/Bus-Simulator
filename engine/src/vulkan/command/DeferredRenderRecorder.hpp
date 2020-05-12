@@ -76,10 +76,10 @@ void cLightingRenderRecorder::RecordCommands(VkCommandBuffer& oCommandBuffer, ui
                                             ppGraphicsPipeline->GetLayout(),
                                             0);
 
-    cGeometry* pGeometry = ppScene->pQuadsGeometry;
+    cGeometry* pGeometry = cViewportQuadGeometry::GEOMETRY;
     pGeometry->CmdBindVertexBuffer(oCommandBuffer);
     pGeometry->CmdBindIndexBuffer(oCommandBuffer);
-    vkCmdDrawIndexed(oCommandBuffer, 6, 1, 0, 0, 1);
+    vkCmdDrawIndexed(oCommandBuffer, pGeometry->GetIndexCount(), 1, 0, 0, 1);
 
     // End the render pass
     vkCmdEndRenderPass(oCommandBuffer);

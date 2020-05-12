@@ -1,6 +1,6 @@
 #pragma once
 
-//#define QUAD_HD_RESOLUTION
+#define QUAD_HD_RESOLUTION
 
 #include <pch.hpp>
 #include <GLFW/glfw3.h>

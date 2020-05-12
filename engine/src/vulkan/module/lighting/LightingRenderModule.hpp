@@ -9,6 +9,7 @@ class cLightingRenderModule : public cRenderModule
 {
 public:
     cLightingRenderModule(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
+    ~cLightingRenderModule() override;
 
 protected:
     void CreateUniformHandler() override;
@@ -20,6 +21,13 @@ cLightingRenderModule::cLightingRenderModule(cLogicalDevice* pLogicalDevice, cSw
         : cRenderModule(pLogicalDevice, pSwapChain)
 {
     Init();
+
+    cViewportQuadGeometry::Init(pLogicalDevice);
+}
+
+cLightingRenderModule::~cLightingRenderModule()
+{
+    delete cViewportQuadGeometry::GEOMETRY;
 }
 
 void cLightingRenderModule::CreateUniformHandler()

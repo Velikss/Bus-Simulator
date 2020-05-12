@@ -8,6 +8,7 @@
 #include <vulkan/texture/TextureHandler.hpp>
 #include <vulkan/scene/InputHandler.hpp>
 #include <vulkan/loop/TickTask.hpp>
+#include <vulkan/geometry/ViewportQuadGeometry.hpp>
 
 class cScene : public iInputHandler, public iTickTask
 {
@@ -28,7 +29,6 @@ protected:
 
 public:
     glm::vec3 textColor = glm::vec3(0, 1, 0);
-    cGeometry* pQuadsGeometry;
     float pfAmbientLight = 0.6;
 
     cScene();
@@ -59,8 +59,6 @@ cScene::cScene()
 
 cScene::~cScene()
 {
-    delete pQuadsGeometry;
-
     for (auto oModel : pmpModels)
     {
         delete oModel.second;
@@ -89,8 +87,6 @@ cScene::~cScene()
 
 void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice)
 {
-    pQuadsGeometry = cGeometry::DisplayQuads(pLogicalDevice);
-
     for (auto oModel : pmpModels)
     {
         assert(oModel.second != nullptr);
