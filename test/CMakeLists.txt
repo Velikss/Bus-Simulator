@@ -30,12 +30,12 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
-find_package(glm REQUIRED)
 
 include_directories( ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../engine/src ${GLEW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} )
 add_executable(${This} ${Sources} ${Headers})
 
 IF (WIN32)
+    find_package(glm REQUIRED)
     find_package(duktape REQUIRED)
     find_package(GTest CONFIG REQUIRED)
     target_link_libraries(${This} PUBLIC engine GTest::gtest GTest::gmock)
