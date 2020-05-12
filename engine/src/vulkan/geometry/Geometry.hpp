@@ -29,7 +29,10 @@ private:
 
 public:
     // Create a new Geometry from an OBJ file
-    static cGeometry* FromOBJFile(const char* sFilePath, cLogicalDevice* pLogicalDevice, float fUVScale = 1.0f);
+    static cGeometry* FromOBJFile(const char* sFilePath,
+                                  cLogicalDevice* pLogicalDevice,
+                                  float fXUVScale = 1.0f,
+                                  float fYUVScale = 1.0f);
 
     // Cleans up the buffers and frees the memory on the device which is used for this geometry
     ~cGeometry();
@@ -47,7 +50,9 @@ private:
     void CopyToDevice(cLogicalDevice* pLogicalDevice);
 };
 
-cGeometry* cGeometry::FromOBJFile(const char* sFilePath, cLogicalDevice* pLogicalDevice, float fUVScale)
+cGeometry* cGeometry::FromOBJFile(const char* sFilePath,
+                                  cLogicalDevice* pLogicalDevice,
+                                  float fXUVScale, float fYUVScale)
 {
     cGeometry* pGeometry = new cGeometry();
 
@@ -62,11 +67,12 @@ cGeometry* cGeometry::FromOBJFile(const char* sFilePath, cLogicalDevice* pLogica
     assert(pGeometry->puiIndexCount > 0);   // there should be indices
 
     // If a custom UV scale is specified, rescale the UV's
-    if (fUVScale != 1.0f)
+    if (fXUVScale != 1.0f || fYUVScale != 1.0f)
     {
         for (Vertex& tVertex : pGeometry->patVertices)
         {
-            tVertex.texCoord *= fUVScale;
+            tVertex.texCoord.x *= fXUVScale;
+            tVertex.texCoord.y *= fYUVScale;
         }
     }
 

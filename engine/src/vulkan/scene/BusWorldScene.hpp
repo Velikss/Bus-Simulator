@@ -99,15 +99,15 @@ void cBusWorldScene::LoadGeometries(cLogicalDevice *pLogicalDevice)
     pmpGeometries["threeWayCrossing"] = cGeometry::FromOBJFile("resources/geometries/streets/ThreeWayCrossing.obj", pLogicalDevice);
     pmpGeometries["fourWayCrossing"] = cGeometry::FromOBJFile("resources/geometries/streets/FourWayCrossing.obj", pLogicalDevice);
     pmpGeometries["cornerRoad"] = cGeometry::FromOBJFile("resources/geometries/streets/CornerRoad.obj", pLogicalDevice);
-    pmpGeometries["walkways36-3WithCorners"] = cGeometry::FromOBJFile("resources/geometries/walkways/Walkway36-3WithCorners.obj", pLogicalDevice, 10);
-    pmpGeometries["walkways30-3"] = cGeometry::FromOBJFile("resources/geometries/walkways/Walkway30-3.obj", pLogicalDevice, 10);
+    pmpGeometries["walkways36-3WithCorners"] = cGeometry::FromOBJFile("resources/geometries/walkways/Walkway36-3WithCorners.obj", pLogicalDevice, 10, 10);
+    pmpGeometries["walkways30-3"] = cGeometry::FromOBJFile("resources/geometries/walkways/Walkway30-3.obj", pLogicalDevice, 10, 10);
 
     pmpGeometries["skybox"] = cGeometry::FromOBJFile("resources/geometries/skybox.obj", pLogicalDevice);
 
     // buses
     pmpGeometries["bus"] = cGeometry::FromOBJFile("resources/geometries/Busses/SchoolBus.obj", pLogicalDevice);
     pmpGeometries["busStation"] = cGeometry::FromOBJFile("resources/geometries/BusStation.obj", pLogicalDevice);
-    pmpGeometries["building"] = cGeometry::FromOBJFile("resources/geometries/buildingTest.obj", pLogicalDevice, 8);
+    pmpGeometries["building"] = cGeometry::FromOBJFile("resources/geometries/buildingTest.obj", pLogicalDevice, 8, 8);
 }
 
 void cBusWorldScene::LoadMeshes()
