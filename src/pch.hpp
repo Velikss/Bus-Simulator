@@ -7,10 +7,6 @@
 #include <map>
 #include <stack>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
 typedef std::string string;
 typedef unsigned int uint;
 typedef long long int64;

@@ -1,6 +1,9 @@
 #pragma once
 #include <pch.hpp>
 #include <GL/glew.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 /*
 An abstract buffer class.
