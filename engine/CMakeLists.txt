@@ -21,7 +21,10 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(PkgConfig)
-find_package(Vulkan REQUIRED)
+
+IF(NOT WIN32)
+    find_package(Vulkan REQUIRED)
+ENDIF()
 
 add_subdirectory(glfw)
 
