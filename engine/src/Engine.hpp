@@ -1,7 +1,7 @@
 #pragma once
 
 //#define ENABLE_OVERLAY
-//#define ENABLE_FPS_COUNT
+#define ENABLE_FPS_COUNT
 //#define ENGINE_TIMING_DEBUG
 #define ENGINE_ENABLE_LOG
 

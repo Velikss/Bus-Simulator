@@ -39,13 +39,13 @@ void cStreetScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogic
 void cStreetScene::Update()
 {
     if (paKeys[GLFW_KEY_W])
-        poCamera.Forward();
+        poCamera->Forward();
     if (paKeys[GLFW_KEY_S])
-        poCamera.BackWard();
+        poCamera->BackWard();
     if (paKeys[GLFW_KEY_A])
-        poCamera.MoveLeft();
+        poCamera->MoveLeft();
     if (paKeys[GLFW_KEY_D])
-        poCamera.MoveRight();
+        poCamera->MoveRight();
 
     // temporary flight controls
     if (paKeys[GLFW_KEY_SPACE])

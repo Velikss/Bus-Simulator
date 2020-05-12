@@ -181,7 +181,7 @@ void cLightingUniformHandler::UpdateUniformBuffers(cScene* pScene)
         {
             cLightObject* pLight = dynamic_cast<cLightObject*>(pObject.second);
             tLight tLight = {};
-            tLight.tPosition = glm::vec4(pLight->GetPosition(), 0.0f);
+            tLight.tPosition = glm::vec4(*pLight->getPosition(), 0.0f);
             tLight.tColor = pLight->GetColor();
             tLight.fRadius = pLight->GetRadius();
             atLights.push_back(tLight);
