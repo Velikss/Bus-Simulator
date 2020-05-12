@@ -47,6 +47,7 @@ public:
     virtual void MoveLeft() = 0;
     virtual void MoveRight() = 0;
     virtual void MoveUp() = 0;
+    virtual void MoveDown() = 0;
     virtual void LookUp() = 0;
     virtual void LookDown() = 0;
     virtual void LookLeft() = 0;
@@ -101,7 +102,15 @@ public:
     void MoveUp()
     {
         if (!lockMovement)
-            cameraPos += cameraSpeed * cameraUp;
+            cameraHeight += cameraSpeed;
+//            cameraPos += cameraSpeed * cameraUp;
+    }
+
+    void MoveDown()
+    {
+        if (!lockMovement)
+            cameraHeight -= cameraSpeed;
+//            cameraPos -= cameraSpeed * cameraUp;
     }
 
     void LookUp()

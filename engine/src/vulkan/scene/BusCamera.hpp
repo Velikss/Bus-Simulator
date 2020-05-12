@@ -35,7 +35,15 @@ public:
     void MoveUp()
     {
         if (!lockMovement)
-            cameraPos += cameraSpeed * cameraUp;
+            if(cameraHeight < 20.0f)
+                cameraHeight += cameraSpeed;
+    }
+
+    void MoveDown()
+    {
+        if (!lockMovement)
+            if(cameraHeight > 0.0f)
+                cameraHeight -= cameraSpeed;
     }
 
     void LookUp()
