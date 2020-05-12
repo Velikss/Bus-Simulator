@@ -17,7 +17,7 @@ private:
     float yaw = -90;
     float pitch = 0;
 
-    const float cameraSpeed = 0.005f;
+    const float cameraSpeed = 0.1f;
     const float cameraSpeedLook = 1.0f;
     float mouseSpeed = 0.07f;
 

@@ -27,6 +27,8 @@
 #include <vulkan/module/lighting/LightingRenderModule.hpp>
 #include <vulkan/module/mrt/MRTRenderModule.hpp>
 #include <vulkan/command/DeferredRenderRecorder.hpp>
+#include <vulkan/loop/GameLoop.hpp>
+#include <thread>
 
 class Engine
 {
@@ -49,6 +51,9 @@ private:
     cMRTRenderModule* ppMRTRenderModule;
 
     cScene* ppScene = nullptr;
+
+    cGameLoop ppGameLoop;
+    std::thread* poGameThread;
 
 public:
     // Initializes and starts the engine and all of it's sub-components
@@ -157,13 +162,11 @@ void Engine::MainLoop(void)
 
         if (ppScene != nullptr)
         {
-            // Update the scene
-            ppScene->Update();
-
             // If the scene is signalling it wants to
             // quit, pass it on to the window
             if (ppScene->ShouldQuit())
             {
+                ppGameLoop.Stop();
                 ppWindow->Close();
             }
         }
@@ -200,6 +203,9 @@ void Engine::MainLoop(void)
                                           ppLightsRenderModule->GetUniformHandler(), ppScene);
             papCommandBuffers[0]->RecordBuffers(&mrt);
             papCommandBuffers[1]->RecordBuffers(&light);
+
+            poGameThread = new std::thread(std::ref(ppGameLoop));
+            ppGameLoop.AddTask(ppScene);
         }
     }
 

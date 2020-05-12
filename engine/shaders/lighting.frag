@@ -1,5 +1,8 @@
 #version 450
 
+#define lightCount 6
+#define ambient 0.6
+
 layout (binding = 1) uniform sampler2D samplerposition;
 layout (binding = 2) uniform sampler2D samplerNormal;
 layout (binding = 3) uniform sampler2D samplerAlbedo;
@@ -26,9 +29,6 @@ void main()
     // Get G-Buffer values
     vec3 fragPos = texture(samplerposition, inTexCoord).rgb;
     vec4 albedo = texture(samplerAlbedo, inTexCoord);
-
-    #define lightCount 6
-    #define ambient 0.0
 
     if (fragPos.x > 9999)
     {

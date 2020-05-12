@@ -45,9 +45,9 @@ void cStreetScene::Update()
 
     // temporary flight controls
     if (paKeys[GLFW_KEY_SPACE])
-        poCamera.cameraHeight += 0.005;
+        poCamera.cameraHeight += 0.1f;
     if (paKeys[GLFW_KEY_LEFT_SHIFT])
-        poCamera.cameraHeight -= 0.005;
+        poCamera.cameraHeight -= 0.1f;
 
     if (paKeys[GLFW_KEY_ESCAPE])
         Quit();

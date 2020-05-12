@@ -7,8 +7,9 @@
 #include <vulkan/scene/BaseObject.hpp>
 #include <vulkan/texture/TextureHandler.hpp>
 #include <vulkan/scene/InputHandler.hpp>
+#include <vulkan/loop/TickTask.hpp>
 
-class cScene : public iInputHandler
+class cScene : public iInputHandler, public iTickTask
 {
 private:
     bool bQuit;
@@ -32,6 +33,7 @@ public:
     cScene();
     virtual ~cScene();
 
+    void Tick() override;
     virtual void Update();
 
     uint GetObjectCount();
@@ -110,6 +112,11 @@ void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevi
     {
         assert(oTexture.second != nullptr);
     }
+}
+
+void cScene::Tick()
+{
+    Update();
 }
 
 void cScene::Update()
