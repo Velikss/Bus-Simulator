@@ -71,7 +71,7 @@ cTexture* cTextureHandler::LoadTextureFromFile(const char* sFilePath)
     tTextureInfo.uiMipLevels = std::floor(std::log2(std::max(iTexWidth, iTexHeight))) + 1;
 
     // Create the texture object and return it
-    return new cTexture(ppLogicalDevice, tTextureInfo, pcPixels);
+    return new cTexture(ppLogicalDevice, tTextureInfo, pcPixels, sFilePath);
 }
 
 void cTextureHandler::CreateTextureSampler(void)

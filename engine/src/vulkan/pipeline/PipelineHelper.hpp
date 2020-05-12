@@ -51,6 +51,8 @@ std::vector<char> cPipelineHelper::ReadFile(const string& sFilename)
 
     oFileStream.close();
 
+    ENGINE_LOG("Loaded shader file " << sFilename);
+
     return acBuffer;
 }
 

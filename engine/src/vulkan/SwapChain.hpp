@@ -86,9 +86,20 @@ cSwapChain::~cSwapChain()
 {
     VkDevice& oDevice = ppLogicalDevice->GetDevice(); // TODO: Use internal cLogicalDevice methods
 
-    /*vkDestroyImageView(oDevice, ptDepthAttachment.oView, nullptr);
-    vkDestroyImage(oDevice, ptDepthAttachment.oImage, nullptr);
-    ppLogicalDevice->FreeMemory(ptDepthAttachment.oMemory, nullptr);*/
+    std::array<tFrameBufferAttachment*, 4> aptAttachments = {
+            &ptOffScreenBuffer.ptPositionAttachment,
+            &ptOffScreenBuffer.ptNormalsAttachment,
+            &ptOffScreenBuffer.ptAlbedoAttachment,
+            &ptOffScreenBuffer.ptDepthAttachment
+    };
+    for (tFrameBufferAttachment* pAttachment : aptAttachments)
+    {
+        vkDestroyImageView(oDevice, pAttachment->oView, nullptr);
+        vkDestroyImage(oDevice, pAttachment->oImage, nullptr);
+        ppLogicalDevice->FreeMemory(pAttachment->oMemory, nullptr);
+    }
+
+    ppLogicalDevice->DestroySampler(ptOffScreenBuffer.poSampler, nullptr);
 
     // Destroy all the framebuffers
     for (VkFramebuffer framebuffer : paoSwapChainFramebuffers)

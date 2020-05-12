@@ -2,8 +2,10 @@
 
 //#define ENABLE_OVERLAY
 //#define ENABLE_FPS_COUNT
+#define ENGINE_ENABLE_LOG
 
 #include <pch.hpp>
+#include <vulkan/EngineLog.hpp>
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
 #include <cstring>
@@ -29,6 +31,7 @@
 #include <vulkan/command/DeferredRenderRecorder.hpp>
 #include <vulkan/loop/GameLoop.hpp>
 #include <thread>
+#include <chrono>
 
 class Engine
 {
@@ -41,8 +44,13 @@ private:
 
     cRenderModule* ppLightsRenderModule;
 
+#ifdef ENABLE_OVERLAY
     cCommandBuffer* papCommandBuffers[3];
     iUniformHandler* papUniformHandlers[3];
+#else
+    cCommandBuffer* papCommandBuffers[2];
+    iUniformHandler* papUniformHandlers[2];
+#endif
 
     cTextureHandler* ppTextureHandler;
     cRenderHandler* ppRenderHandler;
@@ -52,8 +60,8 @@ private:
 
     cScene* ppScene = nullptr;
 
-    cGameLoop ppGameLoop;
-    std::thread* poGameThread;
+    cGameLoop* ppGameLoop;
+    std::thread* ppGameThread;
 
 public:
     // Initializes and starts the engine and all of it's sub-components
@@ -82,6 +90,8 @@ void Engine::CreateGLWindow(void)
 
 void Engine::InitVulkan(void)
 {
+    ENGINE_LOG("Initializing engine...");
+
     // Create the Vulkan instance
     ppVulkanInstance = new cVulkanInstance();
 
@@ -108,6 +118,8 @@ void Engine::InitVulkan(void)
     ppMRTRenderModule = new cMRTRenderModule(ppLogicalDevice, ppSwapChain);
 #ifdef ENABLE_OVERLAY
     ppOverlayRenderModule = new cOverlayRenderModule(ppLogicalDevice, ppSwapChain, ppWindow);
+
+    ENGINE_LOG("Overlay is enabled!");
 #endif
 
     // Create the framebuffers for the swap chain
@@ -150,10 +162,17 @@ void Engine::InitVulkan(void)
     // Record the overlay to the overlay command buffer
     papCommandBuffers[2]->RecordBuffers(ppOverlayRenderModule->GetCommandRecorder());
 #endif
+
+    ppGameLoop = new cGameLoop();
+    ppGameThread = new std::thread(std::ref(*ppGameLoop));
+
+    ENGINE_LOG("Engine initialized");
 }
 
 void Engine::MainLoop(void)
 {
+    ENGINE_LOG("Engine running");
+
     // Keep the main loop running until the window should be closed
     while (!ppWindow->ShouldClose())
     {
@@ -166,7 +185,8 @@ void Engine::MainLoop(void)
             // quit, pass it on to the window
             if (ppScene->ShouldQuit())
             {
-                ppGameLoop.Stop();
+                ENGINE_LOG("Scene is asking for application quit");
+                ppGameLoop->Stop();
                 ppWindow->Close();
             }
         }
@@ -179,6 +199,8 @@ void Engine::MainLoop(void)
         // scene, to allow loading text to be displayed
         if (ppScene == nullptr)
         {
+            ENGINE_LOG("Loading scene...");
+
             // Create and load the scene
             ppScene = new cStreetScene();
             ppScene->Load(ppTextureHandler, ppLogicalDevice);
@@ -204,10 +226,12 @@ void Engine::MainLoop(void)
             papCommandBuffers[0]->RecordBuffers(&mrt);
             papCommandBuffers[1]->RecordBuffers(&light);
 
-            poGameThread = new std::thread(std::ref(ppGameLoop));
-            ppGameLoop.AddTask(ppScene);
+            ENGINE_LOG("Scene loading, adding tick task");
+            ppGameLoop->AddTask(ppScene);
         }
     }
+
+    ENGINE_LOG("Main loop closed");
 
     // Wait until the logical device is idle before returning
     ppLogicalDevice->WaitUntilIdle();
@@ -215,6 +239,13 @@ void Engine::MainLoop(void)
 
 void Engine::Cleanup(void)
 {
+    ENGINE_LOG("Cleaning up engine...");
+
+    // Clean up the game thread
+    ppGameThread->join();
+    delete ppGameThread;
+    delete ppGameLoop;
+
     delete ppScene;
     delete ppRenderHandler;
 #ifdef ENABLE_OVERLAY
@@ -226,12 +257,15 @@ void Engine::Cleanup(void)
         delete oBuffer;
     }
     ppLogicalDevice->DestroyCommandPool(cCommandHelper::poCommandPool, nullptr);
+    delete ppMRTRenderModule;
     delete ppLightsRenderModule;
     delete ppSwapChain;
     delete ppLogicalDevice;
     ppWindow->DestroyWindowSurface(); // surface must be destroyed before the instance
     delete ppVulkanInstance;
     delete ppWindow;
+
+    ENGINE_LOG("Engine shut down cleanly");
 }
 
 

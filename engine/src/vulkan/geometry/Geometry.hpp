@@ -78,9 +78,12 @@ cGeometry* cGeometry::FromOBJFile(const char* sFilePath, cLogicalDevice* pLogica
     pGeometry->patVertices.clear();
     pGeometry->paiIndices.clear();
 
+    ENGINE_LOG("Loaded Geometry " << sFilePath << " with " << pGeometry->puiVertexCount << " vertices");
+
     return pGeometry;
 }
 
+// TODO: This should be optimized and moved somewhere else
 cGeometry* cGeometry::DisplayQuads(cLogicalDevice* pLogicalDevice)
 {
     cGeometry* pGeometry = new cGeometry();

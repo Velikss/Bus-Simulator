@@ -51,6 +51,8 @@ void cRenderModule::Init()
 
     CreatePipeline();
     assert(ppRenderPipeline != nullptr); // pipeline should be created
+
+    ENGINE_LOG("Render module '" << CURRENT_CLASS_NAME << "' initialized");
 }
 
 cRenderModule::~cRenderModule()

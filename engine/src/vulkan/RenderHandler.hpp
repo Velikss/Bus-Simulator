@@ -59,6 +59,7 @@ cRenderHandler::~cRenderHandler()
     for (uint i = 0; i < uiMAX_FRAMES_IN_FLIGHT; i++)
     {
         vkDestroySemaphore(oDevice, aoRenderFinishedSemaphores[i], nullptr);
+        vkDestroySemaphore(oDevice, aoMRTFinishedSemaphores[i], nullptr);
         vkDestroySemaphore(oDevice, aoImageAvailableSemaphores[i], nullptr);
         vkDestroyFence(oDevice, aoInFlightFences[i], nullptr);
     }
@@ -99,8 +100,6 @@ void cRenderHandler::CreateSemaphores()
 void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandler, cCommandBuffer* pCommandBuffer)
 {
 #ifdef ENABLE_FPS_COUNT
-    assert(pTextHandler != nullptr);
-
     static auto startTime = std::chrono::high_resolution_clock::now();
     static uint frameCount = 0;
 
@@ -111,11 +110,13 @@ void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandle
     if (time >= 1)
     {
         ppLogicalDevice->WaitUntilIdle();
-        static uint test = 0;
-        char text[64];
-        sprintf(text, "%u fps", frameCount);
+        ENGINE_LOG(frameCount << " fps");
+#ifdef ENABLE_OVERLAY
+        assert(pTextHandler != nullptr);
+
         pTextHandler->UpdateText(text);
         pCommandBuffer->RecordBuffers(pTextHandler->GetCommandRecorder());
+#endif
         startTime = currentTime;
         frameCount = 0;
     }

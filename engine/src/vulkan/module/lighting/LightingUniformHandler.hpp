@@ -14,6 +14,7 @@
 #include <vulkan/SwapChain.hpp>
 #include <vulkan/scene/LightObject.hpp>
 
+// Struct with information about a light source
 struct tLight
 {
     glm::vec4 tPosition;
@@ -21,6 +22,7 @@ struct tLight
     float fRadius;
 };
 
+// Struct with information about the lighting
 struct tLightsInfo
 {
     glm::vec4 tViewPos;
@@ -148,6 +150,8 @@ void cLightingUniformHandler::CreateUniformBuffers(cScene* pScene)
                                 VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
                                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                                 poUniformBuffer, poUniformBufferMemory);
+
+    ENGINE_LOG("Allocated " << puiLightsMemorySize << " bytes for " << puiLightsCount << " scene lights");
 }
 
 void cLightingUniformHandler::UpdateUniformBuffers(cScene* pScene)

@@ -59,6 +59,8 @@ cScene::cScene()
 
 cScene::~cScene()
 {
+    delete pQuadsGeometry;
+
     for (auto oModel : pmpModels)
     {
         delete oModel.second;

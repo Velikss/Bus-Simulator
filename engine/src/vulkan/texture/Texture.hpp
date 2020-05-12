@@ -23,7 +23,7 @@ private:
     VkImageView poTextureImageView = VK_NULL_HANDLE;
 
 public:
-    cTexture(cLogicalDevice* pLogicalDevice, tTextureInfo tTextureInfo, stbi_uc* pcPixels);
+    cTexture(cLogicalDevice* pLogicalDevice, tTextureInfo tTextureInfo, stbi_uc* pcPixels, const char* sName);
     ~cTexture();
 
     // Returns the information about this texture
@@ -32,7 +32,7 @@ public:
     VkImageView GetView();
 };
 
-cTexture::cTexture(cLogicalDevice* pLogicalDevice, tTextureInfo tTextureInfo, stbi_uc* pcPixels)
+cTexture::cTexture(cLogicalDevice* pLogicalDevice, tTextureInfo tTextureInfo, stbi_uc* pcPixels, const char* sName)
 {
     assert(pLogicalDevice != nullptr);                              // logical device must exist
     assert(tTextureInfo.uiWidth > 0 && tTextureInfo.uiHeight > 0);  // texture must have a width and height
@@ -58,6 +58,8 @@ cTexture::cTexture(cLogicalDevice* pLogicalDevice, tTextureInfo tTextureInfo, st
                                   VK_FORMAT_R8G8B8A8_SRGB,
                                   pLogicalDevice, &poTextureImageView,
                                   VK_IMAGE_ASPECT_COLOR_BIT);
+
+    ENGINE_LOG("Loaded texture " << sName << " (" << tTextureInfo.uiWidth << "x" << tTextureInfo.uiHeight << ")");
 }
 
 cTexture::~cTexture()

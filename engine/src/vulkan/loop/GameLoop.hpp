@@ -51,11 +51,6 @@ private:
 
 cGameLoop::~cGameLoop()
 {
-    // Delete all the tick tasks
-    for (iTickTask* pTask : papTasks)
-    {
-        delete pTask;
-    }
 }
 
 void cGameLoop::operator()()
@@ -111,9 +106,8 @@ void cGameLoop::CheckTickTime(time_point<steady_clock> tPrev, time_point<steady_
     // If the time exceeds a threshold, print a warning
     if (uiTickTime > uiPERIOD_COUNT && uiTickTime - uiPERIOD_COUNT > 2)
     {
-        std::cout << "WARNING: Tick time of " << uiTickTime << "ms " <<
-                  "exceeds period of " << uiPERIOD_COUNT << "ms " <<
-                  "(" << TICKS_PER_SECOND << " tps) significantly!" << std::endl;
+        ENGINE_WARN("Tick time of " << uiTickTime << "ms " << "exceeds period of " << uiPERIOD_COUNT
+                                    << "ms " << "(" << TICKS_PER_SECOND << " tps) significantly!");
     }
 }
 
@@ -131,6 +125,6 @@ void cGameLoop::Tick()
     }
     else
     {
-        std::cout << "WARNING: Skipped a tick because tasks are locked" << std::endl;
+        ENGINE_WARN("Skipped a tick because tasks are locked");
     }
 }

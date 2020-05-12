@@ -53,7 +53,7 @@ void main()
                 vec3 V = ubo.viewPos.xyz - fragPos;
                 V = normalize(V);
 
-                //if (dist < ubo.lights[i].radius)
+                if (dist < ubo.lights[i].radius + 5)
                 {
                     // Light to fragment
                     L = normalize(L);

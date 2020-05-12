@@ -54,6 +54,8 @@ void cRenderPipeline::Init(cSwapChain* pSwapChain,
 
     CreatePipeline(pSwapChain, pLogicalDevice, pRenderPass, pUniformHandler);
     assert(poPipeline != VK_NULL_HANDLE); // pipeline should be created
+
+    ENGINE_LOG("Render pipeline '" << CURRENT_CLASS_NAME << "' initialized");
 }
 
 cRenderPipeline::~cRenderPipeline()

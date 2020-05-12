@@ -80,7 +80,6 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/RenderModule.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/RenderPipeline.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/SwapChainHelper.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/Light.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/DeferredRenderRecorder.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/Shaders.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/mrt/MRTPipeline.hpp
@@ -100,7 +99,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/text/Text.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/text/Font.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/loop/GameLoop.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/loop/TickTask.hpp src/vulkan/scene/LightObject.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/loop/TickTask.hpp src/vulkan/scene/LightObject.hpp src/vulkan/EngineLog.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 
