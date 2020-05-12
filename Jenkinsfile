@@ -23,20 +23,20 @@ pipeline {
                         }
                     }
                 }
-                stage('Windows')
-                {
-                    agent
-                    {
-                        label "Windows"
-                    }
-                    steps
-                    {
-                        script
-                        {
-                            bat 'git submodule update --init --recursive'
-                        }
-                    }
-                }
+//                 stage('Windows')
+//                 {
+//                     agent
+//                     {
+//                         label "Windows"
+//                     }
+//                     steps
+//                     {
+//                         script
+//                         {
+//                             bat 'git submodule update --init --recursive'
+//                         }
+//                     }
+//                 }
             }
         }
         stage("Build")
@@ -58,21 +58,21 @@ pipeline {
                         }
                     }
                 }
-                stage('Windows')
-                {
-                    agent
-                    {
-                        label "Windows"
-                    }
-                    steps
-                    {
-                        script
-                        {
-                            bat 'cmake -Dgtest_disable_pthreads=OFF -DCMAKE_TOOLCHAIN_FILE=C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake .'
-                            bat 'cmake --build .'
-                        }
-                    }
-                }
+//                 stage('Windows')
+//                 {
+//                     agent
+//                     {
+//                         label "Windows"
+//                     }
+//                     steps
+//                     {
+//                         script
+//                         {
+//                             bat 'cmake -Dgtest_disable_pthreads=OFF -DCMAKE_TOOLCHAIN_FILE=C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake .'
+//                             bat 'cmake --build .'
+//                         }
+//                     }
+//                 }
             }
         }
         stage("Test")
@@ -93,20 +93,20 @@ pipeline {
                         }
                     }
                 }
-                stage('Windows')
-                {
-                    agent
-                    {
-                        label "Windows"
-                    }
-                    steps
-                    {
-                        script
-                        {
-                            bat 'ctest -C Debug -T test --verbose'
-                        }
-                    }
-                }
+//                 stage('Windows')
+//                 {
+//                     agent
+//                     {
+//                         label "Windows"
+//                     }
+//                     steps
+//                     {
+//                         script
+//                         {
+//                             bat 'ctest -C Debug -T test --verbose'
+//                         }
+//                     }
+//                 }
             }
         }
     }
