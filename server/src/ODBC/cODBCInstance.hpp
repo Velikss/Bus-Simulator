@@ -208,6 +208,7 @@ public:
     bool Fetch(string sQuery, std::vector<SQLROW>* aRows);
     bool Exec(string sQuery);
     bool ExecFile(string sFileName);
+    static void Escape(string & sString);
 };
 
 bool cODBCInstance::Connect(string sConnectionString)
@@ -433,4 +434,13 @@ bool cODBCInstance::ExecFile(string sFileName)
     std::string sQuery((std::istreambuf_iterator<char>(oFileStream)),
                          std::istreambuf_iterator<char>());
     return Exec(sQuery);
+}
+
+void cODBCInstance::Escape(string & sString)
+{
+    size_t start_pos = 0;
+    while((start_pos = sString.find('\'', start_pos)) != std::string::npos) {
+        sString.insert(start_pos, "\\");
+        start_pos += 2;
+    }
 }

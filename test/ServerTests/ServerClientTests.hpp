@@ -13,8 +13,8 @@ bool OnRecieve(cNetworkConnection* connection)
     iTimesRecieved++;
     byte aBytes[5];
     EXPECT_EQ(connection->ReceiveBytes(aBytes, 5), 5);
-    const std::string_view sBytes((char*)aBytes, 5);
-    EXPECT_TRUE(sBytes.compare("hallo"));
+    const string sBytes((char*)aBytes, 5);
+    EXPECT_STREQ(sBytes.c_str(), "hallo");
     return false;
 }
 
@@ -61,7 +61,7 @@ TEST(ServerClientTests, Connect)
 
     pPlainClient = std::make_shared<cNetworkClient>(pPlainClientSettings.get());
     EXPECT_TRUE(pPlainClient->Connect());
-    string sGreeting = "Hallo";
+    string sGreeting = "hallo";
     pPlainClient->SendBytes((byte*)sGreeting.c_str(), sGreeting.size());
     sleep(50);
     EXPECT_EQ(iTimesRecieved, 1);

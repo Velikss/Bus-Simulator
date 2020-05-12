@@ -37,7 +37,7 @@ public:
         if (sProvidedSessionKeyOpt.size() > 0) aHeaders.push_back({"Session-key", sProvidedSessionKeyOpt});
 
         oRequest.SetMethod(cMethod::ePOST);
-        oRequest.SetResource("/sso");
+        oRequest.SetResource("/sso/session/require");
         oRequest.SetHeaders(aHeaders);
 
         string sRequest = oRequest.Serialize();
@@ -95,11 +95,12 @@ void cSsoService::_OnConnect(cNetworkConnection *pConnection)
     oRequest.SetHeaders(aHeaders);
 
     string sRequest = oRequest.Serialize();
-    std::cout << sRequest << std::endl;
     pSSOClient->SendBytes((byte*)sRequest.c_str(), sRequest.size());
 
     cResponse oResponse;
     RecieveResponse(pConnection, oResponse);
+
+    if (oResponse.GetResponseCode() != 200) throw std::runtime_error("inaccessible sso server, is the Service-ID correct?");
 }
 
 bool cSsoService::_OnRecieve(cNetworkConnection *pConnection)

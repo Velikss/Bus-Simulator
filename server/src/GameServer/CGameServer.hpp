@@ -88,7 +88,7 @@ bool cGameServer::OnRecieve(cNetworkConnection *pConnection)
 
     if (!SessionExists(sSessionKey))
     {
-        return true;
+        return RequestSession(pConnection, sSessionKey);
     }
 
     // the session-data was found.

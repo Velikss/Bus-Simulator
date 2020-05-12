@@ -18,8 +18,7 @@ TEST(SSOTests, Hash)
                                     (unsigned char **) (&aHash), &uiHashSize);
     string sEncoded = base64_encode(aHash, uiHashSize);
     EXPECT_EQ(iStatus, cSSO_OK);
-    EXPECT_TRUE(sEncoded.compare(
-            "UNs2NQkCAADMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzA=="));
+    EXPECT_STREQ(sEncoded.c_str(), "/emPKvUfnQlOF+7T2aWeaWHxXbxsMDBkA+/btWGE8H85QDtkE3TAl1h4CC3HT2zBaNPRT52zxqzEUMLkxMqrYQ==");
 }
 
 TEST(SSOTests, UuidGeneration)
@@ -112,11 +111,6 @@ TEST(SSOTests, Handshake)
     oRequest.SetHeaders(aHeaders);
 
     string sRequest = oRequest.Serialize();
-    EXPECT_TRUE(sRequest.compare("POST /player HTTP/1.1\r\n"
-                                 "Host: 127.0.0.1\n\r"
-                                 "Connection: keep-alive\r\n"
-                                 "\r\n\r\n"));
-
     poGameClient->SendBytes((const byte*)sRequest.c_str(), sRequest.size());
     sleep(50);
 }

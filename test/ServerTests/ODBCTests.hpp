@@ -34,6 +34,18 @@ TEST(ODBCTests, Fetch)
     EXPECT_TRUE(aUsers.size() == 1);
 }
 
+TEST(ODBCTests, SQLInjection)
+{
+    string sString = "'; DROP TABLE *";
+    cODBCInstance::Escape(sString);
+    ASSERT_STREQ(sString.c_str(), "\\'; DROP TABLE *");
+
+    sString = "''; DROP TABLE *";
+    cODBCInstance::Escape(sString);
+    ASSERT_STREQ(sString.c_str(), "\\'\\'; DROP TABLE *");
+    EXPECT_TRUE(poInstance->Exec("INSERT INTO UserTest (UserName, Password) VALUES('" + sString + "', 'TEST');"));
+}
+
 TEST(ODBCTests, DisConnect)
 {
     EXPECT_TRUE(poInstance->Disconnect());
