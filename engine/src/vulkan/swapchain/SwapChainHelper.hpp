@@ -2,7 +2,7 @@
 
 #include <pch.hpp>
 #include <vulkan/vulkan_core.h>
-#include "ImageHelper.hpp"
+#include "vulkan/util/ImageHelper.hpp"
 
 struct tFrameBufferAttachment
 {

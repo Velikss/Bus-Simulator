@@ -3,7 +3,7 @@
 #include <pch.hpp>
 #include <vulkan/vulkan.h>
 #include <vulkan/LogicalDevice.hpp>
-#include <vulkan/SwapChain.hpp>
+#include <vulkan/swapchain/SwapChain.hpp>
 #include <vulkan/command/CommandBufferRecorder.hpp>
 
 class cCommandBuffer

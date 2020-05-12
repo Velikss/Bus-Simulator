@@ -3,7 +3,7 @@
 #include <pch.hpp>
 #include <vulkan/vulkan_core.h>
 #include <vulkan/LogicalDevice.hpp>
-#include <vulkan/SwapChain.hpp>
+#include <vulkan/swapchain/SwapChain.hpp>
 #include <vulkan/renderpass/RenderPass.hpp>
 #include <vulkan/uniform/UniformHandler.hpp>
 

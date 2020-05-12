@@ -2,7 +2,7 @@
 
 #include <pch.hpp>
 #include <vulkan/uniform/UniformHandler.hpp>
-#include <vulkan/SwapChain.hpp>
+#include <vulkan/swapchain/SwapChain.hpp>
 #include <vulkan/module/overlay/text/Font.hpp>
 
 struct tOverlayUniformObject

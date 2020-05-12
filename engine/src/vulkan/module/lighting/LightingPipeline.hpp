@@ -3,12 +3,12 @@
 #include <pch.hpp>
 #include <vulkan/vulkan.h>
 #include <vulkan/LogicalDevice.hpp>
-#include <vulkan/SwapChain.hpp>
+#include <vulkan/swapchain/SwapChain.hpp>
 #include <vulkan/geometry/Vertex.hpp>
 #include <vulkan/module/mrt/MRTUniformHandler.hpp>
 #include <vulkan/pipeline/PipelineHelper.hpp>
 #include <vulkan/pipeline/RenderPipeline.hpp>
-#include <vulkan/Shaders.hpp>
+#include <vulkan/pipeline/Shaders.hpp>
 
 class cLightingPipeline : public cRenderPipeline
 {

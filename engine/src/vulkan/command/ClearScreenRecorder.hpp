@@ -2,7 +2,7 @@
 
 #include <pch.hpp>
 #include <vulkan/module/lighting/LightingRenderPass.hpp>
-#include <vulkan/SwapChain.hpp>
+#include <vulkan/swapchain/SwapChain.hpp>
 #include <vulkan/command/CommandBufferRecorder.hpp>
 
 class cClearScreenRecorder : public iCommandBufferRecorder

@@ -2,7 +2,7 @@
 
 #include <pch.hpp>
 #include <vulkan/command/CommandBufferRecorder.hpp>
-#include <vulkan/SwapChain.hpp>
+#include <vulkan/swapchain/SwapChain.hpp>
 #include <vulkan/module/mrt/MRTUniformHandler.hpp>
 #include "OverlayRenderPass.hpp"
 #include "OverlayPipeline.hpp"

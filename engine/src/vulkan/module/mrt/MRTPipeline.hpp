@@ -5,12 +5,12 @@
 #include <glm/glm.hpp>
 #include <vulkan/vulkan.h>
 #include <vulkan/LogicalDevice.hpp>
-#include <vulkan/SwapChain.hpp>
+#include <vulkan/swapchain/SwapChain.hpp>
 #include <vulkan/geometry/Vertex.hpp>
 #include <vulkan/pipeline/PipelineHelper.hpp>
 #include <vulkan/pipeline/RenderPipeline.hpp>
 #include <vulkan/module/overlay/text/Vertex2D.hpp>
-#include <vulkan/Shaders.hpp>
+#include <vulkan/pipeline/Shaders.hpp>
 
 class cMRTPipeline : public cRenderPipeline
 {

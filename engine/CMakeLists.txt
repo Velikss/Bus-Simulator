@@ -52,10 +52,9 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/VulkanInstance.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/PhysicalDevice.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/LogicalDevice.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/SwapChain.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/RenderHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/uniform/UniformHandler.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/ImageHelper.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/util/ImageHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/CommandHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/Geometry.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/Vertex.hpp
@@ -67,7 +66,6 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/texture/TextureInfo.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/CommandBuffer.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/CommandBufferRecorder.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/command/IndexedRenderRecorder.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/ClearScreenRecorder.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/Scene.hpp src/vulkan/scene/BaseObject.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/TestScene.hpp
@@ -79,17 +77,19 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/util/Formatter.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/RenderModule.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/RenderPipeline.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/SwapChainHelper.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/command/DeferredRenderRecorder.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/Shaders.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/swapchain/SwapChainHelper.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/swapchain/SwapChain.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/Shaders.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/mrt/MRTPipeline.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/mrt/MRTRenderModule.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/mrt/MRTRenderPass.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/mrt/MRTUniformHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/mrt/MRTRenderRecorder.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/lighting/LightingPipeline.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/lighting/LightingRenderModule.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/lighting/LightingRenderPass.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/lighting/LightingUniformHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/lighting/LightingRenderRecorder.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/OverlayPipeline.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/OverlayRenderModule.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/OverlayRenderPass.hpp
@@ -99,7 +99,10 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/text/Text.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/text/Font.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/loop/GameLoop.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/loop/TickTask.hpp src/vulkan/scene/LightObject.hpp src/vulkan/EngineLog.hpp src/vulkan/geometry/ViewportQuadGeometry.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/loop/TickTask.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/LightObject.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/util/EngineLog.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/ViewportQuadGeometry.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 

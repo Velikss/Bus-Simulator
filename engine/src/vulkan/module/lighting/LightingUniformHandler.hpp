@@ -11,7 +11,7 @@
 #include <vulkan/mesh/Mesh.hpp>
 #include <vulkan/scene/Scene.hpp>
 #include <vulkan/uniform/UniformHandler.hpp>
-#include <vulkan/SwapChain.hpp>
+#include <vulkan/swapchain/SwapChain.hpp>
 #include <vulkan/scene/LightObject.hpp>
 
 // Struct with information about a light source

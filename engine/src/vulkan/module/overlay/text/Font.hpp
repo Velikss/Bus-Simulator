@@ -2,7 +2,7 @@
 
 #include <pch.hpp>
 #include <vulkan/geometry/BufferHelper.hpp>
-#include <vulkan/ImageHelper.hpp>
+#include <vulkan/util/ImageHelper.hpp>
 #include <vulkan/texture/TextureInfo.hpp>
 #include <vulkan/texture/TextureHelper.hpp>
 

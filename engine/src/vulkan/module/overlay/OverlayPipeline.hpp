@@ -5,14 +5,14 @@
 #include <glm/glm.hpp>
 #include <vulkan/vulkan.h>
 #include <vulkan/LogicalDevice.hpp>
-#include <vulkan/SwapChain.hpp>
+#include <vulkan/swapchain/SwapChain.hpp>
 #include <vulkan/module/lighting/LightingRenderPass.hpp>
 #include <vulkan/geometry/Vertex.hpp>
 #include <vulkan/module/mrt/MRTUniformHandler.hpp>
 #include <vulkan/pipeline/PipelineHelper.hpp>
 #include <vulkan/module/overlay/text/Vertex2D.hpp>
 #include <vulkan/module/overlay/OverlayRenderPass.hpp>
-#include <vulkan/Shaders.hpp>
+#include <vulkan/pipeline/Shaders.hpp>
 
 class cOverlayPipeline : public cRenderPipeline
 {

@@ -2,7 +2,7 @@
 
 #include <pch.hpp>
 #include <vulkan/renderpass/RenderPass.hpp>
-#include <vulkan/SwapChain.hpp>
+#include <vulkan/swapchain/SwapChain.hpp>
 
 class cMRTRenderPass : public cRenderPass
 {

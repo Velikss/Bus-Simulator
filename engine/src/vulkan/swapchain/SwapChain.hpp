@@ -5,8 +5,8 @@
 #include <vulkan/Window.hpp>
 #include <vulkan/PhysicalDevice.hpp>
 #include <vulkan/LogicalDevice.hpp>
-#include <vulkan/ImageHelper.hpp>
-#include <vulkan/SwapChainHelper.hpp>
+#include <vulkan/util/ImageHelper.hpp>
+#include <vulkan/swapchain/SwapChainHelper.hpp>
 #include <util/Formatter.hpp>
 
 struct tOffScreenBuffer

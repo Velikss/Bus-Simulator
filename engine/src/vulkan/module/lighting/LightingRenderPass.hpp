@@ -2,9 +2,9 @@
 
 #include <pch.hpp>
 #include <vulkan/vulkan.h>
-#include <vulkan/SwapChain.hpp>
+#include <vulkan/swapchain/SwapChain.hpp>
 #include <vulkan/renderpass/RenderPass.hpp>
-#include <vulkan/SwapChain.hpp>
+#include <vulkan/swapchain/SwapChain.hpp>
 
 class cLightingRenderPass : public cRenderPass
 {

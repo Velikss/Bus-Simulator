@@ -4,7 +4,7 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/module/overlay/OverlayRenderModule.hpp>
-#include <vulkan/SwapChain.hpp>
+#include <vulkan/swapchain/SwapChain.hpp>
 #include <vulkan/command/CommandBuffer.hpp>
 
 class cRenderHandler

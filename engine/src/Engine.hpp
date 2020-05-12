@@ -5,7 +5,7 @@
 #define ENGINE_ENABLE_LOG
 
 #include <pch.hpp>
-#include <vulkan/EngineLog.hpp>
+#include <vulkan/util/EngineLog.hpp>
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
 #include <cstring>
@@ -14,21 +14,21 @@
 #include <vulkan/PhysicalDevice.hpp>
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/VulkanInstance.hpp>
-#include <vulkan/SwapChain.hpp>
+#include <vulkan/swapchain/SwapChain.hpp>
 #include <vulkan/module/lighting/LightingPipeline.hpp>
 #include <vulkan/module/lighting/LightingRenderPass.hpp>
 #include <vulkan/RenderHandler.hpp>
 #include <vulkan/geometry/Geometry.hpp>
 #include <vulkan/mesh/Mesh.hpp>
 #include <vulkan/command/CommandBuffer.hpp>
-#include <vulkan/command/IndexedRenderRecorder.hpp>
+#include <vulkan/module/mrt/MRTRenderRecorder.hpp>
 #include <vulkan/command/ClearScreenRecorder.hpp>
 #include <vulkan/scene/TestScene.hpp>
 #include <vulkan/scene/StreetScene.hpp>
 #include <vulkan/module/overlay/OverlayRenderModule.hpp>
 #include <vulkan/module/lighting/LightingRenderModule.hpp>
 #include <vulkan/module/mrt/MRTRenderModule.hpp>
-#include <vulkan/command/DeferredRenderRecorder.hpp>
+#include <vulkan/module/lighting/LightingRenderRecorder.hpp>
 #include <vulkan/loop/GameLoop.hpp>
 #include <thread>
 #include <chrono>
@@ -186,7 +186,6 @@ void Engine::MainLoop(void)
             if (ppScene->ShouldQuit())
             {
                 ENGINE_LOG("Scene is asking for application quit");
-                ppGameLoop->Stop();
                 ppWindow->Close();
             }
         }
@@ -230,6 +229,8 @@ void Engine::MainLoop(void)
             ppGameLoop->AddTask(ppScene);
         }
     }
+
+    ppGameLoop->Stop();
 
     ENGINE_LOG("Main loop closed");
 

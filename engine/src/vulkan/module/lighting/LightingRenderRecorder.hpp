@@ -2,9 +2,9 @@
 
 #include <pch.hpp>
 #include <vulkan/module/lighting/LightingRenderPass.hpp>
-#include <vulkan/SwapChain.hpp>
+#include <vulkan/swapchain/SwapChain.hpp>
 #include <vulkan/module/lighting/LightingPipeline.hpp>
-#include "CommandBufferRecorder.hpp"
+#include "vulkan/command/CommandBufferRecorder.hpp"
 
 class cLightingRenderRecorder : public iCommandBufferRecorder
 {
