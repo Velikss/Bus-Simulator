@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.13.4)
 
-set(This ExampleTests)
+set(This Tests)
+
 set(CompilerFlags
         CMAKE_CXX_FLAGS
         CMAKE_CXX_FLAGS_DEBUG
@@ -9,6 +10,9 @@ set(CompilerFlags
         CMAKE_C_FLAGS_DEBUG
         CMAKE_C_FLAGS_RELEASE
         )
+foreach(CompilerFlag ${CompilerFlags})
+    string(REPLACE "/MT" "/MD" ${CompilerFlag} "${${CompilerFlag}}")
+endforeach()
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
@@ -40,7 +44,3 @@ add_test(
     NAME ${This}
     COMMAND ${This}
 )
-
-foreach(CompilerFlag ${CompilerFlags})
-    string(REPLACE "/MT" "/MD" ${CompilerFlag} "${${CompilerFlag}}")
-endforeach()
