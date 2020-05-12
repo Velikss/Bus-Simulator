@@ -54,7 +54,6 @@ public:
     virtual void LookMouseWheelDiff(float x, float y) = 0;
     virtual void ProcessUpdates() = 0;
     // sets the pv and position on the passed shader.
-    virtual void SetTransformationOnShader(ShaderProgram* shader) = 0;
     virtual glm::mat4& GetProjectionView() = 0;
     virtual glm::mat4& GetViewMatrix() = 0;
     virtual glm::mat4& GetProjectionMatrix() = 0;

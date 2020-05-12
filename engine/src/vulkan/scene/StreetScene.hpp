@@ -81,7 +81,7 @@ void cStreetScene::HandleScroll(double dOffsetX, double dOffsetY)
     poCamera->LookMouseWheelDiff((float) dOffsetX, (float) dOffsetY);
 }
 
-void cStreetScene::LoadTextures(cTextureHandler *pTextureHandler)
+void cStreetScene::LoadTextures(cTextureHandler* pTextureHandler)
 {
     pmpTextures["roof"] = pTextureHandler->LoadTextureFromFile("resources/textures/roof.jpg");
     pmpTextures["stoneHouse"] = pTextureHandler->LoadTextureFromFile("resources/textures/stone.jpg");

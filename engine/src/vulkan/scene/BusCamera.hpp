@@ -35,14 +35,14 @@ public:
     void MoveUp()
     {
         if (!lockMovement)
-            if(cameraHeight < 20.0f)
+            if (cameraHeight < 20.0f)
                 cameraHeight += cameraSpeed;
     }
 
     void MoveDown()
     {
         if (!lockMovement)
-            if(cameraHeight > 0.0f)
+            if (cameraHeight > 0.0f)
                 cameraHeight -= cameraSpeed;
     }
 
@@ -80,11 +80,11 @@ public:
 
     void LookMouseWheelDiff(float x, float y)
     {
-        if(y < 0 && orbitDistance < 55.0f)
+        if (y < 0 && orbitDistance < 55.0f)
         {
             orbitDistance += cameraScrollSpeed;
         }
-        if(y > 0 && orbitDistance > 20.0f)
+        if (y > 0 && orbitDistance > 20.0f)
         {
             orbitDistance -= cameraScrollSpeed;
         }

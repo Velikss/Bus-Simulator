@@ -16,7 +16,7 @@ private:
     bool bQuit;
 
 protected:
-    Camera *poCamera = new FirstPersonFlyCamera;
+    Camera* poCamera = new FirstPersonFlyCamera();
 
     std::map<string, cTexture*> pmpTextures;
     std::map<string, cGeometry*> pmpGeometries;
