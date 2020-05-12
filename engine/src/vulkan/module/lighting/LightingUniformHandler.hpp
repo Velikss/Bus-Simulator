@@ -162,6 +162,10 @@ void cLightingUniformHandler::UpdateUniformBuffers(cScene* pScene)
     // Get the camera
     Camera* pCamera = &pScene->GetCamera();
 
+#ifdef ENGINE_TIMING_DEBUG
+    steady_clock::time_point tStartTime = steady_clock::now();
+#endif
+
     // Lights info consists of amount of lights, camera pos and ambient light level
     tLightsInfo tLightsInfo = {};
     tLightsInfo.uiLightsCount = puiLightsCount;
@@ -198,6 +202,10 @@ void cLightingUniformHandler::UpdateUniformBuffers(cScene* pScene)
         memcpy(pMappedMemory + 32, &atLights[0], puiLightsMemorySize - 32);
     }
     ppLogicalDevice->UnmapMemory(poUniformBufferMemory);
+
+#ifdef ENGINE_TIMING_DEBUG
+    ENGINE_LOG("lights copy took " << duration_cast<microseconds>(steady_clock::now() - tStartTime).count() << "us on the CPU");
+#endif
 }
 
 void cLightingUniformHandler::CreateDescriptorPool()

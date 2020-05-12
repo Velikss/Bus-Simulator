@@ -192,11 +192,11 @@ void cStreetScene::LoadObjects()
     {
         string sPoleName = "pole" + std::to_string(i);
         pmpObjects[sPoleName] = new cBaseObject(pmpMeshes["pole"]);
-        pmpObjects[sPoleName]->setScale(glm::vec3(0.1, 6, 0.1));
+        pmpObjects[sPoleName]->setScale(glm::vec3(0.1, 4, 0.1));
         pmpObjects[sPoleName]->setPosition(glm::vec3(-90 + 10 * i, 0, 30));
         string sLightName = "poleLight" + std::to_string(i);
         pmpObjects[sLightName] = new cLightObject(pmpMeshes["poleLight"], glm::vec3(1, 1, 1), 100.0f);
         pmpObjects[sLightName]->setScale(glm::vec3(0.3, 0.3, 0.3));
-        pmpObjects[sLightName]->setPosition(glm::vec3(-90 + 10 * i, 6, 30));
+        pmpObjects[sLightName]->setPosition(glm::vec3(-90 + 10 * i, 4, 30));
     }
 }

@@ -180,6 +180,10 @@ void cMRTUniformHandler::UpdateUniformBuffers(cScene* pScene)
     Camera* pCamera = &pScene->GetCamera();
     VkExtent2D tExtent = ppSwapChain->ptSwapChainExtent;
 
+#ifdef ENGINE_TIMING_DEBUG
+    steady_clock::time_point tStartTime = steady_clock::now();
+#endif
+
     // Struct with uniforms for the camera
     tCameraUniformData tCameraData = {};
 
@@ -211,6 +215,10 @@ void cMRTUniformHandler::UpdateUniformBuffers(cScene* pScene)
         // Copy the data to memory
         CopyToDeviceMemory(paoObjectUniformBuffersMemory[uiIndex++], &tObjectData, sizeof(tObjectData));
     }
+
+#ifdef ENGINE_TIMING_DEBUG
+    ENGINE_LOG("mrt ubo copy took " << duration_cast<microseconds>(steady_clock::now() - tStartTime).count() << "us on the CPU");
+#endif
 }
 
 void cMRTUniformHandler::CopyToDeviceMemory(VkDeviceMemory& oDeviceMemory, void* pData, uint uiDataSize)
