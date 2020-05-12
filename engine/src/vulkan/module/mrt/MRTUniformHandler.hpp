@@ -217,7 +217,8 @@ void cMRTUniformHandler::UpdateUniformBuffers(cScene* pScene)
     }
 
 #ifdef ENGINE_TIMING_DEBUG
-    ENGINE_LOG("mrt ubo copy took " << duration_cast<microseconds>(steady_clock::now() - tStartTime).count() << "us on the CPU");
+    ENGINE_LOG("mrt ubo copy took " << duration_cast<microseconds>(steady_clock::now() - tStartTime).count()
+                                    << "us on the CPU");
 #endif
 }
 

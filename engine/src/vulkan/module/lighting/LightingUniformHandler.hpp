@@ -204,7 +204,8 @@ void cLightingUniformHandler::UpdateUniformBuffers(cScene* pScene)
     ppLogicalDevice->UnmapMemory(poUniformBufferMemory);
 
 #ifdef ENGINE_TIMING_DEBUG
-    ENGINE_LOG("lights copy took " << duration_cast<microseconds>(steady_clock::now() - tStartTime).count() << "us on the CPU");
+    ENGINE_LOG("lights copy took " << duration_cast<microseconds>(steady_clock::now() - tStartTime).count()
+                                   << "us on the CPU");
 #endif
 }
 
