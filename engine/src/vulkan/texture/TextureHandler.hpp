@@ -4,6 +4,7 @@
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/texture/Texture.hpp>
 #include <util/Formatter.hpp>
+#include "TextureSampler.hpp"
 
 // Class for loading and managing textures
 class cTextureHandler
@@ -12,22 +13,21 @@ private:
     // Device where the textures and sampler are loaded
     cLogicalDevice* ppLogicalDevice;
 
-    // Texture sampler object
-    VkSampler poTextureSampler = VK_NULL_HANDLE;
+    // Texture sampler
+    cTextureSampler* ppDefaultSampler;
+    cTextureSampler* ppSkyboxSampler;
 
 public:
     cTextureHandler(cLogicalDevice* pLogicalDevice);
     ~cTextureHandler(void);
 
     // Load a texture from a file
+    cTexture* LoadTextureFromFile(const char* sFilePath, cTextureSampler* pSampler);
     cTexture* LoadTextureFromFile(const char* sFilePath);
 
     // Returns the texture sampler
-    VkSampler GetSampler();
-
-private:
-    // Creates the texture sampler
-    void CreateTextureSampler(void);
+    cTextureSampler* GetDefaultSampler();
+    cTextureSampler* GetSkyboxSampler();
 };
 
 cTextureHandler::cTextureHandler(cLogicalDevice* pLogicalDevice)
@@ -37,17 +37,23 @@ cTextureHandler::cTextureHandler(cLogicalDevice* pLogicalDevice)
     // Store the logical device
     ppLogicalDevice = pLogicalDevice;
 
-    // Create the texture sampler
-    CreateTextureSampler();
+    ppDefaultSampler = new cTextureSampler(pLogicalDevice,
+                                           VK_FILTER_LINEAR,
+                                           VK_SAMPLER_ADDRESS_MODE_REPEAT,
+                                           true);
+    ppSkyboxSampler = new cTextureSampler(pLogicalDevice,
+                                          VK_FILTER_NEAREST,
+                                          VK_SAMPLER_ADDRESS_MODE_REPEAT,
+                                          false);
 }
 
 cTextureHandler::~cTextureHandler(void)
 {
-    // Destroy the texture sampler
-    ppLogicalDevice->DestroySampler(poTextureSampler, nullptr);
+    delete ppDefaultSampler;
+    delete ppSkyboxSampler;
 }
 
-cTexture* cTextureHandler::LoadTextureFromFile(const char* sFilePath)
+cTexture* cTextureHandler::LoadTextureFromFile(const char* sFilePath, cTextureSampler* pSampler)
 {
     // Load the pixel data and image size
     int iTexWidth, iTexHeight;
@@ -71,54 +77,20 @@ cTexture* cTextureHandler::LoadTextureFromFile(const char* sFilePath)
     tTextureInfo.uiMipLevels = std::floor(std::log2(std::max(iTexWidth, iTexHeight))) + 1;
 
     // Create the texture object and return it
-    return new cTexture(ppLogicalDevice, tTextureInfo, pcPixels, sFilePath);
+    return new cTexture(ppLogicalDevice, tTextureInfo, pcPixels, sFilePath, pSampler);
 }
 
-void cTextureHandler::CreateTextureSampler(void)
+cTexture* cTextureHandler::LoadTextureFromFile(const char* sFilePath)
 {
-    VkSamplerCreateInfo tSamplerInfo = {};
-    tSamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-
-    // Filter mode to use to interpolate texels that are magnified or minified
-    tSamplerInfo.magFilter = VK_FILTER_LINEAR;
-    tSamplerInfo.minFilter = VK_FILTER_LINEAR;
-
-    // The addressing mode to use per axis
-    tSamplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    tSamplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    tSamplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-
-    // Configure anisotropic filtering
-    tSamplerInfo.anisotropyEnable = VK_TRUE;
-    tSamplerInfo.maxAnisotropy = cPhysicalDevice::GetInstance()->GetMaxAnisotropy();
-
-    // When sampling outside the image, what color to use
-    // irrelevant when using REPEAT addressing mode
-    tSamplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-
-    // When true,  UV coordinates range from 0 to textureWidth and 0 to textureHeight
-    // When false, UV coordinates range from 0 to 1
-    tSamplerInfo.unnormalizedCoordinates = VK_FALSE;
-
-    // Allows for comparing texel values to a value and using the result of the comparison
-    tSamplerInfo.compareEnable = VK_FALSE;
-    tSamplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-
-    // Configure mipmapping. Currently disabled
-    tSamplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-    tSamplerInfo.mipLodBias = 0.0f;
-    tSamplerInfo.minLod = 0.0f;
-    tSamplerInfo.maxLod = 0.0f;
-
-    if (!ppLogicalDevice->CreateSampler(&tSamplerInfo, nullptr, &poTextureSampler))
-    {
-        throw std::runtime_error("failed to create texture sampler!");
-    }
+    return LoadTextureFromFile(sFilePath, GetDefaultSampler());
 }
 
-VkSampler cTextureHandler::GetSampler()
+cTextureSampler* cTextureHandler::GetDefaultSampler()
 {
-    assert(poTextureSampler != VK_NULL_HANDLE);
+    return ppDefaultSampler;
+}
 
-    return poTextureSampler;
+cTextureSampler* cTextureHandler::GetSkyboxSampler()
+{
+    return ppSkyboxSampler;
 }

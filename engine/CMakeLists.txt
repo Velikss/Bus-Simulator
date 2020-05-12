@@ -102,7 +102,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/loop/TickTask.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/LightObject.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/util/EngineLog.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/ViewportQuadGeometry.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/ViewportQuadGeometry.hpp src/vulkan/texture/TextureSampler.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 

@@ -271,10 +271,11 @@ void cMRTUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, 
         tBufferInfo.offset = 0;
         tBufferInfo.range = sizeof(tObjectUniformData);
 
+        cTexture* pTexture = oObject.second->GetMesh()->GetTexture();
         VkDescriptorImageInfo tImageInfo = {};
         tImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        tImageInfo.imageView = oObject.second->GetMesh()->GetTexture()->GetView();
-        tImageInfo.sampler = pTextureHandler->GetSampler();
+        tImageInfo.imageView = pTexture->GetView();
+        tImageInfo.sampler = pTexture->GetSampler();
 
         std::array<VkWriteDescriptorSet, 2> atDescriptorWrites = {};
 

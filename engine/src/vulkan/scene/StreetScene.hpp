@@ -80,7 +80,8 @@ void cStreetScene::LoadTextures(cTextureHandler* pTextureHandler)
     pmpTextures["grass"] = pTextureHandler->LoadTextureFromFile("resources/textures/grass.jpg");
     pmpTextures["street"] = pTextureHandler->LoadTextureFromFile("resources/textures/street.jpg");
     pmpTextures["moon"] = pTextureHandler->LoadTextureFromFile("resources/textures/moon.jpg");
-    pmpTextures["skybox"] = pTextureHandler->LoadTextureFromFile("resources/textures/skybox.jpg");
+    pmpTextures["skybox"] = pTextureHandler->LoadTextureFromFile("resources/textures/skybox.jpg",
+                                                                 pTextureHandler->GetSkyboxSampler());
 }
 
 void cStreetScene::LoadGeometries(cLogicalDevice* pLogicalDevice)
