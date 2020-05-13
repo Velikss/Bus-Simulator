@@ -18,7 +18,6 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
-find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(PkgConfig)
 
@@ -36,31 +35,9 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(Headers
         ${PROJECT_SOURCE_DIR}/src/pch.hpp
         ${PROJECT_SOURCE_DIR}/src/vendor/tiny_obj_loader.h
-        ${PROJECT_SOURCE_DIR}/src/shaders/glsl.hpp
-        ${PROJECT_SOURCE_DIR}/src/shaders/shader.hpp
-        ${PROJECT_SOURCE_DIR}/src/shaders/ShaderProgram.hpp
-        ${PROJECT_SOURCE_DIR}/src/objects/BaseObject.hpp
-        ${PROJECT_SOURCE_DIR}/src/objects/Light.hpp
-        ${PROJECT_SOURCE_DIR}/src/objects/Material.hpp
-        ${PROJECT_SOURCE_DIR}/src/objects/Mesh.hpp
-        ${PROJECT_SOURCE_DIR}/src/objects/ObjectGroup.hpp
-        ${PROJECT_SOURCE_DIR}/src/buffers/Buffer.hpp
-        ${PROJECT_SOURCE_DIR}/src/geometries/Geometry.hpp
-        ${PROJECT_SOURCE_DIR}/src/geometries/SkyBoxGeometry.hpp
         ${PROJECT_SOURCE_DIR}/src/loaders/fileloader.hpp
         ${PROJECT_SOURCE_DIR}/src/loaders/objectloader.hpp
         ${PROJECT_SOURCE_DIR}/src/vendor/stb_image.h
-        ${PROJECT_SOURCE_DIR}/src/textures/Texture.hpp
-        ${PROJECT_SOURCE_DIR}/src/textures/CubeMapTexture.hpp
-        ${PROJECT_SOURCE_DIR}/src/scenes/Scene.hpp
-        ${PROJECT_SOURCE_DIR}/src/scenes/Camera.hpp
-        ${PROJECT_SOURCE_DIR}/src/scenes/MyStreetScene.hpp
-        ${PROJECT_SOURCE_DIR}/src/animations/Animation.hpp
-        ${PROJECT_SOURCE_DIR}/src/animations/FireWehrAnimation.hpp
-        ${PROJECT_SOURCE_DIR}/src/animations/LightObjectBindingAnimation.hpp
-        ${PROJECT_SOURCE_DIR}/src/animations/MoonLightAnimation.hpp
-        ${PROJECT_SOURCE_DIR}/src/animations/OrbitalAnimation.hpp
-        ${PROJECT_SOURCE_DIR}/src/scenes/TestScene.hpp
         ${PROJECT_SOURCE_DIR}/src/Engine.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/Window.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/VulkanInstance.hpp
