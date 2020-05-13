@@ -1,6 +1,6 @@
 #pragma once
 
-#define QUAD_HD_RESOLUTION
+//#define QUAD_HD_RESOLUTION
 
 #include <pch.hpp>
 #include <GLFW/glfw3.h>
@@ -210,6 +210,8 @@ void cWindow::mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY)
 {
     static bool bFirstMouse = true;
     static float uiLastX = WIDTH, uiLastY = HEIGHT;
+
+    if (poInstance == nullptr || poInstance->ppInputHandler == nullptr) return;
 
     // If this is the first time the mouse is moved, set
     // the last position to the current
