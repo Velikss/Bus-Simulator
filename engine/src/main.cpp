@@ -1,8 +1,6 @@
 #include <pch.hpp>
 #include <iostream>
 #include <GL/glew.h>
-#include <scenes/Scene.hpp>
-#include <scenes/MyStreetScene.hpp>
 #include <GLFW/glfw3.h>
 #include <scripting/cScriptingEngine.hpp>
 #include <entities/cEntity.hpp>
