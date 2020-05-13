@@ -18,8 +18,7 @@
 struct tLight
 {
     glm::vec4 tPosition;
-    glm::vec3 tColor;
-    float fRadius;
+    glm::vec4 tColorAndRadius;
 };
 
 // Struct with information about the lighting
@@ -182,8 +181,7 @@ void cLightingUniformHandler::UpdateUniformBuffers(cScene* pScene)
             cLightObject* pLight = dynamic_cast<cLightObject*>(pObject.second);
             tLight tLight = {};
             tLight.tPosition = glm::vec4(*pLight->getPosition(), 0.0f);
-            tLight.tColor = pLight->GetColor();
-            tLight.fRadius = pLight->GetRadius();
+            tLight.tColorAndRadius = glm::vec4(pLight->GetColor(), pLight->GetRadius());
             atLights.push_back(tLight);
         }
     }
