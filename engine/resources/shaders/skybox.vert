@@ -9,6 +9,6 @@ uniform mat4 model;
 void main()
 {
     TexCoords = FragPos;
-    vec4 pos = pv * model * vec4(FragPos, 1.0);
-    gl_Position = pos.xyww;
+    vec4 pPosition = pv * model * vec4(FragPos, 1.0);
+    gl_Position = pPosition.xyww;
 }  

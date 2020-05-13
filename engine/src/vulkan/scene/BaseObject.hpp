@@ -8,11 +8,10 @@ class cBaseObject
 private:
     cMesh* ppMesh;
 
+public:
     glm::vec3 poRotation = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 poPosition = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 poScale = glm::vec3(1.0f, 1.0f, 1.0f);
-
-public:
     bool bLighting = true;
 
     cBaseObject(cMesh* pMesh);
@@ -35,7 +34,7 @@ public:
 
 cBaseObject::cBaseObject(cMesh* pMesh) : ppMesh(pMesh)
 {
-    assert(ppMesh != nullptr);
+    //assert(ppMesh != nullptr);
 }
 
 glm::mat4 cBaseObject::GetModelMatrix()
