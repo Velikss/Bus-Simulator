@@ -23,6 +23,7 @@ public:
         std::string sKeyFile = "";
     };
 protected:
+    bool pbLockedRecieve = false;
     bool pbShutdown = false;
     bool pbDestroyed = false;
 
@@ -62,6 +63,21 @@ public:
     cNetworkAbstractions::cConnectionStatus Status()
     {
         return cNetworkAbstractions::IsConnected(poSock);
+    }
+
+    void LockRecieve()
+    {
+        pbLockedRecieve = true;
+    }
+
+    void UnLockRecieve()
+    {
+        pbLockedRecieve = false;
+    }
+
+    bool IsRecieveLocked()
+    {
+        return pbLockedRecieve;
     }
 
     string GetIP()

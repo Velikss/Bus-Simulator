@@ -84,11 +84,16 @@ bool cGameServer::OnRecieve(cNetworkConnection *pConnection)
     cRequest oRequest;
     if (!cHttp::RecieveRequest(pConnection, oRequest)) return false;
     cUri oUri = cUri::ParseFromRequest(oRequest.GetResource());
-    const string sSessionKey = oRequest.GetHeader("Session-key");
+    const string sSessionKey = oRequest.GetHeader("session-key");
 
     if (!SessionExists(sSessionKey))
     {
-        return RequestSession(pConnection, sSessionKey);
+        cResponse oAwnser, oClientAwnser;
+        bool bSuccess = RequestSession(pConnection, oAwnser, sSessionKey);
+        if (bSuccess && oAwnser.GetResponseCode() == 200 &&
+            oAwnser.GetHeader("client-ip") == pConnection->GetIP() &&
+            oAwnser.GetHeader("session-key") == sSessionKey)
+        std::cout << "recieved SSO-awnser: " << bSuccess << ", " << oAwnser.GetResponseCode() << std::endl;
     }
 
     // the session-data was found.

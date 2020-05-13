@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS `Session` (
-  `Key` char(36) NOT NULL,
+  `Key` varchar(36) NOT NULL,
   `User_Id` int(11) NOT NULL,
   `Ip` varchar(15) NOT NULL,
   `Stamp` timestamp NOT NULL DEFAULT utc_timestamp(),

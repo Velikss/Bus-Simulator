@@ -74,6 +74,8 @@ protected:
 
 bool cSSOServer::OnConnect(cNetworkConnection* pConnection)
 {
+    pConnection->LockRecieve();
+
     cRequest oRequest;
     if(!cHttp::RecieveRequest(pConnection, oRequest)) return false;
     cUri oUri = cUri::ParseFromRequest(oRequest.GetResource());
@@ -103,6 +105,8 @@ bool cSSOServer::OnConnect(cNetworkConnection* pConnection)
     }
     string sResponse = oResponse.Serialize();
     pConnection->SendBytes((byte*)sResponse.c_str(), sResponse.size());
+
+    pConnection->UnLockRecieve();
     return oResponse.GetResponseCode() == 200;
 }
 
@@ -130,11 +134,38 @@ bool cSSOServer::HandleSessionRequest(cNetworkConnection *pConnection, cUri & oU
 {
     if(oUri.pasPath.size() < 2) return false;
 
+    cResponse oResponse;
+    std::vector<cHeader> aHeaders;
+    aHeaders.push_back({"Server", "Orange-SSO"});
+    aHeaders.push_back({"Connection", "keep-alive"});
+
     if(oUri.pasPath[2] == "require") // If a session is requested.
     {
         std::cout << "session requested." << std::endl;
-        //poDB->Fetch("SELECT * FROM Session WHERE Key=");
+        string sSessionKey = oRequest.GetHeader("session-key");
+        string sIp = oRequest.GetHeader("client-ip");
+        std::vector<SQLROW> aSessions;
+        if (sSessionKey.size() > 0) poDB->Fetch("SELECT * FROM Session WHERE Session.Key = '" + oRequest.GetHeader("session-key") + "' AND Session.Ip = '" + sIp + "';", &aSessions);
+        else std::cout << "no key or ip provided: session: " << sSessionKey << ", ip: " << sIp << std::endl;
+
+        if (aSessions.size() == 0)
+            oResponse.SetResponseCode(403);
+        else // on success with 1 session.
+        {
+            oResponse.SetResponseCode(200);
+            string sDBIp, sDBSessionKey;
+            aSessions[0]["Ip"]->GetValueStr(sIp);
+            aSessions[0]["Key"]->GetValueStr(sDBSessionKey);
+            aHeaders.push_back({"Client-ip", sDBIp});
+            aHeaders.push_back({"Session-Key", sDBSessionKey});
+        }
     }
+
+    oResponse.SetHeaders(aHeaders);
+
+    string sResponse = oResponse.Serialize();
+    pConnection->SendBytes((byte*)sResponse.c_str(), sResponse.size());
+    return true;
 
     return false;
 }

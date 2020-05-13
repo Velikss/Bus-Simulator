@@ -416,14 +416,12 @@ namespace cHttp
         return true;
     }
 
-    bool RecieveResponse(cNetworkConnection* pConnection, cResponse& oResponse)
+    bool RecieveResponse(cNetworkConnection* pConnection, cResponse& oResponse, size_t uiSleepTime = 50)
     {
-        unsigned short usTimeOut = 0;
-        while (!pConnection->Available())
+        if (!pConnection->Available())
         {
-            if(usTimeOut > 5) return false;
-            usTimeOut++;
-            sleep(10);
+            sleep(uiSleepTime);
+            if (!pConnection->Available()) return false;
         }
 
         byte* aBytes = new byte[8192];

@@ -20,10 +20,10 @@ public:
 
     bool SessionExists(string sSessionKey)
     {
-        return (sSessionKey.size() > 0 && paSessions.find(sSessionKey) == paSessions.end());
+        return (sSessionKey.size() > 0 && paSessions.find(sSessionKey) != paSessions.end());
     }
 
-    bool RequestSession(cNetworkConnection* pConnection, const string& sProvidedSessionKeyOpt = "")
+    bool RequestSession(cNetworkConnection* pConnection, cResponse & oAwnser, const string& sProvidedSessionKeyOpt = "")
     {
         if(!pSSOClient->IsConnected()) return false;
 
@@ -33,8 +33,8 @@ public:
 
         aHeaders.push_back({"Host", "127.0.0.1"});
         aHeaders.push_back({"Connection", "keep-alive"});
-        aHeaders.push_back({"Client-ip:", pConnection->GetIP()});
-        if (sProvidedSessionKeyOpt.size() > 0) aHeaders.push_back({"Session-key", sProvidedSessionKeyOpt});
+        aHeaders.push_back({"Client-ip", pConnection->GetIP()});
+        if (sProvidedSessionKeyOpt.size() > 0) aHeaders.push_back({"session-key", sProvidedSessionKeyOpt});
 
         oRequest.SetMethod(cMethod::ePOST);
         oRequest.SetResource("/sso/session/require");
@@ -42,7 +42,8 @@ public:
 
         string sRequest = oRequest.Serialize();
         pSSOClient->SendBytes((byte*)sRequest.c_str(), sRequest.size());
-        return true;
+
+        return cHttp::RecieveResponse(pSSOClient.get(), oAwnser, 250);
     }
 
     bool ConnectToSSOServer(const string& sUuid, const string& sIp, const unsigned short& usPort)
@@ -82,6 +83,7 @@ private:
 
 void cSsoService::_OnConnect(cNetworkConnection *pConnection)
 {
+    pConnection->LockRecieve();
     // If no session-key was provided or if the session was not found on the server, make a call to the sso server.
     cRequest oRequest;
     std::vector<cHeader> aHeaders;
@@ -100,12 +102,13 @@ void cSsoService::_OnConnect(cNetworkConnection *pConnection)
     cResponse oResponse;
     RecieveResponse(pConnection, oResponse);
 
+    pConnection->UnLockRecieve();
     if (oResponse.GetResponseCode() != 200) throw std::runtime_error("inaccessible sso server, is the Service-ID correct?");
 }
 
 bool cSsoService::_OnRecieve(cNetworkConnection *pConnection)
 {
-    return false;
+    return true;
 }
 
 void cSsoService::_OnDisconnect(cNetworkConnection *pConnection)

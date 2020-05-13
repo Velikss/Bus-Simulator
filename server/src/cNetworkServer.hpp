@@ -145,7 +145,7 @@ void cNetworkServer::OnRecieveLoop()
             auto status = aConnections[i]->Status();
             if (status == cNetworkAbstractions::cConnectionStatus::eAVAILABLE)
             {
-                if (OnRecieve)
+                if (OnRecieve && !aConnections[i]->IsRecieveLocked())
                     if(!OnRecieve(aConnections[i]))
                     {
                         aConnections.erase(aConnections.begin() + i);

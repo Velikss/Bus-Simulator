@@ -67,12 +67,21 @@ TEST(SSOTests, SetupSSOServer)
 
     string sGameServerUuid = uuids::to_string(uuids::uuid_system_generator{}());
 
-    EXPECT_TRUE(poSSOServer->InitDB("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=sso;pwd=hiddenhand;database=test;"));
+#if defined(WINDOWS)
+    EXPECT_TRUE(poSSOServer->InitDB("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test-windows;"));
+#elif
+    EXPECT_TRUE(poSSOServer->InitDB("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test-linux;"));
+#endif
+
     poSSOServer->RegisterUuid(sGameServerUuid);
     EXPECT_TRUE(poSSOServer->Listen());
 
-    EXPECT_TRUE(poGameServer->InitDB(
-            "driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=game;pwd=game;database=game;"));
+#if defined(WINDOWS)
+    EXPECT_TRUE(poGameServer->InitDB("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test-windows;"));
+#elif
+    EXPECT_TRUE(poGameServer->InitDB("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test-linux;"));
+#endif
+
     EXPECT_TRUE(poGameServer->ConnectToSSOServer(sGameServerUuid, "127.0.0.1", 14001));
     EXPECT_TRUE(poGameServer->Listen());
 
@@ -105,6 +114,7 @@ TEST(SSOTests, Handshake)
 
     aHeaders.push_back({"Host", "127.0.0.1"});
     aHeaders.push_back({"Connection", "keep-alive"});
+    aHeaders.push_back({"session-key", "abcd"});
 
     oRequest.SetMethod(cMethod::ePOST);
     oRequest.SetResource("/player");

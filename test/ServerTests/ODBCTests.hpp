@@ -8,7 +8,11 @@ string sUnicodeUTF8 = "おはようございます";
 TEST(ODBCTests, Connect)
 {
     poInstance = std::make_shared<cODBCInstance>();
-    EXPECT_TRUE(poInstance->Connect("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test;"));
+#if defined(WINDOWS)
+    EXPECT_TRUE(poInstance->Connect("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test-windows;"));
+#elif
+    EXPECT_TRUE(poInstance->Connect("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test-linux;"));
+#endif
 }
 
 TEST(ODBCTests, Exe)
@@ -39,6 +43,7 @@ TEST(ODBCTests, SQLInjection)
     string sString = "'; DROP TABLE *";
     cODBCInstance::Escape(sString);
     ASSERT_STREQ(sString.c_str(), "\\'; DROP TABLE *");
+    EXPECT_TRUE(poInstance->Exec("INSERT INTO UserTest (UserName, Password) VALUES('" + sString + "', 'TEST');"));
 
     sString = "''; DROP TABLE *";
     cODBCInstance::Escape(sString);
