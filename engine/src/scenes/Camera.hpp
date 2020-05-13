@@ -38,6 +38,7 @@ public:
     float orbitDistance = 30.0f;
     cBaseObject* cameraPivotObject;
     glm::vec3 cameraPivotPos;
+    glm::vec3 cameraPivotChanges;
 
     virtual void Forward() = 0;
     virtual void BackWard() = 0;
@@ -45,8 +46,8 @@ public:
     virtual void MoveRight() = 0;
     virtual void MoveUp() = 0;
     virtual void MoveDown() = 0;
-    virtual void MovePivotForward(float fMultiplier) = 0;
-    virtual void MovePivotBackward(float fMultiplier) = 0;
+    virtual void MovePivotX(float fMultiplier) = 0;
+    virtual void MovePivotY(float fMultiplier) = 0;
     virtual void LookUp() = 0;
     virtual void LookDown() = 0;
     virtual void LookLeft() = 0;
@@ -109,12 +110,12 @@ public:
 //            cameraPos -= cameraSpeed * cameraUp;
     }
 
-    void MovePivotForward(float fMultiplier)
+    void MovePivotX(float fMultiplier)
     {
 
     }
 
-    void MovePivotBackward(float fMultiplier)
+    void MovePivotY(float fMultiplier)
     {
 
     }

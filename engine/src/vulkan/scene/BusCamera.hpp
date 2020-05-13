@@ -46,16 +46,15 @@ public:
                 cameraHeight -= cameraSpeed;
     }
 
-    void MovePivotForward(float fMultiplier)
+    void MovePivotX(float fMultiplier)
     {
         glm::vec3 direction(sin(glm::radians(cameraPivotObject->getRotation()->y)), 0, cos(glm::radians(cameraPivotObject->getRotation()->y)));
         cameraPivotPos -= (direction * fMultiplier);
     }
 
-    void MovePivotBackward(float fMultiplier)
+    void MovePivotY(float fMultiplier)
     {
-        glm::vec3 direction(sin(glm::radians(cameraPivotObject->getRotation()->y)), 0, cos(glm::radians(cameraPivotObject->getRotation()->y)));
-        cameraPivotPos += (direction * fMultiplier);
+        cameraPivotPos.y += fMultiplier;
     }
 
     void LookUp()
@@ -106,8 +105,9 @@ public:
     void ProcessUpdates()
     {
         cameraPivotPos = *cameraPivotObject->getPosition();
-        // Todo make pivot changes property
-        MovePivotForward(2.0f);
+        MovePivotX(cameraPivotChanges.x);
+        MovePivotY(cameraPivotChanges.y);
+        // Todo move pivot along the Z (sideways)
 
         cameraPos.x = sin(glm::radians(yaw)) * orbitDistance + cameraPivotPos.x;
         cameraPos.y = cameraPivotPos.y + cameraHeight;
@@ -122,22 +122,6 @@ public:
         view = glm::lookAt(cameraPos, glm::vec3(cameraPivotPos.x,
                                                 cameraPivotPos.y,
                                                 cameraPivotPos.z) + cameraFront, cameraUp);
-
-        //TODO move camera pivot with bus rotation
-//        cameraPos.x = sin(glm::radians(yaw)) * orbitDistance + cameraPivotObject->getPosition()->x + cameraPivotChanges.x;
-//        cameraPos.y = cameraPivotObject->getPosition()->y + cameraHeight + cameraPivotChanges.y;
-//        cameraPos.z = cos(glm::radians(yaw)) * orbitDistance + cameraPivotObject->getPosition()->z + cameraPivotChanges.z;
-//
-//
-//        cameraFront = glm::normalize((*cameraPivotObject->getPosition() + cameraPivotChanges) - cameraPos);
-//        glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-//        glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraFront));
-//        cameraUp = glm::normalize(glm::cross(cameraFront, cameraRight));
-//
-//        view = glm::lookAt(cameraPos, glm::vec3(cameraPivotObject->getPosition()->x + cameraPivotChanges.x,
-//                                                cameraPivotObject->getPosition()->y + cameraPivotChanges.y,
-//                                                cameraPivotObject->getPosition()->z + cameraPivotChanges.z) + cameraFront, cameraUp);
-//        view = glm::lookAt(cameraPos, *cameraPivotObject + cameraPivotChanges + cameraFront, cameraUp);
     }
 
     glm::mat4& GetViewMatrix()
