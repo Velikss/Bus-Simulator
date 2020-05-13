@@ -21,10 +21,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
 set(Headers
         EngineTests/ScriptingTests.hpp
         EngineTests/BehaviourTests.hpp)
@@ -34,9 +30,6 @@ set(Sources
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-
-find_package(OpenGL REQUIRED)
-find_package(GLEW REQUIRED)
 
 include_directories( ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../engine/src ${GLEW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} )
 add_executable(${This} ${Sources} ${Headers})
