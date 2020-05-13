@@ -211,6 +211,8 @@ void cWindow::mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY)
     static bool bFirstMouse = true;
     static float uiLastX = WIDTH, uiLastY = HEIGHT;
 
+    if (poInstance == nullptr || poInstance->ppInputHandler == nullptr) return;
+
     // If this is the first time the mouse is moved, set
     // the last position to the current
     if (bFirstMouse)
