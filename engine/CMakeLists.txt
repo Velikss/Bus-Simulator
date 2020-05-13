@@ -35,6 +35,7 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
 set(Headers
         ${PROJECT_SOURCE_DIR}/src/pch.hpp
+        ${PROJECT_SOURCE_DIR}/src/vendor/tiny_obj_loader.h
         ${PROJECT_SOURCE_DIR}/src/shaders/glsl.hpp
         ${PROJECT_SOURCE_DIR}/src/shaders/shader.hpp
         ${PROJECT_SOURCE_DIR}/src/shaders/ShaderProgram.hpp
@@ -46,7 +47,6 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/buffers/Buffer.hpp
         ${PROJECT_SOURCE_DIR}/src/geometries/Geometry.hpp
         ${PROJECT_SOURCE_DIR}/src/geometries/SkyBoxGeometry.hpp
-        ${PROJECT_SOURCE_DIR}/src/vendor/tiny_obj_loader.h
         ${PROJECT_SOURCE_DIR}/src/loaders/fileloader.hpp
         ${PROJECT_SOURCE_DIR}/src/loaders/objectloader.hpp
         ${PROJECT_SOURCE_DIR}/src/vendor/stb_image.h
@@ -66,11 +66,9 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/VulkanInstance.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/PhysicalDevice.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/LogicalDevice.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/SwapChain.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/GraphicsPipeline.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/RenderHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/uniform/UniformHandler.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/ImageHelper.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/util/ImageHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/CommandHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/Geometry.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/Vertex.hpp
@@ -82,22 +80,43 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/texture/TextureInfo.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/CommandBuffer.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/CommandBufferRecorder.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/command/IndexedRenderRecorder.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/ClearScreenRecorder.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/Scene.hpp src/vulkan/scene/BaseObject.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/TestScene.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/InputHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/StreetScene.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/TextTest.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/OverlayPipeline.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/PipelineHelper.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/Vertex2D.hpp src/vulkan/overlay/OverlayRenderPass.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/OverlayCommandBufferRecorder.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/Font.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/uniform/UniformHandler.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/OverlayUniformHandler.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/overlay/Text.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/renderpass/RenderPass.hpp
+        ${PROJECT_SOURCE_DIR}/src/util/Formatter.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/RenderModule.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/RenderPipeline.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/swapchain/SwapChainHelper.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/swapchain/SwapChain.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/Shaders.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/mrt/MRTPipeline.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/mrt/MRTRenderModule.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/mrt/MRTRenderPass.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/mrt/MRTUniformHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/mrt/MRTRenderRecorder.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/lighting/LightingPipeline.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/lighting/LightingRenderModule.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/lighting/LightingRenderPass.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/lighting/LightingUniformHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/lighting/LightingRenderRecorder.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/OverlayPipeline.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/OverlayRenderModule.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/OverlayRenderPass.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/OverlayUniformHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/OverlayCommandBufferRecorder.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/text/Vertex2D.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/text/Text.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/text/Font.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/loop/GameLoop.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/loop/TickTask.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/LightObject.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/util/EngineLog.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/ViewportQuadGeometry.hpp src/vulkan/texture/TextureSampler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/BusCamera.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/BusWorldScene.hpp)
 set(Sources
@@ -110,6 +129,4 @@ target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw ${V
 
 IF (NOT WIN32)
     add_custom_command(TARGET ${This}-bin PRE_BUILD COMMAND cd ${PROJECT_SOURCE_DIR}/shaders && ./compile.sh)
-ELSE ()
-    add_custom_command(TARGET ${This}-bin PRE_BUILD COMMAND cd ${PROJECT_SOURCE_DIR}/shaders && compile.bat)
 ENDIF ()

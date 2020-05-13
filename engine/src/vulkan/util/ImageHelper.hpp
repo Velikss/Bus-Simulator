@@ -40,6 +40,11 @@ void cImageHelper::CreateImage(uint uiWidth,
                                VkDeviceMemory& oImageMemory,
                                cLogicalDevice* pLogicalDevice)
 {
+    assert(uiWidth > 0 && uiHeight > 0);
+    assert(oImage == VK_NULL_HANDLE);
+    assert(oImageMemory == VK_NULL_HANDLE);
+    assert(pLogicalDevice != nullptr);
+
     VkImageCreateInfo tImageInfo = {};
     tImageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     tImageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -120,6 +125,10 @@ void cImageHelper::CreateImageView(VkImage& oImage,
                                    VkImageView* pImageView,
                                    VkImageAspectFlags uiAspectFlags)
 {
+    assert(oImage != VK_NULL_HANDLE);
+    assert(pLogicalDevice != nullptr);
+    assert(pImageView != nullptr);
+
     // Struct with information for creating an image view
     VkImageViewCreateInfo viewInfo{};
     viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;

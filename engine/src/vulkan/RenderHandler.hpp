@@ -3,9 +3,9 @@
 #include <pch.hpp>
 #include <vulkan/vulkan.h>
 #include <vulkan/LogicalDevice.hpp>
-#include <vulkan/overlay/TextTest.hpp>
-#include "SwapChain.hpp"
-#include "vulkan/command/CommandBuffer.hpp"
+#include <vulkan/module/overlay/OverlayRenderModule.hpp>
+#include <vulkan/swapchain/SwapChain.hpp>
+#include <vulkan/command/CommandBuffer.hpp>
 
 class cRenderHandler
 {
@@ -16,9 +16,11 @@ private:
     cSwapChain* ppSwapChain;
     cCommandBuffer** ppCommandBuffers;
     uint puiCommandBufferCount;
-    cGraphicsUniformHandler* ppUniformHandler = nullptr;
+    iUniformHandler** ppUniformHandlers = nullptr;
+    uint puiUniformHandlerCount;
 
     std::vector<VkSemaphore> aoImageAvailableSemaphores;
+    std::vector<VkSemaphore> aoMRTFinishedSemaphores;
     std::vector<VkSemaphore> aoRenderFinishedSemaphores;
     std::vector<VkFence> aoInFlightFences;
 
@@ -33,9 +35,9 @@ public:
 
     void CreateSemaphores(void);
 
-    void DrawFrame(cScene* pScene, TextTest* pTest, cCommandBuffer* pCommandBuffer);
+    void DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandler, cCommandBuffer* pCommandBuffer);
 
-    void SetUniformHandler(cGraphicsUniformHandler* pUniformHandler);
+    void SetUniformHandlers(iUniformHandler** pUniformHandlers, uint uiUniformHandlerCount);
 };
 
 cRenderHandler::cRenderHandler(cLogicalDevice* pLogicalDevice,
@@ -57,6 +59,7 @@ cRenderHandler::~cRenderHandler()
     for (uint i = 0; i < uiMAX_FRAMES_IN_FLIGHT; i++)
     {
         vkDestroySemaphore(oDevice, aoRenderFinishedSemaphores[i], nullptr);
+        vkDestroySemaphore(oDevice, aoMRTFinishedSemaphores[i], nullptr);
         vkDestroySemaphore(oDevice, aoImageAvailableSemaphores[i], nullptr);
         vkDestroyFence(oDevice, aoInFlightFences[i], nullptr);
     }
@@ -68,6 +71,7 @@ void cRenderHandler::CreateSemaphores()
 
     // Resize all the semaphore & fence lists to the max amount of frames in flight
     aoImageAvailableSemaphores.resize(uiMAX_FRAMES_IN_FLIGHT);
+    aoMRTFinishedSemaphores.resize(uiMAX_FRAMES_IN_FLIGHT);
     aoRenderFinishedSemaphores.resize(uiMAX_FRAMES_IN_FLIGHT);
     aoInFlightFences.resize(uiMAX_FRAMES_IN_FLIGHT);
 
@@ -84,6 +88,7 @@ void cRenderHandler::CreateSemaphores()
     {
         // For every frame, create the two semaphores and the fence
         if (vkCreateSemaphore(oDevice, &tSemaphoreInfo, nullptr, &aoImageAvailableSemaphores[i]) != VK_SUCCESS ||
+            vkCreateSemaphore(oDevice, &tSemaphoreInfo, nullptr, &aoMRTFinishedSemaphores[i]) != VK_SUCCESS ||
             vkCreateSemaphore(oDevice, &tSemaphoreInfo, nullptr, &aoRenderFinishedSemaphores[i]) != VK_SUCCESS ||
             vkCreateFence(oDevice, &tFenceInfo, nullptr, &aoInFlightFences[i]) != VK_SUCCESS)
         {
@@ -92,7 +97,7 @@ void cRenderHandler::CreateSemaphores()
     }
 }
 
-void cRenderHandler::DrawFrame(cScene* pScene, TextTest* pTest, cCommandBuffer* pCommandBuffer)
+void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandler, cCommandBuffer* pCommandBuffer)
 {
 #ifdef ENABLE_FPS_COUNT
     static auto startTime = std::chrono::high_resolution_clock::now();
@@ -105,11 +110,13 @@ void cRenderHandler::DrawFrame(cScene* pScene, TextTest* pTest, cCommandBuffer* 
     if (time >= 1)
     {
         ppLogicalDevice->WaitUntilIdle();
-        static uint test = 0;
-        char text[64];
-        sprintf(text, "%u fps", frameCount);
-        pTest->UpdateText(text);
-        pCommandBuffer->RecordBuffers(pTest->GetCommandRecorder());
+        ENGINE_LOG(frameCount << " fps");
+#ifdef ENABLE_OVERLAY
+        assert(pTextHandler != nullptr);
+
+        pTextHandler->UpdateText(text);
+        pCommandBuffer->RecordBuffers(pTextHandler->GetCommandRecorder());
+#endif
         startTime = currentTime;
         frameCount = 0;
     }
@@ -124,33 +131,56 @@ void cRenderHandler::DrawFrame(cScene* pScene, TextTest* pTest, cCommandBuffer* 
     VkFence oAqcuireFence = VK_NULL_HANDLE;
     ppSwapChain->AcquireNextImage(UINT64_MAX, aoImageAvailableSemaphores[uiCurrentFrame], oAqcuireFence, &uiImageIndex);
 
-    if (ppUniformHandler != nullptr) ppUniformHandler->UpdateUniformBuffers(pScene);
+    for (uint i = 0; i < puiUniformHandlerCount; i++)
+    {
+        ppUniformHandlers[i]->UpdateUniformBuffers(pScene);
+    }
 
     // Struct with information about the command buffer we want to submit to the queue
     VkSubmitInfo tSubmitInfo = {};
     tSubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
     // Specifies which semaphores to wait on and in which stage(s) of the pipeline to wait
-    VkSemaphore aoWaitSemaphores[] = {aoImageAvailableSemaphores[uiCurrentFrame]};
     VkPipelineStageFlags aeWaitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     tSubmitInfo.waitSemaphoreCount = 1;
-    tSubmitInfo.pWaitSemaphores = aoWaitSemaphores;
+    tSubmitInfo.pWaitSemaphores = &aoImageAvailableSemaphores[uiCurrentFrame];
     tSubmitInfo.pWaitDstStageMask = aeWaitStages;
 
     // Specify which command buffers to submit
-    std::vector<VkCommandBuffer> aBuffers;
-    for (uint i = 0; i < puiCommandBufferCount; i++)
-    {
-        aBuffers.push_back(ppCommandBuffers[i]->GetBuffer(uiImageIndex));
-    }
-
-    tSubmitInfo.commandBufferCount = aBuffers.size();
-    tSubmitInfo.pCommandBuffers = aBuffers.data();
+    tSubmitInfo.commandBufferCount = 1;
+    tSubmitInfo.pCommandBuffers = &ppCommandBuffers[0]->GetBuffer(uiImageIndex);
 
     // Specify which semaphores to signal once the command buffer(s) finish
-    VkSemaphore aoSignalSemaphores[] = {aoRenderFinishedSemaphores[uiCurrentFrame]};
     tSubmitInfo.signalSemaphoreCount = 1;
-    tSubmitInfo.pSignalSemaphores = aoSignalSemaphores;
+    tSubmitInfo.pSignalSemaphores = &aoMRTFinishedSemaphores[uiCurrentFrame];
+
+    // Submit the command buffer to the queue
+    VkFence oFence = VK_NULL_HANDLE;
+    if (!ppLogicalDevice->GraphicsQueueSubmit(1, &tSubmitInfo, oFence))
+    {
+        throw std::runtime_error("failed to submit draw command buffer!");
+    }
+
+    // Specifies which semaphores to wait on
+    tSubmitInfo.pWaitSemaphores = &aoMRTFinishedSemaphores[uiCurrentFrame];
+
+    VkCommandBuffer aoBuffers[2];
+    aoBuffers[0] = ppCommandBuffers[1]->GetBuffer(uiImageIndex);
+#ifdef ENABLE_OVERLAY
+    aoBuffers[1] = ppCommandBuffers[2]->GetBuffer(uiImageIndex);
+#endif
+
+    // Specify which command buffers to submit
+#ifdef ENABLE_OVERLAY
+    tSubmitInfo.commandBufferCount = 2;
+#else
+    tSubmitInfo.commandBufferCount = 1;
+#endif
+    tSubmitInfo.pCommandBuffers = aoBuffers;
+
+    // Specify which semaphores to signal once the command buffer(s) finish
+    tSubmitInfo.signalSemaphoreCount = 1;
+    tSubmitInfo.pSignalSemaphores = &aoRenderFinishedSemaphores[uiCurrentFrame];
 
     // Submit the command buffer to the queue
     if (!ppLogicalDevice->GraphicsQueueSubmit(1, &tSubmitInfo, aoInFlightFences[uiCurrentFrame]))
@@ -164,7 +194,7 @@ void cRenderHandler::DrawFrame(cScene* pScene, TextTest* pTest, cCommandBuffer* 
 
     // Specify which semaphores to wait on before presenting
     tPresentInfo.waitSemaphoreCount = 1;
-    tPresentInfo.pWaitSemaphores = aoSignalSemaphores;
+    tPresentInfo.pWaitSemaphores = &aoRenderFinishedSemaphores[uiCurrentFrame];
 
     // Specify the swap chains and the index of the image for each swap chain
     VkSwapchainKHR swapChains[] = {ppSwapChain->poSwapChain};
@@ -182,7 +212,8 @@ void cRenderHandler::DrawFrame(cScene* pScene, TextTest* pTest, cCommandBuffer* 
     uiCurrentFrame = (uiCurrentFrame + 1) % uiMAX_FRAMES_IN_FLIGHT;
 }
 
-void cRenderHandler::SetUniformHandler(cGraphicsUniformHandler* pUniformHandler)
+void cRenderHandler::SetUniformHandlers(iUniformHandler** pUniformHandlers, uint uiUniformHandlerCount)
 {
-    ppUniformHandler = pUniformHandler;
+    ppUniformHandlers = pUniformHandlers;
+    puiUniformHandlerCount = uiUniformHandlerCount;
 }

@@ -12,12 +12,12 @@ public:
     void HandleScroll(double dOffsetX, double dOffsetY) override;
 
 protected:
-    void Load(cTextureHandler *pTextureHandler, cLogicalDevice *pLogicalDevice) override;
+    void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice) override;
 
 private:
-    void LoadTextures(cTextureHandler *pTextureHandler);
+    void LoadTextures(cTextureHandler* pTextureHandler);
 
-    void LoadGeometries(cLogicalDevice *pLogicalDevice);
+    void LoadGeometries(cLogicalDevice* pLogicalDevice);
 
     void LoadMeshes();
 
@@ -28,7 +28,7 @@ private:
     bool BusCentered = false;
 };
 
-void cBusWorldScene::Load(cTextureHandler *pTextureHandler, cLogicalDevice *pLogicalDevice)
+void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice)
 {
     LoadTextures(pTextureHandler);
     LoadGeometries(pLogicalDevice);
@@ -80,7 +80,7 @@ void cBusWorldScene::HandleScroll(double dOffsetX, double dOffsetY)
     poCamera->LookMouseWheelDiff((float) dOffsetX, (float) dOffsetY);
 }
 
-void cBusWorldScene::LoadTextures(cTextureHandler *pTextureHandler)
+void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
 {
     pmpTextures["roof"] = pTextureHandler->LoadTextureFromFile("resources/textures/roof.jpg");
     pmpTextures["stoneHouse"] = pTextureHandler->LoadTextureFromFile("resources/textures/stone.jpg");
@@ -343,14 +343,14 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["busStation1"]->setPosition(glm::vec3(8.603f, 0.15f, -11.0f));
 
     // Traffic lights
-    pmpObjects["trafficLight1"] = new cBaseObject(*pmpModels["trafficLight"]);
+    pmpObjects["trafficLight1"] = new cLightObject(pmpMeshes["trafficLight"], glm::vec3(1, 0, 0), 50);
     pmpObjects["trafficLight1"]->setPosition(glm::vec3(34.0f, 0.15f, 2.0f));
 
-    pmpObjects["trafficLight2"] = new cBaseObject(*pmpModels["trafficLight"]);
+    pmpObjects["trafficLight2"] = new cLightObject(pmpMeshes["trafficLight"], glm::vec3(1, 0, 0), 50);
     pmpObjects["trafficLight2"]->setRotation(glm::vec3(0.0f, 270.0f, 0.0f));
     pmpObjects["trafficLight2"]->setPosition(glm::vec3(33.0f, 0.15f, -11.0f));
 
-    pmpObjects["trafficLight3"] = new cBaseObject(*pmpModels["trafficLight"]);
+    pmpObjects["trafficLight3"] = new cLightObject(pmpMeshes["trafficLight"], glm::vec3(1, 0, 0), 50);
     pmpObjects["trafficLight3"]->setRotation(glm::vec3(0.0f, 180.0f, 0.0f));
     pmpObjects["trafficLight3"]->setPosition(glm::vec3(46.0f, 0.15f, -12.0f));
 

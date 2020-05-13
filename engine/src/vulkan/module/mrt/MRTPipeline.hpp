@@ -5,38 +5,68 @@
 #include <glm/glm.hpp>
 #include <vulkan/vulkan.h>
 #include <vulkan/LogicalDevice.hpp>
-#include <vulkan/SwapChain.hpp>
-#include <vulkan/GraphicsRenderPass.hpp>
+#include <vulkan/swapchain/SwapChain.hpp>
 #include <vulkan/geometry/Vertex.hpp>
-#include <vulkan/uniform/GraphicsUniformHandler.hpp>
 #include <vulkan/pipeline/PipelineHelper.hpp>
+#include <vulkan/pipeline/RenderPipeline.hpp>
+#include <vulkan/module/overlay/text/Vertex2D.hpp>
+#include <vulkan/pipeline/Shaders.hpp>
 
-class cGraphicsPipeline
+class cMRTPipeline : public cRenderPipeline
 {
-private:
-    cLogicalDevice* ppLogicalDevice;
-
 public:
-    VkPipeline poGraphicsPipeline;
-    VkPipelineLayout poPipelineLayout;
+    cMRTPipeline(cSwapChain* pSwapChain,
+                 cLogicalDevice* pLogicalDevice,
+                 cRenderPass* pRenderPass,
+                 iUniformHandler* pUniformHandler);
 
-    cGraphicsPipeline(cSwapChain* pSwapChain,
-                      cLogicalDevice* pLogicalDevice,
-                      cRenderPass* pRenderPass,
-                      cGraphicsUniformHandler* pUniformHandler);
-    ~cGraphicsPipeline(void);
+protected:
+    void CreatePipelineLayout(cSwapChain* pSwapChain,
+                              cLogicalDevice* pLogicalDevice,
+                              cRenderPass* pRenderPass,
+                              iUniformHandler* pUniformHandler) override;
+    void CreatePipeline(cSwapChain* pSwapChain,
+                        cLogicalDevice* pLogicalDevice,
+                        cRenderPass* pRenderPass,
+                        iUniformHandler* pUniformHandler) override;
 };
 
-cGraphicsPipeline::cGraphicsPipeline(cSwapChain* pSwapChain,
-                                     cLogicalDevice* pLogicalDevice,
-                                     cRenderPass* pRenderPass,
-                                     cGraphicsUniformHandler* pUniformHandler)
+cMRTPipeline::cMRTPipeline(cSwapChain* pSwapChain,
+                           cLogicalDevice* pLogicalDevice,
+                           cRenderPass* pRenderPass,
+                           iUniformHandler* pUniformHandler)
 {
-    ppLogicalDevice = pLogicalDevice;
+    Init(pSwapChain, pLogicalDevice, pRenderPass, pUniformHandler);
+}
 
+void cMRTPipeline::CreatePipelineLayout(cSwapChain* pSwapChain,
+                                        cLogicalDevice* pLogicalDevice,
+                                        cRenderPass* pRenderPass,
+                                        iUniformHandler* pUniformHandler)
+{
+    // Struct with information about the pipeline layout
+    VkPipelineLayoutCreateInfo tPipelineLayoutInfo = {};
+    tPipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    tPipelineLayoutInfo.setLayoutCount = pUniformHandler->GetDescriptorSetLayoutCount();
+    tPipelineLayoutInfo.pSetLayouts = pUniformHandler->GetDescriptorSetLayouts();
+    tPipelineLayoutInfo.pushConstantRangeCount = 0;
+    tPipelineLayoutInfo.pPushConstantRanges = nullptr;
+
+    // Create the pipeline layout
+    if (!pLogicalDevice->CreatePipelineLayout(&tPipelineLayoutInfo, nullptr, &poPipelineLayout))
+    {
+        throw std::runtime_error("failed to create pipeline layout!");
+    }
+}
+
+void cMRTPipeline::CreatePipeline(cSwapChain* pSwapChain,
+                                  cLogicalDevice* pLogicalDevice,
+                                  cRenderPass* pRenderPass,
+                                  iUniformHandler* pUniformHandler)
+{
     // Read the shader files
-    std::vector<char> acVertShaderCode = cPipelineHelper::ReadFile("shaders/vert.spv");
-    std::vector<char> acFragShaderCode = cPipelineHelper::ReadFile("shaders/frag.spv");
+    std::vector<char> acVertShaderCode = cPipelineHelper::ReadFile(MRT_VERT_SHADER);
+    std::vector<char> acFragShaderCode = cPipelineHelper::ReadFile(MRT_FRAG_SHADER);
 
     // Load the shader code into modules
     VkShaderModule oVertShaderModule = cPipelineHelper::CreateShaderModule(acVertShaderCode, pLogicalDevice);
@@ -59,15 +89,15 @@ cGraphicsPipeline::cGraphicsPipeline(cSwapChain* pSwapChain,
     VkPipelineShaderStageCreateInfo atShaderStages[] = {tVertShaderStageInfo, tFragShaderStageInfo};
 
     // Get the vertex binding description and attribute descriptions
-    auto tBindingDescription = Vertex::GetBindingDescription();
+    auto atBindingDescription = Vertex::GetBindingDescription();
     auto atAttributeDescriptions = Vertex::GetAttributeDescriptions();
 
     // Struct with information about the data we want to pass into the vertex shader
     VkPipelineVertexInputStateCreateInfo tVertexInputInfo = {};
     tVertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     tVertexInputInfo.vertexBindingDescriptionCount = 1;
-    tVertexInputInfo.pVertexBindingDescriptions = &tBindingDescription;
-    tVertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint>(atAttributeDescriptions.size());
+    tVertexInputInfo.pVertexBindingDescriptions = &atBindingDescription;
+    tVertexInputInfo.vertexAttributeDescriptionCount = atAttributeDescriptions.size();
     tVertexInputInfo.pVertexAttributeDescriptions = atAttributeDescriptions.data();
 
     // Struct with information about the kind of geometry we want to draw
@@ -87,31 +117,42 @@ cGraphicsPipeline::cGraphicsPipeline(cSwapChain* pSwapChain,
     tMultisampling.alphaToCoverageEnable = VK_FALSE;
     tMultisampling.alphaToOneEnable = VK_FALSE;
 
-    // Allows you to blend the new color values with values already in the framebuffer
-    // We will just be ignoring this
-    VkPipelineColorBlendAttachmentState tColorBlendAttachment = {};
-    tColorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+    std::array<VkPipelineColorBlendAttachmentState, 3> atBlendAttachments;
+    atBlendAttachments[0].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
                                            VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-    tColorBlendAttachment.blendEnable = VK_FALSE;
+    atBlendAttachments[0].blendEnable = VK_FALSE;
+    atBlendAttachments[0].srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
+    atBlendAttachments[0].dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+    atBlendAttachments[0].colorBlendOp = VK_BLEND_OP_ADD; // Optional
+    atBlendAttachments[0].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
+    atBlendAttachments[0].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+    atBlendAttachments[0].alphaBlendOp = VK_BLEND_OP_ADD; // Optional
+
+    atBlendAttachments[1].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                                           VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    atBlendAttachments[1].blendEnable = VK_FALSE;
+    atBlendAttachments[1].srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
+    atBlendAttachments[1].dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+    atBlendAttachments[1].colorBlendOp = VK_BLEND_OP_ADD; // Optional
+    atBlendAttachments[1].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
+    atBlendAttachments[1].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+    atBlendAttachments[1].alphaBlendOp = VK_BLEND_OP_ADD; // Optional
+
+    atBlendAttachments[2].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                                           VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    atBlendAttachments[2].blendEnable = VK_FALSE;
+    atBlendAttachments[2].srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
+    atBlendAttachments[2].dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+    atBlendAttachments[2].colorBlendOp = VK_BLEND_OP_ADD; // Optional
+    atBlendAttachments[2].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
+    atBlendAttachments[2].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+    atBlendAttachments[2].alphaBlendOp = VK_BLEND_OP_ADD; // Optional
+
     VkPipelineColorBlendStateCreateInfo tColorBlending = {};
     tColorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     tColorBlending.logicOpEnable = VK_FALSE;
-    tColorBlending.attachmentCount = 1;
-    tColorBlending.pAttachments = &tColorBlendAttachment;
-
-    // Struct with information about the pipeline layout
-    VkPipelineLayoutCreateInfo tPipelineLayoutInfo = {};
-    tPipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    tPipelineLayoutInfo.setLayoutCount = pUniformHandler->GetDescriptorSetLayoutCount();
-    tPipelineLayoutInfo.pSetLayouts = pUniformHandler->GetDescriptorSetLayouts();
-    tPipelineLayoutInfo.pushConstantRangeCount = 0;
-    tPipelineLayoutInfo.pPushConstantRanges = nullptr;
-
-    // Create the pipeline layout
-    if (!pLogicalDevice->CreatePipelineLayout(&tPipelineLayoutInfo, nullptr, &poPipelineLayout))
-    {
-        throw std::runtime_error("failed to create pipeline layout!");
-    }
+    tColorBlending.attachmentCount = atBlendAttachments.size();
+    tColorBlending.pAttachments = atBlendAttachments.data();
 
     // Struct with information for creating the graphics pipeline
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
@@ -162,7 +203,7 @@ cGraphicsPipeline::cGraphicsPipeline(cSwapChain* pSwapChain,
     pipelineInfo.layout = poPipelineLayout;
 
     // Set the render pass and the subpass index
-    pipelineInfo.renderPass = pRenderPass->poRenderPass;
+    pipelineInfo.renderPass = pRenderPass->GetRenderPass();
     pipelineInfo.subpass = 0;
 
     // To change any of the above configurations during runtime (except the ones defined in the dynamic state)
@@ -171,7 +212,7 @@ cGraphicsPipeline::cGraphicsPipeline(cSwapChain* pSwapChain,
     pipelineInfo.basePipelineIndex = -1;
 
     // Create the graphics pipeline
-    if (!ppLogicalDevice->CreateGraphicsPipeline(1, &pipelineInfo, &poGraphicsPipeline))
+    if (!ppLogicalDevice->CreateGraphicsPipeline(1, &pipelineInfo, &poPipeline))
     {
         throw std::runtime_error("failed to create graphics pipeline!");
     }
@@ -179,10 +220,4 @@ cGraphicsPipeline::cGraphicsPipeline(cSwapChain* pSwapChain,
     // After the pipeline has been created, the shader modules can be destroyed
     pLogicalDevice->DestroyShaderModule(oVertShaderModule, nullptr);
     pLogicalDevice->DestroyShaderModule(oFragShaderModule, nullptr);
-}
-
-cGraphicsPipeline::~cGraphicsPipeline()
-{
-    ppLogicalDevice->DestroyPipeline(poGraphicsPipeline, nullptr);
-    ppLogicalDevice->DestroyPipelineLayout(poPipelineLayout, nullptr);
 }

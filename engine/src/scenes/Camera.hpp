@@ -1,7 +1,6 @@
 #pragma once
 
 #include <pch.hpp>
-#include <shaders/ShaderProgram.hpp>
 
 /*
 The camera class, it is however FP based and should have its own sub-class in a later version.
@@ -9,10 +8,9 @@ The camera class, it is however FP based and should have its own sub-class in a 
 class Camera
 {
 public:
-    float ZNear = 0.1f;
-    float zFar = 250;
-    float speed = 0.05f;
-    float FoV = glm::radians(45.0);
+    float fFoV = 45.0;
+    float fZNear = 1.0;
+    float fZFar = 500.0;
 
     glm::vec3 cameraPos = glm::vec3(2.0f, 7.0f, 2.0f);
     glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -23,15 +21,13 @@ public:
     float yaw = -90;
     float pitch = 0;
 
-    const float cameraSpeed = 0.01f;
+    const float cameraSpeed = 0.1f;
     const float cameraSpeedLook = 1.0f;
     float mouseSpeed = 0.07f;
 
     glm::mat4 view = glm::mat4(1.0f);
-    glm::mat4 proj;
-    glm::mat4 pv;
+public:
     float cameraHeight = 1.75f;
-    float aspectRatio = 800.0f / 600.0f;
 
     bool lockHeight = true;
     bool lockMovement = false;
@@ -58,10 +54,7 @@ public:
     virtual void LookMouseWheelDiff(float x, float y) = 0;
     virtual void ProcessUpdates() = 0;
     // sets the pv and position on the passed shader.
-    virtual void SetTransformationOnShader(ShaderProgram* shader) = 0;
-    virtual glm::mat4& GetProjectionView() = 0;
     virtual glm::mat4& GetViewMatrix() = 0;
-    virtual glm::mat4& GetProjectionMatrix() = 0;
     virtual glm::vec3 GetPosition() = 0;
     virtual void SetPosition(glm::vec3& position) = 0;
     virtual glm::vec3 GetFront() = 0;
@@ -147,7 +140,7 @@ public:
 
     void LookMouseWheelDiff(float x, float y)
     {
-        
+
     }
 
     // process the commits to the pv.
@@ -160,37 +153,19 @@ public:
 
         cameraPos.y = cameraHeight;
         view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-
-        proj = glm::perspective(
-                FoV,
-                aspectRatio,
-                ZNear,
-                zFar);
-
-        pv = proj * view;
     }
 
     // sets the pv and position on the passed shader.
-    void SetTransformationOnShader(ShaderProgram* shader)
+    /*void SetTransformationOnShader(ShaderProgram* shader)
     {
         shader->Bind();
-        shader->setMat4("pv", this->pv);
+        //shader->setMat4("pv", this->pv);
         shader->setVec3("viewPos", this->GetPosition());
-    }
-
-    glm::mat4& GetProjectionView()
-    {
-        return this->pv;
-    }
+    }*/
 
     glm::mat4& GetViewMatrix()
     {
         return this->view;
-    }
-
-    glm::mat4& GetProjectionMatrix()
-    {
-        return this->proj;
     }
 
     glm::vec3 GetPosition()

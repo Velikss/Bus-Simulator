@@ -35,14 +35,14 @@ public:
     void MoveUp()
     {
         if (!lockMovement)
-            if(cameraHeight < 20.0f)
+            if (cameraHeight < 20.0f)
                 cameraHeight += cameraSpeed;
     }
 
     void MoveDown()
     {
         if (!lockMovement)
-            if(cameraHeight > 0.0f)
+            if (cameraHeight > 0.0f)
                 cameraHeight -= cameraSpeed;
     }
 
@@ -80,11 +80,11 @@ public:
 
     void LookMouseWheelDiff(float x, float y)
     {
-        if(y < 0 && orbitDistance < 55.0f)
+        if (y < 0 && orbitDistance < 55.0f)
         {
             orbitDistance += cameraScrollSpeed;
         }
-        if(y > 0 && orbitDistance > 20.0f)
+        if (y > 0 && orbitDistance > 20.0f)
         {
             orbitDistance -= cameraScrollSpeed;
         }
@@ -108,37 +108,11 @@ public:
                                                 cameraPivot->y + cameraPivotChanges.y,
                                                 cameraPivot->z + cameraPivotChanges.z) + cameraFront, cameraUp);
 //        view = glm::lookAt(cameraPos, *cameraPivot + cameraPivotChanges + cameraFront, cameraUp);
-
-        proj = glm::perspective(
-                FoV,
-                aspectRatio,
-                ZNear,
-                zFar);
-
-        pv = proj * view;
-    }
-
-    // sets the pv and position on the passed shader.
-    void SetTransformationOnShader(ShaderProgram* shader)
-    {
-        shader->Bind();
-        shader->setMat4("pv", this->pv);
-        shader->setVec3("viewPos", this->GetPosition());
-    }
-
-    glm::mat4& GetProjectionView()
-    {
-        return this->pv;
     }
 
     glm::mat4& GetViewMatrix()
     {
         return this->view;
-    }
-
-    glm::mat4& GetProjectionMatrix()
-    {
-        return this->proj;
     }
 
     glm::vec3 GetPosition()

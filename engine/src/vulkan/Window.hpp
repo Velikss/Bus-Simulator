@@ -1,5 +1,7 @@
 #pragma once
 
+//#define QUAD_HD_RESOLUTION
+
 #include <pch.hpp>
 #include <GLFW/glfw3.h>
 #include <vulkan/VulkanInstance.hpp>
@@ -21,8 +23,13 @@ public:
     GLFWwindow* ppWindow = nullptr;
 
     // Window size
-    static const uint WIDTH = 1920;
-    static const uint HEIGHT = 1080;
+#ifdef QUAD_HD_RESOLUTION
+    static const uint WIDTH = 2560;
+    static const uint HEIGHT = 1380;
+#else
+    static const uint WIDTH = 1200;
+    static const uint HEIGHT = 800;
+#endif
 
     iInputHandler* ppInputHandler;
 
@@ -49,6 +56,10 @@ public:
     void Close(void);
 
     VkSurfaceKHR& GetSurface(void);
+
+private:
+    void FindAndHandleGamepad();
+    void HandleGamepad(uint uiJoystickId);
 
     static void mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY);
     static void keyCallback(GLFWwindow* pWindow, int iKey, int iScanCode, int iAction, int iMods);
@@ -90,7 +101,7 @@ void cWindow::CreateGLWindow()
     ppWindow = glfwCreateWindow(WIDTH, HEIGHT, "BUS", nullptr, nullptr);
 
     glfwSetCursorPosCallback(ppWindow, mouseCallback);
-    glfwSetInputMode(ppWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    //glfwSetInputMode(ppWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetKeyCallback(ppWindow, keyCallback);
     glfwSetScrollCallback(ppWindow, scrollCallback);
 }
@@ -122,7 +133,11 @@ void cWindow::HandleEvents(void)
 {
     assert(ppWindow != nullptr); // window must be created first
 
-    glfwPollEvents();
+    if (ppInputHandler != nullptr)
+    {
+        glfwPollEvents();
+        FindAndHandleGamepad();
+    }
 }
 
 void cWindow::Close(void)
@@ -137,11 +152,69 @@ VkSurfaceKHR& cWindow::GetSurface(void)
     return poSurface;
 }
 
+void cWindow::FindAndHandleGamepad()
+{
+    for (uint uiJoystickId = GLFW_JOYSTICK_1; uiJoystickId < GLFW_JOYSTICK_LAST; uiJoystickId++)
+    {
+        // Check if the joystick is a gamepad
+        if (glfwJoystickIsGamepad(uiJoystickId))
+        {
+            HandleGamepad(uiJoystickId);
+        }
+    }
+}
+
+void cWindow::HandleGamepad(uint uiJoystickId)
+{
+    GLFWgamepadstate tState;
+    if (glfwGetGamepadState(uiJoystickId, &tState))
+    {
+        // Pass the right stick on as mouse input
+        ppInputHandler->HandleMouse(tState.axes[GLFW_GAMEPAD_AXIS_RIGHT_X],
+                                    tState.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
+
+        // Temporary mapping for the left stick to keyboard keys
+        float fMoveY = tState.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
+        if (fMoveY < -0.1) ppInputHandler->HandleKey(GLFW_KEY_W, GLFW_PRESS);
+        else if (fMoveY > 0.1) ppInputHandler->HandleKey(GLFW_KEY_S, GLFW_PRESS);
+        else
+        {
+            ppInputHandler->HandleKey(GLFW_KEY_W, GLFW_RELEASE);
+            ppInputHandler->HandleKey(GLFW_KEY_S, GLFW_RELEASE);
+        }
+
+        float fMoveX = tState.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
+        if (fMoveX < -0.1) ppInputHandler->HandleKey(GLFW_KEY_A, GLFW_PRESS);
+        else if (fMoveX > 0.1) ppInputHandler->HandleKey(GLFW_KEY_D, GLFW_PRESS);
+        else
+        {
+            ppInputHandler->HandleKey(GLFW_KEY_A, GLFW_RELEASE);
+            ppInputHandler->HandleKey(GLFW_KEY_D, GLFW_RELEASE);
+        }
+
+        // Temporary mapping for the back, start and menu buttons to the escape key
+        if (tState.buttons[GLFW_GAMEPAD_BUTTON_BACK] ||
+            tState.buttons[GLFW_GAMEPAD_BUTTON_START] ||
+            tState.buttons[GLFW_GAMEPAD_BUTTON_GUIDE])
+        {
+            ppInputHandler->HandleKey(GLFW_KEY_ESCAPE, GLFW_PRESS);
+        }
+        else
+        {
+            ppInputHandler->HandleKey(GLFW_KEY_ESCAPE, GLFW_RELEASE);
+        }
+    }
+}
+
 void cWindow::mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY)
 {
     static bool bFirstMouse = true;
     static float uiLastX = WIDTH, uiLastY = HEIGHT;
 
+    if (poInstance == nullptr || poInstance->ppInputHandler == nullptr) return;
+
+    // If this is the first time the mouse is moved, set
+    // the last position to the current
     if (bFirstMouse)
     {
         uiLastX = dPosX;
@@ -149,15 +222,20 @@ void cWindow::mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY)
         bFirstMouse = false;
     }
 
+    // Calculate the delta between the last and current position
     float uiDeltaX = dPosX - uiLastX;
     float uiDeltaY = dPosY - uiLastY;
+
+    // Set the last position to the current
     uiLastX = dPosX;
     uiLastY = dPosY;
 
+    // Apply a sensitivity factor
     const float fSensitivity = 2.5f;
     uiDeltaX *= fSensitivity;
     uiDeltaY *= fSensitivity;
 
+    // Pass the delta X and Y on to the input handler
     poInstance->ppInputHandler->HandleMouse(uiDeltaX, uiDeltaY);
 }
 

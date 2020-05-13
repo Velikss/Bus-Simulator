@@ -2,20 +2,21 @@
 
 #include <pch.hpp>
 #include <scenes/Camera.hpp>
-#include <textures/Texture.hpp>
 #include <vulkan/mesh/Mesh.hpp>
 #include <vulkan/geometry/Geometry.hpp>
 #include <vulkan/scene/BaseObject.hpp>
 #include <vulkan/texture/TextureHandler.hpp>
 #include <vulkan/scene/InputHandler.hpp>
+#include <vulkan/loop/TickTask.hpp>
+#include <vulkan/geometry/ViewportQuadGeometry.hpp>
 
-class cScene : public iInputHandler
+class cScene : public iInputHandler, public iTickTask
 {
 private:
     bool bQuit;
 
 protected:
-    Camera *poCamera = new FirstPersonFlyCamera;
+    Camera* poCamera = new FirstPersonFlyCamera;
 
     std::map<string, cTexture*> pmpTextures;
     std::map<string, cGeometry*> pmpGeometries;
@@ -27,9 +28,13 @@ protected:
     bool paKeys[GLFW_KEY_LAST] = {false};
 
 public:
+    glm::vec3 textColor = glm::vec3(0, 1, 0);
+    float pfAmbientLight = 0.6;
+
     cScene();
     virtual ~cScene();
 
+    void Tick() override;
     virtual void Update();
 
     uint GetObjectCount();
@@ -39,7 +44,7 @@ public:
 
     bool ShouldQuit();
 
-    virtual void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice) = 0;
+    virtual void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice);
 
     void HandleMouse(uint uiDeltaX, uint uiDeltaY) override;
     void HandleKey(uint uiKeyCode, uint uiAction) override;
@@ -79,6 +84,39 @@ cScene::~cScene()
     {
         delete oTexture.second;
     }
+}
+
+void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice)
+{
+    for (auto oModel : pmpModels)
+    {
+        assert(oModel.second != nullptr);
+    }
+
+    for (auto oObject : pmpObjects)
+    {
+        assert(oObject.second != nullptr);
+    }
+
+    for (auto oMesh : pmpMeshes)
+    {
+        assert(oMesh.second != nullptr);
+    }
+
+    for (auto oGeometry : pmpGeometries)
+    {
+        assert(oGeometry.second != nullptr);
+    }
+
+    for (auto oTexture : pmpTextures)
+    {
+        assert(oTexture.second != nullptr);
+    }
+}
+
+void cScene::Tick()
+{
+    Update();
 }
 
 void cScene::Update()

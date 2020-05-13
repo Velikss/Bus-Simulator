@@ -3,9 +3,10 @@
 #include <pch.hpp>
 #include <vulkan/vulkan.h>
 #include <vulkan/geometry/BufferHelper.hpp>
-#include <vulkan/ImageHelper.hpp>
+#include <vulkan/util/ImageHelper.hpp>
 #include <vulkan/texture/TextureHelper.hpp>
 #include <vulkan/texture/TextureInfo.hpp>
+#include "TextureSampler.hpp"
 
 // Class representing a texture
 class cTexture
@@ -22,25 +23,39 @@ private:
     VkDeviceMemory poTextureImageMemory = VK_NULL_HANDLE;
     VkImageView poTextureImageView = VK_NULL_HANDLE;
 
+    cTextureSampler* ppSampler;
+
 public:
-    cTexture(cLogicalDevice* pLogicalDevice, tTextureInfo tTextureInfo, stbi_uc* pcPixels);
+    cTexture(cLogicalDevice* pLogicalDevice,
+             tTextureInfo tTextureInfo,
+             stbi_uc* pcPixels,
+             const char* sName,
+             cTextureSampler* pSampler);
     ~cTexture();
 
     // Returns the information about this texture
     tTextureInfo GetTextureInfo();
     // Returns the image view for this texture
     VkImageView GetView();
+
+    VkSampler& GetSampler();
 };
 
-cTexture::cTexture(cLogicalDevice* pLogicalDevice, tTextureInfo tTextureInfo, stbi_uc* pcPixels)
+cTexture::cTexture(cLogicalDevice* pLogicalDevice,
+                   tTextureInfo tTextureInfo,
+                   stbi_uc* pcPixels,
+                   const char* sName,
+                   cTextureSampler* pSampler)
 {
     assert(pLogicalDevice != nullptr);                              // logical device must exist
     assert(tTextureInfo.uiWidth > 0 && tTextureInfo.uiHeight > 0);  // texture must have a width and height
     assert(pcPixels != nullptr);                                    // pixels must exist
+    assert(pSampler != nullptr);                                    // sampler must exist
 
     // Store the logical device and texture info
     ppLogicalDevice = pLogicalDevice;
     ptTextureInfo = tTextureInfo;
+    ppSampler = pSampler;
 
     // Create the image
     // We want to use the SRGB format and optimal tiling
@@ -58,6 +73,8 @@ cTexture::cTexture(cLogicalDevice* pLogicalDevice, tTextureInfo tTextureInfo, st
                                   VK_FORMAT_R8G8B8A8_SRGB,
                                   pLogicalDevice, &poTextureImageView,
                                   VK_IMAGE_ASPECT_COLOR_BIT);
+
+    ENGINE_LOG("Loaded texture " << sName << " (" << tTextureInfo.uiWidth << "x" << tTextureInfo.uiHeight << ")");
 }
 
 cTexture::~cTexture()
@@ -78,4 +95,9 @@ VkImageView cTexture::GetView()
     assert(poTextureImageView != VK_NULL_HANDLE);
 
     return poTextureImageView;
+}
+
+VkSampler& cTexture::GetSampler()
+{
+    return ppSampler->GetSampler();
 }

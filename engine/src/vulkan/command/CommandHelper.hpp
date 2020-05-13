@@ -8,7 +8,8 @@
 class cCommandHelper
 {
 public:
-    static VkCommandPool poCommandPool; // TODO: probably belongs in CommandHandler
+    // TODO: This should be moved from a static field to a separate class
+    static VkCommandPool poCommandPool;
 
     // Setup a command pool on a logical device
     static void SetupCommandPool(cLogicalDevice* pLogicalDevice);

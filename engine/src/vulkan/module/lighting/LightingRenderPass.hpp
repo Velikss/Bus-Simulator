@@ -2,47 +2,37 @@
 
 #include <pch.hpp>
 #include <vulkan/vulkan.h>
-#include <vulkan/SwapChain.hpp>
+#include <vulkan/swapchain/SwapChain.hpp>
 #include <vulkan/renderpass/RenderPass.hpp>
-#include <vulkan/SwapChain.hpp>
+#include <vulkan/swapchain/SwapChain.hpp>
 
-class cGraphicsRenderPass : public cRenderPass
+class cLightingRenderPass : public cRenderPass
 {
 public:
-    cGraphicsRenderPass(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
+    cLightingRenderPass(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
 
 private:
     void GetColorAttachment(VkAttachmentDescription& tColorAttachment, cSwapChain* pSwapChain);
-    void GetDepthAttachment(VkAttachmentDescription& tDepthAttachment);
 };
 
-cGraphicsRenderPass::cGraphicsRenderPass(cLogicalDevice* pLogicalDevice,
+cLightingRenderPass::cLightingRenderPass(cLogicalDevice* pLogicalDevice,
                                          cSwapChain* pSwapChain) : cRenderPass(pLogicalDevice)
 {
     // Struct with information about the color attachment
     VkAttachmentDescription tColorAttachment = {};
     GetColorAttachment(tColorAttachment, pSwapChain);
 
-    // Struct with information about the depth attachment
-    VkAttachmentDescription tDepthAttachment = {};
-    GetDepthAttachment(tDepthAttachment);
-
     // Struct which references the color attachment we just described
     VkAttachmentReference tColorAttachmentRef = {};
     tColorAttachmentRef.attachment = 0; // index of the color attachment
     tColorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-    // Struct which references the depth attachment we just described
-    VkAttachmentReference tDepthAttachmentRef = {};
-    tDepthAttachmentRef.attachment = 1; // index of the depth attachment
-    tDepthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     // Struct describing the subpass
     VkSubpassDescription tSubpass = {};
     tSubpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     tSubpass.colorAttachmentCount = 1;
     tSubpass.pColorAttachments = &tColorAttachmentRef;
-    tSubpass.pDepthStencilAttachment = &tDepthAttachmentRef;
+    tSubpass.pDepthStencilAttachment = nullptr;
 
     // TODO: Comments
     VkSubpassDependency tDependency = {};
@@ -60,9 +50,8 @@ cGraphicsRenderPass::cGraphicsRenderPass(cLogicalDevice* pLogicalDevice,
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 
     // Set the attachments
-    std::array<VkAttachmentDescription, 2> atAttachments = {tColorAttachment, tDepthAttachment};
-    renderPassInfo.attachmentCount = atAttachments.size();
-    renderPassInfo.pAttachments = atAttachments.data();
+    renderPassInfo.attachmentCount = 1;
+    renderPassInfo.pAttachments = &tColorAttachment;
 
     // Set the subpasses and dependencies
     renderPassInfo.subpassCount = 1;
@@ -77,7 +66,7 @@ cGraphicsRenderPass::cGraphicsRenderPass(cLogicalDevice* pLogicalDevice,
     }
 }
 
-void cGraphicsRenderPass::GetColorAttachment(VkAttachmentDescription& tColorAttachment, cSwapChain* pSwapChain)
+void cLightingRenderPass::GetColorAttachment(VkAttachmentDescription& tColorAttachment, cSwapChain* pSwapChain)
 {
     // Set the format to the format of our swap chain images
     tColorAttachment.format = pSwapChain->peSwapChainImageFormat;
@@ -99,25 +88,4 @@ void cGraphicsRenderPass::GetColorAttachment(VkAttachmentDescription& tColorAtta
     // Layout of the pixels in memory
     tColorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     tColorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-}
-
-void cGraphicsRenderPass::GetDepthAttachment(VkAttachmentDescription& tDepthAttachment)
-{
-    // Set the format to the format of our swap chain images
-    tDepthAttachment.format = cImageHelper::FindDepthFormat();
-    tDepthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-
-    // Determine what to do with the data before and after rendering
-    // We don't need this attachment after rendering, so we don't care
-    tDepthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    tDepthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-
-    // Same as previous, but for the stencil data instead of color data
-    // We don't use the stencil buffer, so we don't care
-    tDepthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    tDepthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-
-    // Layout of the pixels in memory
-    tDepthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    tDepthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 }

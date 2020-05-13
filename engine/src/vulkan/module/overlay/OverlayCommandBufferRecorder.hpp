@@ -2,29 +2,29 @@
 
 #include <pch.hpp>
 #include <vulkan/command/CommandBufferRecorder.hpp>
-#include <vulkan/SwapChain.hpp>
-#include <vulkan/uniform/GraphicsUniformHandler.hpp>
+#include <vulkan/swapchain/SwapChain.hpp>
+#include <vulkan/module/mrt/MRTUniformHandler.hpp>
 #include "OverlayRenderPass.hpp"
 #include "OverlayPipeline.hpp"
-#include "Text.hpp"
+#include "vulkan/module/overlay/text/Text.hpp"
 
 class cOverlayCommandBufferRecorder : public iCommandBufferRecorder
 {
 private:
     cRenderPass* ppRenderPass;
     cSwapChain* ppSwapChain;
-    cOverlayPipeline* ppGraphicsPipeline;
+    cRenderPipeline* ppPipeline;
     iUniformHandler* ppUniformHandler;
 
     VkRenderPassBeginInfo ptRenderPassInfo = {};
-    std::array<VkClearValue, 2> paoClearValues = {};
+    std::array<VkClearValue, 1> paoClearValues = {};
 
     cText* ppText;
 
 public:
     cOverlayCommandBufferRecorder(cRenderPass* pRenderPass,
                                   cSwapChain* pSwapChain,
-                                  cOverlayPipeline* pGraphicsPipeline,
+                                  cRenderPipeline* pGraphicsPipeline,
                                   iUniformHandler* pUniformHandler,
                                   cText* pText);
 
@@ -34,13 +34,13 @@ public:
 
 cOverlayCommandBufferRecorder::cOverlayCommandBufferRecorder(cRenderPass* pRenderPass,
                                                              cSwapChain* pSwapChain,
-                                                             cOverlayPipeline* pGraphicsPipeline,
+                                                             cRenderPipeline* pGraphicsPipeline,
                                                              iUniformHandler* pUniformHandler,
                                                              cText* pText)
 {
     ppRenderPass = pRenderPass;
     ppSwapChain = pSwapChain;
-    ppGraphicsPipeline = pGraphicsPipeline;
+    ppPipeline = pGraphicsPipeline;
     ppUniformHandler = pUniformHandler;
     ppText = pText;
 }
@@ -51,7 +51,7 @@ void cOverlayCommandBufferRecorder::Setup(uint uiIndex)
     ptRenderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 
     // Set the render pass and framebuffer
-    ptRenderPassInfo.renderPass = ppRenderPass->poRenderPass;
+    ptRenderPassInfo.renderPass = ppRenderPass->GetRenderPass();
     ptRenderPassInfo.framebuffer = ppSwapChain->GetFramebuffer(uiIndex);
 
     // Set the render area size
@@ -60,7 +60,6 @@ void cOverlayCommandBufferRecorder::Setup(uint uiIndex)
 
     // Defines the clear color value to use
     paoClearValues[0].color = {0.0f, 0.0f, 0.0f, 0.0f}; // black with 100% opacity
-    paoClearValues[1].depthStencil = {1.0f, 0}; // furthest possible depth
     ptRenderPassInfo.clearValueCount = paoClearValues.size();
     ptRenderPassInfo.pClearValues = paoClearValues.data();
 }
@@ -72,9 +71,9 @@ void cOverlayCommandBufferRecorder::RecordCommands(VkCommandBuffer& oCommandBuff
 
     // Bind the graphics pipeline
     vkCmdBindPipeline(oCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                      ppGraphicsPipeline->poGraphicsPipeline);
+                      ppPipeline->GetPipeline());
 
-    ppUniformHandler->CmdBindDescriptorSets(oCommandBuffer, ppGraphicsPipeline->poPipelineLayout, 0);
+    ppUniformHandler->CmdBindDescriptorSets(oCommandBuffer, ppPipeline->GetLayout(), 0);
 
     ppText->BindVertexBuffer(oCommandBuffer);
 

@@ -1,28 +1,28 @@
 #pragma once
 
 #include <pch.hpp>
-#include <vulkan/GraphicsRenderPass.hpp>
-#include <vulkan/SwapChain.hpp>
+#include <vulkan/module/lighting/LightingRenderPass.hpp>
+#include <vulkan/swapchain/SwapChain.hpp>
 #include <vulkan/command/CommandBufferRecorder.hpp>
 
 class cClearScreenRecorder : public iCommandBufferRecorder
 {
 private:
-    cGraphicsRenderPass* ppRenderPass;
+    cRenderPass* ppRenderPass;
     cSwapChain* ppSwapChain;
 
     VkRenderPassBeginInfo ptRenderPassInfo = {};
     std::array<VkClearValue, 2> paoClearValues = {};
 
 public:
-    cClearScreenRecorder(cGraphicsRenderPass* pRenderPass,
+    cClearScreenRecorder(cRenderPass* pRenderPass,
                          cSwapChain* pSwapChain);
 
     void Setup(uint uiIndex) override;
     void RecordCommands(VkCommandBuffer& oCommandBuffer, uint uiIndex) override;
 };
 
-cClearScreenRecorder::cClearScreenRecorder(cGraphicsRenderPass* pRenderPass,
+cClearScreenRecorder::cClearScreenRecorder(cRenderPass* pRenderPass,
                                            cSwapChain* pSwapChain)
 {
     ppRenderPass = pRenderPass;
@@ -35,7 +35,7 @@ void cClearScreenRecorder::Setup(uint uiIndex)
     ptRenderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 
     // Set the render pass and framebuffer
-    ptRenderPassInfo.renderPass = ppRenderPass->poRenderPass;
+    ptRenderPassInfo.renderPass = ppRenderPass->GetRenderPass();
     ptRenderPassInfo.framebuffer = ppSwapChain->GetFramebuffer(uiIndex);
 
     // Set the render area size

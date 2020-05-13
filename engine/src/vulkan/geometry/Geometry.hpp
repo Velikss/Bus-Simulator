@@ -10,7 +10,7 @@
 // Class representing some geometry (vertices) that can be rendered in the scene
 class cGeometry
 {
-private:
+protected:
     // Vertices and indices of this geometry
     std::vector<Vertex> patVertices;
     std::vector<uint> paiIndices;
@@ -45,7 +45,7 @@ public:
     // Add a command to the command buffer which binds the index buffer
     void CmdBindIndexBuffer(VkCommandBuffer& oCommandBuffer);
 
-private:
+protected:
     // Setup buffers for the vertices and indices on the device and copy the data to them
     void CopyToDevice(cLogicalDevice* pLogicalDevice);
 };
@@ -82,6 +82,8 @@ cGeometry* cGeometry::FromOBJFile(const char* sFilePath,
     // Clear the vertices and indices now that they've been loaded on the device
     pGeometry->patVertices.clear();
     pGeometry->paiIndices.clear();
+
+    ENGINE_LOG("Loaded Geometry " << sFilePath << " with " << pGeometry->puiVertexCount << " vertices");
 
     return pGeometry;
 }

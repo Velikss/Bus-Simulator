@@ -1,6 +1,5 @@
 #pragma once
 #include <pch.hpp>
-#define TINYOBJLOADER_IMPLEMENTATION
 #include <vendor/tiny_obj_loader.h>
 
 // Very, VERY simple OBJ loader.

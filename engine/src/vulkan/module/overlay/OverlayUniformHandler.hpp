@@ -2,8 +2,13 @@
 
 #include <pch.hpp>
 #include <vulkan/uniform/UniformHandler.hpp>
-#include <vulkan/SwapChain.hpp>
-#include "Font.hpp"
+#include <vulkan/swapchain/SwapChain.hpp>
+#include <vulkan/module/overlay/text/Font.hpp>
+
+struct tOverlayUniformObject
+{
+    glm::vec3 color;
+};
 
 class cOverlayUniformHandler : public iUniformHandler
 {
@@ -16,6 +21,9 @@ private:
 
     VkDescriptorPool poDescriptorPool;
     VkDescriptorSet poDescriptorSet;
+
+    VkBuffer poBuffer;
+    VkDeviceMemory poBufferMemory;
 
 public:
     cOverlayUniformHandler(cLogicalDevice* pLogicalDevice,
@@ -33,12 +41,16 @@ public:
                                uint uiIndex) override;
 
 private:
+    void CreateUniformBuffers();
     void CreateDescriptorPool();
     void CreateDescriptorSet();
 };
 
 cOverlayUniformHandler::cOverlayUniformHandler(cLogicalDevice* pLogicalDevice, cFont* pFont)
 {
+    assert(pLogicalDevice != nullptr);
+    assert(pFont != nullptr);
+
     ppLogicalDevice = pLogicalDevice;
     ppFont = pFont;
 
@@ -49,7 +61,14 @@ cOverlayUniformHandler::cOverlayUniformHandler(cLogicalDevice* pLogicalDevice, c
     tSamplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
     tSamplerLayoutBinding.pImmutableSamplers = nullptr;
 
-    std::array<VkDescriptorSetLayoutBinding, 1> atBindings = {tSamplerLayoutBinding};
+    VkDescriptorSetLayoutBinding tDataLayoutBinding = {};
+    tDataLayoutBinding.binding = 3;
+    tDataLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    tDataLayoutBinding.descriptorCount = 1;
+    tDataLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    tDataLayoutBinding.pImmutableSamplers = nullptr;
+
+    std::array<VkDescriptorSetLayoutBinding, 2> atBindings = {tSamplerLayoutBinding, tDataLayoutBinding};
 
     VkDescriptorSetLayoutCreateInfo tLayoutInfo = {};
     tLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -66,19 +85,32 @@ cOverlayUniformHandler::~cOverlayUniformHandler()
 {
     ppLogicalDevice->DestroyDescriptorSetLayout(poDescriptorSetLayout, nullptr);
     ppLogicalDevice->DestroyDescriptorPool(poDescriptorPool, nullptr);
+    ppLogicalDevice->DestroyBuffer(poBuffer, nullptr);
+    ppLogicalDevice->FreeMemory(poBufferMemory, nullptr);
 }
 
 void cOverlayUniformHandler::SetupUniformBuffers(cTextureHandler* pTextureHandler, cScene* pScene)
 {
+    CreateUniformBuffers();
     CreateDescriptorPool();
     CreateDescriptorSet();
 }
 
+void cOverlayUniformHandler::CreateUniformBuffers()
+{
+    cBufferHelper::CreateBuffer(ppLogicalDevice, sizeof(tOverlayUniformObject),
+                                VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                poBuffer, poBufferMemory);
+}
+
 void cOverlayUniformHandler::CreateDescriptorPool()
 {
-    std::array<VkDescriptorPoolSize, 1> atPoolSizes = {};
+    std::array<VkDescriptorPoolSize, 2> atPoolSizes = {};
     atPoolSizes[0].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     atPoolSizes[0].descriptorCount = 1;
+    atPoolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    atPoolSizes[1].descriptorCount = 1;
 
     VkDescriptorPoolCreateInfo tPoolInfo = {};
     tPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -114,7 +146,12 @@ void cOverlayUniformHandler::CreateDescriptorSet()
     tImageInfo.imageView = ppFont->poFontImageView;
     tImageInfo.sampler = ppFont->poFontImageSampler;
 
-    std::array<VkWriteDescriptorSet, 1> atDescriptorWrites = {};
+    VkDescriptorBufferInfo tBufferInfo = {};
+    tBufferInfo.buffer = poBuffer;
+    tBufferInfo.offset = 0;
+    tBufferInfo.range = sizeof(tOverlayUniformObject);
+
+    std::array<VkWriteDescriptorSet, 2> atDescriptorWrites = {};
     atDescriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
     atDescriptorWrites[0].dstSet = poDescriptorSet;
     atDescriptorWrites[0].dstBinding = 0;
@@ -123,12 +160,31 @@ void cOverlayUniformHandler::CreateDescriptorSet()
     atDescriptorWrites[0].descriptorCount = 1;
     atDescriptorWrites[0].pImageInfo = &tImageInfo;
 
+    atDescriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    atDescriptorWrites[1].dstSet = poDescriptorSet;
+    atDescriptorWrites[1].dstBinding = 3;
+    atDescriptorWrites[1].dstArrayElement = 0;
+    atDescriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    atDescriptorWrites[1].descriptorCount = 1;
+    atDescriptorWrites[1].pBufferInfo = &tBufferInfo;
+
     ppLogicalDevice->UpdateDescriptorSets(atDescriptorWrites.size(), atDescriptorWrites.data(),
                                           0, nullptr);
 }
 
 void cOverlayUniformHandler::UpdateUniformBuffers(cScene* pScene)
 {
+    tOverlayUniformObject tObject = {};
+
+    // If no scene is loaded, just use white
+    tObject.color = glm::vec3(pScene == nullptr ? glm::vec3(1, 1, 1) : pScene->textColor);
+
+    void* data;
+    ppLogicalDevice->MapMemory(poBufferMemory, 0, sizeof(tObject), 0, &data);
+    {
+        memcpy(data, &tObject, sizeof(tObject));
+    }
+    ppLogicalDevice->UnmapMemory(poBufferMemory);
 }
 
 uint cOverlayUniformHandler::GetDescriptorSetLayoutCount(void)

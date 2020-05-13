@@ -13,7 +13,10 @@ private:
     glm::vec3 poScale = glm::vec3(1.0f, 1.0f, 1.0f);
 
 public:
+    bool bLighting = true;
+
     cBaseObject(cMesh* pMesh);
+    virtual ~cBaseObject();
 
     glm::mat4 GetModelMatrix();
     cMesh* GetMesh();
@@ -37,6 +40,8 @@ cBaseObject::cBaseObject(cMesh* pMesh) : ppMesh(pMesh)
 glm::mat4 cBaseObject::GetModelMatrix()
 {
     glm::mat4 oModel(1.0f);
+
+    // TODO: Maybe cache the value and only recalculate when needed
 
     // Translation
     oModel = glm::translate(oModel, poPosition);
@@ -105,25 +110,28 @@ void cBaseObject::MoveForward(float fMultiplier = 0.01)
     poPosition -= (direction * fMultiplier);
 }
 
- void cBaseObject::MoveBackward(float fMultiplier = 0.01)
+void cBaseObject::MoveBackward(float fMultiplier = 0.01)
 {
     glm::vec3 direction(sin(glm::radians(poRotation.y)), 0, cos(glm::radians(poRotation.y)));
     poPosition += (direction * fMultiplier);
 }
 
- void cBaseObject::MoveLeft(float fAngleDiff)
+void cBaseObject::MoveLeft(float fAngleDiff)
 {
     if (poRotation.y >= 360.0f)
         poRotation.y = 0;
     poRotation.y += fAngleDiff;
 }
 
- void cBaseObject::MoveRight(float fAngleDiff)
+void cBaseObject::MoveRight(float fAngleDiff)
 {
     if (poRotation.y < 0.0f)
         poRotation.y = 360.0f;
     poRotation.y -= fAngleDiff;
 }
 
+cBaseObject::~cBaseObject()
+{
+}
 
 typedef cBaseObject cModel;

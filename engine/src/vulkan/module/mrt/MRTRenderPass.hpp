@@ -1,67 +1,51 @@
 #pragma once
 
 #include <pch.hpp>
-#include <vulkan/vulkan.h>
-#include <vulkan/LogicalDevice.hpp>
-#include <vulkan/SwapChain.hpp>
 #include <vulkan/renderpass/RenderPass.hpp>
+#include <vulkan/swapchain/SwapChain.hpp>
 
-class cOverlayRenderPass : public cRenderPass
+class cMRTRenderPass : public cRenderPass
 {
 private:
     cSwapChain* ppSwapChain;
 
 public:
-    cOverlayRenderPass(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
+    cMRTRenderPass(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
 
 protected:
     void CreateRenderPass();
 };
 
-cOverlayRenderPass::cOverlayRenderPass(cLogicalDevice* pLogicalDevice,
-                                       cSwapChain* pSwapChain) : cRenderPass(pLogicalDevice)
+cMRTRenderPass::cMRTRenderPass(cLogicalDevice* pLogicalDevice,
+                               cSwapChain* pSwapChain) : cRenderPass(pLogicalDevice)
 {
+    assert(pSwapChain != nullptr);
+
     ppSwapChain = pSwapChain;
     CreateRenderPass();
 }
 
-void cOverlayRenderPass::CreateRenderPass()
+void cMRTRenderPass::CreateRenderPass()
 {
-    VkAttachmentDescription tAttachments[2] = {};
+    std::array<VkAttachmentDescription, 4> atAttachmentDescriptions = {};
+    for (uint i = 0; i < 4; i++)
+    {
+        atAttachmentDescriptions[i] = ppSwapChain->GetAttachment(i).tDescription;
+    }
 
-    // Color attachment
-    tAttachments[0].format = ppSwapChain->peSwapChainImageFormat;
-    tAttachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
-    // Don't clear the framebuffer
-    tAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-    tAttachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    tAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    tAttachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    tAttachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    tAttachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-    // Depth attachment
-    tAttachments[1].format = cImageHelper::FindDepthFormat();
-    tAttachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
-    tAttachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    tAttachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    tAttachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    tAttachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    tAttachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    tAttachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-    VkAttachmentReference tColorReference = {};
-    tColorReference.attachment = 0;
-    tColorReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    std::vector<VkAttachmentReference> atColorReferences;
+    atColorReferences.push_back({0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
+    atColorReferences.push_back({1, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
+    atColorReferences.push_back({2, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
 
     VkAttachmentReference depthReference = {};
-    depthReference.attachment = 1;
+    depthReference.attachment = 3;
     depthReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     // Use subpass dependencies for image layout transitions
     VkSubpassDependency tSubpassDependencies[2] = {};
 
-    // Transition from final to initial (VK_SUBPASS_EXTERNAL refers to all commmands executed outside of the actual renderpass)
+    // Transition from final to initial (VK_SUBPASS_EXTERNAL refers to all commands executed outside of the actual renderpass)
     tSubpassDependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
     tSubpassDependencies[0].dstSubpass = 0;
     tSubpassDependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
@@ -84,8 +68,8 @@ void cOverlayRenderPass::CreateRenderPass()
     tSubpassDescription.flags = 0;
     tSubpassDescription.inputAttachmentCount = 0;
     tSubpassDescription.pInputAttachments = NULL;
-    tSubpassDescription.colorAttachmentCount = 1;
-    tSubpassDescription.pColorAttachments = &tColorReference;
+    tSubpassDescription.colorAttachmentCount = atColorReferences.size();
+    tSubpassDescription.pColorAttachments = atColorReferences.data();
     tSubpassDescription.pResolveAttachments = NULL;
     tSubpassDescription.pDepthStencilAttachment = &depthReference;
     tSubpassDescription.preserveAttachmentCount = 0;
@@ -94,8 +78,8 @@ void cOverlayRenderPass::CreateRenderPass()
     VkRenderPassCreateInfo tRenderPassInfo = {};
     tRenderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     tRenderPassInfo.pNext = NULL;
-    tRenderPassInfo.attachmentCount = 2;
-    tRenderPassInfo.pAttachments = tAttachments;
+    tRenderPassInfo.attachmentCount = atAttachmentDescriptions.size();
+    tRenderPassInfo.pAttachments = atAttachmentDescriptions.data();
     tRenderPassInfo.subpassCount = 1;
     tRenderPassInfo.pSubpasses = &tSubpassDescription;
     tRenderPassInfo.dependencyCount = 2;
@@ -106,4 +90,3 @@ void cOverlayRenderPass::CreateRenderPass()
         throw std::runtime_error("failed to create render pass!");
     }
 }
-
