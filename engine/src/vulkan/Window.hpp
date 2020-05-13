@@ -31,7 +31,7 @@ public:
     static const uint HEIGHT = 800;
 #endif
 
-    iInputHandler* ppInputHandler;
+    iInputHandler* ppInputHandler = nullptr;
 
     cWindow();
     ~cWindow();
@@ -66,7 +66,7 @@ private:
     static void scrollCallback(GLFWwindow* pWindow, double dOffsetX, double dOffsetY);
 };
 
-cWindow* cWindow::poInstance;
+cWindow* cWindow::poInstance = nullptr;
 
 cWindow::cWindow()
 {
@@ -154,6 +154,8 @@ VkSurfaceKHR& cWindow::GetSurface(void)
 
 void cWindow::FindAndHandleGamepad()
 {
+    if (poInstance == nullptr || poInstance->ppInputHandler == nullptr) return;
+
     for (uint uiJoystickId = GLFW_JOYSTICK_1; uiJoystickId < GLFW_JOYSTICK_LAST; uiJoystickId++)
     {
         // Check if the joystick is a gamepad
@@ -166,6 +168,8 @@ void cWindow::FindAndHandleGamepad()
 
 void cWindow::HandleGamepad(uint uiJoystickId)
 {
+    if (poInstance == nullptr || poInstance->ppInputHandler == nullptr) return;
+
     GLFWgamepadstate tState;
     if (glfwGetGamepadState(uiJoystickId, &tState))
     {
@@ -241,10 +245,14 @@ void cWindow::mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY)
 
 void cWindow::keyCallback(GLFWwindow* pWindow, int iKey, int iScanCode, int iAction, int iMods)
 {
+    if (poInstance == nullptr || poInstance->ppInputHandler == nullptr) return;
+
     poInstance->ppInputHandler->HandleKey(iKey, iAction);
 }
 
 void cWindow::scrollCallback(GLFWwindow* pWindow, double dOffsetX, double dOffsetY)
 {
+    if (poInstance == nullptr || poInstance->ppInputHandler == nullptr) return;
+
     poInstance->ppInputHandler->HandleScroll(dOffsetX, dOffsetY);
 }
