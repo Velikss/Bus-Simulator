@@ -2,7 +2,7 @@
 
 #include <pch.hpp>
 #include <duktape.h>
-#include <entities/cEntityInterface.hpp>
+#include <vulkan/entities/cEntityInterface.hpp>
 
 /*
  * This namespace contains all duktape functions related to game entities, these functions are registered as javascript functions in cBehaviourHandler
@@ -21,16 +21,16 @@ namespace JavaScriptEntityFunctions
         void *p = duk_get_pointer(poContext, 0);
 
         // Cast pointer to Entity pointer, we know it's pointing to an entity.
-        BaseObject *poEntity = static_cast<BaseObject *>(p);
+        cBaseObject *poEntity = static_cast<cBaseObject *>(p);
 
         // Push coordinates to stack, first we'll push an empty array.
         duk_idx_t ArrayIndex;
         ArrayIndex = duk_push_array(poContext);
 
         // Then we will fill the array with the X Y coordinates of the entity. (we take Z as Y position because vec3 is used in BaseObject)
-        duk_push_int(poContext, poEntity->pPosition.x);
+        duk_push_int(poContext, poEntity->poPosition.x);
         duk_put_prop_index(poContext, ArrayIndex, 0);
-        duk_push_int(poContext, poEntity->pPosition.z);
+        duk_push_int(poContext, poEntity->poPosition.z);
         duk_put_prop_index(poContext, ArrayIndex, 1);
 
         return 1;

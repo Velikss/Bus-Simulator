@@ -1,6 +1,17 @@
 cmake_minimum_required(VERSION 3.13.4)
 
 set(This GameProject)
+set(CompilerFlags
+        CMAKE_CXX_FLAGS
+        CMAKE_CXX_FLAGS_DEBUG
+        CMAKE_CXX_FLAGS_RELEASE
+        CMAKE_C_FLAGS
+        CMAKE_C_FLAGS_DEBUG
+        CMAKE_C_FLAGS_RELEASE
+        )
+foreach(CompilerFlag ${CompilerFlags})
+    string(REPLACE "/MT" "/MD" ${CompilerFlag} "${${CompilerFlag}}")
+endforeach()
 project(${This} C CXX)
 
 set(CMAKE_C_STANDARD 99)
@@ -10,12 +21,11 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 enable_testing()
 
 add_subdirectory(engine)
-add_subdirectory(engine/glfw)
 
-set(Headers 
+set(Headers
     ${PROJECT_SOURCE_DIR}/src/pch.hpp
 )
-set(Sources 
+set(Sources
     ${PROJECT_SOURCE_DIR}/src/main.cpp
 )
 

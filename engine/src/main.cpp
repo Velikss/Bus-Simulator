@@ -1,141 +1,32 @@
-#include <pch.hpp>
+#include "pch.hpp"
 #include <iostream>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <scripting/cScriptingEngine.hpp>
-#include <entities/cEntity.hpp>
-#include <entities/cEntityGroup.hpp>
+#include <Engine.hpp>
+#include <vulkan/entities/cBehaviourHandler.hpp>
+#include <vulkan/entities/cEntityGroup.hpp>
+#include <vulkan/entities/cEntity.hpp>
 
-const int WIDTH = 1080, HEIGHT = 720;
-
-Scene *activeScene = nullptr;
-GLFWwindow *window;
-
-void keyDown(unsigned char k, int a, int b)
-{
-    activeScene->KeyDown(k, a, b);
-}
-
-void keyUp(unsigned char k, int a, int b)
-{
-    activeScene->KeyUp(k, a, b);
-}
-
-void mouseMove(int mx, int my)
+int main(int argc, char** argv)
 {
 
-    activeScene->MoveMouse(mx, my);
-}
-
-void changeSize(int w, int h)
-{
-    float ratio = w * 1.0 / h;
-    glViewport(0, 0, w, h);
-    activeScene->camera.aspectRatio = ratio;
-}
-
-void InitGLFW(void)
-{
-    if (!glfwInit())
-        return;
-
-    window = glfwCreateWindow(WIDTH, HEIGHT, "Hello World", NULL, NULL);
-    if (!window)
-    {
-        glfwTerminate();
-        return;
-    }
-    glfwMakeContextCurrent(window);
-
-    GLenum err = glewInit();
-    if (GLEW_OK != err)
-    {
-        std::cerr << "Error: " << glewGetErrorString(err) << std::endl;
-        glfwTerminate();
-        return;
-    }
-}
-
-void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
-{
-    char keyChar = 0;
-    switch (key)
-    {
-        case GLFW_KEY_W:
-            keyChar = 'w';
-            break;
-        case GLFW_KEY_A:
-            keyChar = 'a';
-            break;
-        case GLFW_KEY_S:
-            keyChar = 's';
-            break;
-        case GLFW_KEY_D:
-            keyChar = 'd';
-            break;
-        case GLFW_KEY_ESCAPE:
-            keyChar = 27;
-            break;
-    }
-    if (keyChar != 0)
-    {
-        if (action == GLFW_PRESS) keyDown(keyChar, 0, 0);
-        if (action == GLFW_RELEASE) keyUp(keyChar, 0, 0);
-    }
-}
-
-static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos)
-{
-    static bool firstMouse = true;
-    static float lastX = WIDTH, lastY = HEIGHT;
-
-    if (firstMouse)
-    {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
-    }
-
-    float xoffset = xpos - lastX;
-    float yoffset = ypos - lastY;
-    lastX = xpos;
-    lastY = ypos;
-
-    mouseMove(xoffset, yoffset);
-}
-
-void window_size_callback(GLFWwindow *window, int width, int height)
-{
-    changeSize(width, height);
-}
-
-int main(int argc, char **argv)
-{
     // Create static behaviours
     cBehaviourHandler::AddBehaviour("seperation", "src/scripting/seperation.js");
     cBehaviourHandler::AddBehaviour("cohesion", "src/scripting/cohesion.js");
-
 
     cEntityGroup entityGroup;
     cBehaviourHandler *cbSeperation = new cBehaviourHandler("seperation"); // behaviourname should be a name previously defined as static behaviour
     cBehaviourHandler *cbCohesion = new cBehaviourHandler("cohesion"); // behaviourname should be a name previously defined as static behaviour
 
-//    cEntity en2(nullptr);
-//    cEntity en3(nullptr);
-//    cEntity en4(nullptr);
-//    cEntity en5(nullptr);
-
     cEntity en2(nullptr);
-    en2.SetPosition(11.1f, 17.1f);
+    en2.setPosition(glm::vec3(11.1f, 0, 17.1f));
     en2.pfMaxSpeed = 10.0f;
     cEntity en3(nullptr);
-    en3.SetPosition(12.1f, 14.1f);
+    en3.setPosition(glm::vec3(12.1f, 0, 14.1f));
     en3.pfMaxSpeed = 10.0f;
     cEntity en4(nullptr);
-    en4.SetPosition(13.1f, 12.1f);
+    en4.setPosition(glm::vec3(13.1f, 0, 12.1f));
     en4.pfMaxSpeed = 10.0f;
     cEntity en5(nullptr);
-    en5.SetPosition(14.1f, 6.1f);
+    en5.setPosition(glm::vec3(14.1f, 0, 6.1f));
     en5.pfMaxSpeed = 10.0f;
 
     entityGroup.AddEntity(&en2);
@@ -149,11 +40,23 @@ int main(int argc, char **argv)
     for(int i = 0; i<100; i++){
         entityGroup.UpdateEntities();
 
-        std::cout << " p2 " << en2.pPosition.x << " - " << en2.pPosition.z
-        << "        p3 " << en3.pPosition.x << " - " << en3.pPosition.z
-        << "        p4 " << en4.pPosition.x << " - " << en4.pPosition.z
-        << "        p5 " << en5.pPosition.x << " - " << en5.pPosition.z << std::endl;
+        std::cout << " p2 " << en2.getPosition()->x << " - " << en2.getPosition()->y
+                  << "        p3 " << en3.getPosition()->x << " - " << en3.getPosition()->y
+                  << "        p4 " << en4.getPosition()->x << " - " << en4.getPosition()->y
+                  << "        p5 " << en5.getPosition()->x << " - " << en5.getPosition()->y << std::endl;
     }
 
+//    Engine oEngine;
+//
+//    try
+//    {
+//        oEngine.Run();
+//    }
+//    catch (const std::exception& e)
+//    {
+//        std::cerr << e.what() << std::endl;
+//        return EXIT_FAILURE;
+//    }
+//
+//    return EXIT_SUCCESS;
 }
-
