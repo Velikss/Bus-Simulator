@@ -94,7 +94,9 @@ void cBusWorldScene::LoadTextures(cTextureHandler *pTextureHandler)
     pmpTextures["road"] = pTextureHandler->LoadTextureFromFile("resources/textures/streets/road.png");
     pmpTextures["threeWayCrossing"] = pTextureHandler->LoadTextureFromFile("resources/textures/streets/threeWayCrossing.png");
     pmpTextures["fourWayCrossing"] = pTextureHandler->LoadTextureFromFile("resources/textures/streets/fourWayCrossing.png");
-    // busesaa
+    // streetUtil
+    pmpTextures["trafficLight"] = pTextureHandler->LoadTextureFromFile("resources/textures/streetUtil/trafficLight.png");
+    // buses
     pmpTextures["schoolBus"] = pTextureHandler->LoadTextureFromFile("resources/textures/buses/schoolBus.png");
 }
 
@@ -137,7 +139,7 @@ void cBusWorldScene::LoadMeshes()
     pmpMeshes["bus"] = new cMesh(pmpGeometries["bus"], pmpTextures["schoolBus"]);
     // streetUtil
     pmpMeshes["busStation"] = new cMesh(pmpGeometries["busStation"], pmpTextures["grey"]);
-    pmpMeshes["trafficLight"] = new cMesh(pmpGeometries["trafficLight"], pmpTextures["grey"]);
+    pmpMeshes["trafficLight"] = new cMesh(pmpGeometries["trafficLight"], pmpTextures["trafficLight"]);
     // streetDeco
 
     // buildings
