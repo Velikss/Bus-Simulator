@@ -15,6 +15,7 @@ struct tOffScreenBuffer
     tFrameBufferAttachment ptNormalsAttachment;
     tFrameBufferAttachment ptAlbedoAttachment;
     tFrameBufferAttachment ptDepthAttachment;
+    tFrameBufferAttachment ptMaterialAttachment;
 
     VkFramebuffer poFramebuffer;
 
@@ -86,11 +87,12 @@ cSwapChain::~cSwapChain()
 {
     VkDevice& oDevice = ppLogicalDevice->GetDevice(); // TODO: Use internal cLogicalDevice methods
 
-    std::array<tFrameBufferAttachment*, 4> aptAttachments = {
+    std::array<tFrameBufferAttachment*, 5> aptAttachments = {
             &ptOffScreenBuffer.ptPositionAttachment,
             &ptOffScreenBuffer.ptNormalsAttachment,
             &ptOffScreenBuffer.ptAlbedoAttachment,
-            &ptOffScreenBuffer.ptDepthAttachment
+            &ptOffScreenBuffer.ptDepthAttachment,
+            &ptOffScreenBuffer.ptMaterialAttachment
     };
     for (tFrameBufferAttachment* pAttachment : aptAttachments)
     {
@@ -333,11 +335,12 @@ void cSwapChain::CreateFramebuffers(VkRenderPass& oFinalRenderPass, VkRenderPass
         }
     }
 
-    std::array<VkImageView, 4> atAttachments;
+    std::array<VkImageView, 5> atAttachments;
     atAttachments[0] = ptOffScreenBuffer.ptPositionAttachment.oView;
     atAttachments[1] = ptOffScreenBuffer.ptNormalsAttachment.oView;
     atAttachments[2] = ptOffScreenBuffer.ptAlbedoAttachment.oView;
     atAttachments[3] = ptOffScreenBuffer.ptDepthAttachment.oView;
+    atAttachments[4] = ptOffScreenBuffer.ptMaterialAttachment.oView;
 
     VkFramebufferCreateInfo tFramebufferInfo = {};
     tFramebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -371,6 +374,9 @@ void cSwapChain::CreateResources(void) // TODO: This might belong somewhere else
 
     cSwapChainHelper::CreateAttachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
                                        &ptOffScreenBuffer.ptAlbedoAttachment, ppLogicalDevice, ptSwapChainExtent);
+
+    cSwapChainHelper::CreateAttachment(VK_FORMAT_R8G8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+                                       &ptOffScreenBuffer.ptMaterialAttachment, ppLogicalDevice, ptSwapChainExtent);
 
     // Create sampler to sample from the color attachments
     VkSamplerCreateInfo tSampler = {};
@@ -423,6 +429,8 @@ tFrameBufferAttachment& cSwapChain::GetAttachment(uint uiIndex)
             return ptOffScreenBuffer.ptAlbedoAttachment;
         case 3:
             return ptOffScreenBuffer.ptDepthAttachment;
+        case 4:
+            return ptOffScreenBuffer.ptMaterialAttachment;
     }
     throw std::runtime_error(cFormatter() << "Cannot find attachment " << uiIndex);
 }

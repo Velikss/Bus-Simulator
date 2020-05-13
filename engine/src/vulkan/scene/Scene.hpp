@@ -29,7 +29,7 @@ protected:
 
 public:
     glm::vec3 textColor = glm::vec3(0, 1, 0);
-    float pfAmbientLight = 0.6;
+    float pfAmbientLight = 0.2;
 
     cScene();
     virtual ~cScene();

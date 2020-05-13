@@ -92,7 +92,16 @@ cMRTUniformHandler::cMRTUniformHandler(cLogicalDevice* pLogicalDevice,
     tSamplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
     tSamplerLayoutBinding.pImmutableSamplers = nullptr;
 
-    std::array<VkDescriptorSetLayoutBinding, 2> atBindings = {tUBOLayoutBinding, tSamplerLayoutBinding};
+    // Binding for the texture sampler
+    VkDescriptorSetLayoutBinding tMaterialLayoutBinding = {};
+    tMaterialLayoutBinding.binding = 2;
+    tMaterialLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    tMaterialLayoutBinding.descriptorCount = 1;
+    tMaterialLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    tMaterialLayoutBinding.pImmutableSamplers = nullptr;
+
+    std::array<VkDescriptorSetLayoutBinding, 3> atBindings = {tUBOLayoutBinding, tSamplerLayoutBinding,
+                                                              tMaterialLayoutBinding};
     VkDescriptorSetLayoutCreateInfo tLayoutInfo = {};
     tLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     tLayoutInfo.bindingCount = atBindings.size();
@@ -234,13 +243,15 @@ void cMRTUniformHandler::CopyToDeviceMemory(VkDeviceMemory& oDeviceMemory, void*
 
 void cMRTUniformHandler::CreateDescriptorPool()
 {
-    std::array<VkDescriptorPoolSize, 3> atPoolSizes = {};
+    std::array<VkDescriptorPoolSize, 4> atPoolSizes = {};
     atPoolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     atPoolSizes[0].descriptorCount = paoObjectUniformBuffers.size();
     atPoolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     atPoolSizes[1].descriptorCount = paoObjectUniformBuffers.size();
     atPoolSizes[2].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     atPoolSizes[2].descriptorCount = 1;
+    atPoolSizes[3].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    atPoolSizes[3].descriptorCount = paoObjectUniformBuffers.size();
 
     VkDescriptorPoolCreateInfo tPoolInfo = {};
     tPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -286,7 +297,13 @@ void cMRTUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, 
         tImageInfo.imageView = pTexture->GetView();
         tImageInfo.sampler = pTexture->GetSampler();
 
-        std::array<VkWriteDescriptorSet, 2> atDescriptorWrites = {};
+        cTexture* pMaterial = oObject.second->GetMesh()->GetMaterial();
+        VkDescriptorImageInfo tMaterialInfo = {};
+        tMaterialInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        tMaterialInfo.imageView = pMaterial->GetView();
+        tMaterialInfo.sampler = pMaterial->GetSampler();
+
+        std::array<VkWriteDescriptorSet, 3> atDescriptorWrites = {};
 
         atDescriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         atDescriptorWrites[0].dstSet = poObjectDescriptorSets[uiIndex];
@@ -303,6 +320,14 @@ void cMRTUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, 
         atDescriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         atDescriptorWrites[1].descriptorCount = 1;
         atDescriptorWrites[1].pImageInfo = &tImageInfo;
+
+        atDescriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        atDescriptorWrites[2].dstSet = poObjectDescriptorSets[uiIndex];
+        atDescriptorWrites[2].dstBinding = 2;
+        atDescriptorWrites[2].dstArrayElement = 0;
+        atDescriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        atDescriptorWrites[2].descriptorCount = 1;
+        atDescriptorWrites[2].pImageInfo = &tMaterialInfo;
 
         ppLogicalDevice->UpdateDescriptorSets(atDescriptorWrites.size(), atDescriptorWrites.data(),
                                               0, nullptr);

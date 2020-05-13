@@ -72,7 +72,7 @@ cLightingUniformHandler::cLightingUniformHandler(cLogicalDevice* pLogicalDevice,
     ppLogicalDevice = pLogicalDevice;
     ppSwapChain = pSwapChain;
 
-    std::array<VkDescriptorSetLayoutBinding, 4> atLayoutBindings;
+    std::array<VkDescriptorSetLayoutBinding, 5> atLayoutBindings;
 
     atLayoutBindings[0].binding = 0;
     atLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
@@ -97,6 +97,12 @@ cLightingUniformHandler::cLightingUniformHandler(cLogicalDevice* pLogicalDevice,
     atLayoutBindings[3].descriptorCount = 1;
     atLayoutBindings[3].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
     atLayoutBindings[3].pImmutableSamplers = nullptr;
+
+    atLayoutBindings[4].binding = 4;
+    atLayoutBindings[4].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    atLayoutBindings[4].descriptorCount = 1;
+    atLayoutBindings[4].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    atLayoutBindings[4].pImmutableSamplers = nullptr;
 
     VkDescriptorSetLayoutCreateInfo tCameraLayoutInfo = {};
     tCameraLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -168,7 +174,7 @@ void cLightingUniformHandler::UpdateUniformBuffers(cScene* pScene)
     // Lights info consists of amount of lights, camera pos and ambient light level
     tLightsInfo tLightsInfo = {};
     tLightsInfo.uiLightsCount = puiLightsCount;
-    tLightsInfo.tViewPos = glm::vec4(pCamera->GetPosition(), 0.0f) * glm::vec4(-1.0f, 1.0f, -1.0f, 1.0f);
+    tLightsInfo.tViewPos = glm::vec4(pCamera->GetPosition(), 0.0f);
     tLightsInfo.fAmbientLight = pScene->pfAmbientLight;
 
     // Loop over all the objects in the scene. If the object is a
@@ -213,14 +219,14 @@ void cLightingUniformHandler::CreateDescriptorPool()
     atPoolSizes[0].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     atPoolSizes[0].descriptorCount = 1;
     atPoolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    atPoolSizes[1].descriptorCount = 3;
+    atPoolSizes[1].descriptorCount = 4;
 
     VkDescriptorPoolCreateInfo tPoolInfo = {};
     tPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     tPoolInfo.poolSizeCount = atPoolSizes.size();
     tPoolInfo.pPoolSizes = atPoolSizes.data();
 
-    tPoolInfo.maxSets = 4;
+    tPoolInfo.maxSets = 5;
 
     if (!ppLogicalDevice->CreateDescriptorPool(&tPoolInfo, nullptr, &poDescriptorPool))
     {
@@ -262,7 +268,12 @@ void cLightingUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHand
     tAlbedoInfo.imageView = ppSwapChain->GetAttachment(2).oView;
     tAlbedoInfo.sampler = ppSwapChain->GetSampler();
 
-    std::array<VkWriteDescriptorSet, 4> atDescriptorWrites = {};
+    VkDescriptorImageInfo tMaterialInfo = {};
+    tMaterialInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    tMaterialInfo.imageView = ppSwapChain->GetAttachment(4).oView;
+    tMaterialInfo.sampler = ppSwapChain->GetSampler();
+
+    std::array<VkWriteDescriptorSet, 5> atDescriptorWrites = {};
 
     atDescriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
     atDescriptorWrites[0].dstSet = poDescriptorSet;
@@ -295,6 +306,14 @@ void cLightingUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHand
     atDescriptorWrites[3].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     atDescriptorWrites[3].descriptorCount = 1;
     atDescriptorWrites[3].pImageInfo = &tAlbedoInfo;
+
+    atDescriptorWrites[4].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    atDescriptorWrites[4].dstSet = poDescriptorSet;
+    atDescriptorWrites[4].dstBinding = 4;
+    atDescriptorWrites[4].dstArrayElement = 0;
+    atDescriptorWrites[4].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    atDescriptorWrites[4].descriptorCount = 1;
+    atDescriptorWrites[4].pImageInfo = &tMaterialInfo;
 
     ppLogicalDevice->UpdateDescriptorSets(atDescriptorWrites.size(), atDescriptorWrites.data(),
                                           0, nullptr);
