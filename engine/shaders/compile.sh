@@ -1,3 +1,4 @@
+mkdir -p compiled
 if [[ -z "${VULKAN_SDK}" ]]; then
     glslc mrt.vert -o compiled/mrt.vert.spv
     glslc mrt.frag -o compiled/mrt.frag.spv

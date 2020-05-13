@@ -49,9 +49,9 @@ void cStreetScene::Update()
 
     // temporary flight controls
     if (paKeys[GLFW_KEY_SPACE])
-        poCamera->cameraHeight += 0.01;
+        poCamera->cameraHeight += 0.1;
     if (paKeys[GLFW_KEY_LEFT_SHIFT])
-        poCamera->cameraHeight -= 0.01;
+        poCamera->cameraHeight -= 0.1;
 
     if (paKeys[GLFW_KEY_ESCAPE])
         Quit();
@@ -102,10 +102,10 @@ void cStreetScene::LoadGeometries(cLogicalDevice* pLogicalDevice)
     pmpGeometries["cylinder"] = cGeometry::FromOBJFile("resources/geometries/cylinder32.obj", pLogicalDevice);
     pmpGeometries["skybox"] = cGeometry::FromOBJFile("resources/geometries/skybox.obj", pLogicalDevice);
 
-    pmpGeometries["houseBase"] = cGeometry::FromOBJFile("resources/geometries/houseBase.obj", pLogicalDevice, 3);
-    pmpGeometries["roof"] = cGeometry::FromOBJFile("resources/geometries/roof.obj", pLogicalDevice, 5);
-    pmpGeometries["street"] = cGeometry::FromOBJFile("resources/geometries/plane.obj", pLogicalDevice, 10);
-    pmpGeometries["grasslawn"] = cGeometry::FromOBJFile("resources/geometries/plane.obj", pLogicalDevice, 10);
+    pmpGeometries["houseBase"] = cGeometry::FromOBJFile("resources/geometries/houseBase.obj", pLogicalDevice, 3, 3);
+    pmpGeometries["roof"] = cGeometry::FromOBJFile("resources/geometries/roof.obj", pLogicalDevice, 5, 5);
+    pmpGeometries["street"] = cGeometry::FromOBJFile("resources/geometries/plane.obj", pLogicalDevice, 10, 10);
+    pmpGeometries["grasslawn"] = cGeometry::FromOBJFile("resources/geometries/plane.obj", pLogicalDevice, 10, 10);
 }
 
 void cStreetScene::LoadMeshes()

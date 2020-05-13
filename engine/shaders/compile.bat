@@ -1,3 +1,4 @@
+if not exists "compiled" mkdir "compiled"
 %VULKAN_SDK%/Bin32/glslc.exe mrt.vert -o compiled/mrt.vert.spv
 %VULKAN_SDK%/Bin32/glslc.exe mrt.frag -o compiled/mrt.frag.spv
 %VULKAN_SDK%/Bin32/glslc.exe lighting.vert -o compiled/lighting.vert.spv
