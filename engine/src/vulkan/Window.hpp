@@ -27,8 +27,8 @@ public:
     static const uint WIDTH = 2560;
     static const uint HEIGHT = 1380;
 #else
-    static const uint WIDTH = 1200;
-    static const uint HEIGHT = 800;
+    static const uint WIDTH = 1920;
+    static const uint HEIGHT = 1080;
 #endif
 
     iInputHandler* ppInputHandler = nullptr;
@@ -101,7 +101,7 @@ void cWindow::CreateGLWindow()
     ppWindow = glfwCreateWindow(WIDTH, HEIGHT, "BUS", nullptr, nullptr);
 
     glfwSetCursorPosCallback(ppWindow, mouseCallback);
-    //glfwSetInputMode(ppWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(ppWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetKeyCallback(ppWindow, keyCallback);
     glfwSetScrollCallback(ppWindow, scrollCallback);
 }

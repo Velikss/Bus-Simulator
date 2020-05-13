@@ -1,6 +1,7 @@
 #pragma once
 
 #include <pch.hpp>
+#include <vulkan/scene/BaseObject.hpp>
 
 /*
 The camera class, it is however FP based and should have its own sub-class in a later version.
@@ -35,8 +36,8 @@ public:
     // bus camera
     const float cameraScrollSpeed = 0.5f;
     float orbitDistance = 30.0f;
-    glm::vec3* cameraPivot;
-    glm::vec3 cameraPivotChanges = glm::vec3(0.0f, 0.0f, 0.0f);
+    cBaseObject* cameraPivotObject;
+    glm::vec3 cameraPivotPos;
 
     virtual void Forward() = 0;
     virtual void BackWard() = 0;
@@ -44,6 +45,8 @@ public:
     virtual void MoveRight() = 0;
     virtual void MoveUp() = 0;
     virtual void MoveDown() = 0;
+    virtual void MovePivotForward(float fMultiplier) = 0;
+    virtual void MovePivotBackward(float fMultiplier) = 0;
     virtual void LookUp() = 0;
     virtual void LookDown() = 0;
     virtual void LookLeft() = 0;
@@ -104,6 +107,16 @@ public:
         if (!lockMovement)
             cameraHeight -= cameraSpeed;
 //            cameraPos -= cameraSpeed * cameraUp;
+    }
+
+    void MovePivotForward(float fMultiplier)
+    {
+
+    }
+
+    void MovePivotBackward(float fMultiplier)
+    {
+
     }
 
     void LookUp()

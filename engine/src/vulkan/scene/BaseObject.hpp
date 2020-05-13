@@ -25,6 +25,7 @@ public:
     void setPosition(const glm::vec3 poPosition);
     void setScale(const glm::vec3 poScale);
     glm::vec3* getPosition();
+    glm::vec3* getRotation();
     void MoveForward(float fMultiplier);
     void MoveBackward(float fMultiplier);
     void MoveLeft(float fAngleDiff);
@@ -104,13 +105,18 @@ glm::vec3* cBaseObject::getPosition()
     return &poPosition;
 }
 
-void cBaseObject::MoveForward(float fMultiplier = 0.01)
+glm::vec3* cBaseObject::getRotation()
+{
+    return &poRotation;
+}
+
+void cBaseObject::MoveForward(float fMultiplier = 0.2)
 {
     glm::vec3 direction(sin(glm::radians(poRotation.y)), 0, cos(glm::radians(poRotation.y)));
     poPosition -= (direction * fMultiplier);
 }
 
-void cBaseObject::MoveBackward(float fMultiplier = 0.01)
+void cBaseObject::MoveBackward(float fMultiplier = 0.2)
 {
     glm::vec3 direction(sin(glm::radians(poRotation.y)), 0, cos(glm::radians(poRotation.y)));
     poPosition += (direction * fMultiplier);

@@ -44,9 +44,9 @@ void cBusWorldScene::Update()
     if (paKeys[GLFW_KEY_S])
         BusCentered ? pmpObjects["bus"]->MoveBackward() : poCamera->BackWard();
     if (paKeys[GLFW_KEY_A])
-        BusCentered ? pmpObjects["bus"]->MoveLeft(0.02) : poCamera->MoveLeft();
+        BusCentered ? pmpObjects["bus"]->MoveLeft(0.5) : poCamera->MoveLeft();
     if (paKeys[GLFW_KEY_D])
-        BusCentered ? pmpObjects["bus"]->MoveRight(0.02) : poCamera->MoveRight();
+        BusCentered ? pmpObjects["bus"]->MoveRight(0.5) : poCamera->MoveRight();
     if (paKeys[GLFW_KEY_C])
     {
         BusCentered = false;
@@ -56,9 +56,9 @@ void cBusWorldScene::Update()
     {
         BusCentered = true;
         poCamera = new BusCamera;
-        poCamera->cameraPivot = pmpObjects["bus"]->getPosition();
-        poCamera->cameraHeight = 15.0f;
-        poCamera->cameraPivotChanges = glm::vec3(5.0f, 5.0f, 0.0f);
+        poCamera->cameraPivotObject = pmpObjects["bus"];
+        poCamera->cameraPivotPos = *pmpObjects["bus"]->getPosition();
+        poCamera->cameraHeight = 10.0f;
     }
 
     // temporary flight controls
@@ -96,6 +96,7 @@ void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
     pmpTextures["fourWayCrossing"] = pTextureHandler->LoadTextureFromFile("resources/textures/streets/fourWayCrossing.png");
     // streetUtil
     pmpTextures["trafficLight"] = pTextureHandler->LoadTextureFromFile("resources/textures/streetUtil/trafficLight.png");
+    pmpTextures["busStop"] = pTextureHandler->LoadTextureFromFile("resources/textures/streetUtil/busStop.png");
     // buses
     pmpTextures["schoolBus"] = pTextureHandler->LoadTextureFromFile("resources/textures/buses/schoolBus.png");
 }
@@ -114,7 +115,7 @@ void cBusWorldScene::LoadGeometries(cLogicalDevice *pLogicalDevice)
     pmpGeometries["walkways36-3WithCorners"] = cGeometry::FromOBJFile("resources/geometries/walkways/Walkway36-3WithCorners.obj", pLogicalDevice, 10, 10);
     pmpGeometries["walkways30-3"] = cGeometry::FromOBJFile("resources/geometries/walkways/Walkway30-3.obj", pLogicalDevice, 10, 10);
     // streetUtil
-    pmpGeometries["busStation"] = cGeometry::FromOBJFile("resources/geometries/BusStation.obj", pLogicalDevice);
+    pmpGeometries["busStation"] = cGeometry::FromOBJFile("resources/geometries/streetUtil/busStop.obj", pLogicalDevice);
     pmpGeometries["trafficLight"] = cGeometry::FromOBJFile("resources/geometries/streetUtil/trafficLight.obj", pLogicalDevice);
     // streetDeco
 
@@ -138,7 +139,7 @@ void cBusWorldScene::LoadMeshes()
     // buses
     pmpMeshes["bus"] = new cMesh(pmpGeometries["bus"], pmpTextures["schoolBus"]);
     // streetUtil
-    pmpMeshes["busStation"] = new cMesh(pmpGeometries["busStation"], pmpTextures["grey"]);
+    pmpMeshes["busStation"] = new cMesh(pmpGeometries["busStation"], pmpTextures["busStop"]);
     pmpMeshes["trafficLight"] = new cMesh(pmpGeometries["trafficLight"], pmpTextures["trafficLight"]);
     // streetDeco
 
