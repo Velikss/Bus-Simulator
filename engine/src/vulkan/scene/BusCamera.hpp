@@ -1,7 +1,7 @@
 #pragma once
 
 #include <pch.hpp>
-#include "scenes/Camera.hpp"
+#include "Camera.hpp"
 
 class BusCamera : public Camera
 {

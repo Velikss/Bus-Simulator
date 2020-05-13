@@ -1,7 +1,7 @@
 #pragma once
 
 #include <pch.hpp>
-#include <scenes/Camera.hpp>
+#include "Camera.hpp"
 #include <vulkan/mesh/Mesh.hpp>
 #include <vulkan/geometry/Geometry.hpp>
 #include <vulkan/scene/BaseObject.hpp>
