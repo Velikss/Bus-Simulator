@@ -108,7 +108,11 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cEntityInterface.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cEntity.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cEntityGroup.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBehaviourHandler.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBehaviourHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/multiplayer/SslHelper.hpp
+        ${PROJECT_SOURCE_DIR}/src/multiplayer/NetworkAbstractions.hpp
+        ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkConnection.hpp
+        ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkClient.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 

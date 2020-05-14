@@ -36,6 +36,8 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
     LoadMeshes();
     LoadModels();
     LoadObjects();
+
+
 }
 
 void cBusWorldScene::Update()
