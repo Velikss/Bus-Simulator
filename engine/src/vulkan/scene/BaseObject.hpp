@@ -27,8 +27,8 @@ public:
     glm::vec3* getRotation();
     void MoveForward(float fMultiplier);
     void MoveBackward(float fMultiplier);
-    virtual void MoveLeft(float fAngleDiff);
-    virtual void MoveRight(float fAngleDiff);
+    virtual void RotateLeft(float fAngleDiff);
+    virtual void RotateRight(float fAngleDiff);
 
 };
 
@@ -121,14 +121,14 @@ void cBaseObject::MoveBackward(float fMultiplier = 0.2)
     poPosition += (direction * fMultiplier);
 }
 
-void cBaseObject::MoveLeft(float fAngleDiff)
+void cBaseObject::RotateLeft(float fAngleDiff)
 {
     if (poRotation.y >= 360.0f)
         poRotation.y = 0;
     poRotation.y += fAngleDiff;
 }
 
-void cBaseObject::MoveRight(float fAngleDiff)
+void cBaseObject::RotateRight(float fAngleDiff)
 {
     if (poRotation.y < 0.0f)
         poRotation.y = 360.0f;

@@ -47,11 +47,13 @@ void cBusWorldScene::Update()
     if (paKeys[GLFW_KEY_S])
         BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Brake() : poCamera->BackWard();
     if (!paKeys[GLFW_KEY_W] && !paKeys[GLFW_KEY_S])
-        if (BusCentered) dynamic_cast<cBus *>(pmpObjects["bus"])->Idle();
+        if (BusCentered) dynamic_cast<cBus *>(pmpObjects["bus"])->IdleAcceleration();
+    if (!paKeys[GLFW_KEY_A] && !paKeys[GLFW_KEY_D])
+        if (BusCentered) dynamic_cast<cBus *>(pmpObjects["bus"])->IdleSteering();
     if (paKeys[GLFW_KEY_A])
-        BusCentered ? pmpObjects["bus"]->MoveLeft(0.9) : poCamera->MoveLeft();
+        BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Steer("left") : poCamera->MoveLeft();
     if (paKeys[GLFW_KEY_D])
-        BusCentered ? pmpObjects["bus"]->MoveRight(0.9) : poCamera->MoveRight();
+        BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Steer("right") : poCamera->MoveRight();
     if (paKeys[GLFW_KEY_C])
     {
         BusCentered = false;

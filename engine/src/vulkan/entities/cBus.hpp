@@ -11,12 +11,21 @@ public:
     float pfCurrentSpeed;
     float pfAcceleration;
 
+    float pfSteeringModifier;
+
+    float pfMaxSteeringModifier;
+    float pfMinSteeringModifier;
+
+
     cBus(cMesh * mesh) : cBaseObject(mesh)
     {
         pfMaxSpeed = 40;
         pfMinSpeed = -15;
         pfCurrentSpeed = 0;
         pfAcceleration = 0;
+        pfSteeringModifier = 0;
+        pfMaxSteeringModifier = 15;
+        pfMinSteeringModifier = -15;
     }
 
     float CalculateAcceleration();
@@ -24,14 +33,18 @@ public:
     void Move();
     void Throttle();
     void Brake();
-    void Idle();
-    void MoveLeft(float fAngleDiff) override;
-    void MoveRight(float fAngleDiff) override ;
+    void IdleAcceleration();
+
+    void IdleSteering();
+
+    void Steer(const char *direction);
 };
 
 void cBus::Move() {
     glm::vec3 direction(sin(glm::radians(poRotation.y)), 0, cos(glm::radians(poRotation.y)));
     poPosition -= (direction * (pfCurrentSpeed / 100));
+    if(pfCurrentSpeed !=0)
+        pfSteeringModifier > 0 ? this->RotateLeft(pfSteeringModifier / 10) : this->RotateRight(pfSteeringModifier * -1 / 10);
 }
 
 void cBus::Throttle() {
@@ -44,7 +57,8 @@ void cBus::Brake() {
         pfCurrentSpeed-= CalculateBrakeForce() / 2;
 }
 
-void cBus::Idle() {
+void cBus::IdleAcceleration()
+{
     if(pfCurrentSpeed > 0.5)
     {
         pfCurrentSpeed *= 0.997;
@@ -57,22 +71,28 @@ void cBus::Idle() {
         pfCurrentSpeed = 0;
 }
 
-void cBus::MoveLeft(float fAngleDiff)
-{
+void cBus::Steer(const char* direction) {
     if(pfCurrentSpeed == 0) return;
 
-    if (poRotation.y >= 360.0f)
-        poRotation.y = 0;
-    poRotation.y += fAngleDiff;
+    if(direction == "left")
+    {
+        if(pfSteeringModifier < 0)
+            pfSteeringModifier = 0;
+        if (pfSteeringModifier < pfMaxSteeringModifier)
+            pfSteeringModifier += 0.2;
+    }
+    if (direction == "right")
+    {
+        if(pfSteeringModifier > 0)
+            pfSteeringModifier = 0;
+        if (pfSteeringModifier > pfMinSteeringModifier)
+            pfSteeringModifier -= 0.2;
+    }
 }
 
-void cBus::MoveRight(float fAngleDiff)
+void cBus::IdleSteering()
 {
-    if(pfCurrentSpeed == 0) return;
-
-    if (poRotation.y < 0.0f)
-        poRotation.y = 360.0f;
-    poRotation.y -= fAngleDiff;
+    pfSteeringModifier *= 0.985;
 }
 
 float cBus::CalculateAcceleration() {
