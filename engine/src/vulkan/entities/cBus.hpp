@@ -37,7 +37,7 @@ public:
 
     void IdleSteering();
 
-    void Steer(const char *direction);
+    void Steer(std::string sDirection);
 };
 
 void cBus::Move() {
@@ -71,17 +71,17 @@ void cBus::IdleAcceleration()
         pfCurrentSpeed = 0;
 }
 
-void cBus::Steer(const char* direction) {
+void cBus::Steer(std::string sDirection) {
     if(pfCurrentSpeed == 0) return;
 
-    if(direction == "left")
+    if(sDirection == "left")
     {
         if(pfSteeringModifier < 0)
             pfSteeringModifier = 0;
         if (pfSteeringModifier < pfMaxSteeringModifier)
             pfSteeringModifier += 0.2;
     }
-    if (direction == "right")
+    if (sDirection == "right")
     {
         if(pfSteeringModifier > 0)
             pfSteeringModifier = 0;
