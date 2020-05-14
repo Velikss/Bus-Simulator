@@ -27,8 +27,8 @@ cMRTRenderPass::cMRTRenderPass(cLogicalDevice* pLogicalDevice,
 
 void cMRTRenderPass::CreateRenderPass()
 {
-    std::array<VkAttachmentDescription, 4> atAttachmentDescriptions = {};
-    for (uint i = 0; i < 4; i++)
+    std::array<VkAttachmentDescription, 5> atAttachmentDescriptions = {};
+    for (uint i = 0; i < 5; i++)
     {
         atAttachmentDescriptions[i] = ppSwapChain->GetAttachment(i).tDescription;
     }
@@ -37,6 +37,7 @@ void cMRTRenderPass::CreateRenderPass()
     atColorReferences.push_back({0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
     atColorReferences.push_back({1, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
     atColorReferences.push_back({2, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
+    atColorReferences.push_back({4, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
 
     VkAttachmentReference depthReference = {};
     depthReference.attachment = 3;

@@ -109,12 +109,13 @@ void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandle
     frameCount++;
     if (time >= 1)
     {
-        ppLogicalDevice->WaitUntilIdle();
         ENGINE_LOG(frameCount << " fps");
 #ifdef ENABLE_OVERLAY
         assert(pTextHandler != nullptr);
 
-        pTextHandler->UpdateText(text);
+        pTextHandler->UpdateText(cFormatter() << frameCount << " fps");
+
+        ppLogicalDevice->WaitUntilIdle();
         pCommandBuffer->RecordBuffers(pTextHandler->GetCommandRecorder());
 #endif
         startTime = currentTime;
@@ -147,8 +148,19 @@ void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandle
     tSubmitInfo.pWaitDstStageMask = aeWaitStages;
 
     // Specify which command buffers to submit
+    VkCommandBuffer aoBuffers[2] = {
+            ppCommandBuffers[0]->GetBuffer(uiImageIndex),
+#ifdef ENABLE_OVERLAY
+            ppCommandBuffers[2]->GetBuffer(uiImageIndex)
+#endif
+    };
+
+#ifdef ENABLE_OVERLAY
+    tSubmitInfo.commandBufferCount = 2;
+#else
     tSubmitInfo.commandBufferCount = 1;
-    tSubmitInfo.pCommandBuffers = &ppCommandBuffers[0]->GetBuffer(uiImageIndex);
+#endif
+    tSubmitInfo.pCommandBuffers = aoBuffers;
 
     // Specify which semaphores to signal once the command buffer(s) finish
     tSubmitInfo.signalSemaphoreCount = 1;
@@ -164,19 +176,9 @@ void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandle
     // Specifies which semaphores to wait on
     tSubmitInfo.pWaitSemaphores = &aoMRTFinishedSemaphores[uiCurrentFrame];
 
-    VkCommandBuffer aoBuffers[2];
-    aoBuffers[0] = ppCommandBuffers[1]->GetBuffer(uiImageIndex);
-#ifdef ENABLE_OVERLAY
-    aoBuffers[1] = ppCommandBuffers[2]->GetBuffer(uiImageIndex);
-#endif
-
     // Specify which command buffers to submit
-#ifdef ENABLE_OVERLAY
-    tSubmitInfo.commandBufferCount = 2;
-#else
     tSubmitInfo.commandBufferCount = 1;
-#endif
-    tSubmitInfo.pCommandBuffers = aoBuffers;
+    tSubmitInfo.pCommandBuffers = &ppCommandBuffers[1]->GetBuffer(uiImageIndex);
 
     // Specify which semaphores to signal once the command buffer(s) finish
     tSubmitInfo.signalSemaphoreCount = 1;
