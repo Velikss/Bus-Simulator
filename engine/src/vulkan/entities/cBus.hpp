@@ -24,6 +24,7 @@ public:
     void Move();
     void Throttle();
     void Brake();
+    void Idle();
 
 };
 
@@ -40,6 +41,13 @@ void cBus::Throttle() {
 void cBus::Brake() {
     if (pfCurrentSpeed > pfMinSpeed)
         pfCurrentSpeed-= CalculateBrakeForce();
+}
+
+void cBus::Idle() {
+    if(pfCurrentSpeed > 0)
+        Brake();
+    if(pfCurrentSpeed <= 0)
+        Throttle();
 }
 
 float cBus::CalculateAcceleration() {
