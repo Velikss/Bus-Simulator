@@ -1,6 +1,6 @@
 #pragma once
 
-//#define ENABLE_OVERLAY
+#define ENABLE_OVERLAY
 #define ENABLE_FPS_COUNT
 //#define ENGINE_TIMING_DEBUG
 #define ENGINE_ENABLE_LOG
@@ -126,7 +126,12 @@ void Engine::InitVulkan(void)
 
     // Create the framebuffers for the swap chain
     ppSwapChain->CreateFramebuffers(ppLightsRenderModule->GetRenderPass()->GetRenderPass(),
+                                    ppMRTRenderModule->GetRenderPass()->GetRenderPass(),
+#ifdef ENABLE_OVERLAY
+                                    ppOverlayRenderModule->GetRenderPass()->GetRenderPass());
+#else
                                     ppMRTRenderModule->GetRenderPass()->GetRenderPass());
+#endif
 
     // Create two command buffers, one for the graphics, one for the overlay
     papCommandBuffers[0] = new cCommandBuffer(ppLogicalDevice, ppSwapChain);
@@ -192,9 +197,6 @@ void Engine::MainLoop(void)
             }
         }
 
-        // Draw a frame
-        ppRenderHandler->DrawFrame(ppScene, ppOverlayRenderModule, papCommandBuffers[1]);
-
         // If the scene hasn't been loaded, load it now
         // We want to draw at least one frame before loading the
         // scene, to allow loading text to be displayed
@@ -230,6 +232,9 @@ void Engine::MainLoop(void)
             ENGINE_LOG("Scene loading, adding tick task");
             ppGameLoop->AddTask(ppScene);
         }
+
+        // Draw a frame
+        ppRenderHandler->DrawFrame(ppScene, ppOverlayRenderModule, papCommandBuffers[2]);
     }
 
     ppGameLoop->Stop();

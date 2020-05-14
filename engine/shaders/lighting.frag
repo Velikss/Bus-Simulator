@@ -1,9 +1,12 @@
 #version 450
 
+//#define DEBUG_NORMALS
+
 layout (binding = 1) uniform sampler2D samplerPosition;
 layout (binding = 2) uniform sampler2D samplerNormal;
 layout (binding = 3) uniform sampler2D samplerAlbedo;
 layout (binding = 4) uniform sampler2D samplerMaterial;
+layout (binding = 5) uniform sampler2D samplerOverlay;
 
 layout (location = 0) in vec2 inTexCoord;
 
@@ -65,7 +68,7 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 }
 // ----------------------------------------------------------------------------
 
-void HandlePBR(vec3 fragPos)
+vec3 HandlePBR(vec3 fragPos)
 {
     float metalness = texture(samplerMaterial, inTexCoord).r;
     float roughness = texture(samplerMaterial, inTexCoord).g;
@@ -83,7 +86,7 @@ void HandlePBR(vec3 fragPos)
         Light light = ubo.lights[index];
         vec3 lightPos = light.position.xyz;
         float distance = length(lightPos - fragPos);
-        float radius = light.colorAndRadius.w * 3.5;
+        float radius = light.colorAndRadius.w * 1.5;
 
         if (distance <= radius * 1.5)
         {
@@ -122,8 +125,7 @@ void HandlePBR(vec3 fragPos)
             Lo += (kD * albedo / PI + specular) * radiance * NdotL;
 
             #ifdef DEBUG_NORMALS
-            FragColor = vec4(normal, 1);
-            return;
+            return normal;
             #endif
         }
     }
@@ -139,19 +141,30 @@ void HandlePBR(vec3 fragPos)
     // gamma correct
     result = pow(result, vec3(1.0/1.9));
 
-    FragColor = vec4(result, 1.0);
+    return result;
 }
 
 void main()
 {
-    vec3 fragPos = texture(samplerPosition, inTexCoord).xyz;
-
-    if (fragPos.x > 9999)
+    vec4 overlay = texture(samplerOverlay, inTexCoord);
+    if (overlay.a == 1)
     {
-        FragColor = vec4(texture(samplerAlbedo, inTexCoord).rgb, 1.0);
+        FragColor = overlay;
     }
     else
     {
-        HandlePBR(fragPos);
+        vec3 fragPos = texture(samplerPosition, inTexCoord).xyz;
+
+        vec3 color;
+        if (fragPos.x > 9999)
+        {
+            color = texture(samplerAlbedo, inTexCoord).rgb;
+        }
+        else
+        {
+            color = HandlePBR(fragPos);
+        }
+
+        FragColor = vec4(mix(color, overlay.rgb, overlay.a), 1.0);
     }
 }
