@@ -27,8 +27,8 @@ public:
     glm::vec3* getRotation();
     void MoveForward(float fMultiplier);
     void MoveBackward(float fMultiplier);
-    void MoveLeft(float fAngleDiff);
-    void MoveRight(float fAngleDiff);
+    virtual void MoveLeft(float fAngleDiff);
+    virtual void MoveRight(float fAngleDiff);
 
 };
 

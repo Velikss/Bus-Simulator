@@ -25,7 +25,8 @@ public:
     void Throttle();
     void Brake();
     void Idle();
-
+    void MoveLeft(float fAngleDiff) override;
+    void MoveRight(float fAngleDiff) override ;
 };
 
 void cBus::Move() {
@@ -35,12 +36,12 @@ void cBus::Move() {
 
 void cBus::Throttle() {
     if (pfCurrentSpeed < pfMaxSpeed)
-        pfCurrentSpeed+= CalculateAcceleration();
+        pfCurrentSpeed+= CalculateAcceleration() / 2;
 }
 
 void cBus::Brake() {
     if (pfCurrentSpeed > pfMinSpeed)
-        pfCurrentSpeed-= CalculateBrakeForce();
+        pfCurrentSpeed-= CalculateBrakeForce() / 2;
 }
 
 void cBus::Idle() {
@@ -54,6 +55,24 @@ void cBus::Idle() {
     }
     if(pfCurrentSpeed < 0.8 && pfCurrentSpeed > -0.8)
         pfCurrentSpeed = 0;
+}
+
+void cBus::MoveLeft(float fAngleDiff)
+{
+    if(pfCurrentSpeed == 0) return;
+
+    if (poRotation.y >= 360.0f)
+        poRotation.y = 0;
+    poRotation.y += fAngleDiff;
+}
+
+void cBus::MoveRight(float fAngleDiff)
+{
+    if(pfCurrentSpeed == 0) return;
+
+    if (poRotation.y < 0.0f)
+        poRotation.y = 360.0f;
+    poRotation.y -= fAngleDiff;
 }
 
 float cBus::CalculateAcceleration() {
