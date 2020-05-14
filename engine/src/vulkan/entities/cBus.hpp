@@ -47,11 +47,11 @@ void cBus::Brake() {
 void cBus::Idle() {
     if(pfCurrentSpeed > 0.5)
     {
-        pfCurrentSpeed *= 0.995;
+        pfCurrentSpeed *= 0.997;
     }
     if(pfCurrentSpeed < -0.5)
     {
-        pfCurrentSpeed *= 0.995;
+        pfCurrentSpeed *= 0.997;
     }
     if(pfCurrentSpeed < 0.5 && pfCurrentSpeed > -0.5)
         pfCurrentSpeed = 0;
