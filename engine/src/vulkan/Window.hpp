@@ -101,7 +101,7 @@ void cWindow::CreateGLWindow()
     ppWindow = glfwCreateWindow(WIDTH, HEIGHT, "BUS", nullptr, nullptr);
 
     glfwSetCursorPosCallback(ppWindow, mouseCallback);
-    glfwSetInputMode(ppWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    //glfwSetInputMode(ppWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetKeyCallback(ppWindow, keyCallback);
     glfwSetScrollCallback(ppWindow, scrollCallback);
 }

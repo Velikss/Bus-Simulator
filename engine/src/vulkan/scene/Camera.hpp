@@ -13,14 +13,14 @@ public:
     float fZNear = 1.0;
     float fZFar = 500.0;
 
-    glm::vec3 cameraPos = glm::vec3(2.0f, 7.0f, 2.0f);
-    glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 cameraPos = glm::vec3(-8.0f, 7.0f, -3.0f);
+    glm::vec3 cameraFront = glm::vec3(1.0f, 0.0f, 1.0f);
     glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
     glm::vec3 direction;
 
-    float yaw = -90;
-    float pitch = 0;
+    float yaw = 45;
+    float pitch = -10;
 
     const float cameraSpeed = 0.1f;
     const float cameraSpeedLook = 1.0f;
@@ -28,7 +28,7 @@ public:
 
     glm::mat4 view = glm::mat4(1.0f);
 public:
-    float cameraHeight = 1.75f;
+    float cameraHeight = 3.75f;
 
     bool lockHeight = true;
     bool lockMovement = false;

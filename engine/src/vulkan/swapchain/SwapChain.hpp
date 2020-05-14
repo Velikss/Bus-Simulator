@@ -100,19 +100,13 @@ cSwapChain::~cSwapChain()
 {
     VkDevice& oDevice = ppLogicalDevice->GetDevice(); // TODO: Use internal cLogicalDevice methods
 
-#ifdef ENABLE_OVERLAY
     std::array<tFrameBufferAttachment*, 6> aptAttachments = {
-#else
-            std::array<tFrameBufferAttachment*, 5> aptAttachments = {
-#endif
             &ptOffScreenBuffer.ptPositionAttachment,
             &ptOffScreenBuffer.ptNormalsAttachment,
             &ptOffScreenBuffer.ptAlbedoAttachment,
             &ptOffScreenBuffer.ptDepthAttachment,
             &ptOffScreenBuffer.ptMaterialAttachment,
-#ifdef ENABLE_OVERLAY
             &ptOverlayBuffer.ptColorAttachment
-#endif
     };
     for (tFrameBufferAttachment* pAttachment : aptAttachments)
     {
@@ -382,7 +376,6 @@ void cSwapChain::CreateFramebuffers(VkRenderPass& oFinalRenderPass,
         throw std::runtime_error("failed to create offscreen framebuffer!");
     }
 
-#ifdef ENABLE_OVERLAY
     VkFramebufferCreateInfo tOverlayBufferInfo = {};
     tOverlayBufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
     tOverlayBufferInfo.pNext = NULL;
@@ -399,7 +392,6 @@ void cSwapChain::CreateFramebuffers(VkRenderPass& oFinalRenderPass,
     {
         throw std::runtime_error("failed to create overlay framebuffer!");
     }
-#endif
 }
 
 void cSwapChain::CreateResources(void) // TODO: This might belong somewhere else
@@ -420,10 +412,8 @@ void cSwapChain::CreateResources(void) // TODO: This might belong somewhere else
     cSwapChainHelper::CreateAttachment(VK_FORMAT_R8G8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
                                        &ptOffScreenBuffer.ptMaterialAttachment, ppLogicalDevice, ptSwapChainExtent);
 
-#ifdef ENABLE_OVERLAY
     cSwapChainHelper::CreateAttachment(VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
                                        &ptOverlayBuffer.ptColorAttachment, ppLogicalDevice, ptSwapChainExtent);
-#endif
 
     // Create sampler to sample from the color attachments
     VkSamplerCreateInfo tSampler = {};
