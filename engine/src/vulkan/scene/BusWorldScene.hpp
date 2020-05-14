@@ -43,9 +43,9 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
 void cBusWorldScene::Update()
 {
     if (paKeys[GLFW_KEY_W])
-        BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Throttle() : poCamera->Forward();
+        BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Accelerate() : poCamera->Forward();
     if (paKeys[GLFW_KEY_S])
-        BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Brake() : poCamera->BackWard();
+        BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Decelerate() : poCamera->BackWard();
     if (!paKeys[GLFW_KEY_W] && !paKeys[GLFW_KEY_S])
         if (BusCentered) dynamic_cast<cBus *>(pmpObjects["bus"])->IdleAcceleration();
     if (!paKeys[GLFW_KEY_A] && !paKeys[GLFW_KEY_D])
