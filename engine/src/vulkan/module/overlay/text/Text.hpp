@@ -19,6 +19,8 @@ private:
 
     int puiNumLetters = 0;
 
+    VkDeviceSize pulBufferSize;
+
 public:
     cText(cLogicalDevice* pLogicalDevice, cWindow* pWindow);
     ~cText();
@@ -37,9 +39,9 @@ cText::cText(cLogicalDevice* pLogicalDevice, cWindow* pWindow)
     ppWindow = pWindow;
 
     // Create a buffer for the text data
-    VkDeviceSize uiSize = MAX_CHARACTER_COUNT * 4 * sizeof(tVertex2D);
-    assert(uiSize > 0); // must be enough room for at least one character
-    cBufferHelper::CreateBuffer(pLogicalDevice, uiSize,
+    pulBufferSize = MAX_CHARACTER_COUNT * 4 * sizeof(tVertex2D);
+    assert(pulBufferSize > 0); // must be enough room for at least one character
+    cBufferHelper::CreateBuffer(pLogicalDevice, pulBufferSize,
                                 VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                                 poBuffer, poBufferMemory);
@@ -88,7 +90,7 @@ void cText::UpdateText(string sText, float fFontSize, stb_fontchar* stbFontData,
 
     // Map the memory for the text buffer to a pointer
     tVertex2D* mapped;
-    ppLogicalDevice->MapMemory(poBufferMemory, 0, VK_WHOLE_SIZE, 0, (void**) &mapped);
+    ppLogicalDevice->MapMemory(poBufferMemory, 0, pulBufferSize, 0, (void**) &mapped);
 
     assert(mapped != nullptr);
 

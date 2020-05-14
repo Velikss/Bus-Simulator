@@ -32,23 +32,18 @@ void cOverlayRenderPass::CreateRenderPass()
     VkAttachmentDescription tAttachments[1] = {};
 
     // Color attachment
-    tAttachments[0].format = ppSwapChain->peSwapChainImageFormat;
+    tAttachments[0].format = ppSwapChain->GetOverlayAttachment().eFormat;
     tAttachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
-    // Don't clear the framebuffer
-    tAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+    tAttachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     tAttachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
     tAttachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     tAttachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     tAttachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    tAttachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    tAttachments[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
     VkAttachmentReference tColorReference = {};
     tColorReference.attachment = 0;
     tColorReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-    VkAttachmentReference depthReference = {};
-    depthReference.attachment = 1;
-    depthReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     // Use subpass dependencies for image layout transitions
     VkSubpassDependency tSubpassDependencies[2] = {};

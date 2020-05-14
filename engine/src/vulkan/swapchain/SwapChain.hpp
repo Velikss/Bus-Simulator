@@ -8,6 +8,7 @@
 #include <vulkan/util/ImageHelper.hpp>
 #include <vulkan/swapchain/SwapChainHelper.hpp>
 #include <util/Formatter.hpp>
+#include <vulkan/texture/TextureHelper.hpp>
 
 struct tOffScreenBuffer
 {
@@ -15,10 +16,18 @@ struct tOffScreenBuffer
     tFrameBufferAttachment ptNormalsAttachment;
     tFrameBufferAttachment ptAlbedoAttachment;
     tFrameBufferAttachment ptDepthAttachment;
+    tFrameBufferAttachment ptMaterialAttachment;
 
     VkFramebuffer poFramebuffer;
 
     VkSampler poSampler; // TODO: This probably doesn't belong here
+};
+
+struct tOverlayBuffer
+{
+    tFrameBufferAttachment ptColorAttachment;
+
+    VkFramebuffer poFramebuffer;
 };
 
 class cSwapChain
@@ -31,6 +40,7 @@ private:
     std::vector<VkFramebuffer> paoSwapChainFramebuffers;
 
     tOffScreenBuffer ptOffScreenBuffer;
+    tOverlayBuffer ptOverlayBuffer;
 
 public:
     VkSwapchainKHR poSwapChain; // TODO: Remove public access
@@ -42,7 +52,9 @@ public:
                cWindow* pWindow);
     ~cSwapChain(void);
 
-    void CreateFramebuffers(VkRenderPass& oFinalRenderPass, VkRenderPass oOffScreenRenderPass);
+    void CreateFramebuffers(VkRenderPass& oFinalRenderPass,
+                            VkRenderPass& oOffScreenRenderPass,
+                            VkRenderPass& oOverlayRenderPass);
     void CreateResources(void);
 
     uint GetFramebufferSize(void);
@@ -50,6 +62,8 @@ public:
     tFrameBufferAttachment& GetAttachment(uint uiIndex);
     VkSampler& GetSampler();
     VkFramebuffer& GetOffScreenFramebuffer();
+    tFrameBufferAttachment& GetOverlayAttachment();
+    VkFramebuffer& GetOverlayFramebuffer();
 
     void AcquireNextImage(int64 ulTimeout,
                           VkSemaphore& oSemaphore,
@@ -86,11 +100,19 @@ cSwapChain::~cSwapChain()
 {
     VkDevice& oDevice = ppLogicalDevice->GetDevice(); // TODO: Use internal cLogicalDevice methods
 
-    std::array<tFrameBufferAttachment*, 4> aptAttachments = {
+#ifdef ENABLE_OVERLAY
+    std::array<tFrameBufferAttachment*, 6> aptAttachments = {
+#else
+            std::array<tFrameBufferAttachment*, 5> aptAttachments = {
+#endif
             &ptOffScreenBuffer.ptPositionAttachment,
             &ptOffScreenBuffer.ptNormalsAttachment,
             &ptOffScreenBuffer.ptAlbedoAttachment,
-            &ptOffScreenBuffer.ptDepthAttachment
+            &ptOffScreenBuffer.ptDepthAttachment,
+            &ptOffScreenBuffer.ptMaterialAttachment,
+#ifdef ENABLE_OVERLAY
+            &ptOverlayBuffer.ptColorAttachment
+#endif
     };
     for (tFrameBufferAttachment* pAttachment : aptAttachments)
     {
@@ -107,6 +129,7 @@ cSwapChain::~cSwapChain()
         vkDestroyFramebuffer(oDevice, framebuffer, nullptr);
     }
     vkDestroyFramebuffer(oDevice, ptOffScreenBuffer.poFramebuffer, nullptr);
+    vkDestroyFramebuffer(oDevice, ptOverlayBuffer.poFramebuffer, nullptr);
 
     // Destroy all the image views
     for (VkImageView imageView : paoSwapChainImageViews)
@@ -301,7 +324,9 @@ void cSwapChain::CreateImageViews(void)
     }
 }
 
-void cSwapChain::CreateFramebuffers(VkRenderPass& oFinalRenderPass, VkRenderPass oOffScreenRenderPass)
+void cSwapChain::CreateFramebuffers(VkRenderPass& oFinalRenderPass,
+                                    VkRenderPass& oOffScreenRenderPass,
+                                    VkRenderPass& oOverlayRenderPass)
 {
     // Resize the framebuffers list to fit the image views
     paoSwapChainFramebuffers.resize(paoSwapChainImageViews.size());
@@ -333,11 +358,12 @@ void cSwapChain::CreateFramebuffers(VkRenderPass& oFinalRenderPass, VkRenderPass
         }
     }
 
-    std::array<VkImageView, 4> atAttachments;
+    std::array<VkImageView, 5> atAttachments;
     atAttachments[0] = ptOffScreenBuffer.ptPositionAttachment.oView;
     atAttachments[1] = ptOffScreenBuffer.ptNormalsAttachment.oView;
     atAttachments[2] = ptOffScreenBuffer.ptAlbedoAttachment.oView;
     atAttachments[3] = ptOffScreenBuffer.ptDepthAttachment.oView;
+    atAttachments[4] = ptOffScreenBuffer.ptMaterialAttachment.oView;
 
     VkFramebufferCreateInfo tFramebufferInfo = {};
     tFramebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -355,6 +381,25 @@ void cSwapChain::CreateFramebuffers(VkRenderPass& oFinalRenderPass, VkRenderPass
     {
         throw std::runtime_error("failed to create offscreen framebuffer!");
     }
+
+#ifdef ENABLE_OVERLAY
+    VkFramebufferCreateInfo tOverlayBufferInfo = {};
+    tOverlayBufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    tOverlayBufferInfo.pNext = NULL;
+    tOverlayBufferInfo.renderPass = oOverlayRenderPass;
+    tOverlayBufferInfo.pAttachments = &ptOverlayBuffer.ptColorAttachment.oView;
+    tOverlayBufferInfo.attachmentCount = 1;
+    tOverlayBufferInfo.width = ptSwapChainExtent.width;
+    tOverlayBufferInfo.height = ptSwapChainExtent.height;
+    tOverlayBufferInfo.layers = 1;
+
+    // Create the framebuffer
+    if (vkCreateFramebuffer(ppLogicalDevice->GetDevice(), &tOverlayBufferInfo, nullptr,
+                            &ptOverlayBuffer.poFramebuffer) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create overlay framebuffer!");
+    }
+#endif
 }
 
 void cSwapChain::CreateResources(void) // TODO: This might belong somewhere else
@@ -371,6 +416,14 @@ void cSwapChain::CreateResources(void) // TODO: This might belong somewhere else
 
     cSwapChainHelper::CreateAttachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
                                        &ptOffScreenBuffer.ptAlbedoAttachment, ppLogicalDevice, ptSwapChainExtent);
+
+    cSwapChainHelper::CreateAttachment(VK_FORMAT_R8G8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+                                       &ptOffScreenBuffer.ptMaterialAttachment, ppLogicalDevice, ptSwapChainExtent);
+
+#ifdef ENABLE_OVERLAY
+    cSwapChainHelper::CreateAttachment(VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+                                       &ptOverlayBuffer.ptColorAttachment, ppLogicalDevice, ptSwapChainExtent);
+#endif
 
     // Create sampler to sample from the color attachments
     VkSamplerCreateInfo tSampler = {};
@@ -423,6 +476,8 @@ tFrameBufferAttachment& cSwapChain::GetAttachment(uint uiIndex)
             return ptOffScreenBuffer.ptAlbedoAttachment;
         case 3:
             return ptOffScreenBuffer.ptDepthAttachment;
+        case 4:
+            return ptOffScreenBuffer.ptMaterialAttachment;
     }
     throw std::runtime_error(cFormatter() << "Cannot find attachment " << uiIndex);
 }
@@ -435,4 +490,14 @@ VkSampler& cSwapChain::GetSampler()
 VkFramebuffer& cSwapChain::GetOffScreenFramebuffer()
 {
     return ptOffScreenBuffer.poFramebuffer;
+}
+
+tFrameBufferAttachment& cSwapChain::GetOverlayAttachment()
+{
+    return ptOverlayBuffer.ptColorAttachment;
+}
+
+VkFramebuffer& cSwapChain::GetOverlayFramebuffer()
+{
+    return ptOverlayBuffer.poFramebuffer;
 }

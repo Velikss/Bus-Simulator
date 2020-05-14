@@ -117,7 +117,7 @@ void cMRTPipeline::CreatePipeline(cSwapChain* pSwapChain,
     tMultisampling.alphaToCoverageEnable = VK_FALSE;
     tMultisampling.alphaToOneEnable = VK_FALSE;
 
-    std::array<VkPipelineColorBlendAttachmentState, 3> atBlendAttachments;
+    std::array<VkPipelineColorBlendAttachmentState, 4> atBlendAttachments;
     atBlendAttachments[0].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
                                            VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
     atBlendAttachments[0].blendEnable = VK_FALSE;
@@ -147,6 +147,16 @@ void cMRTPipeline::CreatePipeline(cSwapChain* pSwapChain,
     atBlendAttachments[2].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
     atBlendAttachments[2].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
     atBlendAttachments[2].alphaBlendOp = VK_BLEND_OP_ADD; // Optional
+
+    atBlendAttachments[3].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                                           VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    atBlendAttachments[3].blendEnable = VK_FALSE;
+    atBlendAttachments[3].srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
+    atBlendAttachments[3].dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+    atBlendAttachments[3].colorBlendOp = VK_BLEND_OP_ADD; // Optional
+    atBlendAttachments[3].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
+    atBlendAttachments[3].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+    atBlendAttachments[3].alphaBlendOp = VK_BLEND_OP_ADD; // Optional
 
     VkPipelineColorBlendStateCreateInfo tColorBlending = {};
     tColorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;

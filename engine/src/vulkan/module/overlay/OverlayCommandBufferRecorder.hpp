@@ -52,14 +52,14 @@ void cOverlayCommandBufferRecorder::Setup(uint uiIndex)
 
     // Set the render pass and framebuffer
     ptRenderPassInfo.renderPass = ppRenderPass->GetRenderPass();
-    ptRenderPassInfo.framebuffer = ppSwapChain->GetFramebuffer(uiIndex);
+    ptRenderPassInfo.framebuffer = ppSwapChain->GetOverlayFramebuffer();
 
     // Set the render area size
     ptRenderPassInfo.renderArea.offset = {0, 0};
     ptRenderPassInfo.renderArea.extent = ppSwapChain->ptSwapChainExtent;
 
     // Defines the clear color value to use
-    paoClearValues[0].color = {0.0f, 0.0f, 0.0f, 0.0f}; // black with 100% opacity
+    paoClearValues[0].color = {0.0f, 0.0f, 0.0f, 0.0f}; // black with 0% opacity
     ptRenderPassInfo.clearValueCount = paoClearValues.size();
     ptRenderPassInfo.pClearValues = paoClearValues.data();
 }

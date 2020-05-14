@@ -11,21 +11,30 @@ class cMesh
 private:
     cGeometry* ppGeometry;
     cTexture* ppTexture;
+    cTexture* ppMaterial;
 
 public:
+    cMesh(cGeometry* pGeometry, cTexture* pTexture, cTexture* pMaterial);
     cMesh(cGeometry* pGeometry, cTexture* pTexture);
 
     cGeometry* GetGeometry();
     cTexture* GetTexture();
+    cTexture* GetMaterial();
 };
 
-cMesh::cMesh(cGeometry* pGeometry, cTexture* pTexture)
+cMesh::cMesh(cGeometry* pGeometry, cTexture* pTexture, cTexture* pMaterial)
 {
     assert(pGeometry != nullptr);
     assert(pTexture != nullptr);
+    assert(pMaterial != nullptr);
 
     ppGeometry = pGeometry;
     ppTexture = pTexture;
+    ppMaterial = pMaterial;
+}
+
+cMesh::cMesh(cGeometry* pGeometry, cTexture* pTexture) : cMesh(pGeometry, pTexture, pTexture)
+{
 }
 
 cGeometry* cMesh::GetGeometry()
@@ -36,4 +45,9 @@ cGeometry* cMesh::GetGeometry()
 cTexture* cMesh::GetTexture()
 {
     return ppTexture;
+}
+
+cTexture* cMesh::GetMaterial()
+{
+    return ppMaterial;
 }

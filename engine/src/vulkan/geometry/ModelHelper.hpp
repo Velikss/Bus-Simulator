@@ -55,7 +55,7 @@ void cModelHelper::LoadModel(const char* sFilePath, std::vector<Vertex>& atVerti
             };
 
             // Load the vertex normal if it exists in the model
-            if (index.normal_index > 0)
+            if (index.normal_index >= 0)
             {
                 tVertex.normal = {
                         tAttrib.normals[3 * index.normal_index + 0],
@@ -66,6 +66,7 @@ void cModelHelper::LoadModel(const char* sFilePath, std::vector<Vertex>& atVerti
             else
             {
                 tVertex.normal = {0, 0, 0};
+                ENGINE_WARN("Model file " << sFilePath << " is missing a vertex normal!");
             }
 
             // Load the texture coordinates

@@ -172,7 +172,7 @@ void cOverlayPipeline::CreatePipeline(cSwapChain* pSwapChain,
     pipelineInfo.pMultisampleState = &tMultisampling;
     pipelineInfo.pDepthStencilState = nullptr;
     pipelineInfo.pColorBlendState = &tColorBlending;
-    pipelineInfo.pDynamicState = nullptr; // TODO: Enable dynamic states
+    pipelineInfo.pDynamicState = nullptr;
 
     // Set the pipeline layout we created
     pipelineInfo.layout = poPipelineLayout;
