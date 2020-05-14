@@ -385,10 +385,10 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["trafficLight3"]->setPosition(glm::vec3(46.0f, 0.15f, -12.0f));
 
     // Buildings
-    pmpObjects["building"] = new cBaseObject(*pmpModels["building"]);
+    pmpObjects["building"] = new cBaseObject(pmpMeshes["building"]);
     pmpObjects["building"]->setPosition(glm::vec3(-2.0f, 0.0f, -13.0f));
 
-    pmpObjects["needleBuilding"] = new cBaseObject(*pmpModels["needleBuilding"]);
+    pmpObjects["needleBuilding"] = new cBaseObject(pmpMeshes["needleBuilding"]);
     pmpObjects["needleBuilding"]->setPosition(glm::vec3(48.0f, 0.0f, -13.0f));
 
     pmpObjects["bus"] = new cBus(pmpMeshes["bus"]);

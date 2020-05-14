@@ -44,10 +44,16 @@ void cBus::Brake() {
 }
 
 void cBus::Idle() {
-    if(pfCurrentSpeed > 0)
-        Brake();
-    if(pfCurrentSpeed <= 0)
-        Throttle();
+    if(pfCurrentSpeed > 0.1)
+    {
+        pfCurrentSpeed *= 0.995;
+    }
+    if(pfCurrentSpeed < -0.1)
+    {
+        pfCurrentSpeed *= 0.995;
+    }
+    if(pfCurrentSpeed < 0.8 && pfCurrentSpeed > -0.8)
+        pfCurrentSpeed = 0;
 }
 
 float cBus::CalculateAcceleration() {
