@@ -64,7 +64,7 @@ void cBusWorldScene::Update()
         poCamera->cameraPivotObject = pmpObjects["bus"];
         poCamera->cameraPivotPos = *pmpObjects["bus"]->getPosition();
         poCamera->cameraHeight = 10.0f;
-        poCamera->cameraPivotChanges = glm::vec3(2.0f, 0.0f, 10.0f);
+        poCamera->cameraPivotChanges = glm::vec3(2.0f, 0.5f, 0.0f);
     }
 
     // temporary flight controls
