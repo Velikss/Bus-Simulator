@@ -113,7 +113,7 @@ set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 
 include_directories(${PROJECT_SOURCE_DIR}/src ${GLEW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS} ${DUKTAPE_INCLUDE_DIRS})
-add_library(${This} STATIC ${Sources} ${Headers})
+add_library(${This} STATIC ${Sources} ${Headers} src/vulkan/entities/cBus.hpp)
 add_executable(${This}-bin ${Sources} ${Headers})
 
 IF (NOT WIN32)

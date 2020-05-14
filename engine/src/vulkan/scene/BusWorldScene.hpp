@@ -3,6 +3,7 @@
 #include <pch.hpp>
 #include <vulkan/scene/Scene.hpp>
 #include <vulkan/scene/BusCamera.hpp>
+#include <vulkan/entities/cBus.hpp>
 
 class cBusWorldScene : public cScene
 {
@@ -40,13 +41,13 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
 void cBusWorldScene::Update()
 {
     if (paKeys[GLFW_KEY_W])
-        BusCentered ? pmpObjects["bus"]->MoveForward() : poCamera->Forward();
+        BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Throttle() : poCamera->Forward();
     if (paKeys[GLFW_KEY_S])
-        BusCentered ? pmpObjects["bus"]->MoveBackward() : poCamera->BackWard();
+        BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Brake() : poCamera->BackWard();
     if (paKeys[GLFW_KEY_A])
-        BusCentered ? pmpObjects["bus"]->MoveLeft(0.5) : poCamera->MoveLeft();
+        BusCentered ? pmpObjects["bus"]->MoveLeft(0.9) : poCamera->MoveLeft();
     if (paKeys[GLFW_KEY_D])
-        BusCentered ? pmpObjects["bus"]->MoveRight(0.5) : poCamera->MoveRight();
+        BusCentered ? pmpObjects["bus"]->MoveRight(0.9) : poCamera->MoveRight();
     if (paKeys[GLFW_KEY_C])
     {
         BusCentered = false;
@@ -73,6 +74,7 @@ void cBusWorldScene::Update()
     if (paKeys[GLFW_KEY_ESCAPE])
         Quit();
 
+    dynamic_cast<cBus *>(pmpObjects["bus"])->Move();
     cScene::Update();
 }
 
@@ -385,7 +387,7 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["needleBuilding"] = new cBaseObject(*pmpModels["needleBuilding"]);
     pmpObjects["needleBuilding"]->setPosition(glm::vec3(48.0f, 0.0f, -13.0f));
 
-    pmpObjects["bus"] = new cBaseObject(*pmpModels["bus"]);
+    pmpObjects["bus"] = new cBus(pmpMeshes["bus"]);
     pmpObjects["bus"]->setPosition(glm::vec3(12.5f, 0, -7.5f));
     pmpObjects["bus"]->setRotation(glm::vec3(0.0f, 90.0, 0.0f));
     pmpObjects["bus"]->setScale(glm::vec3(0.8, 0.8, 0.8));
