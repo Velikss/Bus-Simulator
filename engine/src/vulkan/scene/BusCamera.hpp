@@ -80,7 +80,7 @@ public:
     // is the end op the passthrough from the mouse input.
     void LookMouseDiff(int x, int y)
     {
-        yaw += mouseSpeed * x;
+        yaw -= mouseSpeed * x;
         pitch -= mouseSpeed * y;
         // no flipping to the other side
         if (pitch < -80)
