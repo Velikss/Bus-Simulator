@@ -44,9 +44,9 @@ void cBusWorldScene::Update()
     if (paKeys[GLFW_KEY_S])
         BusCentered ? pmpObjects["bus"]->MoveBackward() : poCamera->BackWard();
     if (paKeys[GLFW_KEY_A])
-        BusCentered ? pmpObjects["bus"]->MoveLeft(0.02) : poCamera->MoveLeft();
+        BusCentered ? pmpObjects["bus"]->MoveLeft(0.5) : poCamera->MoveLeft();
     if (paKeys[GLFW_KEY_D])
-        BusCentered ? pmpObjects["bus"]->MoveRight(0.02) : poCamera->MoveRight();
+        BusCentered ? pmpObjects["bus"]->MoveRight(0.5) : poCamera->MoveRight();
     if (paKeys[GLFW_KEY_C])
     {
         BusCentered = false;
@@ -56,9 +56,10 @@ void cBusWorldScene::Update()
     {
         BusCentered = true;
         poCamera = new BusCamera;
-        poCamera->cameraPivot = pmpObjects["bus"]->getPosition();
-        poCamera->cameraHeight = 15.0f;
-        poCamera->cameraPivotChanges = glm::vec3(5.0f, 5.0f, 0.0f);
+        poCamera->cameraPivotObject = pmpObjects["bus"];
+        poCamera->cameraPivotPos = *pmpObjects["bus"]->getPosition();
+        poCamera->cameraHeight = 10.0f;
+        poCamera->cameraPivotChanges = glm::vec3(2.0f, 0.0f, 10.0f);
     }
 
     // temporary flight controls
@@ -89,13 +90,16 @@ void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
     pmpTextures["moon"] = pTextureHandler->LoadTextureFromFile("resources/textures/moon.jpg");
     pmpTextures["skybox"] = pTextureHandler->LoadTextureFromFile("resources/textures/skybox.jpg");
     pmpTextures["grey"] = pTextureHandler->LoadTextureFromFile("resources/textures/uvtemplate.bmp");
-    pmpTextures["building"] = pTextureHandler->LoadTextureFromFile("resources/textures/building.jpg");
+    // buildings
+    pmpTextures["building"] = pTextureHandler->LoadTextureFromFile("resources/textures/buildings/building.jpg");
+    pmpTextures["needle"] = pTextureHandler->LoadTextureFromFile("resources/textures/buildings/needle.jpg");
     //street
     pmpTextures["road"] = pTextureHandler->LoadTextureFromFile("resources/textures/streets/road.png");
     pmpTextures["threeWayCrossing"] = pTextureHandler->LoadTextureFromFile("resources/textures/streets/threeWayCrossing.png");
     pmpTextures["fourWayCrossing"] = pTextureHandler->LoadTextureFromFile("resources/textures/streets/fourWayCrossing.png");
     // streetUtil
     pmpTextures["trafficLight"] = pTextureHandler->LoadTextureFromFile("resources/textures/streetUtil/trafficLight.png");
+    pmpTextures["busStop"] = pTextureHandler->LoadTextureFromFile("resources/textures/streetUtil/busStop.png");
     // buses
     pmpTextures["schoolBus"] = pTextureHandler->LoadTextureFromFile("resources/textures/buses/schoolBus.png");
 }
@@ -114,7 +118,7 @@ void cBusWorldScene::LoadGeometries(cLogicalDevice *pLogicalDevice)
     pmpGeometries["walkways36-3WithCorners"] = cGeometry::FromOBJFile("resources/geometries/walkways/Walkway36-3WithCorners.obj", pLogicalDevice, 10, 10);
     pmpGeometries["walkways30-3"] = cGeometry::FromOBJFile("resources/geometries/walkways/Walkway30-3.obj", pLogicalDevice, 10, 10);
     // streetUtil
-    pmpGeometries["busStation"] = cGeometry::FromOBJFile("resources/geometries/BusStation.obj", pLogicalDevice);
+    pmpGeometries["busStation"] = cGeometry::FromOBJFile("resources/geometries/streetUtil/busStop.obj", pLogicalDevice);
     pmpGeometries["trafficLight"] = cGeometry::FromOBJFile("resources/geometries/streetUtil/trafficLight.obj", pLogicalDevice);
     // streetDeco
 
@@ -122,6 +126,7 @@ void cBusWorldScene::LoadGeometries(cLogicalDevice *pLogicalDevice)
     pmpGeometries["bus"] = cGeometry::FromOBJFile("resources/geometries/busses/SchoolBus.obj", pLogicalDevice);
     // buildings
     pmpGeometries["building"] = cGeometry::FromOBJFile("resources/geometries/buildingTest.obj", pLogicalDevice, 8, 8);
+    pmpGeometries["needleBuilding"] = cGeometry::FromOBJFile("resources/geometries/buildings/needleBuilding.obj", pLogicalDevice, 8, 8);
 }
 
 void cBusWorldScene::LoadMeshes()
@@ -138,12 +143,13 @@ void cBusWorldScene::LoadMeshes()
     // buses
     pmpMeshes["bus"] = new cMesh(pmpGeometries["bus"], pmpTextures["schoolBus"]);
     // streetUtil
-    pmpMeshes["busStation"] = new cMesh(pmpGeometries["busStation"], pmpTextures["grey"]);
+    pmpMeshes["busStation"] = new cMesh(pmpGeometries["busStation"], pmpTextures["busStop"]);
     pmpMeshes["trafficLight"] = new cMesh(pmpGeometries["trafficLight"], pmpTextures["trafficLight"]);
     // streetDeco
 
     // buildings
     pmpMeshes["building"] = new cMesh(pmpGeometries["building"], pmpTextures["building"]);
+    pmpMeshes["needleBuilding"] = new cMesh(pmpGeometries["needleBuilding"], pmpTextures["needle"]);
 }
 
 void cBusWorldScene::LoadModels()
@@ -164,6 +170,7 @@ void cBusWorldScene::LoadModels()
 
     // buildings
     pmpModels["building"] = new cModel(pmpMeshes["building"]);
+    pmpModels["needleBuilding"] = new cModel(pmpMeshes["needleBuilding"]);
 
 }
 
@@ -328,7 +335,16 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["walkways36-3WithCorners2"]->setPosition(glm::vec3(-5.0f, 0.0f, -47.0f));
 
     pmpObjects["walkways36-3WithCorners3"] = new cBaseObject(pmpMeshes["walkways36-3WithCorners"]);
-    pmpObjects["walkways36-3WithCorners3"]->setPosition(glm::vec3(-5.0f, 0.0f, 3.0f));
+    pmpObjects["walkways36-3WithCorners3"]->setPosition(glm::vec3(45.0f, 0.0f, -10.0f));
+
+    pmpObjects["walkways36-3WithCorners4"] = new cBaseObject(pmpMeshes["walkways36-3WithCorners"]);
+    pmpObjects["walkways36-3WithCorners4"]->setPosition(glm::vec3(45.0f, 0.0f, -47.0f));
+
+    for(int i = 0; i < 6; i++)
+    {
+        pmpObjects["walkways36-3WithCorners" + std::to_string(i + 5)] = new cBaseObject(pmpMeshes["walkways36-3WithCorners"]);
+        pmpObjects["walkways36-3WithCorners" + std::to_string(i + 5)]->setPosition(glm::vec3(45.0f - (40 * i), 0.0f, 3.0f));
+    }
 
     pmpObjects["walkways30-3_1"] = new cBaseObject(pmpMeshes["walkways30-3"]);
     pmpObjects["walkways30-3_1"]->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
@@ -337,6 +353,14 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["walkways30-3_2"] = new cBaseObject(pmpMeshes["walkways30-3"]);
     pmpObjects["walkways30-3_2"]->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
     pmpObjects["walkways30-3_2"]->setPosition(glm::vec3(-2.0f, 0.0f, -13.0f));
+
+    pmpObjects["walkways30-3_3"] = new cBaseObject(pmpMeshes["walkways30-3"]);
+    pmpObjects["walkways30-3_3"]->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+    pmpObjects["walkways30-3_3"]->setPosition(glm::vec3(48.0f, 0.0f, -13.0f));
+
+    pmpObjects["walkways30-3_4"] = new cBaseObject(pmpMeshes["walkways30-3"]);
+    pmpObjects["walkways30-3_4"]->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+    pmpObjects["walkways30-3_4"]->setPosition(glm::vec3(85.0f, 0.0f, -13.0f));
 
     // Bus stations
     pmpObjects["busStation1"] = new cBaseObject(*pmpModels["busStation"]);
@@ -357,6 +381,9 @@ void cBusWorldScene::LoadObjects()
     // Buildings
     pmpObjects["building"] = new cBaseObject(*pmpModels["building"]);
     pmpObjects["building"]->setPosition(glm::vec3(-2.0f, 0.0f, -13.0f));
+
+    pmpObjects["needleBuilding"] = new cBaseObject(*pmpModels["needleBuilding"]);
+    pmpObjects["needleBuilding"]->setPosition(glm::vec3(48.0f, 0.0f, -13.0f));
 
     pmpObjects["bus"] = new cBaseObject(*pmpModels["bus"]);
     pmpObjects["bus"]->setPosition(glm::vec3(12.5f, 0, -7.5f));

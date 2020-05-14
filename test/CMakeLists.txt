@@ -22,23 +22,28 @@ find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
 set(Headers
-        EngineTests/BufferTests.hpp)
-
+        EngineTests/ScriptingTests.hpp
+        EngineTests/BehaviourTests.hpp)
 set(Sources
-        ExampleTests.cpp)
+        main_test.cpp)
 
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+include_directories( ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../engine/src ${GLEW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} )
 add_executable(${This} ${Sources} ${Headers})
-include_directories(
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/../
-        ${CMAKE_CURRENT_SOURCE_DIR}/../engine/glfw/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/../engine/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/../engine/src
-        ${GLEW_INCLUDE_DIRS}
-        ${OPENGL_INCLUDE_DIRS}
-        ${GLM_INCLUDE_DIR}
-)
-target_link_libraries(${This} PUBLIC gtest_main ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw)
+
+IF (WIN32)
+    find_package(glm REQUIRED)
+    find_package(duktape REQUIRED)
+    find_package(GTest CONFIG REQUIRED)
+    target_link_libraries(${This} PUBLIC engine GTest::gtest GTest::gmock)
+    target_link_libraries(${This} PUBLIC engine ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw glm ${OPENGL_INCLUDE_DIRS} ${DUKTAPE_LIBRARY})
+ELSE()
+    target_link_libraries(${This} PUBLIC engine gtest gmock)
+    target_link_libraries(${This} PUBLIC engine ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw /usr/lib/libduktape.so)
+ENDIF()
 
 add_test(
     NAME ${This}

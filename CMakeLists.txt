@@ -20,7 +20,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 enable_testing()
 
-add_subdirectory(googletest)
 add_subdirectory(engine)
 
 set(Headers
@@ -33,5 +32,10 @@ set(Sources
 include_directories(${PROJECT_SOURCE_DIR}/src)
 add_library(${This} STATIC ${Sources} ${Headers})
 add_executable(${This}-bin ${Sources} ${Headers})
+
+IF (WIN32)
+    find_package(glm REQUIRED)
+    target_link_libraries(${This} PUBLIC glm)
+ENDIF()
 
 add_subdirectory(test)

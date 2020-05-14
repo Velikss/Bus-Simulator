@@ -36,31 +36,9 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(Headers
         ${PROJECT_SOURCE_DIR}/src/pch.hpp
         ${PROJECT_SOURCE_DIR}/src/vendor/tiny_obj_loader.h
-        ${PROJECT_SOURCE_DIR}/src/shaders/glsl.hpp
-        ${PROJECT_SOURCE_DIR}/src/shaders/shader.hpp
-        ${PROJECT_SOURCE_DIR}/src/shaders/ShaderProgram.hpp
-        ${PROJECT_SOURCE_DIR}/src/objects/BaseObject.hpp
-        ${PROJECT_SOURCE_DIR}/src/objects/Light.hpp
-        ${PROJECT_SOURCE_DIR}/src/objects/Material.hpp
-        ${PROJECT_SOURCE_DIR}/src/objects/Mesh.hpp
-        ${PROJECT_SOURCE_DIR}/src/objects/ObjectGroup.hpp
-        ${PROJECT_SOURCE_DIR}/src/buffers/Buffer.hpp
-        ${PROJECT_SOURCE_DIR}/src/geometries/Geometry.hpp
-        ${PROJECT_SOURCE_DIR}/src/geometries/SkyBoxGeometry.hpp
         ${PROJECT_SOURCE_DIR}/src/loaders/fileloader.hpp
         ${PROJECT_SOURCE_DIR}/src/loaders/objectloader.hpp
         ${PROJECT_SOURCE_DIR}/src/vendor/stb_image.h
-        ${PROJECT_SOURCE_DIR}/src/textures/Texture.hpp
-        ${PROJECT_SOURCE_DIR}/src/textures/CubeMapTexture.hpp
-        ${PROJECT_SOURCE_DIR}/src/scenes/Scene.hpp
-        ${PROJECT_SOURCE_DIR}/src/scenes/Camera.hpp
-        ${PROJECT_SOURCE_DIR}/src/scenes/MyStreetScene.hpp
-        ${PROJECT_SOURCE_DIR}/src/animations/Animation.hpp
-        ${PROJECT_SOURCE_DIR}/src/animations/FireWehrAnimation.hpp
-        ${PROJECT_SOURCE_DIR}/src/animations/LightObjectBindingAnimation.hpp
-        ${PROJECT_SOURCE_DIR}/src/animations/MoonLightAnimation.hpp
-        ${PROJECT_SOURCE_DIR}/src/animations/OrbitalAnimation.hpp
-        ${PROJECT_SOURCE_DIR}/src/scenes/TestScene.hpp
         ${PROJECT_SOURCE_DIR}/src/Engine.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/Window.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/VulkanInstance.hpp
@@ -118,15 +96,34 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/util/EngineLog.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/ViewportQuadGeometry.hpp src/vulkan/texture/TextureSampler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/BusCamera.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/BusWorldScene.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/BusWorldScene.hpp
+        ${PROJECT_SOURCE_DIR}/src/pch.hpp
+        ${PROJECT_SOURCE_DIR}/src/vendor/tiny_obj_loader.h
+        ${PROJECT_SOURCE_DIR}/src/loaders/fileloader.hpp
+        ${PROJECT_SOURCE_DIR}/src/loaders/objectloader.hpp
+        ${PROJECT_SOURCE_DIR}/src/vendor/stb_image.h
+        ${PROJECT_SOURCE_DIR}/src/scripting/cScriptingEngine.hpp
+        ${PROJECT_SOURCE_DIR}/src/scripting/functions/JavaScriptBaseFunctions.hpp
+        ${PROJECT_SOURCE_DIR}/src/scripting/functions/JavaScriptEntityFunctions.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cEntityInterface.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cEntity.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cEntityGroup.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBehaviourHandler.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 
-include_directories(${PROJECT_SOURCE_DIR}/src ${GLEW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS})
+include_directories(${PROJECT_SOURCE_DIR}/src ${GLEW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS} ${DUKTAPE_INCLUDE_DIRS})
 add_library(${This} STATIC ${Sources} ${Headers})
 add_executable(${This}-bin ${Sources} ${Headers})
-target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw ${Vulkan_LIBRARIES})
 
 IF (NOT WIN32)
     add_custom_command(TARGET ${This}-bin PRE_BUILD COMMAND cd ${PROJECT_SOURCE_DIR}/shaders && ./compile.sh)
 ENDIF ()
+
+IF (WIN32)
+    find_package(glm REQUIRED)
+    find_package(duktape REQUIRED)
+    target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw glm ${OPENGL_INCLUDE_DIRS} ${DUKTAPE_LIBRARY} ${Vulkan_LIBRARIES})
+ELSE()
+    target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw /usr/lib/libduktape.so ${Vulkan_LIBRARIES})
+ENDIF()
