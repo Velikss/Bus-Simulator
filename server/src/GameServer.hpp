@@ -16,10 +16,11 @@ bool RecieveData(cNetworkConnection* pConnection, byte* & buffer, int & iRecieve
     return true;
 }
 
-void SendData(cNetworkConnection* pConnection, byte* buffer, int iSize)
+bool SendData(cNetworkConnection* pConnection, byte* buffer, int iSize)
 {
-    pConnection->SendBytes((byte*)&iSize, 4);
-    pConnection->SendBytes(buffer, iSize);
+    if(!pConnection->SendBytes((byte*)&iSize, 4)) return false;
+    if(!pConnection->SendBytes(buffer, iSize)) return false;
+    return true;
 }
 
 class cGameServer : protected cNetworkServer
@@ -63,17 +64,24 @@ bool cGameServer::OnRecieve(cNetworkConnection *pConnection)
     int iRecievedContent = 0;
     if (!RecieveData(pConnection, buffer, iRecievedContent))
         return false;
+
     std::string_view sBuffer((char*)buffer, 36);
     glm::vec3* oPos = (glm::vec3*)&buffer[36];
+    glm::vec3* oRot = (glm::vec3*) & buffer[36 + sizeof(glm::vec3)];
     for(uint i = 0; i < aConnections.size(); i++)
         if (aConnections[i] != pConnection)
         {
-            if (!aConnections[i]->SendBytes(buffer, iRecievedContent))
+            if (!SendData(aConnections[i], buffer, iRecievedContent))
             {
+                std::cout << "failed sending to " << aConnections[i]->GetConnectionString() << ", error: " << aConnections[i]->piFailures << std::endl;;
                 if (aConnections[i]->piFailures++ >= 5)
+                {
+                    std::cout << "terminated connection " << aConnections[i]->GetConnectionString() << std::endl;;
                     RemoveConnectionAt(i);
+                }
             }
         }
+    delete buffer;
     return true;
 }
 

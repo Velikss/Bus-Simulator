@@ -89,7 +89,7 @@ int cNetworkAbstractions::CloseSocket(NET_SOCK & oSock)
     iResult = shutdown(oSock, SD_BOTH);
     if (iResult == 0) { iResult = closesocket(oSock); }
 #else
-    iResult = shutdown(sock, SHUT_RDWR);
+    iResult = shutdown(oSock, SHUT_RDWR);
     if (iResult == 0) { iResult = close(oSock); }
 #endif
 
