@@ -21,6 +21,8 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(PkgConfig)
+set(OPENSSL_USE_STATIC_LIBS TRUE)
+find_package(OpenSSL REQUIRED)
 
 #IF(NOT WIN32)
     find_package(Vulkan REQUIRED)
@@ -112,22 +114,23 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/multiplayer/SslHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/multiplayer/NetworkAbstractions.hpp
         ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkConnection.hpp
-        ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkClient.hpp)
+        ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkClient.hpp src/multiplayer/cMultiplayerHandler.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 
-include_directories(${PROJECT_SOURCE_DIR}/src ${GLEW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS} ${DUKTAPE_INCLUDE_DIRS})
+include_directories(${PROJECT_SOURCE_DIR}/src ${GLEW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS} ${DUKTAPE_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR})
 add_library(${This} STATIC ${Sources} ${Headers})
 add_executable(${This}-bin ${Sources} ${Headers})
 
 IF (NOT WIN32)
+    target_link_libraries(${This} PUBLIC /usr/lib/libuuid.a)
     add_custom_command(TARGET ${This}-bin PRE_BUILD COMMAND cd ${PROJECT_SOURCE_DIR}/shaders && ./compile.sh)
 ENDIF ()
 
 IF (WIN32)
     find_package(glm REQUIRED)
     find_package(duktape REQUIRED)
-    target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw glm ${OPENGL_INCLUDE_DIRS} ${DUKTAPE_LIBRARY} ${Vulkan_LIBRARIES})
+    target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw glm ${OPENGL_INCLUDE_DIRS} ${DUKTAPE_LIBRARY} ${Vulkan_LIBRARIES} OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY})
 ELSE()
-    target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw /usr/lib/libduktape.so ${Vulkan_LIBRARIES})
+    target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw /usr/lib/libduktape.so ${Vulkan_LIBRARIES} OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY})
 ENDIF()

@@ -1,8 +1,8 @@
 #pragma once
-
 #include <pch.hpp>
 #include <vulkan/scene/Scene.hpp>
 #include <vulkan/scene/BusCamera.hpp>
+#include <multiplayer/cMultiplayerHandler.hpp>
 
 class cBusWorldScene : public cScene
 {
@@ -15,6 +15,13 @@ protected:
     void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice) override;
 
 private:
+    cNetworkConnection::tNetworkInitializationSettings tConnectNetworkSettings;
+    cMultiplayerHandler* poMultiplayerHandler = nullptr;
+    ~cBusWorldScene()
+    {
+        delete poMultiplayerHandler;
+    }
+
     void LoadTextures(cTextureHandler* pTextureHandler);
 
     void LoadGeometries(cLogicalDevice* pLogicalDevice);
@@ -36,7 +43,25 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
     LoadModels();
     LoadObjects();
 
+    // Connect to multiplayer instance if possbile.
+    tConnectNetworkSettings.sAddress = "127.0.0.1";
+    tConnectNetworkSettings.usPort = 8080;
+    tConnectNetworkSettings.eMode = cNetworkConnection::cMode::eNonBlocking;
 
+    poMultiplayerHandler = new cMultiplayerHandler(&tConnectNetworkSettings, this);
+    if(poMultiplayerHandler->Start())
+    {
+        std::cout << "multiplayer connected." << std::endl;
+        new std::thread([&] {
+            for(;;)
+            {
+                poMultiplayerHandler->PushData();
+                sleep(100);
+            }
+        });
+    }
+    else
+        std::cout << "multiplayer failed to connect." << std::endl;
 }
 
 void cBusWorldScene::Update()
