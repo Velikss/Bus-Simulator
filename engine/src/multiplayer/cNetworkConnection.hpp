@@ -22,10 +22,13 @@ public:
         std::string sCertFile = "";
         std::string sKeyFile = "";
     };
+
+    int piFailures = 0;
 protected:
     bool pbLockedRecieve = false;
     bool pbShutdown = false;
     bool pbDestroyed = false;
+    bool pbBlocking = false;
 
     tNetworkInitializationSettings* pptNetworkSettings = nullptr;
     int piLastStatus = 0;
@@ -34,11 +37,12 @@ protected:
 public:
     SSL_CTX* ppSSLContext = nullptr;
     SSL* ppConnectionSSL = nullptr;
-	cNetworkConnection(NET_SOCK oSock, sockaddr_in tAddress)
+	cNetworkConnection(NET_SOCK oSock, sockaddr_in tAddress, bool bBlocking)
 	{
 		if (puiNumberOfAliveSockets++ == 0) cNetworkAbstractions::NetInit();
 		this->poSock = oSock;
 		this->ptAddress = tAddress;
+		this->pbBlocking = bBlocking;
 	}
 
     virtual ~cNetworkConnection()
@@ -52,17 +56,17 @@ public:
 
     bool IsConnected()
     {
-	    return (cNetworkAbstractions::IsConnected(poSock) == cNetworkAbstractions::cConnectionStatus::eCONNECTED);
+	    return (cNetworkAbstractions::IsConnected(poSock, pptNetworkSettings->eMode == cMode::eBlocking) == cNetworkAbstractions::cConnectionStatus::eCONNECTED);
     }
 
     bool Available()
     {
-        return (cNetworkAbstractions::IsConnected(poSock) == cNetworkAbstractions::cConnectionStatus::eAVAILABLE);
+        return (cNetworkAbstractions::IsConnected(poSock, pbBlocking) == cNetworkAbstractions::cConnectionStatus::eAVAILABLE);
     }
 
     cNetworkAbstractions::cConnectionStatus Status()
     {
-        return cNetworkAbstractions::IsConnected(poSock);
+        return cNetworkAbstractions::IsConnected(poSock, pbBlocking);
     }
 
     void LockRecieve()
@@ -100,17 +104,15 @@ public:
 	    return GetIP() + ":" + GetPortStr();
     }
 
-	void SendBytes(const byte* pBuffer, size_t uiNumBytes)
+	bool SendBytes(const byte* pBuffer, size_t uiNumBytes)
     {
         long long lResult = 0;
         if (ppConnectionSSL)
             lResult = SSL_write(ppConnectionSSL, pBuffer, uiNumBytes);
         else
             lResult = send(poSock, (char *) pBuffer, uiNumBytes, 0);
-        if (lResult == NET_SOCKET_ERROR)
-            throw std::runtime_error("Failed to 'send()' bytes! NET_SOCKET_ERROR!");
-        else if (static_cast<size_t>(lResult) != uiNumBytes)
-            throw std::runtime_error("Failed to 'send()' bytes! Couldn't send all the data!");
+        if (lResult == NET_SOCKET_ERROR) return false;
+        return true;
     }
 
     long ReceiveBytes(byte* pBuffer, size_t uiNumBytes)

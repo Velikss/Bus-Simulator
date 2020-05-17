@@ -35,7 +35,8 @@ public:
     {
         eDISCONNECTED,
         eCONNECTED,
-        eAVAILABLE
+        eAVAILABLE,
+        eCONNECTING
     };
 
     // Shared states management.
@@ -44,7 +45,7 @@ public:
     static void NetInit();
     static void NetShutdown();
     static void SetBlocking(NET_SOCK oSock, bool bBlocking = true);
-    static cConnectionStatus IsConnected(NET_SOCK oSock);
+    static cConnectionStatus IsConnected(NET_SOCK oSock, bool bBlocking);
     static string DNSLookup(string sDomain);
     static string DNSReverseLookup(string sIp);
     static int CloseSocket(NET_SOCK & oSock);
@@ -83,21 +84,27 @@ void cNetworkAbstractions::SetBlocking(NET_SOCK oSock, bool bBlocking)
 int cNetworkAbstractions::CloseSocket(NET_SOCK & oSock)
 {
     int iResult = -1;
-#if defined(WINDOWS)
-    iResult = closesocket(oSock);
+
+#ifdef _WIN32
+    iResult = shutdown(oSock, SD_BOTH);
+    if (iResult == 0) { iResult = closesocket(oSock); }
 #else
-    iResult = close(oSock);
+    iResult = shutdown(sock, SHUT_RDWR);
+    if (iResult == 0) { iResult = close(oSock); }
 #endif
+
     oSock = NET_INVALID_SOCKET_ID;
     return iResult;
 }
 
-cNetworkAbstractions::cConnectionStatus cNetworkAbstractions::IsConnected(NET_SOCK oSock)
+cNetworkAbstractions::cConnectionStatus cNetworkAbstractions::IsConnected(NET_SOCK oSock, bool bBlocking)
 {
     char pBuffer;
     int size = recv(oSock, &pBuffer, 1, MSG_PEEK);
 #if defined(WINDOWS)
-    if (WSAGetLastError() == WSAECONNRESET) return cNetworkAbstractions::cConnectionStatus::eDISCONNECTED;
+    int err = WSAGetLastError();
+    if (err == WSAECONNRESET)
+        return cNetworkAbstractions::cConnectionStatus::eDISCONNECTED;
 #else
     if (size == 0) return cNetworkAbstractions::cConnectionStatus::eDISCONNECTED;
 #endif

@@ -3,3 +3,4 @@ googletest/
 .idea/
 cmake-build-debug/
 *.spv
+build-vs/

@@ -20,7 +20,7 @@ private:
     cMultiplayerHandler* poMultiplayerHandler = nullptr;
     ~cBusWorldScene()
     {
-        delete poMultiplayerHandler;
+        if (poMultiplayerHandler) delete poMultiplayerHandler;
     }
 
     void LoadTextures(cTextureHandler* pTextureHandler);
@@ -50,19 +50,16 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
     tConnectNetworkSettings.eMode = cNetworkConnection::cMode::eNonBlocking;
 
     poMultiplayerHandler = new cMultiplayerHandler(&tConnectNetworkSettings, this);
-    if(poMultiplayerHandler->Start())
+    if (poMultiplayerHandler->Start())
     {
         std::cout << "multiplayer connected." << std::endl;
-        new std::thread([&] {
-            for(;;)
-            {
-                poMultiplayerHandler->PushData();
-                sleep(100);
-            }
-        });
     }
     else
+    {
         std::cout << "multiplayer failed to connect." << std::endl;
+        delete poMultiplayerHandler;
+        poMultiplayerHandler = nullptr;
+    }
 }
 
 void cBusWorldScene::Update()
@@ -106,7 +103,11 @@ void cBusWorldScene::Update()
         Quit();
 
     dynamic_cast<cBus *>(pmpObjects["bus"])->Move();
+
+
+
     cScene::Update();
+    if(poMultiplayerHandler) poMultiplayerHandler->PushData();
 }
 
 void cBusWorldScene::HandleScroll(double dOffsetX, double dOffsetY)

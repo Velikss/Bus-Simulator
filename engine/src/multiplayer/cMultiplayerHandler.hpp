@@ -2,40 +2,42 @@
 #include <pch.hpp>
 #include <multiplayer/cNetworkClient.hpp>
 #include "StdUuid.hpp"
+#include <vulkan/entities/cBus.hpp>
 
-void RecieveData(cNetworkConnection* pConnection, byte* & buffer, int & iRecievedContent)
+bool RecieveData(cNetworkConnection* pConnection, byte*& buffer, int& iRecievedContent)
 {
     int iSize = 0;
-    const long recievedSize = pConnection->ReceiveBytes(((byte *) &iSize), 4);
+    const long recievedSize = pConnection->ReceiveBytes(((byte*)&iSize), 4);
     if (recievedSize != 4) std::cout << "didn't recieve header." << std::endl;
     buffer = new byte[iSize];
-    std::cout << "recieving: " << iSize << std::endl;
     while (iRecievedContent != iSize)
     {
         iRecievedContent += pConnection->ReceiveBytes(buffer + iRecievedContent, iSize - iRecievedContent);
-        std::cout << "recieved: " << iRecievedContent << ", out of: " << iSize << std::endl;
+        if (iRecievedContent == -1) iRecievedContent += 1;
     }
+    return true;
 }
 
-void SendData(cNetworkConnection* pConnection, byte* buffer, int iSize)
+bool SendData(cNetworkConnection* pConnection, byte* buffer, int iSize)
 {
-    pConnection->SendBytes((byte*)&iSize, 4);
-    pConnection->SendBytes(buffer, iSize);
+    if (!pConnection->SendBytes((byte*)&iSize, 4)) return false;
+    if (!pConnection->SendBytes(buffer, iSize)) return false;
+    return true;
 }
 
-void SendData(cNetworkClient* pConnection, byte* buffer, int iSize)
+bool SendData(cNetworkClient* pConnection, byte* buffer, int iSize)
 {
-    pConnection->SendBytes((byte*)&iSize, 4);
-    pConnection->SendBytes(buffer, iSize);
+    if (!pConnection->SendBytes((byte*)&iSize, 4)) return false;
+    if (!pConnection->SendBytes(buffer, iSize)) return false;
+    return true;
 }
 
 class cMultiplayerHandler : protected cNetworkClient
 {
 protected:
     cScene* ppScene = nullptr;
-    std::vector<std::thread> pThreads;
     string psGameServerUuid;
-    byte* pBuffer = new byte[36 + sizeof(glm::vec3)];
+    byte* pBuffer = new byte[36 + (sizeof(glm::vec3) * 2)];
 public:
     cMultiplayerHandler(tNetworkInitializationSettings* pSettings, cScene* pScene) : cNetworkClient(pSettings)
     {
@@ -58,26 +60,23 @@ public:
 
     bool Start()
     {
-        if(!Connect()) return false;
-        SendData(this, (byte*)psGameServerUuid.c_str(), psGameServerUuid.size());
-        return true;
+        return Connect();
     }
 
     void PushData()
     {
-        auto& oCamera = ppScene->GetCamera();
-        glm::vec3 oPos = oCamera.GetPosition();
-        memcpy(pBuffer + 36, &oPos, sizeof(glm::vec3));
-        try
-        {
-            std::cout << "x: " << oPos.x << ", y: " << oPos.y << ", z: " << oPos.z << std::endl;
+        if(!ppScene) return;
 
-            SendData(this, pBuffer, 36 + sizeof(glm::vec3));
-        }
-        catch (std::exception& ex)
-        {
-            std::cout << ex.what() << std::endl;
-        }
+        static const int pos_pos = 36;
+        static const int rot_pos = pos_pos + sizeof(glm::vec3);
+        static const int msg_size = 36 + (sizeof(glm::vec3) * 2);
+
+        cBus* oBus = (cBus*)ppScene->GetObjects()["bus"];
+        glm::vec3* oPos = oBus->getPosition();
+        glm::vec3* oRot = oBus->getRotation();
+        memcpy(pBuffer + pos_pos, oPos, sizeof(glm::vec3));
+        memcpy(pBuffer + rot_pos, oRot, sizeof(glm::vec3));
+        SendData(this, pBuffer, msg_size);
     }
 
     void Stop()
@@ -96,14 +95,32 @@ void cMultiplayerHandler::OnConnect(cNetworkConnection *pConnection)
     std::cout << "connected client." << std::endl;
 }
 
-bool cMultiplayerHandler::OnRecieve(cNetworkConnection *pConnection)
+bool cMultiplayerHandler::OnRecieve(cNetworkConnection* pConnection)
 {
-    std::cout << "client recieving data..." << std::endl;
     byte* buffer = nullptr;
     int iRecievedContent = 0;
-    RecieveData(pConnection, buffer, iRecievedContent);
-    std::string_view sBuffer((char*)buffer, iRecievedContent);
-    std::cout << sBuffer << std::endl;
+    if (!RecieveData(pConnection, buffer, iRecievedContent))
+        return false;
+
+    std::string sId((char*)buffer, 36);
+    auto& aObjects = ppScene->GetObjects();
+
+    if (aObjects.find(sId) == aObjects.end())
+    {
+        auto& aMeshes = ppScene->GetMeshes();
+        aObjects[sId] = new cBus(aMeshes["bus"]);
+        aObjects[sId]->setScale(glm::vec3(0.8, 0.8, 0.8));
+    }
+
+    glm::vec3* oPos = (glm::vec3*) & buffer[36];
+    glm::vec3* oRot = (glm::vec3*) & buffer[36 + sizeof(glm::vec3)];
+
+    std::cout << sId << ", x: " << oPos->x << ", y: " << oPos->y << ", z: " << oPos->z <<
+        "rot-x: " << oRot->x << ", rot-y: " << oRot->y << ", rot-z: " << oRot->z << std::endl;
+
+    auto& oObject = aObjects[sId];
+    oObject->setPosition(*oPos);
+    oObject->setRotation(*oRot);
     return true;
 }
 

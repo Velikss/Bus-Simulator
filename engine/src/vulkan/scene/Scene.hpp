@@ -39,6 +39,7 @@ public:
 
     uint GetObjectCount();
     std::map<string, cBaseObject*>& GetObjects();
+    std::map<string, cMesh*>& GetMeshes();
 
     Camera& GetCamera();
 
@@ -132,6 +133,11 @@ uint cScene::GetObjectCount()
 std::map<string, cBaseObject*>& cScene::GetObjects()
 {
     return pmpObjects;
+}
+
+std::map <string, cMesh*>& cScene::GetMeshes()
+{
+    return pmpMeshes;
 }
 
 Camera& cScene::GetCamera()
