@@ -80,7 +80,7 @@ public:
     // is the end op the passthrough from the mouse input.
     void LookMouseDiff(int x, int y)
     {
-        yaw += mouseSpeed * x;
+        yaw -= mouseSpeed * x;
         pitch -= mouseSpeed * y;
         // no flipping to the other side
         if (pitch < -80)
@@ -109,11 +109,32 @@ public:
         MovePivotY(cameraPivotChanges.y);
         // Todo move pivot along the Z (sideways)
 
+        // camera rotation
+        if(yaw >= 360)
+            yaw = 0.1;
+        if(yaw <= 0)
+            yaw = 359.9;
+        float rotation = cameraPivotObject->getRotation()->y;
+        float rotationDifference = rotation - yaw;
+
+        if(rotationDifference > 0)
+            if(rotationDifference > 0.2)
+                if(rotationDifference < 180)
+                    yaw += 0.5;
+                else
+                    yaw -= 0.5;
+        if(rotationDifference < 0)
+            if((-1 * rotationDifference) > 0.2)
+                if((-1 * rotationDifference) < 180)
+                    yaw -= 0.5;
+                else
+                    yaw += 0.5;
+
         cameraPos.x = sin(glm::radians(yaw)) * orbitDistance + cameraPivotPos.x;
         cameraPos.y = cameraPivotPos.y + cameraHeight;
         cameraPos.z = cos(glm::radians(yaw)) * orbitDistance + cameraPivotPos.z;
 
-
+        // lookat
         cameraFront = glm::normalize((cameraPivotPos) - cameraPos);
         glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
         glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraFront));

@@ -19,7 +19,7 @@ public:
 
     glm::vec3 direction;
 
-    float yaw = -90;
+    float yaw = 0;
     float pitch = 0;
 
     const float cameraSpeed = 0.1f;

@@ -24,8 +24,8 @@ public:
 
     // Window size
 #ifdef QUAD_HD_RESOLUTION
-    static const uint WIDTH = 2560;
-    static const uint HEIGHT = 1380;
+    static const uint WIDTH = 1920;
+    static const uint HEIGHT = 1080;
 #else
     static const uint WIDTH = 1920;
     static const uint HEIGHT = 1080;

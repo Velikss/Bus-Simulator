@@ -3,6 +3,7 @@
 #include <vulkan/scene/Scene.hpp>
 #include <vulkan/scene/BusCamera.hpp>
 #include <multiplayer/cMultiplayerHandler.hpp>
+#include <vulkan/entities/cBus.hpp>
 
 class cBusWorldScene : public cScene
 {
@@ -67,13 +68,17 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
 void cBusWorldScene::Update()
 {
     if (paKeys[GLFW_KEY_W])
-        BusCentered ? pmpObjects["bus"]->MoveForward() : poCamera->Forward();
+        BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Accelerate() : poCamera->Forward();
     if (paKeys[GLFW_KEY_S])
-        BusCentered ? pmpObjects["bus"]->MoveBackward() : poCamera->BackWard();
+        BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Decelerate() : poCamera->BackWard();
+    if (!paKeys[GLFW_KEY_W] && !paKeys[GLFW_KEY_S])
+        if (BusCentered) dynamic_cast<cBus *>(pmpObjects["bus"])->IdleAcceleration();
+    if (!paKeys[GLFW_KEY_A] && !paKeys[GLFW_KEY_D])
+        if (BusCentered) dynamic_cast<cBus *>(pmpObjects["bus"])->IdleSteering();
     if (paKeys[GLFW_KEY_A])
-        BusCentered ? pmpObjects["bus"]->MoveLeft(0.5) : poCamera->MoveLeft();
+        BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Steer("left") : poCamera->MoveLeft();
     if (paKeys[GLFW_KEY_D])
-        BusCentered ? pmpObjects["bus"]->MoveRight(0.5) : poCamera->MoveRight();
+        BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Steer("right") : poCamera->MoveRight();
     if (paKeys[GLFW_KEY_C])
     {
         BusCentered = false;
@@ -86,7 +91,7 @@ void cBusWorldScene::Update()
         poCamera->cameraPivotObject = pmpObjects["bus"];
         poCamera->cameraPivotPos = *pmpObjects["bus"]->getPosition();
         poCamera->cameraHeight = 10.0f;
-        poCamera->cameraPivotChanges = glm::vec3(2.0f, 0.0f, 10.0f);
+        poCamera->cameraPivotChanges = glm::vec3(2.0f, 0.5f, 0.0f);
     }
 
     // temporary flight controls
@@ -100,6 +105,7 @@ void cBusWorldScene::Update()
     if (paKeys[GLFW_KEY_ESCAPE])
         Quit();
 
+    dynamic_cast<cBus *>(pmpObjects["bus"])->Move();
     cScene::Update();
 }
 
@@ -406,13 +412,13 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["trafficLight3"]->setPosition(glm::vec3(46.0f, 0.15f, -12.0f));
 
     // Buildings
-    pmpObjects["building"] = new cBaseObject(*pmpModels["building"]);
+    pmpObjects["building"] = new cBaseObject(pmpMeshes["building"]);
     pmpObjects["building"]->setPosition(glm::vec3(-2.0f, 0.0f, -13.0f));
 
-    pmpObjects["needleBuilding"] = new cBaseObject(*pmpModels["needleBuilding"]);
+    pmpObjects["needleBuilding"] = new cBaseObject(pmpMeshes["needleBuilding"]);
     pmpObjects["needleBuilding"]->setPosition(glm::vec3(48.0f, 0.0f, -13.0f));
 
-    pmpObjects["bus"] = new cBaseObject(*pmpModels["bus"]);
+    pmpObjects["bus"] = new cBus(pmpMeshes["bus"]);
     pmpObjects["bus"]->setPosition(glm::vec3(12.5f, 0, -7.5f));
     pmpObjects["bus"]->setRotation(glm::vec3(0.0f, 90.0, 0.0f));
     pmpObjects["bus"]->setScale(glm::vec3(0.8, 0.8, 0.8));
