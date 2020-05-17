@@ -5,12 +5,15 @@
 
 class cNetworkServer : public cNetworkConnection
 {
+protected:
     std::map<string, std::thread> threads;
     std::vector<cNetworkConnection*> aConnections;
 
     std::function<bool(cNetworkConnection *)> OnConnect = nullptr;
     std::function<bool(cNetworkConnection *)> OnRecieve = nullptr;
     std::function<void(cNetworkConnection *)> OnDisconnect = nullptr;
+
+    void RemoveConnectionAt(uint& i);
 public:
 	cNetworkServer(cNetworkConnection::tNetworkInitializationSettings* ptNetworkSettings) : cNetworkConnection(ptNetworkSettings)
 	{
@@ -75,7 +78,7 @@ cNetworkConnection *cNetworkServer::AcceptConnection(bool bBlockingSocket) const
 
     if (oSock < 1) return nullptr;
 
-    auto oNewConnection = new cNetworkConnection(oSock, tClientAddr);
+    auto oNewConnection = new cNetworkConnection(oSock, tClientAddr, bBlockingSocket);
 
     if (pptNetworkSettings->bUseSSL)
     {
@@ -155,12 +158,17 @@ void cNetworkServer::OnRecieveLoop()
             }
             else if (status == cNetworkAbstractions::cConnectionStatus::eDISCONNECTED)
             {
-                if (OnDisconnect) OnDisconnect(aConnections[i]);
-                aConnections.erase(aConnections.begin() + i);
-                i--;
+                RemoveConnectionAt(i);
                 continue;
             }
         }
         sleep(1);
     }
+}
+
+void cNetworkServer::RemoveConnectionAt(uint& i)
+{
+    if (OnDisconnect) OnDisconnect(aConnections[i]);
+    aConnections.erase(aConnections.begin() + i);
+    i--;
 }

@@ -47,6 +47,13 @@
 #endif
 #endif
 
+#define GLM_FORCE_RADIANS                   // Force GLM to use radians everywhere
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES  // Force GLM to use aligned types by default
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE         // Vulkan uses a depth range from 0 to 1, so we need GLM to do the same
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 bool Is64Bit()
 {
 #if defined(x86_64)

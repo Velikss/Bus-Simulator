@@ -12,7 +12,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/Uri.hpp
         ${PROJECT_SOURCE_DIR}/src/DirectoryWatcher.hpp
         vendor/Json.hpp
-        vendor/Utf8.hpp src/NetworkAbstractions.hpp src/SslHelper.hpp src/ODBC/cODBCInstance.hpp vendor/StdUuid.hpp src/SSO/SsoServer.hpp src/GameServer/CGameServer.hpp src/SSO/SsoService.hpp)
+        vendor/Utf8.hpp src/NetworkAbstractions.hpp src/SslHelper.hpp src/ODBC/cODBCInstance.hpp vendor/StdUuid.hpp src/SSO/SsoServer.hpp src/GameServer/CGameServer.hpp src/SSO/SsoService.hpp src/GameServer.hpp)
 set(Sources 
     ${PROJECT_SOURCE_DIR}/src/main.cpp
 )
@@ -24,5 +24,12 @@ find_package(ODBC REQUIRED)
 include_directories( ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../ ${PROJECT_SOURCE_DIR}/src ${OPENSSL_INCLUDE_DIR} ${ODBC_INCLUDE_DIR})
 add_library(${This} STATIC ${Sources} ${Headers})
 add_executable(${This}-bin ${Sources} ${Headers})
-target_link_libraries(${This} PUBLIC OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY})
-target_link_libraries(${This}-bin PUBLIC OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY})
+
+IF (WIN32)
+    find_package(glm REQUIRED)
+    target_link_libraries(${This} PUBLIC OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY} glm)
+    target_link_libraries(${This}-bin PUBLIC OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY} glm)
+ELSE()
+    target_link_libraries(${This} PUBLIC OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY})
+    target_link_libraries(${This}-bin PUBLIC OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY})
+ENDIF()
