@@ -53,7 +53,7 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
     LoadObjects();
 
     // Connect to multiplayer instance if possbile.
-    tConnectNetworkSettings.sAddress = "127.0.0.1";
+    tConnectNetworkSettings.sAddress = "51.68.34.201";
     tConnectNetworkSettings.usPort = 8080;
     tConnectNetworkSettings.eMode = cNetworkConnection::cMode::eNonBlocking;
 
