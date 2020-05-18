@@ -6,6 +6,9 @@
 class cNetworkServer : public cNetworkConnection
 {
 protected:
+    bool pbSleepOnRecieveOverride = false;
+    bool pbSleepOnConnectOverride = false;
+
     std::map<string, std::thread> threads;
     std::vector<cNetworkConnection*> aConnections;
 
@@ -135,7 +138,7 @@ void cNetworkServer::OnConnectLoop()
             else
                 delete incoming;
         }
-        if (!bBlocking) fSleep(1);
+        if (!bBlocking && !pbSleepOnConnectOverride) fSleep(1);
     }
 }
 
@@ -162,7 +165,7 @@ void cNetworkServer::OnRecieveLoop()
                 continue;
             }
         }
-        fSleep(1);
+        if(!pbSleepOnRecieveOverride) fSleep(1);
     }
 }
 
