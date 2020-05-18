@@ -137,6 +137,7 @@ void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
     pmpTextures["grey"] = pTextureHandler->LoadTextureFromFile("resources/textures/uvtemplate.bmp");
     // buildings
     pmpTextures["building"] = pTextureHandler->LoadTextureFromFile("resources/textures/buildings/building.jpg");
+    pmpTextures["building2"] = pTextureHandler->LoadTextureFromFile("resources/textures/buildings/building2.jpg");
     pmpTextures["needle"] = pTextureHandler->LoadTextureFromFile("resources/textures/buildings/needle.jpg");
     //street
     pmpTextures["road"] = pTextureHandler->LoadTextureFromFile("resources/textures/streets/road.png");
@@ -165,6 +166,7 @@ void cBusWorldScene::LoadGeometries(cLogicalDevice *pLogicalDevice)
     // walkways
     pmpGeometries["walkways36-3WithCorners"] = cGeometry::FromOBJFile("resources/geometries/walkways/Walkway36-3WithCorners.obj", pLogicalDevice, 10, 10);
     pmpGeometries["walkways30-3"] = cGeometry::FromOBJFile("resources/geometries/walkways/Walkway30-3.obj", pLogicalDevice, 10, 10);
+    pmpGeometries["walkways10-3"] = cGeometry::FromOBJFile("resources/geometries/walkways/Walkway10-3.obj", pLogicalDevice, 10, 10);
     // streetUtil
     pmpGeometries["busStation"] = cGeometry::FromOBJFile("resources/geometries/streetUtil/busStop.obj", pLogicalDevice);
     pmpGeometries["trafficLight"] = cGeometry::FromOBJFile("resources/geometries/streetUtil/trafficLight.obj", pLogicalDevice);
@@ -175,9 +177,14 @@ void cBusWorldScene::LoadGeometries(cLogicalDevice *pLogicalDevice)
     // buildings
     pmpGeometries["building"] = cGeometry::FromOBJFile("resources/geometries/buildingTest.obj", pLogicalDevice, 8, 8);
     pmpGeometries["needleBuilding"] = cGeometry::FromOBJFile("resources/geometries/buildings/needleBuilding.obj", pLogicalDevice, 8, 8);
+    pmpGeometries["blockBuilding2"] = cGeometry::FromOBJFile("resources/geometries/buildings/blockBuilding2.obj", pLogicalDevice, 8, 8);
+    pmpGeometries["blockBuilding3"] = cGeometry::FromOBJFile("resources/geometries/buildings/blockBuilding3.obj", pLogicalDevice, 5, 5);
+    pmpGeometries["blockBuilding4"] = cGeometry::FromOBJFile("resources/geometries/buildings/blockBuilding4.obj", pLogicalDevice, 8, 8);
 
     // entities
     pmpGeometries["entity"] = cGeometry::FromOBJFile("resources/geometries/busses/SchoolBus.obj", pLogicalDevice);
+    // grass
+    pmpGeometries["grassField1"] = cGeometry::FromOBJFile("resources/geometries/grassField1.obj", pLogicalDevice, 8, 8);
 }
 
 void cBusWorldScene::LoadMeshes()
@@ -191,6 +198,7 @@ void cBusWorldScene::LoadMeshes()
     // walkways
     pmpMeshes["walkways36-3WithCorners"] = new cMesh(pmpGeometries["walkways36-3WithCorners"], pmpTextures["stoneHouse"]);
     pmpMeshes["walkways30-3"] = new cMesh(pmpGeometries["walkways30-3"], pmpTextures["stoneHouse"]);
+    pmpMeshes["walkways10-3"] = new cMesh(pmpGeometries["walkways10-3"], pmpTextures["stoneHouse"]);
     // buses
     pmpMeshes["bus"] = new cMesh(pmpGeometries["bus"], pmpTextures["schoolBus"]);
     // streetUtil
@@ -201,9 +209,14 @@ void cBusWorldScene::LoadMeshes()
     // buildings
     pmpMeshes["building"] = new cMesh(pmpGeometries["building"], pmpTextures["building"]);
     pmpMeshes["needleBuilding"] = new cMesh(pmpGeometries["needleBuilding"], pmpTextures["needle"]);
+    pmpMeshes["blockBuilding2"] = new cMesh(pmpGeometries["blockBuilding2"], pmpTextures["building2"]);
+    pmpMeshes["blockBuilding3"] = new cMesh(pmpGeometries["blockBuilding3"], pmpTextures["building"]);
+    pmpMeshes["blockBuilding4"] = new cMesh(pmpGeometries["blockBuilding4"], pmpTextures["needle"]);
 
     // entities
     pmpMeshes["entity"] = new cMesh(pmpGeometries["entity"], pmpTextures["entity"]);
+    // grass
+    pmpMeshes["grassField1"] = new cMesh(pmpGeometries["grassField1"], pmpTextures["grass"]);
 }
 
 void cBusWorldScene::LoadModels()
@@ -215,6 +228,7 @@ void cBusWorldScene::LoadModels()
     // walkways
     pmpModels["walkways36-3WithCorners"] = new cModel(pmpMeshes["walkways36-3WithCorners"]);
     pmpModels["walkways30-3"] = new cModel(pmpMeshes["walkways30-3"]);
+    pmpModels["walkways10-3"] = new cModel(pmpMeshes["walkways10-3"]);
     // buses
     pmpModels["bus"] = new cModel(pmpMeshes["bus"]);
     // streetUtil
@@ -225,10 +239,14 @@ void cBusWorldScene::LoadModels()
     // buildings
     pmpModels["building"] = new cModel(pmpMeshes["building"]);
     pmpModels["needleBuilding"] = new cModel(pmpMeshes["needleBuilding"]);
+    pmpModels["blockBuilding2"] = new cModel(pmpMeshes["blockBuilding2"]);
+    pmpModels["blockBuilding3"] = new cModel(pmpMeshes["blockBuilding3"]);
+    pmpModels["blockBuilding4"] = new cModel(pmpMeshes["blockBuilding4"]);
 
     // entities
     pmpModels["entity"] = new cModel(pmpMeshes["entity"]);
-
+    // grass
+    pmpModels["grassField1"] = new cModel(pmpMeshes["grassField1"]);
 }
 
 void cBusWorldScene::LoadObjects()
@@ -403,6 +421,60 @@ void cBusWorldScene::LoadObjects()
         pmpObjects["walkways36-3WithCorners" + std::to_string(i + 5)]->setPosition(glm::vec3(45.0f - (40 * i), 0.0f, 3.0f));
     }
 
+    pmpObjects["walkways36-3WithCorners11"] = new cBaseObject(pmpMeshes["walkways36-3WithCorners"]);
+    pmpObjects["walkways36-3WithCorners11"]->setPosition(glm::vec3(-55.0f, 0.0f, -10.0f));
+
+    pmpObjects["walkways36-3WithCorners12"] = new cBaseObject(pmpMeshes["walkways36-3WithCorners"]);
+    pmpObjects["walkways36-3WithCorners12"]->setPosition(glm::vec3(-105.0f, 0.0f, -10.0f));
+
+    pmpObjects["walkways36-3WithCorners13"] = new cBaseObject(pmpMeshes["walkways36-3WithCorners"]);
+    pmpObjects["walkways36-3WithCorners13"]->setPosition(glm::vec3(-155.0f, 0.0f, -10.0f));
+
+    pmpObjects["walkways36-3WithCorners14"] = new cBaseObject(pmpMeshes["walkways36-3WithCorners"]);
+    pmpObjects["walkways36-3WithCorners14"]->setPosition(glm::vec3(-55.0f, 0.0f, -147.0f));
+
+    pmpObjects["walkways36-3WithCorners15"] = new cBaseObject(pmpMeshes["walkways36-3WithCorners"]);
+    pmpObjects["walkways36-3WithCorners15"]->setPosition(glm::vec3(-105.0f, 0.0f, -147.0f));
+
+    pmpObjects["walkways36-3WithCorners16"] = new cBaseObject(pmpMeshes["walkways36-3WithCorners"]);
+    pmpObjects["walkways36-3WithCorners16"]->setPosition(glm::vec3(-155.0f, 0.0f, -147.0f));
+
+    pmpObjects["walkways36-3WithCorners17"] = new cBaseObject(pmpMeshes["walkways36-3WithCorners"]);
+    pmpObjects["walkways36-3WithCorners17"]->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+    pmpObjects["walkways36-3WithCorners17"]->setPosition(glm::vec3(-15.0f, 0.0f, -57.0f));
+
+    pmpObjects["walkways36-3WithCorners18"] = new cBaseObject(pmpMeshes["walkways36-3WithCorners"]);
+    pmpObjects["walkways36-3WithCorners18"]->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+    pmpObjects["walkways36-3WithCorners18"]->setPosition(glm::vec3(-15.0f, 0.0f, -107.0f));
+
+    pmpObjects["walkways36-3WithCorners19"] = new cBaseObject(pmpMeshes["walkways36-3WithCorners"]);
+    pmpObjects["walkways36-3WithCorners19"]->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+    pmpObjects["walkways36-3WithCorners19"]->setPosition(glm::vec3(-152.0f, 0.0f, -57.0f));
+
+    pmpObjects["walkways36-3WithCorners20"] = new cBaseObject(pmpMeshes["walkways36-3WithCorners"]);
+    pmpObjects["walkways36-3WithCorners20"]->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+    pmpObjects["walkways36-3WithCorners20"]->setPosition(glm::vec3(-152.0f, 0.0f, -107.0f));
+
+    pmpObjects["walkways36-3WithCorners21"] = new cBaseObject(pmpMeshes["walkways36-3WithCorners"]);
+    pmpObjects["walkways36-3WithCorners21"]->setPosition(glm::vec3(-5.0f, 0.0f, -60.0f));
+
+    pmpObjects["walkways36-3WithCorners22"] = new cBaseObject(pmpMeshes["walkways36-3WithCorners"]);
+    pmpObjects["walkways36-3WithCorners22"]->setPosition(glm::vec3(45.0f, 0.0f, -60.0f));
+
+    pmpObjects["walkways36-3WithCorners23"] = new cBaseObject(pmpMeshes["walkways36-3WithCorners"]);
+    pmpObjects["walkways36-3WithCorners23"]->setPosition(glm::vec3(-5.0f, 0.0f, -147.0f));
+
+    pmpObjects["walkways36-3WithCorners24"] = new cBaseObject(pmpMeshes["walkways36-3WithCorners"]);
+    pmpObjects["walkways36-3WithCorners24"]->setPosition(glm::vec3(45.0f, 0.0f, -147.0f));
+
+    pmpObjects["walkways36-3WithCorners25"] = new cBaseObject(pmpMeshes["walkways36-3WithCorners"]);
+    pmpObjects["walkways36-3WithCorners25"]->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+    pmpObjects["walkways36-3WithCorners25"]->setPosition(glm::vec3(-2.0f, 0.0f, -107.0f));
+
+    pmpObjects["walkways36-3WithCorners26"] = new cBaseObject(pmpMeshes["walkways36-3WithCorners"]);
+    pmpObjects["walkways36-3WithCorners26"]->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+    pmpObjects["walkways36-3WithCorners26"]->setPosition(glm::vec3(85.0f, 0.0f, -107.0f));
+
     pmpObjects["walkways30-3_1"] = new cBaseObject(pmpMeshes["walkways30-3"]);
     pmpObjects["walkways30-3_1"]->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
     pmpObjects["walkways30-3_1"]->setPosition(glm::vec3(35.0f, 0.0f, -13.0f));
@@ -418,6 +490,64 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["walkways30-3_4"] = new cBaseObject(pmpMeshes["walkways30-3"]);
     pmpObjects["walkways30-3_4"]->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
     pmpObjects["walkways30-3_4"]->setPosition(glm::vec3(85.0f, 0.0f, -13.0f));
+
+    pmpObjects["walkways30-3_5"] = new cBaseObject(pmpMeshes["walkways30-3"]);
+    pmpObjects["walkways30-3_5"]->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+    pmpObjects["walkways30-3_5"]->setPosition(glm::vec3(-15.0f, 0.0f, -13.0f));
+
+    pmpObjects["walkways30-3_6"] = new cBaseObject(pmpMeshes["walkways30-3"]);
+    pmpObjects["walkways30-3_6"]->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+    pmpObjects["walkways30-3_6"]->setPosition(glm::vec3(-152.0f, 0.0f, -13.0f));
+
+    pmpObjects["walkways30-3_7"] = new cBaseObject(pmpMeshes["walkways30-3"]);
+    pmpObjects["walkways30-3_7"]->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+    pmpObjects["walkways30-3_7"]->setPosition(glm::vec3(-2.0f, 0.0f, -63.0f));
+
+    pmpObjects["walkways30-3_8"] = new cBaseObject(pmpMeshes["walkways30-3"]);
+    pmpObjects["walkways30-3_8"]->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+    pmpObjects["walkways30-3_8"]->setPosition(glm::vec3(85.0f, 0.0f, -63.0f));
+
+    pmpObjects["walkways10-3_1"] = new cBaseObject(pmpMeshes["walkways10-3"]);
+    pmpObjects["walkways10-3_1"]->setPosition(glm::vec3(-65.0f, 0.0f, -10.0f));
+
+    pmpObjects["walkways10-3_2"] = new cBaseObject(pmpMeshes["walkways10-3"]);
+    pmpObjects["walkways10-3_2"]->setPosition(glm::vec3(-115.0f, 0.0f, -10.0f));
+
+    pmpObjects["walkways10-3_3"] = new cBaseObject(pmpMeshes["walkways10-3"]);
+    pmpObjects["walkways10-3_3"]->setPosition(glm::vec3(-65.0f, 0.0f, -147.0f));
+
+    pmpObjects["walkways10-3_4"] = new cBaseObject(pmpMeshes["walkways10-3"]);
+    pmpObjects["walkways10-3_4"]->setPosition(glm::vec3(-115.0f, 0.0f, -147.0f));
+
+    pmpObjects["walkways10-3_5"] = new cBaseObject(pmpMeshes["walkways10-3"]);
+    pmpObjects["walkways10-3_5"]->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+    pmpObjects["walkways10-3_5"]->setPosition(glm::vec3(-15.0f, 0.0f, -47.0f));
+
+    pmpObjects["walkways10-3_6"] = new cBaseObject(pmpMeshes["walkways10-3"]);
+    pmpObjects["walkways10-3_6"]->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+    pmpObjects["walkways10-3_6"]->setPosition(glm::vec3(-15.0f, 0.0f, -97.0f));
+
+    pmpObjects["walkways10-3_7"] = new cBaseObject(pmpMeshes["walkways10-3"]);
+    pmpObjects["walkways10-3_7"]->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+    pmpObjects["walkways10-3_7"]->setPosition(glm::vec3(-152.0f, 0.0f, -47.0f));
+
+    pmpObjects["walkways10-3_8"] = new cBaseObject(pmpMeshes["walkways10-3"]);
+    pmpObjects["walkways10-3_8"]->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+    pmpObjects["walkways10-3_8"]->setPosition(glm::vec3(-152.0f, 0.0f, -97.0f));
+
+    pmpObjects["walkways10-3_9"] = new cBaseObject(pmpMeshes["walkways10-3"]);
+    pmpObjects["walkways10-3_9"]->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+    pmpObjects["walkways10-3_9"]->setPosition(glm::vec3(-2.0f, 0.0f, -97.0f));
+
+    pmpObjects["walkways10-3_10"] = new cBaseObject(pmpMeshes["walkways10-3"]);
+    pmpObjects["walkways10-3_10"]->setRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+    pmpObjects["walkways10-3_10"]->setPosition(glm::vec3(85.0f, 0.0f, -97.0f));
+
+    pmpObjects["walkways10-3_11"] = new cBaseObject(pmpMeshes["walkways10-3"]);
+    pmpObjects["walkways10-3_11"]->setPosition(glm::vec3(35.0f, 0.0f, -60.0f));
+
+    pmpObjects["walkways10-3_12"] = new cBaseObject(pmpMeshes["walkways10-3"]);
+    pmpObjects["walkways10-3_12"]->setPosition(glm::vec3(35.0f, 0.0f, -147.0f));
 
     // Bus stations
     pmpObjects["busStation1"] = new cBaseObject(*pmpModels["busStation"]);
@@ -441,6 +571,21 @@ void cBusWorldScene::LoadObjects()
 
     pmpObjects["needleBuilding"] = new cBaseObject(pmpMeshes["needleBuilding"]);
     pmpObjects["needleBuilding"]->setPosition(glm::vec3(48.0f, 0.0f, -13.0f));
+
+    pmpObjects["blockBuilding2_1"] = new cBaseObject(pmpMeshes["blockBuilding2"]);
+    pmpObjects["blockBuilding2_1"]->setPosition(glm::vec3(-2.0f, 0.0f, -63.0f));
+
+    pmpObjects["blockBuilding2_2"] = new cBaseObject(pmpMeshes["blockBuilding2"]);
+    pmpObjects["blockBuilding2_2"]->setPosition(glm::vec3(48.0f, 0.0f, -113.0f));
+
+    pmpObjects["blockBuilding3_1"] = new cBaseObject(pmpMeshes["blockBuilding3"]);
+    pmpObjects["blockBuilding3_1"]->setPosition(glm::vec3(-2.0f, 0.0f, -97.0f));
+
+    pmpObjects["blockBuilding3_2"] = new cBaseObject(pmpMeshes["blockBuilding3"]);
+    pmpObjects["blockBuilding3_2"]->setPosition(glm::vec3(48.0f, 0.0f, -63.0f));
+
+    pmpObjects["blockBuilding4_1"] = new cBaseObject(pmpMeshes["blockBuilding4"]);
+    pmpObjects["blockBuilding4_1"]->setPosition(glm::vec3(32.0f, 0.0f, -63.0f));
 
     pmpObjects["bus"] = new cBus(pmpMeshes["bus"]);
     pmpObjects["bus"]->setPosition(glm::vec3(12.5f, 0, -7.5f));
@@ -467,6 +612,10 @@ void cBusWorldScene::LoadObjects()
         pmpObjects[key]->setScale(glm::vec3(0));
         dynamic_cast<cBus*>(pmpObjects[key])->piBusId = i;
     }
+
+    // grass
+    pmpObjects["grassField1_1"] = new cEntity(pmpMeshes["grassField1"]);
+    pmpObjects["grassField1_1"]->setPosition(glm::vec3(-152.0f, 0.0f, -13.0f));
 
     // Create static behaviours
     cBehaviourHandler::AddBehaviour("seperation", "src/scripting/seperation.js");
