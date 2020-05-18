@@ -56,6 +56,7 @@ public:
                 entity->poVelocity = glm::normalize(entity->poVelocity);
                 entity->poVelocity = entity->poVelocity * entity->pfMaxSpeed;
             }
+
             entity->poPosition.x += entity->poVelocity.x;
             entity->poPosition.z += entity->poVelocity.y;
 
