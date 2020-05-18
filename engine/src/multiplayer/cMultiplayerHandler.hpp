@@ -147,9 +147,6 @@ bool cMultiplayerHandler::OnRecieve(cNetworkConnection* pConnection)
     tFixedVec3* pFixedPos = (tFixedVec3*) &buffer[36];
     tFixedVec3* pFixedRot = (tFixedVec3*) &buffer[36 + sizeof(tFixedVec3)];
 
-    std::cout << sId << ", x: " << pFixedPos->x << ", y: " << pFixedPos->y << ", z: " << pFixedPos->z <<
-              "rot-x: " << pFixedRot->x << ", rot-y: " << pFixedRot->y << ", rot-z: " << pFixedRot->z << std::endl;
-
     glm::vec3 oPos = ToGLMVec(pFixedPos);
     glm::vec3 oRot = ToGLMVec(pFixedRot);
 

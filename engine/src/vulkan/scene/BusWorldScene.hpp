@@ -92,8 +92,8 @@ void cBusWorldScene::Update()
     {
         BusCentered = false;
         poCamera = pFirstPersonFlyCamera;
-
     }
+
     if (paKeys[GLFW_KEY_B])
     {
         BusCentered = true;
@@ -116,8 +116,6 @@ void cBusWorldScene::Update()
         Quit();
 
     dynamic_cast<cBus *>(pmpObjects["bus"])->Move();
-
-
 
     cScene::Update();
     if(poMultiplayerHandler) poMultiplayerHandler->PushData();

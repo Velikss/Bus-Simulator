@@ -13,6 +13,7 @@ set(CompilerFlags
 foreach(CompilerFlag ${CompilerFlags})
     string(REPLACE "/MT" "/MD" ${CompilerFlag} "${${CompilerFlag}}")
 endforeach()
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -luuid")
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
@@ -41,7 +42,7 @@ IF (WIN32)
     target_link_libraries(${This} PUBLIC engine GTest::gtest GTest::gmock)
     target_link_libraries(${This} PUBLIC engine ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw glm ${OPENGL_INCLUDE_DIRS} ${DUKTAPE_LIBRARY})
 ELSE()
-    target_link_libraries(${This} PUBLIC engine gtest gmock)
+    target_link_libraries(${This} PUBLIC engine gtest gmock /usr/lib/libuuid.a)
     target_link_libraries(${This} PUBLIC engine ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw /usr/lib/libduktape.so)
 ENDIF()
 
