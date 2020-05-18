@@ -467,6 +467,7 @@ void cBusWorldScene::LoadObjects()
         string key = "multiplayer_bus_" + std::to_string(i);
         pmpObjects[key] = new cBus(pmpMeshes["bus"]);
         pmpObjects[key]->setScale(glm::vec3(0));
+        dynamic_cast<cBus*>(pmpObjects[key])->piBusId = i;
     }
 
     // Create static behaviours

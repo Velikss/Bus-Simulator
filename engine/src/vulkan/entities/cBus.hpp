@@ -16,6 +16,8 @@ public:
     float pfMaxSteeringModifier;
     float pfMinSteeringModifier;
 
+    int piPingTimeout;
+    int piBusId;
 
     cBus(cMesh * mesh) : cBaseObject(mesh)
     {
