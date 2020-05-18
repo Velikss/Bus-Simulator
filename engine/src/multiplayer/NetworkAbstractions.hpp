@@ -86,11 +86,11 @@ int cNetworkAbstractions::CloseSocket(NET_SOCK & oSock)
     int iResult = -1;
 
 #ifdef _WIN32
-    iResult = shutdown(oSock, SD_BOTH);
-    if (iResult == 0) { iResult = closesocket(oSock); }
+    shutdown(oSock, SD_BOTH);
+    iResult = closesocket(oSock);
 #else
-    iResult = shutdown(oSock, SHUT_RDWR);
-    if (iResult == 0) { iResult = close(oSock); }
+    shutdown(oSock, SHUT_RDWR);
+    iResult = close(oSock);
 #endif
 
     oSock = NET_INVALID_SOCKET_ID;
