@@ -79,11 +79,13 @@ void cBusWorldScene::Update()
     if (paKeys[GLFW_KEY_C])
     {
         BusCentered = false;
+        delete poCamera;
         poCamera = new FirstPersonFlyCamera;
     }
     if (paKeys[GLFW_KEY_B])
     {
         BusCentered = true;
+        delete poCamera;
         poCamera = new BusCamera;
         poCamera->cameraPivotObject = pmpObjects["bus"];
         poCamera->cameraPivotPos = *pmpObjects["bus"]->getPosition();

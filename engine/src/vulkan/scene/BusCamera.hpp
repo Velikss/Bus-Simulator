@@ -118,17 +118,31 @@ public:
         float rotationDifference = rotation - yaw;
 
         if(rotationDifference > 0)
-            if(rotationDifference > 0.2)
+        {
+            if(rotationDifference > 1.0)
+                if(rotationDifference < 180)
+                    yaw += 0.1;
+                else
+                    yaw -= 0.1;
+            if(rotationDifference > 5.0)
                 if(rotationDifference < 180)
                     yaw += 0.5;
                 else
                     yaw -= 0.5;
+        }
         if(rotationDifference < 0)
-            if((-1 * rotationDifference) > 0.2)
+        {
+            if((-1 * rotationDifference) > 1.0)
+                if((-1 * rotationDifference) < 180)
+                    yaw -= 0.1;
+                else
+                    yaw += 0.1;
+            if((-1 * rotationDifference) > 5.0)
                 if((-1 * rotationDifference) < 180)
                     yaw -= 0.5;
                 else
                     yaw += 0.5;
+        }
 
         cameraPos.x = sin(glm::radians(yaw)) * orbitDistance + cameraPivotPos.x;
         cameraPos.y = cameraPivotPos.y + cameraHeight;
