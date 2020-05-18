@@ -10,7 +10,7 @@ TEST(ODBCTests, Connect)
     poInstance = std::make_shared<cODBCInstance>();
 #if defined(WINDOWS)
     EXPECT_TRUE(poInstance->Connect("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test-windows;"));
-#elif
+#else
     EXPECT_TRUE(poInstance->Connect("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test-linux;"));
 #endif
 }

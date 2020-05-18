@@ -69,7 +69,7 @@ TEST(SSOTests, SetupSSOServer)
 
 #if defined(WINDOWS)
     EXPECT_TRUE(poSSOServer->InitDB("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test-windows;"));
-#elif
+#else
     EXPECT_TRUE(poSSOServer->InitDB("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test-linux;"));
 #endif
 
@@ -78,7 +78,7 @@ TEST(SSOTests, SetupSSOServer)
 
 #if defined(WINDOWS)
     EXPECT_TRUE(poGameServer->InitDB("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test-windows;"));
-#elif
+#else
     EXPECT_TRUE(poGameServer->InitDB("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=test-linux;"));
 #endif
 
