@@ -74,7 +74,7 @@ void cBusWorldScene::Update()
 {
     if(paKeys[GLFW_KEY_Q])
         entityGroup.UpdateEntities();
-    if(paKeys[GLFW_KEY_Q])
+    if(paKeys[GLFW_KEY_E])
         entityGroup2.UpdateEntities();
     if (paKeys[GLFW_KEY_W])
         BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Accelerate() : poCamera->Forward();
@@ -149,7 +149,7 @@ void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
     pmpTextures["schoolBus"] = pTextureHandler->LoadTextureFromFile("resources/textures/buses/schoolBus.png");
 
     //entities
-    pmpTextures["entity"] = pTextureHandler->LoadTextureFromFile("resources/textures/buses/schoolBus.png");
+    pmpTextures["entity"] = pTextureHandler->LoadTextureFromFile("resources/textures/penguin.png");
 }
 
 void cBusWorldScene::LoadGeometries(cLogicalDevice *pLogicalDevice)
@@ -177,7 +177,7 @@ void cBusWorldScene::LoadGeometries(cLogicalDevice *pLogicalDevice)
     pmpGeometries["needleBuilding"] = cGeometry::FromOBJFile("resources/geometries/buildings/needleBuilding.obj", pLogicalDevice, 8, 8);
 
     // entities
-    pmpGeometries["entity"] = cGeometry::FromOBJFile("resources/geometries/busses/SchoolBus.obj", pLogicalDevice);
+    pmpGeometries["entity"] = cGeometry::FromOBJFile("resources/geometries/penguin.obj", pLogicalDevice);
 }
 
 void cBusWorldScene::LoadMeshes()
@@ -448,17 +448,15 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["bus"]->setScale(glm::vec3(0.8, 0.8, 0.8));
 
     // Entities
-    pmpObjects["entity"] = new cEntity(pmpMeshes["entity"]);
-    pmpObjects["entity"]->setPosition(glm::vec3(-10.0f, 0.0f, -26.0f));
-
-    pmpObjects["entity2"] = new cEntity(pmpMeshes["entity"]);
-    pmpObjects["entity2"]->setPosition(glm::vec3(-14.0f, 0.0f, -26.0f));
-
-    pmpObjects["entity3"] = new cEntity(pmpMeshes["entity"]);
-    pmpObjects["entity3"]->setPosition(glm::vec3(-18.0f, 0.0f, -26.0f));
-
-    pmpObjects["entity4"] = new cEntity(pmpMeshes["entity"]);
-    pmpObjects["entity4"]->setPosition(glm::vec3(-22.0f, 0.0f, -26.0f));
+    for(int i = 0; i < 100; i++)
+    {
+        for(int j = 0; j < 100; j++)
+        {
+            string key = "entity-" + std::to_string(i) + std::to_string(j);
+            pmpObjects[key] = new cEntity(pmpMeshes["entity"]);
+            pmpObjects[key]->setPosition(glm::vec3(-10.0f + j, 0.0f, -26.0f + i));
+        }
+    }
 
     for (uint i = 0; i < 10; i++)
     {
@@ -467,7 +465,7 @@ void cBusWorldScene::LoadObjects()
         pmpObjects[key]->setScale(glm::vec3(0));
     }
 
-    // Create static behaviours
+//    // Create static behaviours
     cBehaviourHandler::AddBehaviour("seperation", "src/scripting/seperation.js");
 
     cBehaviourHandler *cbSeperation = new cBehaviourHandler("seperation");
@@ -477,10 +475,16 @@ void cBusWorldScene::LoadObjects()
     cBehaviourHandler *cbCohesion = new cBehaviourHandler("cohesion");
 
 
-    entityGroup.AddEntity(dynamic_cast<cEntity *>(pmpObjects["entity"]));
-    entityGroup.AddEntity(dynamic_cast<cEntity *>(pmpObjects["entity2"]));
-    entityGroup.AddEntity(dynamic_cast<cEntity *>(pmpObjects["entity3"]));
-    entityGroup.AddEntity(dynamic_cast<cEntity *>(pmpObjects["entity4"]));
+
+    // Entities
+    for(int i = 0; i < 100; i++)
+    {
+        for (int j = 0; j < 100; j++)
+        {
+            string key = "entity-" + std::to_string(i) + std::to_string(j);
+            entityGroup.AddEntity(dynamic_cast<cEntity *>(pmpObjects[key]));
+        }
+    }
 
     entityGroup2 = entityGroup;
     entityGroup.AddBehaviour(cbSeperation);
