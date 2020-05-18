@@ -38,6 +38,8 @@ protected:
     cScene* ppScene = nullptr;
     string psGameServerUuid;
     byte* pBuffer = new byte[36 + (sizeof(glm::vec3) * 2)];
+    std::map<std::string, std::string> pmsBusIds;
+    uint puiAvailableBusId = 0;
 public:
     cMultiplayerHandler(tNetworkInitializationSettings* pSettings, cScene* pScene) : cNetworkClient(pSettings)
     {
@@ -105,11 +107,10 @@ bool cMultiplayerHandler::OnRecieve(cNetworkConnection* pConnection)
     std::string sId((char*)buffer, 36);
     auto& aObjects = ppScene->GetObjects();
 
-    if (aObjects.find(sId) == aObjects.end())
+    if (pmsBusIds.count(sId) == 0)
     {
-        auto& aMeshes = ppScene->GetMeshes();
-        aObjects[sId] = new cBus(aMeshes["bus"]);
-        aObjects[sId]->setScale(glm::vec3(0.8, 0.8, 0.8));
+        pmsBusIds[sId] = "multiplayer_bus_" + std::to_string(puiAvailableBusId++);
+        aObjects[pmsBusIds[sId]]->setScale(glm::vec3(0.8, 0.8, 0.8));
     }
 
     glm::vec3* oPos = (glm::vec3*) & buffer[36];
@@ -118,7 +119,7 @@ bool cMultiplayerHandler::OnRecieve(cNetworkConnection* pConnection)
     std::cout << sId << ", x: " << oPos->x << ", y: " << oPos->y << ", z: " << oPos->z <<
         "rot-x: " << oRot->x << ", rot-y: " << oRot->y << ", rot-z: " << oRot->z << std::endl;
 
-    auto& oObject = aObjects[sId];
+    auto& oObject = aObjects[pmsBusIds[sId]];
     oObject->setPosition(*oPos);
     oObject->setRotation(*oRot);
     return true;

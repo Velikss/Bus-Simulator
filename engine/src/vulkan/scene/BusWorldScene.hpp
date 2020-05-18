@@ -462,6 +462,13 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["entity4"] = new cEntity(pmpMeshes["entity"]);
     pmpObjects["entity4"]->setPosition(glm::vec3(-22.0f, 0.0f, -26.0f));
 
+    for (uint i = 0; i < 10; i++)
+    {
+        string key = "multiplayer_bus_" + std::to_string(i);
+        pmpObjects[key] = new cBus(pmpMeshes["bus"]);
+        pmpObjects[key]->setScale(glm::vec3(0));
+    }
+
     // Create static behaviours
     cBehaviourHandler::AddBehaviour("seperation", "src/scripting/seperation.js");
 
