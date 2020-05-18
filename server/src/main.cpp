@@ -15,6 +15,6 @@ int main()
         std::cout << "game server started." << std::endl;
     else
         std::cout << "game server failed to start." << std::endl;
-    for(;;){sleep(1000);}
+    for(;;){ fSleep(1000);}
     return 0;
 }

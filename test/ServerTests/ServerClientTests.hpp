@@ -63,7 +63,7 @@ TEST(ServerClientTests, Connect)
     EXPECT_TRUE(pPlainClient->Connect());
     string sGreeting = "hallo";
     pPlainClient->SendBytes((byte*)sGreeting.c_str(), sGreeting.size());
-    sleep(50);
+    fSleep(50);
     EXPECT_EQ(iTimesRecieved, 1);
     pPlainServer->Stop();
     pPlainClient->Disconnect();

@@ -122,7 +122,7 @@ TEST(SSOTests, Handshake)
 
     string sRequest = oRequest.Serialize();
     poGameClient->SendBytes((const byte*)sRequest.c_str(), sRequest.size());
-    sleep(50);
+    fSleep(50);
 }
 
 TEST(SSOTests, Stop)

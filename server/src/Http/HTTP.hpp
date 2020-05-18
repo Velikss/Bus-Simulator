@@ -385,7 +385,7 @@ namespace cHttp
         {
             if(usTimeOut > 5) return false;
             usTimeOut++;
-            sleep(10);
+            fSleep(10);
         }
 
         byte* aBytes = new byte[8192];
@@ -420,7 +420,7 @@ namespace cHttp
     {
         if (!pConnection->Available())
         {
-            sleep(uiSleepTime);
+            fSleep(uiSleepTime);
             if (!pConnection->Available()) return false;
         }
 

@@ -30,7 +30,7 @@ find_package(ODBC REQUIRED)
 
 include_directories( ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../ ${OPENSSL_INCLUDE_DIR} ${ODBC_INCLUDE_DIR})
 add_executable(${This} ${Sources} ${Headers})
-target_link_libraries(${This} PUBLIC OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY})
+target_link_libraries(${This} PUBLIC ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${ODBC_LIBRARY})
 
 IF (WIN32)
     find_package(GTest CONFIG REQUIRED)

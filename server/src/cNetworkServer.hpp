@@ -135,7 +135,7 @@ void cNetworkServer::OnConnectLoop()
             else
                 delete incoming;
         }
-        if (!bBlocking) sleep(1);
+        if (!bBlocking) fSleep(1);
     }
 }
 
@@ -162,7 +162,7 @@ void cNetworkServer::OnRecieveLoop()
                 continue;
             }
         }
-        sleep(1);
+        fSleep(1);
     }
 }
 

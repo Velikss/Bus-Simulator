@@ -57,7 +57,7 @@ bool Is64Bit()
 #endif
 }
 
-void sleep(int sleepMs)
+void fSleep(int sleepMs)
 {
 #if defined(LINUX)
     usleep(sleepMs * 1000);   // usleep takes sleep time in us (1 millionth of a second)

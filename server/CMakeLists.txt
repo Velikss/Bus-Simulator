@@ -6,6 +6,7 @@ project(${This} C CXX)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -luuid")
 
 set(Headers 
     ${PROJECT_SOURCE_DIR}/src/pch.hpp
@@ -30,6 +31,6 @@ IF (WIN32)
     target_link_libraries(${This} PUBLIC OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY} glm)
     target_link_libraries(${This}-bin PUBLIC OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY} glm)
 ELSE()
-    target_link_libraries(${This} PUBLIC OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY})
-    target_link_libraries(${This}-bin PUBLIC OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY})
+    target_link_libraries(${This} PUBLIC ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${ODBC_LIBRARY})
+    target_link_libraries(${This}-bin PUBLIC ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${ODBC_LIBRARY})
 ENDIF()
