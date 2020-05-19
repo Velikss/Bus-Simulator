@@ -19,7 +19,7 @@ public:
     int piPingTimeout;
     int piBusId;
 
-    cBus(cMesh * mesh) : cBaseObject(mesh, false)
+    cBus(cMesh * mesh) : cBaseObject(mesh, cCollider::UnitCollider(2), false)
     {
         pfMaxSpeed = 40;
         pfMinSpeed = -15;

@@ -183,7 +183,7 @@ void Engine::MainLoop(void)
             ENGINE_LOG("Loading scene...");
 
             // Create and load the scene
-            ppScene = new cBusWorldScene();
+            ppScene = new cTestScene();
             ppScene->Load(ppTextureHandler, ppLogicalDevice);
 
             // The scene will handle the input

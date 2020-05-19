@@ -22,7 +22,7 @@ public:
     float yaw = 0;
     float pitch = 0;
 
-    const float cameraSpeed = 0.1f;
+    const float cameraSpeed = 0.05f;
     const float cameraSpeedLook = 1.0f;
     float mouseSpeed = 0.07f;
 

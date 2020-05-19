@@ -114,7 +114,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/multiplayer/SslHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/multiplayer/NetworkAbstractions.hpp
         ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkConnection.hpp
-        ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkClient.hpp src/multiplayer/cMultiplayerHandler.hpp ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBus.hpp)
+        ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkClient.hpp src/multiplayer/cMultiplayerHandler.hpp ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBus.hpp src/vulkan/collision/Collider.hpp src/vulkan/collision/CollisionHelper.hpp src/vulkan/collision/ColliderSet.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 

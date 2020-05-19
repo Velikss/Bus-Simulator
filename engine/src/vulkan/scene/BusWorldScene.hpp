@@ -553,7 +553,7 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["walkways10-3_12"]->SetPosition(glm::vec3(35.0f, 0.0f, -147.0f));
 
     // Bus stations
-    pmpObjects["busStation1"] = new cBaseObject(*pmpModels["busStation"]);
+    pmpObjects["busStation1"] = new cBaseObject(pmpMeshes["busStation"], cCollider::UnitCollider());
     pmpObjects["busStation1"]->SetPosition(glm::vec3(8.603f, 0.15f, -11.0f));
 
     // Traffic lights
@@ -569,25 +569,25 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["trafficLight3"]->SetPosition(glm::vec3(46.0f, 0.15f, -12.0f));
 
     // Buildings
-    pmpObjects["building"] = new cBaseObject(pmpMeshes["building"]);
+    pmpObjects["building"] = new cBaseObject(pmpMeshes["building"], cCollider::UnitCollider());
     pmpObjects["building"]->SetPosition(glm::vec3(-2.0f, 0.0f, -13.0f));
 
-    pmpObjects["needleBuilding"] = new cBaseObject(pmpMeshes["needleBuilding"]);
+    pmpObjects["needleBuilding"] = new cBaseObject(pmpMeshes["needleBuilding"], cCollider::UnitCollider(5));
     pmpObjects["needleBuilding"]->SetPosition(glm::vec3(48.0f, 0.0f, -13.0f));
 
-    pmpObjects["blockBuilding2_1"] = new cBaseObject(pmpMeshes["blockBuilding2"]);
+    pmpObjects["blockBuilding2_1"] = new cBaseObject(pmpMeshes["blockBuilding2"], cCollider::UnitCollider(5));
     pmpObjects["blockBuilding2_1"]->SetPosition(glm::vec3(-2.0f, 0.0f, -63.0f));
 
-    pmpObjects["blockBuilding2_2"] = new cBaseObject(pmpMeshes["blockBuilding2"]);
+    pmpObjects["blockBuilding2_2"] = new cBaseObject(pmpMeshes["blockBuilding2"], cCollider::UnitCollider(5));
     pmpObjects["blockBuilding2_2"]->SetPosition(glm::vec3(48.0f, 0.0f, -113.0f));
 
-    pmpObjects["blockBuilding3_1"] = new cBaseObject(pmpMeshes["blockBuilding3"]);
+    pmpObjects["blockBuilding3_1"] = new cBaseObject(pmpMeshes["blockBuilding3"], cCollider::UnitCollider(5));
     pmpObjects["blockBuilding3_1"]->SetPosition(glm::vec3(-2.0f, 0.0f, -97.0f));
 
-    pmpObjects["blockBuilding3_2"] = new cBaseObject(pmpMeshes["blockBuilding3"]);
+    pmpObjects["blockBuilding3_2"] = new cBaseObject(pmpMeshes["blockBuilding3"], cCollider::UnitCollider(5));
     pmpObjects["blockBuilding3_2"]->SetPosition(glm::vec3(48.0f, 0.0f, -63.0f));
 
-    pmpObjects["blockBuilding4_1"] = new cBaseObject(pmpMeshes["blockBuilding4"]);
+    pmpObjects["blockBuilding4_1"] = new cBaseObject(pmpMeshes["blockBuilding4"], cCollider::UnitCollider(5));
     pmpObjects["blockBuilding4_1"]->SetPosition(glm::vec3(32.0f, 0.0f, -63.0f));
 
     pmpObjects["bus"] = new cBus(pmpMeshes["bus"]);

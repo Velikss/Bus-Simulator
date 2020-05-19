@@ -28,6 +28,8 @@ protected:
 
     bool paKeys[GLFW_KEY_LAST] = {false};
 
+    cColliderSet* ppColliders = new cColliderSet();
+
 private:
     std::vector<cBaseObject*> papMovableObjects;
     std::vector<cLightObject*> papLightObjects;
@@ -114,6 +116,15 @@ void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevi
         {
             papLightObjects.push_back(dynamic_cast<cLightObject*>(oObject.second));
         }
+
+        cCollider* pCollider = oObject.second->GetCollider();
+        if (pCollider != nullptr)
+        {
+            pCollider->Update(oObject.second->GetModelMatrix());
+            ppColliders->papColliders.push_back(pCollider);
+        }
+
+        oObject.second->Setup(ppColliders);
     }
 
     for (auto oMesh : pmpMeshes)

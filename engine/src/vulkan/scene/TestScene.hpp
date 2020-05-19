@@ -10,34 +10,26 @@ protected:
     void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice) override
     {
         // textures
-        pmpTextures["moon"] = pTextureHandler->LoadTextureFromFile("resources/textures/moon.jpg");
         pmpTextures["street"] = pTextureHandler->LoadTextureFromFile("resources/textures/street.jpg");
+        pmpTextures["moon"] = pTextureHandler->LoadTextureFromFile("resources/textures/moon.jpg");
 
         // geometry
-        pmpGeometries["sphere"] = cGeometry::FromOBJFile("resources/geometries/sphere.obj", pLogicalDevice);
-        pmpGeometries["plane"] = cGeometry::FromOBJFile("resources/geometries/plane.obj", pLogicalDevice);
+        pmpGeometries["box"] = cGeometry::FromOBJFile("resources/geometries/box.obj", pLogicalDevice);
 
         // mesh
-        pmpMeshes["sphere"] = new cMesh(pmpGeometries["sphere"], pmpTextures["moon"]);
-        pmpMeshes["plane"] = new cMesh(pmpGeometries["plane"], pmpTextures["street"]);
+        pmpMeshes["box1"] = new cMesh(pmpGeometries["box"], pmpTextures["street"]);
+        pmpMeshes["box2"] = new cMesh(pmpGeometries["box"], pmpTextures["moon"]);
 
-        pmpObjects["sphere"] = new cBaseObject(pmpMeshes["sphere"]);
+        pmpObjects["box1"] = new cBaseObject(pmpMeshes["box1"], cCollider::UnitCollider(0.5f), false);
+        pmpObjects["box1"]->SetPosition(glm::vec3(2.1, 0, 0));
+        pmpObjects["box1"]->bLighting = false;
 
-        pmpObjects["light1"] = new cLightObject(pmpMeshes["sphere"], glm::vec3(0, 1, 0), 10.0f);
-        pmpObjects["light1"]->SetScale(glm::vec3(0, 0, 0));
-        pmpObjects["light1"]->SetPosition(glm::vec3(5, 5, 5));
+        pmpObjects["box2"] = new cBaseObject(pmpMeshes["box2"], cCollider::UnitCollider(0.5f), false);
+        pmpObjects["box2"]->SetPosition(glm::vec3(1, 0, 0));
+        pmpObjects["box2"]->SetRotation(glm::vec3(0, 45, 0));
+        pmpObjects["box2"]->bLighting = false;
 
-        pmpObjects["light2"] = new cLightObject(pmpMeshes["sphere"], glm::vec3(1, 0, 1), 10.0f);
-        pmpObjects["light2"]->SetScale(glm::vec3(0, 0, 0));
-        pmpObjects["light2"]->SetPosition(glm::vec3(-5, 5, 5));
-
-        pmpObjects["light3"] = new cLightObject(pmpMeshes["sphere"], glm::vec3(1, 0, 0), 10.0f);
-        pmpObjects["light3"]->SetScale(glm::vec3(0, 0, 0));
-        pmpObjects["light3"]->SetPosition(glm::vec3(5, 5, -5));
-
-        pmpObjects["light4"] = new cLightObject(pmpMeshes["sphere"], glm::vec3(0, 1, 1), 10.0f);
-        pmpObjects["light4"]->SetScale(glm::vec3(0, 0, 0));
-        pmpObjects["light4"]->SetPosition(glm::vec3(-5, 5, -5));
+        cScene::Load(pTextureHandler, pLogicalDevice);
     }
 
 public:
@@ -58,6 +50,14 @@ public:
 
         if (paKeys[GLFW_KEY_ESCAPE])
             Quit();
+
+        glm::vec3 pos = poCamera->GetPosition();
+        pos.y -= 4;
+        pmpObjects["box2"]->SetPosition(pos);
+
+        cBaseObject* pObject = pmpObjects["box2"];
+        glm::mat4 matrix = pObject->GetModelMatrix();
+        ENGINE_LOG(ppColliders->Collides(pObject->ppCollider, matrix));
 
         cScene::Update();
     }
