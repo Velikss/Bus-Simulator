@@ -602,5 +602,6 @@ void cBusWorldScene::LoadObjects()
 
     entityGroup2 = entityGroup;
     entityGroup.AddBehaviour(cbSeperation);
+//    entityGroup.AddBehaviour(cbCohesion);
     entityGroup2.AddBehaviour(cbCohesion);
 }

@@ -71,19 +71,21 @@ public:
             // Runs JavaScript which calculates a steering force and appends it to the current force.
             cBehaviourHandler->Update(this);
         }
-
-        glm::vec2 acceleration = poSteeringForce / pfMaxSpeed;
-        poVelocity += acceleration;
-        if(poVelocity.length() > pfMaxSpeed)
-        {
-            poVelocity = glm::normalize(poVelocity);
-            poVelocity = poVelocity * pfMaxSpeed;
+        if(!isnan(poSteeringForce.x) && !isnan(poSteeringForce.y)) {
+            glm::vec2 acceleration = poSteeringForce / pfMaxSpeed;
+            poVelocity += acceleration;
+            if (poVelocity.length() > pfMaxSpeed) {
+                poVelocity = glm::normalize(poVelocity);
+                poVelocity = poVelocity * pfMaxSpeed;
+            }
+            glm::vec3 pos = GetPosition();
+            pos.x += poVelocity.x;
+            pos.z += poVelocity.y;
+            SetPosition(pos);
+            if(poVelocity.x > 0.001 && poVelocity.y > 0.001){
+                poVelocity *= 0.9;
+            }
         }
-        glm::vec3 pos = GetPosition();
-        pos.x += poVelocity.x;
-        pos.z += poVelocity.y;
-        SetPosition(pos);
-        poVelocity *= 0.9;
     }
 };
 

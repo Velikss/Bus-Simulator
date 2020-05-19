@@ -62,8 +62,9 @@ public:
                 pos.x += entity->poVelocity.x;
                 pos.z += entity->poVelocity.y;
                 entity->SetPosition(pos);
-
-                entity->poVelocity *= 0.9;
+                if(entity->poVelocity.x > 0.001 && entity->poVelocity.y > 0.001){
+                    entity->poVelocity *= 0.9;
+                }
             }
         }
     }
