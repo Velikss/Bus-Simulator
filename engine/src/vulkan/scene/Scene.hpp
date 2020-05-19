@@ -2,6 +2,7 @@
 
 #include <pch.hpp>
 #include "Camera.hpp"
+#include "LightObject.hpp"
 #include <vulkan/mesh/Mesh.hpp>
 #include <vulkan/geometry/Geometry.hpp>
 #include <vulkan/scene/BaseObject.hpp>
@@ -27,6 +28,10 @@ protected:
 
     bool paKeys[GLFW_KEY_LAST] = {false};
 
+private:
+    std::vector<cBaseObject*> papMovableObjects;
+    std::vector<cLightObject*> papLightObjects;
+
 public:
     glm::vec3 textColor = glm::vec3(0, 1, 0);
     float pfAmbientLight = 0.2;
@@ -40,6 +45,8 @@ public:
     uint GetObjectCount();
     std::map<string, cBaseObject*>& GetObjects();
     std::map<string, cMesh*>& GetMeshes();
+    std::vector<cBaseObject*>& GetMovableObjects();
+    std::vector<cLightObject*>& GetLightObjects();
 
     Camera& GetCamera();
 
@@ -97,6 +104,16 @@ void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevi
     for (auto oObject : pmpObjects)
     {
         assert(oObject.second != nullptr);
+
+        if (!oObject.second->IsStatic())
+        {
+            papMovableObjects.push_back(oObject.second);
+        }
+
+        if (instanceof<cLightObject>(oObject.second))
+        {
+            papLightObjects.push_back(dynamic_cast<cLightObject*>(oObject.second));
+        }
     }
 
     for (auto oMesh : pmpMeshes)
@@ -135,9 +152,19 @@ std::map<string, cBaseObject*>& cScene::GetObjects()
     return pmpObjects;
 }
 
-std::map <string, cMesh*>& cScene::GetMeshes()
+std::map<string, cMesh*>& cScene::GetMeshes()
 {
     return pmpMeshes;
+}
+
+std::vector<cBaseObject*>& cScene::GetMovableObjects()
+{
+    return papMovableObjects;
+}
+
+std::vector<cLightObject*>& cScene::GetLightObjects()
+{
+    return papLightObjects;
 }
 
 Camera& cScene::GetCamera()

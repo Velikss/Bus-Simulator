@@ -2,6 +2,9 @@
 
 //#define DEBUG_NORMALS
 
+const float gamma = 1.9;
+const float PI = 3.14159265359;
+
 layout (binding = 1) uniform sampler2D samplerPosition;
 layout (binding = 2) uniform sampler2D samplerNormal;
 layout (binding = 3) uniform sampler2D samplerAlbedo;
@@ -25,7 +28,6 @@ layout (binding = 0) readonly buffer Buffer
     Light lights[];
 } ubo;
 
-const float PI = 3.14159265359;
 // ----------------------------------------------------------------------------
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
@@ -139,7 +141,7 @@ vec3 HandlePBR(vec3 fragPos)
     // HDR tonemapping
     result = result / (result + vec3(1.0));
     // gamma correct
-    result = pow(result, vec3(1.0/1.9));
+    result = pow(result, vec3(1.0 / gamma));
 
     return result;
 }

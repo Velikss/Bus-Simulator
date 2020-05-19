@@ -7,18 +7,21 @@ class cBaseObject
 {
 private:
     cMesh* ppMesh;
+    bool pbStatic;
 
 public:
     glm::vec3 poRotation = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 poPosition = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 poScale = glm::vec3(1.0f, 1.0f, 1.0f);
     bool bLighting = true;
+    uint puiUniformIndex;
 
-    cBaseObject(cMesh* pMesh);
+    cBaseObject(cMesh* pMesh, bool bStatic = true);
     virtual ~cBaseObject();
 
     glm::mat4 GetModelMatrix();
     cMesh* GetMesh();
+    bool IsStatic();
 
     void setRotation(const glm::vec3 poRotation);
     void setPosition(const glm::vec3 poPosition);
@@ -29,12 +32,11 @@ public:
     void MoveBackward(float fMultiplier);
     virtual void RotateLeft(float fAngleDiff);
     virtual void RotateRight(float fAngleDiff);
-
 };
 
-cBaseObject::cBaseObject(cMesh* pMesh) : ppMesh(pMesh)
+cBaseObject::cBaseObject(cMesh* pMesh, bool bStatic) : ppMesh(pMesh)
 {
-    //assert(ppMesh != nullptr);
+    pbStatic = bStatic;
 }
 
 glm::mat4 cBaseObject::GetModelMatrix()
@@ -137,6 +139,11 @@ void cBaseObject::RotateRight(float fAngleDiff)
 
 cBaseObject::~cBaseObject()
 {
+}
+
+bool cBaseObject::IsStatic()
+{
+    return pbStatic;
 }
 
 typedef cBaseObject cModel;
