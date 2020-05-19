@@ -33,8 +33,8 @@ public:
 };
 
 void cBus::Move() {
-    glm::vec3 oDirection(sin(glm::radians(poRotation.y)), 0, cos(glm::radians(poRotation.y)));
-    poPosition -= (oDirection * (pfCurrentSpeed / 100));
+    glm::vec3 oDirection(sin(glm::radians(GetRotation().y)), 0, cos(glm::radians(GetRotation().y)));
+    SetPosition(GetPosition() - (oDirection * (pfCurrentSpeed / 100)));
     if(pfCurrentSpeed !=0)
         pfSteeringModifier > 0 ? this->RotateLeft(pfSteeringModifier / 10) : this->RotateRight(pfSteeringModifier * -1 / 10);
 }

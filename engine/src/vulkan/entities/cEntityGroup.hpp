@@ -57,8 +57,10 @@ public:
                 entity->poVelocity = entity->poVelocity * entity->pfMaxSpeed;
             }
 
-            entity->poPosition.x += entity->poVelocity.x;
-            entity->poPosition.z += entity->poVelocity.y;
+            glm::vec3 pos = entity->GetPosition();
+            pos.x += entity->poVelocity.x;
+            pos.z += entity->poVelocity.y;
+            entity->SetPosition(pos);
 
             entity->poVelocity *= 0.9;
         }

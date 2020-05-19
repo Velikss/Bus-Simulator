@@ -126,86 +126,86 @@ void cStreetScene::LoadMeshes()
 void cStreetScene::LoadModels()
 {
     pmpModels["street"] = new cModel(pmpMeshes["street"]);
-    pmpModels["street"]->setScale(glm::vec3(40, 1, 20));
+    pmpModels["street"]->SetScale(glm::vec3(40, 1, 20));
 
     pmpModels["grasslawn"] = new cModel(pmpMeshes["grasslawn"]);
-    pmpModels["grasslawn"]->setScale(glm::vec3(40, 1, 20));
+    pmpModels["grasslawn"]->SetScale(glm::vec3(40, 1, 20));
 
     pmpModels["tree"] = new cModel(pmpMeshes["tree"]);
-    pmpModels["tree"]->setScale(glm::vec3(0.2, 0.2, 0.2));
+    pmpModels["tree"]->SetScale(glm::vec3(0.2, 0.2, 0.2));
 
     pmpModels["houseBase"] = new cModel(pmpMeshes["houseBase"]);
-    pmpModels["houseBase"]->setPosition(glm::vec3(0, 4.5, 0));
+    pmpModels["houseBase"]->SetPosition(glm::vec3(0, 4.5, 0));
 
     pmpModels["roof"] = new cModel(pmpMeshes["roof"]);
-    pmpModels["roof"]->setPosition(glm::vec3(0, 12.5, 0));
+    pmpModels["roof"]->SetPosition(glm::vec3(0, 12.5, 0));
 }
 
 void cStreetScene::LoadObjects()
 {
     pmpObjects["skybox"] = new cBaseObject(pmpMeshes["skybox"]);
-    pmpObjects["skybox"]->setScale(glm::vec3(500, 500, 500));
-    pmpObjects["skybox"]->setPosition(glm::vec3(0, -250, 0));
+    pmpObjects["skybox"]->SetScale(glm::vec3(500, 500, 500));
+    pmpObjects["skybox"]->SetPosition(glm::vec3(0, -250, 0));
     pmpObjects["skybox"]->bLighting = false;
 
     pmpObjects["moon"] = new cBaseObject(pmpMeshes["moon"]);
-    pmpObjects["moon"]->setScale(glm::vec3(2, 2, 2));
+    pmpObjects["moon"]->SetScale(glm::vec3(2, 2, 2));
 
     pmpObjects["street"] = new cBaseObject(*pmpModels["street"]);
-    pmpObjects["street"]->setScale(glm::vec3(200, 1, 100));
+    pmpObjects["street"]->SetScale(glm::vec3(200, 1, 100));
 
     pmpObjects["light1"] = new cLightObject(pmpMeshes["light_source"], glm::vec3(0, 1, 0), 10.0f);
-    pmpObjects["light1"]->setScale(glm::vec3(0, 0, 0));
-    pmpObjects["light1"]->setPosition(glm::vec3(5, 5, 5));
+    pmpObjects["light1"]->SetScale(glm::vec3(0, 0, 0));
+    pmpObjects["light1"]->SetPosition(glm::vec3(5, 5, 5));
 
     pmpObjects["light2"] = new cLightObject(pmpMeshes["light_source"], glm::vec3(1, 0, 1), 10.0f);
-    pmpObjects["light2"]->setScale(glm::vec3(0, 0, 0));
-    pmpObjects["light2"]->setPosition(glm::vec3(-5, 5, 5));
+    pmpObjects["light2"]->SetScale(glm::vec3(0, 0, 0));
+    pmpObjects["light2"]->SetPosition(glm::vec3(-5, 5, 5));
 
     pmpObjects["light3"] = new cLightObject(pmpMeshes["light_source"], glm::vec3(1, 0, 0), 10.0f);
-    pmpObjects["light3"]->setScale(glm::vec3(0, 0, 0));
-    pmpObjects["light3"]->setPosition(glm::vec3(5, 5, -5));
+    pmpObjects["light3"]->SetScale(glm::vec3(0, 0, 0));
+    pmpObjects["light3"]->SetPosition(glm::vec3(5, 5, -5));
 
     pmpObjects["light4"] = new cLightObject(pmpMeshes["light_source"], glm::vec3(0, 1, 1), 10.0f);
-    pmpObjects["light4"]->setScale(glm::vec3(0, 0, 0));
-    pmpObjects["light4"]->setPosition(glm::vec3(-5, 5, -5));
+    pmpObjects["light4"]->SetScale(glm::vec3(0, 0, 0));
+    pmpObjects["light4"]->SetPosition(glm::vec3(-5, 5, -5));
 
     /*pmpObjects["grasslawn1"] = new cBaseObject(*pmpModels["grasslawn"]);
-    pmpObjects["grasslawn1"]->setPosition(glm::vec3(80.0, 0.01, 0));
+    pmpObjects["grasslawn1"]->SetPosition(glm::vec3(80.0, 0.01, 0));
 
     pmpObjects["grasslawn2"] = new cBaseObject(*pmpModels["grasslawn"]);
-    pmpObjects["grasslawn2"]->setPosition(glm::vec3(0, 0.01, 0));
-    pmpObjects["grasslawn2"]->setScale(glm::vec3(80, 1, 20));
+    pmpObjects["grasslawn2"]->SetPosition(glm::vec3(0, 0.01, 0));
+    pmpObjects["grasslawn2"]->SetScale(glm::vec3(80, 1, 20));
 
     pmpObjects["grasslawn3"] = new cBaseObject(*pmpModels["grasslawn"]);
-    pmpObjects["grasslawn3"]->setPosition(glm::vec3(-80.0, 0.01, 0));*/
+    pmpObjects["grasslawn3"]->SetPosition(glm::vec3(-80.0, 0.01, 0));*/
 
     for (int i = 0; i < 20; i++)
     {
         string sName = "tree" + std::to_string(i);
         pmpObjects[sName] = new cBaseObject(*pmpModels["tree"]);
-        pmpObjects[sName]->setPosition(glm::vec3(-95 + 10 * i, 0, -45));
+        pmpObjects[sName]->SetPosition(glm::vec3(-95 + 10 * i, 0, -45));
     }
 
     for (int i = 0; i < 8; i++)
     {
         string sHouseName = "house" + std::to_string(i);
         pmpObjects[sHouseName] = new cBaseObject(*pmpModels["houseBase"]);
-        pmpObjects[sHouseName]->setPosition(glm::vec3(-80 + (25 * i), 0, 43.35));
+        pmpObjects[sHouseName]->SetPosition(glm::vec3(-80 + (25 * i), 0, 43.35));
         string sRoofName = "roof" + std::to_string(i);
         pmpObjects[sRoofName] = new cBaseObject(*pmpModels["roof"]);
-        pmpObjects[sRoofName]->setPosition(glm::vec3(-80 + (25 * i), 5.5, 43.35));
+        pmpObjects[sRoofName]->SetPosition(glm::vec3(-80 + (25 * i), 5.5, 43.35));
     }
 
     for (int i = 0; i <= 18; i += 3)
     {
         string sPoleName = "pole" + std::to_string(i);
         pmpObjects[sPoleName] = new cBaseObject(pmpMeshes["pole"]);
-        pmpObjects[sPoleName]->setScale(glm::vec3(0.1, 4, 0.1));
-        pmpObjects[sPoleName]->setPosition(glm::vec3(-90 + 10 * i, 0, 30));
+        pmpObjects[sPoleName]->SetScale(glm::vec3(0.1, 4, 0.1));
+        pmpObjects[sPoleName]->SetPosition(glm::vec3(-90 + 10 * i, 0, 30));
         string sLightName = "poleLight" + std::to_string(i);
         pmpObjects[sLightName] = new cLightObject(pmpMeshes["poleLight"], glm::vec3(1, 1, 1), 20.0f);
-        pmpObjects[sLightName]->setScale(glm::vec3(0.3, 0.3, 0.3));
-        pmpObjects[sLightName]->setPosition(glm::vec3(-90 + 10 * i, 4, 30));
+        pmpObjects[sLightName]->SetScale(glm::vec3(0.3, 0.3, 0.3));
+        pmpObjects[sLightName]->SetPosition(glm::vec3(-90 + 10 * i, 4, 30));
     }
 }

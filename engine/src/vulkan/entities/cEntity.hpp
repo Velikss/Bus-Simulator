@@ -79,8 +79,10 @@ public:
             poVelocity = glm::normalize(poVelocity);
             poVelocity = poVelocity * pfMaxSpeed;
         }
-        poPosition.x += poVelocity.x;
-        poPosition.z += poVelocity.y;
+        glm::vec3 pos = GetPosition();
+        pos.x += poVelocity.x;
+        pos.z += poVelocity.y;
+        SetPosition(pos);
         poVelocity *= 0.9;
     }
 };

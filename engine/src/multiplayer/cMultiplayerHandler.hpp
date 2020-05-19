@@ -12,12 +12,12 @@ struct tFixedVec3
     float z;
 };
 
-static tFixedVec3 ToFixedVec(glm::vec3* pVec)
+static tFixedVec3 ToFixedVec(glm::vec3 pVec)
 {
     return {
-            pVec->x,
-            pVec->y,
-            pVec->z
+            pVec.x,
+            pVec.y,
+            pVec.z
     };
 }
 
@@ -105,8 +105,8 @@ public:
         static const int msg_size = 36 + (sizeof(tFixedVec3) * 2);
 
         cBus* oBus = (cBus*) ppScene->GetObjects()["bus"];
-        glm::vec3* oPos = oBus->getPosition();
-        glm::vec3* oRot = oBus->getRotation();
+        glm::vec3 oPos = oBus->GetPosition();
+        glm::vec3 oRot = oBus->GetRotation();
         tFixedVec3 fixedPos = ToFixedVec(oPos);
         tFixedVec3 fixedRot = ToFixedVec(oRot);
         memcpy(pBuffer + pos_pos, &fixedPos, sizeof(tFixedVec3));
@@ -145,7 +145,7 @@ bool cMultiplayerHandler::OnRecieve(cNetworkConnection* pConnection)
     {
         pmsBusIds[sId] = "multiplayer_bus_" + std::to_string(paAvailableBusses.top());
         paAvailableBusses.pop();
-        aObjects[pmsBusIds[sId]]->setScale(glm::vec3(0.8, 0.8, 0.8));
+        aObjects[pmsBusIds[sId]]->SetScale(glm::vec3(0.8, 0.8, 0.8));
     }
 
     tFixedVec3* pFixedPos = (tFixedVec3*) &buffer[36];
@@ -158,8 +158,8 @@ bool cMultiplayerHandler::OnRecieve(cNetworkConnection* pConnection)
     glm::vec3 oRot = ToGLMVec(pFixedRot);
 
     auto& oObject = aObjects[pmsBusIds[sId]];
-    oObject->setPosition(oPos);
-    oObject->setRotation(oRot);
+    oObject->SetPosition(oPos);
+    oObject->SetRotation(oRot);
     dynamic_cast<cBus*>(oObject)->piPingTimeout = 0;
 
     for (auto& object : pmsBusIds)
@@ -169,7 +169,7 @@ bool cMultiplayerHandler::OnRecieve(cNetworkConnection* pConnection)
         if (bus->piPingTimeout > 50)
         {
             paAvailableBusses.push(bus->piBusId);
-            bus->setScale(glm::vec3(0));
+            bus->SetScale(glm::vec3(0));
         }
     }
 
