@@ -108,10 +108,8 @@ void cBusWorldScene::Update()
     // temporary flight controls
     if (paKeys[GLFW_KEY_SPACE])
         poCamera->MoveUp();
-//        poCamera->cameraHeight += 0.01;
     if (paKeys[GLFW_KEY_LEFT_SHIFT])
         poCamera->MoveDown();
-//        poCamera->cameraHeight -= 0.01;
 
     if (paKeys[GLFW_KEY_ESCAPE])
         Quit();

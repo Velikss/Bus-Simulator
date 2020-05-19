@@ -3,8 +3,8 @@ function calculate(entity, entities)
     // Do behaviour logic
     // check if entity and entities received
     if(entity && entities) {
-        var radius = 10;
-        var force = 10;
+        var radius = 1000;
+        var force = 0.02;
         var maxspeed = GetEntityMaxSpeed(entity);
 
         var ME = GetEntityCoordinates(entity);

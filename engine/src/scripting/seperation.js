@@ -4,7 +4,7 @@ function calculate(entity, entities)
     // check if entity and entities received
     if(entity && entities) {
         var radius = 1000;
-        var force = 0.01;
+        var force = 0.05;
 
         var ME = GetEntityCoordinates(entity);
         var entityList = GetEntityList(entities);

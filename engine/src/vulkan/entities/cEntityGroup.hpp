@@ -48,21 +48,25 @@ public:
             {
                 cBehaviourHandler->Update(entity, this);
             }
-
-            glm::vec2 acceleration = entity->poSteeringForce / entity->pfMaxSpeed;
-            entity->poVelocity += acceleration;
-            if(entity->poVelocity.length() > entity->pfMaxSpeed)
+            if(!isnan(entity->poSteeringForce.x) && !isnan(entity->poSteeringForce.y))
             {
-                entity->poVelocity = glm::normalize(entity->poVelocity);
-                entity->poVelocity = entity->poVelocity * entity->pfMaxSpeed;
+                glm::vec2 acceleration = entity->poSteeringForce / entity->pfMaxSpeed;
+                entity->poVelocity += acceleration;
+                if(entity->poVelocity.length() > entity->pfMaxSpeed)
+                {
+                    entity->poVelocity = glm::normalize(entity->poVelocity);
+                    entity->poVelocity = entity->poVelocity * entity->pfMaxSpeed;
+                }
+
+                glm::vec3 pos = entity->GetPosition();
+                pos.x += entity->poVelocity.x;
+                pos.z += entity->poVelocity.y;
+                entity->SetPosition(pos);
+
+                entity->poVelocity *= 0.9;
+            std::cout << "Pos.x: " << pos.x << " Pos.z: " << pos.z << std::endl;
+            std::cout << "Vel.x: " << entity->poVelocity.x << " Vel.z: " << entity->poVelocity.y << std::endl;
             }
-
-            glm::vec3 pos = entity->GetPosition();
-            pos.x += entity->poVelocity.x;
-            pos.z += entity->poVelocity.y;
-            entity->SetPosition(pos);
-
-            entity->poVelocity *= 0.9;
         }
     }
 };
