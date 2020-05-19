@@ -536,9 +536,6 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["trafficLight3"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
     pmpObjects["trafficLight3"]->SetPosition(glm::vec3(46.0f, 0.15f, -12.0f));
 
-    pmpObjects["trafficLight4"] = new cBaseObject(pmpMeshes["trafficLight"], false);
-//    pmpObjects["trafficLight4"]->SetScale(glm::vec3(0.2));
-
     // Buildings
     pmpObjects["building"] = new cBaseObject(pmpMeshes["building"]);
     pmpObjects["building"]->SetPosition(glm::vec3(-2.0f, 0.0f, -13.0f));
