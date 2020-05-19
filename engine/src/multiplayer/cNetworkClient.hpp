@@ -21,14 +21,11 @@ public:
 
 	void Disconnect()
     {
-	    if(!pbDestroyed)
-        {
-            pbShutdown = true;
-            for (auto&[name, t] : threads)
-                if (t.joinable())
-                    t.join();
-            CloseConnection();
-        }
+        pbShutdown = true;
+        for (auto&[name, t] : threads)
+            if (t.joinable())
+                t.join();
+        CloseConnection();
     }
 
     ~cNetworkClient()
