@@ -22,7 +22,6 @@ protected:
     std::map<string, cTexture*> pmpTextures;
     std::map<string, cGeometry*> pmpGeometries;
     std::map<string, cMesh*> pmpMeshes;
-    std::map<string, cModel*> pmpModels;
 
     std::map<string, cBaseObject*> pmpObjects;
 
@@ -68,11 +67,6 @@ cScene::cScene()
 
 cScene::~cScene()
 {
-    for (auto oModel : pmpModels)
-    {
-        delete oModel.second;
-    }
-
     for (auto oObject : pmpObjects)
     {
         delete oObject.second;
@@ -96,11 +90,6 @@ cScene::~cScene()
 
 void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice)
 {
-    for (auto oModel : pmpModels)
-    {
-        assert(oModel.second != nullptr);
-    }
-
     for (auto oObject : pmpObjects)
     {
         assert(oObject.second != nullptr);
