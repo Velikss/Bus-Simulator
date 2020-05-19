@@ -1,6 +1,7 @@
 #pragma once
 
 #include <pch.hpp>
+#include <vulkan/entities/cBus.hpp>
 #include "Camera.hpp"
 
 class BusCamera : public Camera
@@ -115,36 +116,35 @@ public:
             yaw = 0.1;
         if(yaw <= 0)
             yaw = 359.9;
-        float rotation = cameraPivotObject->GetRotation().y;
-        float rotationDifference = rotation - yaw;
+        if(dynamic_cast<cBus *>(cameraPivotObject)->pfCurrentSpeed > 8) {
+            float rotation = cameraPivotObject->GetRotation().y;
+            float rotationDifference = rotation - yaw;
 
-        if(rotationDifference > 0)
-        {
-            if(rotationDifference > 1.0)
-                if(rotationDifference < 180)
-                    yaw += 0.1;
-                else
-                    yaw -= 0.1;
-            if(rotationDifference > 5.0)
-                if(rotationDifference < 180)
-                    yaw += 0.5;
-                else
-                    yaw -= 0.5;
+            if (rotationDifference > 0) {
+                if (rotationDifference > 1.0)
+                    if (rotationDifference < 180)
+                        yaw += 0.1;
+                    else
+                        yaw -= 0.1;
+                if (rotationDifference > 5.0)
+                    if (rotationDifference < 180)
+                        yaw += 0.5;
+                    else
+                        yaw -= 0.5;
+            }
+            if (rotationDifference < 0) {
+                if ((-1 * rotationDifference) > 1.0)
+                    if ((-1 * rotationDifference) < 180)
+                        yaw -= 0.1;
+                    else
+                        yaw += 0.1;
+                if ((-1 * rotationDifference) > 5.0)
+                    if ((-1 * rotationDifference) < 180)
+                        yaw -= 0.5;
+                    else
+                        yaw += 0.5;
+            }
         }
-        if(rotationDifference < 0)
-        {
-            if((-1 * rotationDifference) > 1.0)
-                if((-1 * rotationDifference) < 180)
-                    yaw -= 0.1;
-                else
-                    yaw += 0.1;
-            if((-1 * rotationDifference) > 5.0)
-                if((-1 * rotationDifference) < 180)
-                    yaw -= 0.5;
-                else
-                    yaw += 0.5;
-        }
-
         cameraPos.x = sin(glm::radians(yaw)) * orbitDistance + cameraPivotPos.x;
         cameraPos.y = cameraPivotPos.y + cameraHeight;
         cameraPos.z = cos(glm::radians(yaw)) * orbitDistance + cameraPivotPos.z;
