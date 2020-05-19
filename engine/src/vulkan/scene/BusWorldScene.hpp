@@ -531,6 +531,20 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["busStation1"] = new cBaseObject(pmpMeshes["busStation"]);
     pmpObjects["busStation1"]->SetPosition(glm::vec3(8.603f, 0.15f, -11.0f));
 
+    pmpObjects["busStation2"] = new cBaseObject(pmpMeshes["busStation"]);
+    pmpObjects["busStation2"]->SetPosition(glm::vec3(-140.0f, 0.15f, -11.0f));
+
+    pmpObjects["busStation3"] = new cBaseObject(pmpMeshes["busStation"]);
+    pmpObjects["busStation3"]->SetPosition(glm::vec3(-16.0f, 0.15f, -97.0f));
+    pmpObjects["busStation3"]->SetRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+
+    pmpObjects["busStation4"] = new cBaseObject(pmpMeshes["busStation"]);
+    pmpObjects["busStation4"]->SetPosition(glm::vec3(66.0f, 0.15f, -61.0f));
+
+    pmpObjects["busStation5"] = new cBaseObject(pmpMeshes["busStation"]);
+    pmpObjects["busStation5"]->SetPosition(glm::vec3(40.0f, 0.15f, -149.0f));
+    pmpObjects["busStation5"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
+
     // Traffic lights
     pmpObjects["trafficLight1"] = new cLightObject(pmpMeshes["trafficLight"], glm::vec3(1, 0, 0), 50);
     pmpObjects["trafficLight1"]->SetPosition(glm::vec3(34.0f, 0.15f, 2.0f));

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <pch.hpp>
+#include <vulkan/entities/cBus.hpp>
 #include "Camera.hpp"
 
 class BusCamera : public Camera
@@ -105,6 +106,7 @@ public:
     // process the commits to the pv.
     void ProcessUpdates()
     {
+        // calculate new cameraPivot with cameraPivotChanges
         cameraPivotPos = cameraPivotObject->GetPosition();
         MovePivotX(cameraPivotChanges.x);
         MovePivotY(cameraPivotChanges.y);
@@ -115,41 +117,47 @@ public:
             yaw = 0.1;
         if(yaw <= 0)
             yaw = 359.9;
-        float rotation = cameraPivotObject->GetRotation().y;
-        float rotationDifference = rotation - yaw;
-
-        if(rotationDifference > 0)
-        {
-            if(rotationDifference > 1.0)
-                if(rotationDifference < 180)
-                    yaw += 0.1;
-                else
-                    yaw -= 0.1;
-            if(rotationDifference > 5.0)
-                if(rotationDifference < 180)
-                    yaw += 0.5;
-                else
-                    yaw -= 0.5;
+        // rotate camera when current speed is higher then 8
+        if(dynamic_cast<cBus *>(cameraPivotObject)->pfCurrentSpeed > 8) {
+            float rotation = cameraPivotObject->GetRotation().y;
+            float rotationDifference = rotation - yaw;
+            // difference is positive
+            if (rotationDifference > 0) {
+                // rotate slower when closer to the back of the bus
+                if (rotationDifference > 1.0)
+                    if (rotationDifference < 180)
+                        yaw += 0.1;
+                    else
+                        yaw -= 0.1;
+                // rotate faster when further away from the back of the bus
+                if (rotationDifference > 5.0)
+                    if (rotationDifference < 180)
+                        yaw += 0.5;
+                    else
+                        yaw -= 0.5;
+            }
+            // difference is negative
+            if (rotationDifference < 0) {
+                // rotate slower when closer to the back of the bus
+                if ((-1 * rotationDifference) > 1.0)
+                    if ((-1 * rotationDifference) < 180)
+                        yaw -= 0.1;
+                    else
+                        yaw += 0.1;
+                // rotate faster when further away from the back of the bus
+                if ((-1 * rotationDifference) > 5.0)
+                    if ((-1 * rotationDifference) < 180)
+                        yaw -= 0.5;
+                    else
+                        yaw += 0.5;
+            }
         }
-        if(rotationDifference < 0)
-        {
-            if((-1 * rotationDifference) > 1.0)
-                if((-1 * rotationDifference) < 180)
-                    yaw -= 0.1;
-                else
-                    yaw += 0.1;
-            if((-1 * rotationDifference) > 5.0)
-                if((-1 * rotationDifference) < 180)
-                    yaw -= 0.5;
-                else
-                    yaw += 0.5;
-        }
-
+        // calculate camera position
         cameraPos.x = sin(glm::radians(yaw)) * orbitDistance + cameraPivotPos.x;
         cameraPos.y = cameraPivotPos.y + cameraHeight;
         cameraPos.z = cos(glm::radians(yaw)) * orbitDistance + cameraPivotPos.z;
 
-        // lookat
+        // calculate lookat variables
         cameraFront = glm::normalize((cameraPivotPos) - cameraPos);
         glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
         glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraFront));
