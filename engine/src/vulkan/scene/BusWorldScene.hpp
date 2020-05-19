@@ -118,6 +118,8 @@ void cBusWorldScene::Update()
 
     cScene::Update();
     if(poMultiplayerHandler) poMultiplayerHandler->PushData();
+
+    std::cout << "POS: " << pmpObjects["entity"]->GetPosition().x << " - " << pmpObjects["entity"]->GetPosition().z << std::endl;
 }
 
 void cBusWorldScene::HandleScroll(double dOffsetX, double dOffsetY)
@@ -566,6 +568,7 @@ void cBusWorldScene::LoadObjects()
     // Entities
     pmpObjects["entity"] = new cEntity(pmpMeshes["passenger"]);
     pmpObjects["entity"]->SetPosition(glm::vec3(10.0f, 0.15f, -10.5f));
+    dynamic_cast<cEntityInterface*>(pmpObjects["entity"])->SetTarget(glm::vec3(1, 0, 1));
 
     pmpObjects["entity2"] = new cEntity(pmpMeshes["passenger"]);
     pmpObjects["entity2"]->SetPosition(glm::vec3(11.0f, 0.15f, -10.5f));
@@ -591,9 +594,11 @@ void cBusWorldScene::LoadObjects()
     // Create static behaviours
     cBehaviourHandler::AddBehaviour("seperation", "src/scripting/seperation.js");
     cBehaviourHandler::AddBehaviour("cohesion", "src/scripting/cohesion.js");
+    cBehaviourHandler::AddBehaviour("seeking", "src/scripting/seeking.js");
 
     cBehaviourHandler *cbSeperation = new cBehaviourHandler("seperation");
     cBehaviourHandler *cbCohesion = new cBehaviourHandler("cohesion");
+    cBehaviourHandler *cbSeeking = new cBehaviourHandler("seeking");
 
     entityGroup.AddEntity(dynamic_cast<cEntity *>(pmpObjects["entity"]));
     entityGroup.AddEntity(dynamic_cast<cEntity *>(pmpObjects["entity2"]));
@@ -601,7 +606,7 @@ void cBusWorldScene::LoadObjects()
     entityGroup.AddEntity(dynamic_cast<cEntity *>(pmpObjects["entity4"]));
 
     entityGroup2 = entityGroup;
-    entityGroup.AddBehaviour(cbSeperation);
+    entityGroup.AddBehaviour(cbSeeking);
 //    entityGroup.AddBehaviour(cbCohesion);
-    entityGroup2.AddBehaviour(cbCohesion);
+    entityGroup.AddBehaviour(cbSeperation);
 }

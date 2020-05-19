@@ -6,14 +6,15 @@
 
 class cEntity : public cEntityInterface
 {
-public:
+private:
     std::vector<cBehaviourHandler *> paBehaviourHandlers;
+    glm::vec3 poTarget;
     glm::vec2 poVelocity;
     glm::vec2 poHeading;
     glm::vec2 poSteeringForce;
     float pfMass;
     float pfMaxSpeed;
-
+public:
     cEntity(cMesh *mesh) : cEntityInterface(mesh)
     {
         poVelocity = glm::vec2(0, 0);
@@ -23,69 +24,135 @@ public:
         pfMaxSpeed = 5;
     }
 
-    void AddBehaviour(cBehaviourHandler *&poBehaviour)
-    {
-        paBehaviourHandlers.push_back(poBehaviour);
-    }
+    void AddBehaviour(cBehaviourHandler *&poBehaviour);
 
-    void ReturnMass(float *mass) override
-    {
-        *mass = pfMass;
-    }
+    void SetMass(float fMass) override;
 
-    void ReturnMaxSpeed(float *speed) override
-    {
-        *speed = pfMaxSpeed;
-    }
+    float GetMass() override;
 
-    void ReturnHeading(glm::vec2 *heading) override
-    {
-        *heading = poHeading;
-    }
+    void SetMaxSpeed(float fSpeed) override;
 
-    void ReturnVelocity(glm::vec2 *velocity) override
-    {
-        *velocity = poVelocity;
-    }
+    float GetMaxSpeed() override;
 
-    void SetVelocity(glm::vec2 *velocity)
-    {
-        poVelocity = *velocity;
-    }
+    void SetHeading(glm::vec2 oHeading) override;
 
-    void SetHeading(glm::vec2 *heading)
-    {
-        poHeading = *heading;
-    }
+    glm::vec2 GetHeading() override;
 
-    void AppendSteeringForce(glm::vec2 *SteeringForce)
-    {
-        poSteeringForce += *SteeringForce;
-    }
+    void SetVelocity(glm::vec2 oVelocity) override;
 
-    virtual void Update()
-    {
-        poSteeringForce = glm::vec2(0, 0);
-        for (auto &cBehaviourHandler : paBehaviourHandlers)
-        {
-            // Runs JavaScript which calculates a steering force and appends it to the current force.
-            cBehaviourHandler->Update(this);
-        }
-        if(!isnan(poSteeringForce.x) && !isnan(poSteeringForce.y)) {
-            glm::vec2 acceleration = poSteeringForce / pfMaxSpeed;
-            poVelocity += acceleration;
-            if (poVelocity.length() > pfMaxSpeed) {
-                poVelocity = glm::normalize(poVelocity);
-                poVelocity = poVelocity * pfMaxSpeed;
-            }
-            glm::vec3 pos = GetPosition();
-            pos.x += poVelocity.x;
-            pos.z += poVelocity.y;
-            SetPosition(pos);
-            if(poVelocity.x > 0.001 && poVelocity.y > 0.001){
-                poVelocity *= 0.9;
-            }
-        }
-    }
+    glm::vec2 GetVelocity() override;
+
+    void SetTarget(glm::vec3 oTarget) override;
+
+    glm::vec3 GetTarget() override;
+
+    glm::vec2 GetSteeringForce() override;
+
+    void SetSteeringForce(glm::vec2 oSteeringForce) override;
+
+    void AppendSteeringForce(glm::vec2 oSteeringForce) override;
+
+    void Update();
+
 };
+
+void cEntity::AddBehaviour(cBehaviourHandler *&poBehaviour)
+{
+    paBehaviourHandlers.push_back(poBehaviour);
+}
+
+void cEntity::SetMass(float fMass)
+{
+    pfMass = fMass;
+}
+
+float cEntity::GetMass()
+{
+    return pfMass;
+}
+
+void cEntity::SetMaxSpeed(float fSpeed)
+{
+    pfMaxSpeed = fSpeed;
+}
+
+float cEntity::GetMaxSpeed()
+{
+    return pfMaxSpeed;
+}
+
+void cEntity::SetHeading(glm::vec2 oHeading)
+{
+    poHeading = oHeading;
+}
+
+glm::vec2 cEntity::GetHeading()
+{
+    return poHeading;
+}
+
+
+void cEntity::SetVelocity(glm::vec2 oVelocity)
+{
+    poVelocity = oVelocity;
+}
+
+glm::vec2 cEntity::GetVelocity()
+{
+    return poVelocity;
+}
+
+void cEntity::SetSteeringForce(glm::vec2 oSteeringForce)
+{
+    poSteeringForce = oSteeringForce;
+}
+
+glm::vec2 cEntity::GetSteeringForce()
+{
+    return poSteeringForce;
+}
+
+void cEntity::AppendSteeringForce(glm::vec2 oSteeringForce)
+{
+    poSteeringForce += oSteeringForce;
+}
+
+void cEntity::SetTarget(glm::vec3 oTarget)
+{
+    poTarget = oTarget;
+}
+
+glm::vec3 cEntity::GetTarget()
+{
+    return poTarget;
+}
+
+void cEntity::Update()
+{
+    poSteeringForce = glm::vec2(0, 0);
+    for (auto &cBehaviourHandler : paBehaviourHandlers)
+    {
+        // Runs JavaScript which calculates a steering force and appends it to the current force.
+        cBehaviourHandler->Update(this);
+    }
+    if (!isnan(poSteeringForce.x) && !isnan(poSteeringForce.y))
+    {
+        glm::vec2 acceleration = poSteeringForce / pfMaxSpeed;
+        poVelocity += acceleration;
+        if (poVelocity.length() > pfMaxSpeed)
+        {
+            poVelocity = glm::normalize(poVelocity);
+            poVelocity = poVelocity * pfMaxSpeed;
+        }
+        glm::vec3 pos = GetPosition();
+        pos.x += poVelocity.x;
+        pos.z += poVelocity.y;
+        SetPosition(pos);
+        if (poVelocity.x > 0.001 && poVelocity.y > 0.001)
+        {
+            poVelocity *= 0.9;
+        }
+    }
+
+}
 

@@ -43,30 +43,32 @@ public:
     {
         for (auto &entity : poEntities)
         {
-            entity->poSteeringForce = glm::vec2(0, 0);
+            entity->SetSteeringForce(glm::vec2(0, 0));
             for (auto &cBehaviourHandler : paBehaviourHandlers)
             {
                 cBehaviourHandler->Update(entity, this);
             }
-            if(!isnan(entity->poSteeringForce.x) && !isnan(entity->poSteeringForce.y))
+            if (!isnan(entity->GetSteeringForce().x) && !isnan(entity->GetSteeringForce().y))
             {
-                glm::vec2 acceleration = entity->poSteeringForce / entity->pfMaxSpeed;
-                entity->poVelocity += acceleration;
-                if(entity->poVelocity.length() > entity->pfMaxSpeed)
+                glm::vec2 acceleration = entity->GetSteeringForce() / entity->GetMaxSpeed();
+                entity->SetVelocity(entity->GetVelocity() + acceleration);
+                if (entity->GetVelocity().length() > entity->GetMaxSpeed())
                 {
-                    entity->poVelocity = glm::normalize(entity->poVelocity);
-                    entity->poVelocity = entity->poVelocity * entity->pfMaxSpeed;
+                    entity->SetVelocity(glm::normalize(entity->GetVelocity()));
+                    entity->SetVelocity(entity->GetVelocity() * entity->GetMaxSpeed());
                 }
 
                 glm::vec3 pos = entity->GetPosition();
-                pos.x += entity->poVelocity.x;
-                pos.z += entity->poVelocity.y;
+                pos.x += entity->GetVelocity().x;
+                pos.z += entity->GetVelocity().y;
                 entity->SetPosition(pos);
-                if(entity->poVelocity.x > 0.001 && entity->poVelocity.y > 0.001){
-                    entity->poVelocity *= 0.9;
+                if (entity->GetVelocity().x > 0.001 && entity->GetVelocity().y > 0.001)
+                {
+                    entity->SetVelocity(entity->GetVelocity() *= 0.9);
                 }
             }
         }
+
     }
 };
 

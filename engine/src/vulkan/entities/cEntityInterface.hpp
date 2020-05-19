@@ -11,37 +11,67 @@ public:
 
     }
 
-    virtual void ReturnMass(float *mass)
+    virtual void SetMass(float fMass)
     {
 
     }
 
-    virtual void ReturnMaxSpeed(float * speed)
+    virtual float GetMass()
     {
 
     }
 
-    virtual void ReturnHeading(glm::vec2 *heading)
+    virtual void SetMaxSpeed(float fSpeed)
     {
 
     }
 
-    virtual void ReturnVelocity(glm::vec2 *velocity)
+    virtual float GetMaxSpeed()
     {
 
     }
 
-    virtual void SetVelocity(glm::vec2 *velocity)
+    virtual void SetHeading(glm::vec2 oHeading)
     {
 
     }
 
-    virtual void SetHeading(glm::vec2 *heading)
+    virtual glm::vec2 GetHeading()
     {
 
     }
 
-    virtual void AppendSteeringForce(glm::vec2 *SteeringForce)
+    virtual void SetVelocity(glm::vec2 oVelocity)
+    {
+
+    }
+
+    virtual glm::vec2 GetVelocity()
+    {
+
+    }
+
+    virtual void SetSteeringForce(glm::vec2 oSteeringForce)
+    {
+
+    }
+
+    virtual glm::vec2 GetSteeringForce()
+    {
+
+    }
+
+    virtual void SetTarget(glm::vec3 oTarget)
+    {
+
+    }
+
+    virtual glm::vec3 GetTarget()
+    {
+
+    }
+
+    virtual void AppendSteeringForce(glm::vec2 oSteeringForce)
     {
 
     }
