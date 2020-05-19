@@ -64,8 +64,6 @@ public:
                 entity->SetPosition(pos);
 
                 entity->poVelocity *= 0.9;
-            std::cout << "Pos.x: " << pos.x << " Pos.z: " << pos.z << std::endl;
-            std::cout << "Vel.x: " << entity->poVelocity.x << " Vel.z: " << entity->poVelocity.y << std::endl;
             }
         }
     }
