@@ -178,6 +178,24 @@ void cMRTUniformHandler::CreateUniformBuffers(cScene* pScene)
                                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                                 poCameraUniformBuffer, poCameraUniformBufferMemory);
+
+    // Load all the object uniforms into memory
+    uint uiIndex = 0;
+    for (auto oObject : pScene->GetObjects())
+    {
+        oObject.second->puiUniformIndex = uiIndex;
+
+        // Struct with uniforms for the object
+        tObjectUniformData tObjectData = {};
+
+        tObjectData.bLighting = oObject.second->bLighting;
+
+        // Set the model matrix of the object
+        tObjectData.tModel = oObject.second->GetModelMatrix();
+
+        // Copy the data to memory
+        CopyToDeviceMemory(paoObjectUniformBuffersMemory[uiIndex++], &tObjectData, sizeof(tObjectData));
+    }
 }
 
 void cMRTUniformHandler::UpdateUniformBuffers(cScene* pScene)
@@ -210,19 +228,19 @@ void cMRTUniformHandler::UpdateUniformBuffers(cScene* pScene)
     // Copy the data to memory
     CopyToDeviceMemory(poCameraUniformBufferMemory, &tCameraData, sizeof(tCameraData));
 
-    uint uiIndex = 0;
-    for (auto oObject : pScene->GetObjects())
+    // Update the uniforms for all movable objects
+    for (auto oObject : pScene->GetMovableObjects())
     {
         // Struct with uniforms for the object
         tObjectUniformData tObjectData = {};
 
-        tObjectData.bLighting = oObject.second->bLighting;
+        tObjectData.bLighting = oObject->bLighting;
 
         // Set the model matrix of the object
-        tObjectData.tModel = oObject.second->GetModelMatrix();
+        tObjectData.tModel = oObject->GetModelMatrix();
 
         // Copy the data to memory
-        CopyToDeviceMemory(paoObjectUniformBuffersMemory[uiIndex++], &tObjectData, sizeof(tObjectData));
+        CopyToDeviceMemory(paoObjectUniformBuffersMemory[oObject->puiUniformIndex], &tObjectData, sizeof(tObjectData));
     }
 
 #ifdef ENGINE_TIMING_DEBUG

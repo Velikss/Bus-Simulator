@@ -68,6 +68,8 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
         delete poMultiplayerHandler;
         poMultiplayerHandler = nullptr;
     }
+
+    cScene::Load(pTextureHandler, pLogicalDevice);
 }
 
 void cBusWorldScene::Update()

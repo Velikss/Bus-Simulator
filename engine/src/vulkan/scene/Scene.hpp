@@ -27,6 +27,9 @@ protected:
 
     bool paKeys[GLFW_KEY_LAST] = {false};
 
+private:
+    std::vector<cBaseObject*> papMovableObjects;
+
 public:
     glm::vec3 textColor = glm::vec3(0, 1, 0);
     float pfAmbientLight = 0.2;
@@ -40,6 +43,7 @@ public:
     uint GetObjectCount();
     std::map<string, cBaseObject*>& GetObjects();
     std::map<string, cMesh*>& GetMeshes();
+    std::vector<cBaseObject*> GetMovableObjects();
 
     Camera& GetCamera();
 
@@ -97,6 +101,10 @@ void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevi
     for (auto oObject : pmpObjects)
     {
         assert(oObject.second != nullptr);
+
+        if (!oObject.second->IsStatic()) {
+            papMovableObjects.push_back(oObject.second);
+        }
     }
 
     for (auto oMesh : pmpMeshes)
@@ -138,6 +146,11 @@ std::map<string, cBaseObject*>& cScene::GetObjects()
 std::map <string, cMesh*>& cScene::GetMeshes()
 {
     return pmpMeshes;
+}
+
+std::vector<cBaseObject*> cScene::GetMovableObjects()
+{
+    return papMovableObjects;
 }
 
 Camera& cScene::GetCamera()
