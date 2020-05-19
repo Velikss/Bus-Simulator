@@ -115,7 +115,7 @@ void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandle
 
         pTextHandler->UpdateText(cFormatter() << frameCount << " fps");
 
-        ppLogicalDevice->WaitUntilIdle();
+        ppLogicalDevice->WaitUntilIdle(); // TODO: This should be optimized, use two command buffers and swap them
         pCommandBuffer->RecordBuffers(pTextHandler->GetCommandRecorder());
 #endif
         startTime = currentTime;

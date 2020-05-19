@@ -192,16 +192,12 @@ void cLightingUniformHandler::UpdateUniformBuffers(cScene* pScene)
     // Loop over all the objects in the scene. If the object is a
     //  light, add it to the list of lights
     std::vector<tLight> atLights;
-    for (auto pObject : pScene->GetObjects())
+    for (cLightObject* pLight : pScene->GetLightObjects())
     {
-        if (instanceof<cLightObject>(pObject.second))
-        {
-            cLightObject* pLight = dynamic_cast<cLightObject*>(pObject.second);
-            tLight tLight = {};
-            tLight.tPosition = glm::vec4(*pLight->getPosition(), 0.0f);
-            tLight.tColorAndRadius = glm::vec4(pLight->GetColor(), pLight->GetRadius());
-            atLights.push_back(tLight);
-        }
+        tLight tLight = {};
+        tLight.tPosition = glm::vec4(*pLight->getPosition(), 0.0f);
+        tLight.tColorAndRadius = glm::vec4(pLight->GetColor(), pLight->GetRadius());
+        atLights.push_back(tLight);
     }
 
     // The code below assumes that tLightsInfo is less than or
