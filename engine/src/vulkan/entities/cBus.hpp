@@ -127,6 +127,7 @@ float cBus::CalculateAcceleration() {
         return pfAcceleration = 0.2;
     if((pfMaxSpeed * 1.0) >= pfCurrentSpeed)
         return pfAcceleration = 0.1;
+    return 0.0;
 }
 /*
  * Function  to make the vehicle decelerate slower if it's going faster.
@@ -146,4 +147,5 @@ float cBus::CalculateDeceleration() {
         return pfAcceleration = 0.9;
     if((pfMinSpeed * 0.1) <= pfCurrentSpeed)
         return pfAcceleration = 1.0;
+    return 0.0;
 }
