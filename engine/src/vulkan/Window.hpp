@@ -178,7 +178,7 @@ void cWindow::HandleGamepad(uint uiJoystickId)
                                     tState.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
 
         // Temporary mapping for the left stick to keyboard keys
-        float fMoveY = tState.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
+        float fMoveY = tState.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] - (tState.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] + 1);
         if (fMoveY < -0.1) ppInputHandler->HandleKey(GLFW_KEY_W, GLFW_PRESS);
         else if (fMoveY > 0.1) ppInputHandler->HandleKey(GLFW_KEY_S, GLFW_PRESS);
         else
