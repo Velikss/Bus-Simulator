@@ -72,11 +72,7 @@ cLightingUniformHandler::cLightingUniformHandler(cLogicalDevice* pLogicalDevice,
     ppLogicalDevice = pLogicalDevice;
     ppSwapChain = pSwapChain;
 
-#ifdef ENABLE_OVERLAY
     std::array<VkDescriptorSetLayoutBinding, 6> atLayoutBindings;
-#else
-    std::array<VkDescriptorSetLayoutBinding, 5> atLayoutBindings;
-#endif
 
     atLayoutBindings[0].binding = 0;
     atLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
@@ -108,13 +104,11 @@ cLightingUniformHandler::cLightingUniformHandler(cLogicalDevice* pLogicalDevice,
     atLayoutBindings[4].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
     atLayoutBindings[4].pImmutableSamplers = nullptr;
 
-#ifdef ENABLE_OVERLAY
     atLayoutBindings[5].binding = 5;
     atLayoutBindings[5].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     atLayoutBindings[5].descriptorCount = 1;
     atLayoutBindings[5].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
     atLayoutBindings[5].pImmutableSamplers = nullptr;
-#endif
 
     VkDescriptorSetLayoutCreateInfo tCameraLayoutInfo = {};
     tCameraLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -281,16 +275,12 @@ void cLightingUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHand
     tMaterialInfo.imageView = ppSwapChain->GetAttachment(4).oView;
     tMaterialInfo.sampler = ppSwapChain->GetSampler();
 
-#ifdef ENABLE_OVERLAY
     VkDescriptorImageInfo tOverlayInfo = {};
     tOverlayInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     tOverlayInfo.imageView = ppSwapChain->GetOverlayAttachment().oView;
     tOverlayInfo.sampler = ppSwapChain->GetSampler();
 
     std::array<VkWriteDescriptorSet, 6> atDescriptorWrites = {};
-#else
-    std::array<VkWriteDescriptorSet, 5> atDescriptorWrites = {};
-#endif
 
     atDescriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
     atDescriptorWrites[0].dstSet = poDescriptorSet;
@@ -332,7 +322,6 @@ void cLightingUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHand
     atDescriptorWrites[4].descriptorCount = 1;
     atDescriptorWrites[4].pImageInfo = &tMaterialInfo;
 
-#ifdef ENABLE_OVERLAY
     atDescriptorWrites[5].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
     atDescriptorWrites[5].dstSet = poDescriptorSet;
     atDescriptorWrites[5].dstBinding = 5;
@@ -340,7 +329,6 @@ void cLightingUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHand
     atDescriptorWrites[5].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     atDescriptorWrites[5].descriptorCount = 1;
     atDescriptorWrites[5].pImageInfo = &tOverlayInfo;
-#endif
 
     ppLogicalDevice->UpdateDescriptorSets(atDescriptorWrites.size(), atDescriptorWrites.data(),
                                           0, nullptr);

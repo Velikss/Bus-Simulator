@@ -110,14 +110,12 @@ void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandle
     if (time >= 1)
     {
         ENGINE_LOG(frameCount << " fps");
-#ifdef ENABLE_OVERLAY
         assert(pTextHandler != nullptr);
 
         pTextHandler->UpdateText(cFormatter() << frameCount << " fps");
 
         ppLogicalDevice->WaitUntilIdle(); // TODO: This should be optimized, use two command buffers and swap them
         pCommandBuffer->RecordBuffers(pTextHandler->GetCommandRecorder());
-#endif
         startTime = currentTime;
         frameCount = 0;
     }
@@ -150,16 +148,10 @@ void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandle
     // Specify which command buffers to submit
     VkCommandBuffer aoBuffers[2] = {
             ppCommandBuffers[0]->GetBuffer(uiImageIndex),
-#ifdef ENABLE_OVERLAY
             ppCommandBuffers[2]->GetBuffer(uiImageIndex)
-#endif
     };
 
-#ifdef ENABLE_OVERLAY
     tSubmitInfo.commandBufferCount = 2;
-#else
-    tSubmitInfo.commandBufferCount = 1;
-#endif
     tSubmitInfo.pCommandBuffers = aoBuffers;
 
     // Specify which semaphores to signal once the command buffer(s) finish
