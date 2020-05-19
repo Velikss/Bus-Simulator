@@ -76,8 +76,10 @@ void cBusWorldScene::Update()
 {
     if(paKeys[GLFW_KEY_Q])
         entityGroup.UpdateEntities();
-    if(paKeys[GLFW_KEY_Q])
+    if(paKeys[GLFW_KEY_E])
         entityGroup2.UpdateEntities();
+    if(paKeys[GLFW_KEY_T])
+        dynamic_cast<cEntity *>(pmpObjects["entity"])->SetPosition(glm::vec3(5, 5, 5));
     if (paKeys[GLFW_KEY_W])
         BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Accelerate() : poCamera->Forward();
     if (paKeys[GLFW_KEY_S])

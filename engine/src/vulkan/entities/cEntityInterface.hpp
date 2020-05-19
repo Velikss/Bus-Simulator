@@ -6,7 +6,7 @@
 class cEntityInterface : public cBaseObject
 {
 public:
-    cEntityInterface(cMesh *mesh) : cBaseObject(mesh)
+    cEntityInterface(cMesh *mesh) : cBaseObject(mesh, false)
     {
 
     }
