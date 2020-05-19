@@ -48,7 +48,8 @@ public:
 
     void MovePivotX(float fMultiplier)
     {
-        glm::vec3 direction(sin(glm::radians(cameraPivotObject->getRotation()->y)), 0, cos(glm::radians(cameraPivotObject->getRotation()->y)));
+        glm::vec3 direction(sin(glm::radians(cameraPivotObject->GetRotation().y)), 0, cos(glm::radians(
+                cameraPivotObject->GetRotation().y)));
         cameraPivotPos -= (direction * fMultiplier);
     }
 
@@ -104,7 +105,7 @@ public:
     // process the commits to the pv.
     void ProcessUpdates()
     {
-        cameraPivotPos = *cameraPivotObject->getPosition();
+        cameraPivotPos = cameraPivotObject->GetPosition();
         MovePivotX(cameraPivotChanges.x);
         MovePivotY(cameraPivotChanges.y);
         // Todo move pivot along the Z (sideways)
@@ -114,7 +115,7 @@ public:
             yaw = 0.1;
         if(yaw <= 0)
             yaw = 359.9;
-        float rotation = cameraPivotObject->getRotation()->y;
+        float rotation = cameraPivotObject->GetRotation().y;
         float rotationDifference = rotation - yaw;
 
         if(rotationDifference > 0)

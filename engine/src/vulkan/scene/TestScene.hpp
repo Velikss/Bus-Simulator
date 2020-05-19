@@ -24,20 +24,20 @@ protected:
         pmpObjects["sphere"] = new cBaseObject(pmpMeshes["sphere"]);
 
         pmpObjects["light1"] = new cLightObject(pmpMeshes["sphere"], glm::vec3(0, 1, 0), 10.0f);
-        pmpObjects["light1"]->setScale(glm::vec3(0, 0, 0));
-        pmpObjects["light1"]->setPosition(glm::vec3(5, 5, 5));
+        pmpObjects["light1"]->SetScale(glm::vec3(0, 0, 0));
+        pmpObjects["light1"]->SetPosition(glm::vec3(5, 5, 5));
 
         pmpObjects["light2"] = new cLightObject(pmpMeshes["sphere"], glm::vec3(1, 0, 1), 10.0f);
-        pmpObjects["light2"]->setScale(glm::vec3(0, 0, 0));
-        pmpObjects["light2"]->setPosition(glm::vec3(-5, 5, 5));
+        pmpObjects["light2"]->SetScale(glm::vec3(0, 0, 0));
+        pmpObjects["light2"]->SetPosition(glm::vec3(-5, 5, 5));
 
         pmpObjects["light3"] = new cLightObject(pmpMeshes["sphere"], glm::vec3(1, 0, 0), 10.0f);
-        pmpObjects["light3"]->setScale(glm::vec3(0, 0, 0));
-        pmpObjects["light3"]->setPosition(glm::vec3(5, 5, -5));
+        pmpObjects["light3"]->SetScale(glm::vec3(0, 0, 0));
+        pmpObjects["light3"]->SetPosition(glm::vec3(5, 5, -5));
 
         pmpObjects["light4"] = new cLightObject(pmpMeshes["sphere"], glm::vec3(0, 1, 1), 10.0f);
-        pmpObjects["light4"]->setScale(glm::vec3(0, 0, 0));
-        pmpObjects["light4"]->setPosition(glm::vec3(-5, 5, -5));
+        pmpObjects["light4"]->SetScale(glm::vec3(0, 0, 0));
+        pmpObjects["light4"]->SetPosition(glm::vec3(-5, 5, -5));
     }
 
 public:
