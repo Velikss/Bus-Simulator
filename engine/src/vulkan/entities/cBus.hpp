@@ -29,22 +29,26 @@ public:
     void Decelerate();
     void IdleAcceleration();
     void IdleSteering();
+    glm::vec3 GetDoorPosition();
 
 };
 
-void cBus::Move() {
+void cBus::Move()
+{
     glm::vec3 oDirection(sin(glm::radians(GetRotation().y)), 0, cos(glm::radians(GetRotation().y)));
     SetPosition(GetPosition() - (oDirection * (pfCurrentSpeed / 100)));
     if(pfCurrentSpeed !=0)
         pfSteeringModifier > 0 ? this->RotateLeft(pfSteeringModifier / 10) : this->RotateRight(pfSteeringModifier * -1 / 10);
 }
 
-void cBus::Accelerate() {
+void cBus::Accelerate()
+{
     if (pfCurrentSpeed < pfMaxSpeed)
         pfCurrentSpeed+= CalculateAcceleration() / 2;
 }
 
-void cBus::Decelerate() {
+void cBus::Decelerate()
+{
     if (pfCurrentSpeed > pfMinSpeed)
         pfCurrentSpeed-= CalculateDeceleration() / 2;
 }
@@ -63,7 +67,8 @@ void cBus::IdleAcceleration()
         pfCurrentSpeed = 0;
 }
 
-void cBus::Steer(std::string sDirection) {
+void cBus::Steer(std::string sDirection)
+{
     // Block steering while stopped
     if(pfCurrentSpeed == 0) return;
 
@@ -96,7 +101,8 @@ void cBus::IdleSteering()
 /*
  * Function  to make the vehicle accelerate slower if it's going faster.
  */
-float cBus::CalculateAcceleration() {
+float cBus::CalculateAcceleration()
+{
     if((pfMaxSpeed * 0.1) >= pfCurrentSpeed)
         return pfAccelerationModifier = 1.0;
     if((pfMaxSpeed * 0.2) >= pfCurrentSpeed)
@@ -122,7 +128,8 @@ float cBus::CalculateAcceleration() {
 /*
  * Function  to make the vehicle decelerate slower if it's going faster.
  */
-float cBus::CalculateDeceleration() {
+float cBus::CalculateDeceleration()
+{
     if((pfMinSpeed * 0.7) <= pfCurrentSpeed)
         return pfAccelerationModifier = 0.4;
     if((pfMinSpeed * 0.6) <= pfCurrentSpeed)
@@ -138,4 +145,14 @@ float cBus::CalculateDeceleration() {
     if((pfMinSpeed * 0.1) <= pfCurrentSpeed)
         return pfAccelerationModifier = 1.0;
     return 0.0;
+}
+
+glm::vec3 cBus::GetDoorPosition()
+{
+    // Not relative to the scale, only works with bus scale = 0.8
+    glm::vec3 direction(sin(glm::radians(GetRotation().y)), 0,
+            cos(glm::radians(GetRotation().y)));
+    glm::vec3 doorPos = GetPosition();
+    doorPos -= (direction * 3.5f);
+    return doorPos;
 }
