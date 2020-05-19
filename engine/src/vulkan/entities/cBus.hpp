@@ -6,40 +6,30 @@
 class cBus : public cBaseObject
 {
 public:
-    float pfMaxSpeed;
-    float pfMinSpeed;
+    float pfMaxSpeed = 40;
+    float pfMinSpeed = -15;
     float pfCurrentSpeed;
-    float pfAcceleration;
-
+    float pfAccelerationModifier;
     float pfSteeringModifier;
-
-    float pfMaxSteeringModifier;
-    float pfMinSteeringModifier;
+    float pfMaxSteeringModifier = 15;
+    float pfMinSteeringModifier = -15;
 
     int piPingTimeout;
     int piBusId;
 
     cBus(cMesh * mesh) : cBaseObject(mesh)
     {
-        pfMaxSpeed = 40;
-        pfMinSpeed = -15;
-        pfCurrentSpeed = 0;
-        pfAcceleration = 0;
-        pfSteeringModifier = 0;
-        pfMaxSteeringModifier = 15;
-        pfMinSteeringModifier = -15;
     }
 
     float CalculateAcceleration();
     float CalculateDeceleration();
     void Move();
+    void Steer(std::string sDirection);
     void Accelerate();
     void Decelerate();
     void IdleAcceleration();
-
     void IdleSteering();
 
-    void Steer(std::string sDirection);
 };
 
 void cBus::Move() {
@@ -108,42 +98,42 @@ void cBus::IdleSteering()
  */
 float cBus::CalculateAcceleration() {
     if((pfMaxSpeed * 0.1) >= pfCurrentSpeed)
-        return pfAcceleration = 1.0;
+        return pfAccelerationModifier = 1.0;
     if((pfMaxSpeed * 0.2) >= pfCurrentSpeed)
-        return pfAcceleration = 0.9;
+        return pfAccelerationModifier = 0.9;
     if((pfMaxSpeed * 0.3) >= pfCurrentSpeed)
-        return pfAcceleration = 0.8;
+        return pfAccelerationModifier = 0.8;
     if((pfMaxSpeed * 0.4) >= pfCurrentSpeed)
-        return pfAcceleration = 0.7;
+        return pfAccelerationModifier = 0.7;
     if((pfMaxSpeed * 0.5) >= pfCurrentSpeed)
-        return pfAcceleration = 0.6;
+        return pfAccelerationModifier = 0.6;
     if((pfMaxSpeed * 0.6) >= pfCurrentSpeed)
-        return pfAcceleration = 0.5;
+        return pfAccelerationModifier = 0.5;
     if((pfMaxSpeed * 0.7) >= pfCurrentSpeed)
-        return pfAcceleration = 0.4;
+        return pfAccelerationModifier = 0.4;
     if((pfMaxSpeed * 0.8) >= pfCurrentSpeed)
-        return pfAcceleration = 0.3;
+        return pfAccelerationModifier = 0.3;
     if((pfMaxSpeed * 0.9) >= pfCurrentSpeed)
-        return pfAcceleration = 0.2;
+        return pfAccelerationModifier = 0.2;
     if((pfMaxSpeed * 1.0) >= pfCurrentSpeed)
-        return pfAcceleration = 0.1;
+        return pfAccelerationModifier = 0.1;
 }
 /*
  * Function  to make the vehicle decelerate slower if it's going faster.
  */
 float cBus::CalculateDeceleration() {
     if((pfMinSpeed * 0.7) <= pfCurrentSpeed)
-        return pfAcceleration = 0.4;
+        return pfAccelerationModifier = 0.4;
     if((pfMinSpeed * 0.6) <= pfCurrentSpeed)
-        return pfAcceleration = 0.5;
+        return pfAccelerationModifier = 0.5;
     if((pfMinSpeed * 0.5) <= pfCurrentSpeed)
-        return pfAcceleration = 0.6;
+        return pfAccelerationModifier = 0.6;
     if((pfMinSpeed * 0.4) <= pfCurrentSpeed)
-        return pfAcceleration = 0.7;
+        return pfAccelerationModifier = 0.7;
     if((pfMinSpeed * 0.3) <= pfCurrentSpeed)
-        return pfAcceleration = 0.8;
+        return pfAccelerationModifier = 0.8;
     if((pfMinSpeed * 0.2) <= pfCurrentSpeed)
-        return pfAcceleration = 0.9;
+        return pfAccelerationModifier = 0.9;
     if((pfMinSpeed * 0.1) <= pfCurrentSpeed)
-        return pfAcceleration = 1.0;
+        return pfAccelerationModifier = 1.0;
 }
