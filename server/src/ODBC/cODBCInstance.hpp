@@ -123,14 +123,18 @@ public:
 
     bool GetValueStr(std::string & sValue)
     {
-        if (psType != SQL_CHAR && psType != SQL_TYPE_TIMESTAMP) return false;
+        if (psType != SQL_CHAR &&
+            psType != SQL_TYPE_TIMESTAMP &&
+            psType != SQL_INTEGER) return false;
         if (psType == SQL_TYPE_TIMESTAMP)
         {
             SQL_TIMESTAMP_STRUCT* ptTimeStamp = (SQL_TIMESTAMP_STRUCT*)pvValue;
             sValue = dt::to_string(*ptTimeStamp);
-            return true;
         }
-        sValue = string((const char*)pvValue, puiLen);
+        else if (psType == SQL_INTEGER)
+            sValue = std::to_string(*(long*)pvValue);
+        else
+            sValue = string((const char*)pvValue, puiLen);
         return true;
     }
 
@@ -162,8 +166,6 @@ public:
         }
     }
 };
-
-
 
 typedef std::map<string, cODBCValue*> SQLROW;
 

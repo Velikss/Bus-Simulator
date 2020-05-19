@@ -2,6 +2,7 @@
 #include <pch.hpp>
 #include <server/src/ODBC/cODBCInstance.hpp>
 #include <server/src/cNetworkServer.hpp>
+#include <server/src/SSO/SSOHelper.hpp>
 
 using namespace cHttp;
 
@@ -53,6 +54,8 @@ public:
     {
         paServices.insert({sUuid, nullptr});
     }
+
+    bool CreateUser(const string& sLoginname, const string& sPassword);
 
     bool Listen()
     {
@@ -141,15 +144,19 @@ bool cSSOServer::HandleSessionRequest(cNetworkConnection *pConnection, cUri & oU
 
     if(oUri.pasPath[2] == "require") // If a session is requested.
     {
-        std::cout << "session requested." << std::endl;
         string sSessionKey = oRequest.GetHeader("session-key");
         string sIp = oRequest.GetHeader("client-ip");
+        cODBCInstance::Escape(sSessionKey);
+        cODBCInstance::Escape(sIp);
         std::vector<SQLROW> aSessions;
-        if (sSessionKey.size() > 0) poDB->Fetch("SELECT * FROM Session WHERE Session.Key = '" + oRequest.GetHeader("session-key") + "' AND Session.Ip = '" + sIp + "';", &aSessions);
+        if (sSessionKey.size() > 0) poDB->Fetch("SELECT * FROM Session WHERE Session.Key = '" +  sSessionKey + "' AND Session.Ip = '" + sIp + "';", &aSessions);
         else std::cout << "no key or ip provided: session: " << sSessionKey << ", ip: " << sIp << std::endl;
 
         if (aSessions.size() == 0)
+        {
             oResponse.SetResponseCode(403);
+            aHeaders.push_back({"Order", "Login"});
+        }
         else // on success with 1 session.
         {
             oResponse.SetResponseCode(200);
@@ -160,12 +167,70 @@ bool cSSOServer::HandleSessionRequest(cNetworkConnection *pConnection, cUri & oU
             aHeaders.push_back({"Session-Key", sDBSessionKey});
         }
     }
+    else if(oUri.pasPath[2] == "request") // if a login is requested.
+    {
+        string sLoginname = oRequest.GetHeader("loginname");
+        string sPassword = oRequest.GetHeader("password");
+        std::cout << "server: " << "attempting login with creds: " + sLoginname + ":" + sPassword << std::endl;
+
+        using namespace SSO;
+        byte *aHash = new byte[128];
+        uint uiHashSize = 0;
+        if(C_SSO_OK != Blake2Hash((const unsigned char *) (sPassword.c_str()), sPassword.size(),
+                                  (unsigned char **) (&aHash), &uiHashSize))
+            return false;
+
+        string sEncoded = base64_encode(aHash, uiHashSize);
+        cODBCInstance::Escape(sLoginname);
+
+        std::vector<SQLROW> aUsers, aSessions;
+        if(poDB->Fetch(
+                "SELECT * FROM User WHERE User.UserName = '" + sLoginname + "' AND User.Password = '" + sEncoded + "';", &aUsers))
+        {
+            if (aUsers.size() == 1) // if the user was found.
+            {
+                string sUserId = "0", sSessionKey = uuids::to_string(uuids::uuid_system_generator{}());
+                aUsers[0]["Id"]->GetValueStr(sUserId);
+                string sQuery = "INSERT INTO Session (Session.Key, Session.User_Id, Session.Ip) VALUES('" + sSessionKey + "', " + sUserId + ", '" + oRequest.GetHeader("client-ip") + "');";
+                if(poDB->Exec(sQuery))
+                {
+                    aHeaders.push_back({"Session-Key", sSessionKey});
+                    oResponse.SetResponseCode(200);
+                }
+                else
+                    oResponse.SetResponseCode(403);
+            }
+            else // if no users where found with the given credentials.
+                oResponse.SetResponseCode(403);
+        }
+        else // failed to fetch users...?
+            oResponse.SetResponseCode(403);
+    }
 
     oResponse.SetHeaders(aHeaders);
 
     string sResponse = oResponse.Serialize();
     pConnection->SendBytes((byte*)sResponse.c_str(), sResponse.size());
     return true;
+}
 
-    return false;
+bool cSSOServer::CreateUser(const string &sLoginname, const string &sPassword)
+{
+    if(sLoginname.size() == 0 || sPassword.size() == 0) return false;
+
+    using namespace SSO;
+    byte *aHash = new byte[128];
+    uint uiHashSize = 0;
+    if(C_SSO_OK != Blake2Hash((const unsigned char *) (sPassword.c_str()), sPassword.size(),
+                                    (unsigned char **) (&aHash), &uiHashSize))
+        return false;
+
+    string sEncoded = base64_encode(aHash, uiHashSize);
+    cODBCInstance::Escape((string&)sLoginname);
+
+    std::vector<SQLROW> aUsers;
+    if(!poDB->Fetch("SELECT * FROM User WHERE User.UserName = '" + sLoginname + "';", &aUsers)) return false;
+    if (aUsers.size() > 0) return false;
+
+    return poDB->Exec("INSERT INTO User (User.UserName, User.Password) VALUES('" + sLoginname + "', '" + sEncoded + "');");
 }

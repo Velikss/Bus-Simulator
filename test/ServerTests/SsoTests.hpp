@@ -17,7 +17,7 @@ TEST(SSOTests, Hash)
     SSO_STATUS iStatus = Blake2Hash((const unsigned char *) (sMessage.c_str()), sMessage.size(),
                                     (unsigned char **) (&aHash), &uiHashSize);
     string sEncoded = base64_encode(aHash, uiHashSize);
-    EXPECT_EQ(iStatus, cSSO_OK);
+    EXPECT_EQ(iStatus, C_SSO_OK);
     EXPECT_STREQ(sEncoded.c_str(), "/emPKvUfnQlOF+7T2aWeaWHxXbxsMDBkA+/btWGE8H85QDtkE3TAl1h4CC3HT2zBaNPRT52zxqzEUMLkxMqrYQ==");
 }
 
@@ -106,9 +106,17 @@ TEST(SSOTests, SetupSSOServer)
 //    }
 }
 
-TEST(SSOTests, Handshake)
+TEST(SSOTests, CreateUserOnSSO)
+{
+    EXPECT_TRUE(poSSOServer->CreateUser("root", "password"));
+}
+
+TEST(SSOTests, RequestResource)
 {
     using namespace cHttp;
+
+    // request resource.
+
     cRequest oRequest;
     std::vector<cHeader> aHeaders;
 
@@ -122,7 +130,34 @@ TEST(SSOTests, Handshake)
 
     string sRequest = oRequest.Serialize();
     poGameClient->SendBytes((const byte*)sRequest.c_str(), sRequest.size());
-    fSleep(50);
+    cResponse oResponse;
+    RecieveResponse(poGameClient.get(), oResponse, 300);
+    EXPECT_EQ(403, oResponse.GetResponseCode());
+    EXPECT_STREQ("login", oResponse.GetHeader("order").c_str());
+}
+
+TEST(SSOTests, Login)
+{
+    // login
+    cRequest oRequest;
+    std::vector<cHeader> aHeaders;
+
+    aHeaders.push_back({"Host", "127.0.0.1"});
+    aHeaders.push_back({"Connection", "keep-alive"});
+    aHeaders.push_back({"Loginname", "root"});
+    aHeaders.push_back({"Password", "password"});
+
+    oRequest.SetMethod(cMethod::ePOST);
+    oRequest.SetResource("/sso/session/request");
+    oRequest.SetHeaders(aHeaders);
+
+    string sRequest = oRequest.Serialize();
+    poGameClient->SendBytes((const byte*)sRequest.c_str(), sRequest.size());
+    cResponse oResponse;
+    RecieveResponse(poGameClient.get(), oResponse, 300);
+    EXPECT_EQ(200, oResponse.GetResponseCode());
+    std::cout << oResponse.Serialize() << std::endl;
+    EXPECT_TRUE(oResponse.GetHeader("session-key").size() > 0);
 }
 
 TEST(SSOTests, Stop)

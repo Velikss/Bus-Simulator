@@ -83,7 +83,6 @@ private:
 
 void cSsoService::_OnConnect(cNetworkConnection *pConnection)
 {
-    pConnection->LockRecieve();
     // If no session-key was provided or if the session was not found on the server, make a call to the sso server.
     cRequest oRequest;
     std::vector<cHeader> aHeaders;
@@ -102,7 +101,6 @@ void cSsoService::_OnConnect(cNetworkConnection *pConnection)
     cResponse oResponse;
     RecieveResponse(pConnection, oResponse);
 
-    pConnection->UnLockRecieve();
     if (oResponse.GetResponseCode() != 200) throw std::runtime_error("inaccessible sso server, is the Service-ID correct?");
 }
 

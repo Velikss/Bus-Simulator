@@ -184,6 +184,16 @@ namespace cHttp
                     return oHeader.GetValue();
             return "";
         }
+        void SetHeader(const string& sKey, const string& sValue)
+        {
+            for (auto &oHeader : paHeaders)
+                if (oHeader.GetKey() == sKey)
+                {
+                    oHeader.SetValue(sValue);
+                    return;
+                }
+            paHeaders.push_back({sKey, sValue});
+        }
 
         const string &GetBody()
         {
@@ -318,7 +328,7 @@ namespace cHttp
 
     class cResponse : public cHttpMessage
     {
-        unsigned short pusResponseCode;
+        unsigned short pusResponseCode = 0;
     public:
         const unsigned short &GetResponseCode()
         {

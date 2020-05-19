@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS `Session` (
   `Key` varchar(36) NOT NULL,
   `User_Id` int(11) NOT NULL,
-  `Ip` varchar(15) NOT NULL,
+  `Ip` varchar(21) NOT NULL,
   `Stamp` timestamp NOT NULL DEFAULT utc_timestamp(),
   PRIMARY KEY (`Key`),
   KEY `User_Id` (`User_Id`),
