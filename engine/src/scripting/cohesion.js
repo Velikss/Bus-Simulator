@@ -51,7 +51,7 @@ function calculate(entity, entities)
             desiredVelocity[1] = target[1] - ME[1];
             var length = Math.sqrt((desiredVelocity[0] * desiredVelocity[0]) + (desiredVelocity[1] * desiredVelocity[1]))
             desiredVelocity[0] = (desiredVelocity[0] / length) * maxspeed;
-            desiredVelocity[1] = (desiredVelocity[0] / length) * maxspeed;
+            desiredVelocity[1] = (desiredVelocity[1] / length) * maxspeed;
             steeringforce[0] = desiredVelocity[0] - velocity[0];
             steeringforce[1] = desiredVelocity[1] - velocity[1];
         }
