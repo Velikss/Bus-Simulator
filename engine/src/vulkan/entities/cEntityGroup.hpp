@@ -5,9 +5,10 @@
 
 class cEntityGroup : public cEntityGroupInterface
 {
+public:
     std::vector<cEntity *> poEntities;
     std::vector<cBehaviourHandler *> paBehaviourHandlers;
-public:
+
     cEntityGroup() : cEntityGroupInterface()
     {
 

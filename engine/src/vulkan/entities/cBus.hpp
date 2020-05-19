@@ -17,18 +17,26 @@ public:
     int piPingTimeout;
     int piBusId;
 
-    cBus(cMesh * mesh) : cBaseObject(mesh, false)
+    cBus(cMesh *mesh) : cBaseObject(mesh, false)
     {
     }
 
     float CalculateAcceleration();
+
     float CalculateDeceleration();
+
     void Move();
+
     void Steer(std::string sDirection);
+
     void Accelerate();
+
     void Decelerate();
+
     void IdleAcceleration();
+
     void IdleSteering();
+
     glm::vec3 GetDoorPosition();
 
 };
@@ -37,45 +45,46 @@ void cBus::Move()
 {
     glm::vec3 oDirection(sin(glm::radians(GetRotation().y)), 0, cos(glm::radians(GetRotation().y)));
     SetPosition(GetPosition() - (oDirection * (pfCurrentSpeed / 100)));
-    if(pfCurrentSpeed !=0)
-        pfSteeringModifier > 0 ? this->RotateLeft(pfSteeringModifier / 10) : this->RotateRight(pfSteeringModifier * -1 / 10);
+    if (pfCurrentSpeed != 0)
+        pfSteeringModifier > 0 ? this->RotateLeft(pfSteeringModifier / 10) : this->RotateRight(
+                pfSteeringModifier * -1 / 10);
 }
 
 void cBus::Accelerate()
 {
     if (pfCurrentSpeed < pfMaxSpeed)
-        pfCurrentSpeed+= CalculateAcceleration() / 2;
+        pfCurrentSpeed += CalculateAcceleration() / 2;
 }
 
 void cBus::Decelerate()
 {
     if (pfCurrentSpeed > pfMinSpeed)
-        pfCurrentSpeed-= CalculateDeceleration() / 2;
+        pfCurrentSpeed -= CalculateDeceleration() / 2;
 }
 
 void cBus::IdleAcceleration()
 {
-    if(pfCurrentSpeed > 0.5)
+    if (pfCurrentSpeed > 0.5)
     {
         pfCurrentSpeed *= 0.997;
     }
-    if(pfCurrentSpeed < -0.5)
+    if (pfCurrentSpeed < -0.5)
     {
         pfCurrentSpeed *= 0.997;
     }
-    if(pfCurrentSpeed < 0.5 && pfCurrentSpeed > -0.5)
+    if (pfCurrentSpeed < 0.5 && pfCurrentSpeed > -0.5)
         pfCurrentSpeed = 0;
 }
 
 void cBus::Steer(std::string sDirection)
 {
     // Block steering while stopped
-    if(pfCurrentSpeed == 0) return;
+    if (pfCurrentSpeed == 0) return;
 
-    if(sDirection == "left")
+    if (sDirection == "left")
     {
         // If the steering modifier is still set to right (lower than 0), reset the modifier to 0.
-        if(pfSteeringModifier < 0)
+        if (pfSteeringModifier < 0)
             pfSteeringModifier = 0;
         // Only higher the modifier if the max value hasn't been reached.
         if (pfSteeringModifier < pfMaxSteeringModifier)
@@ -84,7 +93,7 @@ void cBus::Steer(std::string sDirection)
     if (sDirection == "right")
     {
         // If the steering modifier is still set to left (higher than 0), reset the modifier to 0.
-        if(pfSteeringModifier > 0)
+        if (pfSteeringModifier > 0)
             pfSteeringModifier = 0;
         // Only higher the modifier if the min value hasn't been reached.
         if (pfSteeringModifier > pfMinSteeringModifier)
@@ -103,46 +112,47 @@ void cBus::IdleSteering()
  */
 float cBus::CalculateAcceleration()
 {
-    if((pfMaxSpeed * 0.1) >= pfCurrentSpeed)
+    if ((pfMaxSpeed * 0.1) >= pfCurrentSpeed)
         return pfAccelerationModifier = 1.0;
-    if((pfMaxSpeed * 0.2) >= pfCurrentSpeed)
+    if ((pfMaxSpeed * 0.2) >= pfCurrentSpeed)
         return pfAccelerationModifier = 0.9;
-    if((pfMaxSpeed * 0.3) >= pfCurrentSpeed)
+    if ((pfMaxSpeed * 0.3) >= pfCurrentSpeed)
         return pfAccelerationModifier = 0.8;
-    if((pfMaxSpeed * 0.4) >= pfCurrentSpeed)
+    if ((pfMaxSpeed * 0.4) >= pfCurrentSpeed)
         return pfAccelerationModifier = 0.7;
-    if((pfMaxSpeed * 0.5) >= pfCurrentSpeed)
+    if ((pfMaxSpeed * 0.5) >= pfCurrentSpeed)
         return pfAccelerationModifier = 0.6;
-    if((pfMaxSpeed * 0.6) >= pfCurrentSpeed)
+    if ((pfMaxSpeed * 0.6) >= pfCurrentSpeed)
         return pfAccelerationModifier = 0.5;
-    if((pfMaxSpeed * 0.7) >= pfCurrentSpeed)
+    if ((pfMaxSpeed * 0.7) >= pfCurrentSpeed)
         return pfAccelerationModifier = 0.4;
-    if((pfMaxSpeed * 0.8) >= pfCurrentSpeed)
+    if ((pfMaxSpeed * 0.8) >= pfCurrentSpeed)
         return pfAccelerationModifier = 0.3;
-    if((pfMaxSpeed * 0.9) >= pfCurrentSpeed)
+    if ((pfMaxSpeed * 0.9) >= pfCurrentSpeed)
         return pfAccelerationModifier = 0.2;
-    if((pfMaxSpeed * 1.0) >= pfCurrentSpeed)
+    if ((pfMaxSpeed * 1.0) >= pfCurrentSpeed)
         return pfAccelerationModifier = 0.1;
     return 0.0;
 }
+
 /*
  * Function  to make the vehicle decelerate slower if it's going faster.
  */
 float cBus::CalculateDeceleration()
 {
-    if((pfMinSpeed * 0.7) <= pfCurrentSpeed)
+    if ((pfMinSpeed * 0.7) <= pfCurrentSpeed)
         return pfAccelerationModifier = 0.4;
-    if((pfMinSpeed * 0.6) <= pfCurrentSpeed)
+    if ((pfMinSpeed * 0.6) <= pfCurrentSpeed)
         return pfAccelerationModifier = 0.5;
-    if((pfMinSpeed * 0.5) <= pfCurrentSpeed)
+    if ((pfMinSpeed * 0.5) <= pfCurrentSpeed)
         return pfAccelerationModifier = 0.6;
-    if((pfMinSpeed * 0.4) <= pfCurrentSpeed)
+    if ((pfMinSpeed * 0.4) <= pfCurrentSpeed)
         return pfAccelerationModifier = 0.7;
-    if((pfMinSpeed * 0.3) <= pfCurrentSpeed)
+    if ((pfMinSpeed * 0.3) <= pfCurrentSpeed)
         return pfAccelerationModifier = 0.8;
-    if((pfMinSpeed * 0.2) <= pfCurrentSpeed)
+    if ((pfMinSpeed * 0.2) <= pfCurrentSpeed)
         return pfAccelerationModifier = 0.9;
-    if((pfMinSpeed * 0.1) <= pfCurrentSpeed)
+    if ((pfMinSpeed * 0.1) <= pfCurrentSpeed)
         return pfAccelerationModifier = 1.0;
     return 0.0;
 }
@@ -151,7 +161,7 @@ glm::vec3 cBus::GetDoorPosition()
 {
     // Not relative to the scale, only works with bus scale = 0.8
     glm::vec3 direction(sin(glm::radians(GetRotation().y)), 0,
-            cos(glm::radians(GetRotation().y)));
+                        cos(glm::radians(GetRotation().y)));
     glm::vec3 doorPos = GetPosition();
     doorPos -= (direction * 3.5f);
     return doorPos;

@@ -71,10 +71,15 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
 
 void cBusWorldScene::Update()
 {
+    entityGroup.UpdateEntities();
+
     if(paKeys[GLFW_KEY_Q])
-        entityGroup.UpdateEntities();
-    if(paKeys[GLFW_KEY_E])
-        entityGroup2.UpdateEntities();
+    {
+        for (auto &entity : entityGroup.poEntities)
+        {
+            entity->SetTarget(dynamic_cast<cBus *>(pmpObjects["bus"])->GetDoorPosition());
+        }
+    }
     if(paKeys[GLFW_KEY_T])
         dynamic_cast<cEntity *>(pmpObjects["entity"])->SetPosition(glm::vec3(5, 5, 5));
     if (paKeys[GLFW_KEY_W])
@@ -572,6 +577,7 @@ void cBusWorldScene::LoadObjects()
 
     pmpObjects["entity2"] = new cEntity(pmpMeshes["passenger"]);
     pmpObjects["entity2"]->SetPosition(glm::vec3(11.0f, 0.15f, -10.5f));
+    dynamic_cast<cEntityInterface*>(pmpObjects["entity2"])->SetTarget(glm::vec3(21, 0, 1));
 
     pmpObjects["entity3"] = new cEntity(pmpMeshes["passenger"]);
     pmpObjects["entity3"]->SetPosition(glm::vec3(14.0f, 0.15f, -10.5f));
@@ -607,6 +613,5 @@ void cBusWorldScene::LoadObjects()
 
     entityGroup2 = entityGroup;
     entityGroup.AddBehaviour(cbSeeking);
-//    entityGroup.AddBehaviour(cbCohesion);
     entityGroup.AddBehaviour(cbSeperation);
 }
