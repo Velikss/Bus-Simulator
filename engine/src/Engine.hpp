@@ -172,6 +172,9 @@ void Engine::MainLoop(void)
             }
         }
 
+        // Draw a frame
+        ppRenderHandler->DrawFrame(ppScene, ppOverlayRenderModule, papCommandBuffers[2]);
+
         // If the scene hasn't been loaded, load it now
         // We want to draw at least one frame before loading the
         // scene, to allow loading text to be displayed
@@ -207,9 +210,6 @@ void Engine::MainLoop(void)
             ENGINE_LOG("Scene loading, adding tick task");
             ppGameLoop->AddTask(ppScene);
         }
-
-        // Draw a frame
-        ppRenderHandler->DrawFrame(ppScene, ppOverlayRenderModule, papCommandBuffers[2]);
     }
 
     ppGameLoop->Stop();
