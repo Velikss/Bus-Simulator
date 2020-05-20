@@ -14,7 +14,8 @@ private:
     glm::vec3 poScale = glm::vec3(1.0f, 1.0f, 1.0f);
 
 public:
-    bool bLighting = true;
+    bool pbLighting = true;
+    bool pbVisible = true;
     uint puiUniformIndex;
 
     cBaseObject(cMesh* pMesh, bool bStatic = true);
@@ -41,6 +42,11 @@ cBaseObject::cBaseObject(cMesh* pMesh, bool bStatic) : ppMesh(pMesh)
 glm::mat4 cBaseObject::GetModelMatrix()
 {
     glm::mat4 oModel(1.0f);
+
+    if (!pbVisible)
+    {
+        return glm::scale(oModel, glm::vec3(0));
+    }
 
     // TODO: Maybe cache the value and only recalculate when needed
 
