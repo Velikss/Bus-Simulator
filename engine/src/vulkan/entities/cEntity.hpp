@@ -10,6 +10,7 @@ private:
     std::vector<cBehaviourHandler *> paBehaviourHandlers;
     glm::vec3 poTarget;
     glm::vec2 poVelocity;
+    glm::vec2 poHeading;
     glm::vec2 poSteeringForce;
     float pfMass;
     float pfMaxSpeed;
@@ -17,6 +18,7 @@ public:
     cEntity(cMesh *mesh) : cEntityInterface(mesh)
     {
         poVelocity = glm::vec2(0, 0);
+        poHeading = glm::vec2(0, 0);
         poSteeringForce = glm::vec2(0, 0);
         pfMass = 1;
         pfMaxSpeed = 0.1;
@@ -24,9 +26,17 @@ public:
 
     void AddBehaviour(cBehaviourHandler *&poBehaviour);
 
+    void SetMass(float fMass) override;
+
+    float GetMass() override;
+
     void SetMaxSpeed(float fSpeed) override;
 
     float GetMaxSpeed() override;
+
+    void SetHeading(glm::vec2 oHeading) override;
+
+    glm::vec2 GetHeading() override;
 
     void SetVelocity(glm::vec2 oVelocity) override;
 
@@ -44,12 +54,21 @@ public:
 
     void Update();
 
-    void UpdatePosition();
 };
 
 void cEntity::AddBehaviour(cBehaviourHandler *&poBehaviour)
 {
     paBehaviourHandlers.push_back(poBehaviour);
+}
+
+void cEntity::SetMass(float fMass)
+{
+    pfMass = fMass;
+}
+
+float cEntity::GetMass()
+{
+    return pfMass;
 }
 
 void cEntity::SetMaxSpeed(float fSpeed)
@@ -61,6 +80,17 @@ float cEntity::GetMaxSpeed()
 {
     return pfMaxSpeed;
 }
+
+void cEntity::SetHeading(glm::vec2 oHeading)
+{
+    poHeading = oHeading;
+}
+
+glm::vec2 cEntity::GetHeading()
+{
+    return poHeading;
+}
+
 
 void cEntity::SetVelocity(glm::vec2 oVelocity)
 {
@@ -97,36 +127,6 @@ glm::vec3 cEntity::GetTarget()
     return poTarget;
 }
 
-void cEntity::UpdatePosition()
-{
-    // Update velocity values
-    glm::vec2 acceleration = poSteeringForce / pfMaxSpeed;
-    poVelocity += acceleration;
-
-    if (poVelocity.length() > pfMaxSpeed)
-    {
-        poVelocity = glm::normalize(poVelocity);
-        poVelocity = poVelocity * pfMaxSpeed;
-    }
-
-    //TODO: Translate velocity to rotation
-
-    // Update position
-    glm::vec3 pos = GetPosition();
-    pos.x += poVelocity.x;
-    pos.z += poVelocity.y;
-    SetPosition(pos);
-
-    // Prevents the entity from speeding too far
-    if (poVelocity.x > 0.001 && poVelocity.y > 0.001)
-    {
-        poVelocity *= 0.9;
-    }
-}
-
-/*
- * Update logic, first let the handler update the behaviour, then update position according to the calculated steering force.
- */
 void cEntity::Update()
 {
     poSteeringForce = glm::vec2(0, 0);
@@ -135,7 +135,24 @@ void cEntity::Update()
         // Runs JavaScript which calculates a steering force and appends it to the current force.
         cBehaviourHandler->Update(this);
     }
+    if (!isnan(poSteeringForce.x) && !isnan(poSteeringForce.y))
+    {
+        glm::vec2 acceleration = poSteeringForce / pfMaxSpeed;
+        poVelocity += acceleration;
+        if (poVelocity.length() > pfMaxSpeed)
+        {
+            poVelocity = glm::normalize(poVelocity);
+            poVelocity = poVelocity * pfMaxSpeed;
+        }
+        glm::vec3 pos = GetPosition();
+        pos.x += poVelocity.x;
+        pos.z += poVelocity.y;
+        SetPosition(pos);
+        if (poVelocity.x > 0.001 && poVelocity.y > 0.001)
+        {
+            poVelocity *= 0.9;
+        }
+    }
 
-    UpdatePosition();
 }
 

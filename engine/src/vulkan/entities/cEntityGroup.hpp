@@ -39,6 +39,7 @@ public:
         *entities = reinterpret_cast<std::vector<cEntityInterface *> *>(&poEntities);
     }
 
+
     void UpdateEntities()
     {
         for (auto &entity : poEntities)
@@ -48,9 +49,27 @@ public:
             {
                 cBehaviourHandler->Update(entity, this);
             }
+            if (!isnan(entity->GetSteeringForce().x) && !isnan(entity->GetSteeringForce().y))
+            {
+                glm::vec2 acceleration = entity->GetSteeringForce() / entity->GetMaxSpeed();
+                entity->SetVelocity(entity->GetVelocity() + acceleration);
+                if (entity->GetVelocity().length() > entity->GetMaxSpeed())
+                {
+                    entity->SetVelocity(glm::normalize(entity->GetVelocity()));
+                    entity->SetVelocity(entity->GetVelocity() * entity->GetMaxSpeed());
+                }
 
-            entity->UpdatePosition();
+                glm::vec3 pos = entity->GetPosition();
+                pos.x += entity->GetVelocity().x;
+                pos.z += entity->GetVelocity().y;
+                entity->SetPosition(pos);
+                if (entity->GetVelocity().x > 0.001 && entity->GetVelocity().y > 0.001)
+                {
+                    entity->SetVelocity(entity->GetVelocity() *= 0.9);
+                }
+            }
         }
+
     }
 };
 

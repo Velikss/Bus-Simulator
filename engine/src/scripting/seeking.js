@@ -1,19 +1,39 @@
-function calculate(entity, entities) {
+function calculate(entity, entities)
+{
     // Do behaviour logic
     // check if entity and entities received
-    if (entity) {
+    if(entity && entities) {
+        var force = 0.02;
         var maxspeed = GetEntityMaxSpeed(entity);
+
         var ME = GetEntityCoordinates(entity);
+        var entityList = GetEntityList(entities);
         var velocity = GetEntityVelocity(entity);
-        var target = GetEntityTarget(entity);
         var steeringforce = [0, 0];
-        var StopRadius = 1;
+        var centerOfMass = [0, 0];
+        var neighbourCount = 0;
 
         // Do behaviour logic
-        if (!(ME[0] >= target[0] - StopRadius
-            && ME[0] <= target[0] + StopRadius
-            && ME[1] >= target[1] - StopRadius
-            && ME[1] <= target[1] + StopRadius)) {
+        entityList.forEach(calc);
+        function calc(ent, index)
+        {
+            var coords = GetEntityTarget(ent);
+            seek(coords);
+
+            var length = Math.sqrt((steeringforce[0] * steeringforce[0]) + (steeringforce[1] * steeringforce[1]))
+            if(length > 0){
+                steeringforce[0] = (steeringforce[0] / length) * force;
+                steeringforce[1] = (steeringforce[1] / length) * force;
+            }else{
+                steeringforce[0] *= force;
+                steeringforce[1] *= force;
+            }
+
+            SetEntitySteeringForce(entity, steeringforce[0], steeringforce[1]);
+        }
+
+        function seek(target)
+        {
             var desiredVelocity = [0, 0];
             desiredVelocity[0] = target[0] - ME[0];
             desiredVelocity[1] = target[1] - ME[1];
@@ -23,6 +43,5 @@ function calculate(entity, entities) {
             steeringforce[0] = desiredVelocity[0] - velocity[0];
             steeringforce[1] = desiredVelocity[1] - velocity[1];
         }
-        SetEntitySteeringForce(entity, steeringforce[0], steeringforce[1]);
     }
 }
