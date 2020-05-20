@@ -110,7 +110,11 @@ public:
         if (ppConnectionSSL)
             lResult = SSL_write(ppConnectionSSL, pBuffer, uiNumBytes);
         else
+#if defined(WINDOWS)
             lResult = send(poSock, (char *) pBuffer, uiNumBytes, 0);
+#else
+            lResult = send(poSock, (char *) pBuffer, uiNumBytes, MSG_NOSIGNAL);
+#endif
         if (lResult == NET_SOCKET_ERROR) return false;
         return true;
     }

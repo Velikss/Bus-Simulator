@@ -10,14 +10,15 @@ typedef int NET_SOCK;
 #define NET_INVALID_SOCKET_ID INVALID_SOCKET
 #define NET_SOCKET_ERROR      SOCKET_ERROR
 #elif defined(LINUX)
-#include<unistd.h>
-#include<sys/socket.h>
-#include<sys/types.h>
-#include<netdb.h>
-#include<arpa/inet.h>
-#include<poll.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <poll.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <signal.h>
 typedef int NET_SOCK;
 #define NET_INVALID_SOCKET_ID (-1)
 #define NET_SOCKET_ERROR      (-1)
@@ -26,6 +27,7 @@ typedef int NET_SOCK;
 #endif
 #define MAX_HOSTNAME 1025
 #define MAX_SERVNAME 32
+
 
 class cNetworkAbstractions
 {
@@ -58,6 +60,8 @@ void cNetworkAbstractions::NetInit()
 #if defined(WINDOWS)
     WSADATA tWSA_DATA;
     WSAStartup(MAKEWORD(1, 1), &tWSA_DATA);
+#else
+    signal(SIGPIPE, SIG_IGN);
 #endif
     pbInit = true;
 }
