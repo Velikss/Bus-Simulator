@@ -647,9 +647,9 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["grassField1_1"]->SetPosition(glm::vec3(-152.0f, 0.0f, -13.0f));
 
     // Create static behaviours
-    cBehaviourHandler::AddBehaviour("seperation", "src/scripting/seperation.js");
-    cBehaviourHandler::AddBehaviour("cohesion", "src/scripting/cohesion.js");
-    cBehaviourHandler::AddBehaviour("seeking", "src/scripting/seeking.js");
+    cBehaviourHandler::AddBehaviour("seperation", "resources/scripting/seperation.js");
+    cBehaviourHandler::AddBehaviour("cohesion", "resources/scripting/cohesion.js");
+    cBehaviourHandler::AddBehaviour("seeking", "resources/scripting/seeking.js");
 
     cBehaviourHandler *cbSeperation = new cBehaviourHandler("seperation");
     cBehaviourHandler *cbCohesion = new cBehaviourHandler("cohesion");
