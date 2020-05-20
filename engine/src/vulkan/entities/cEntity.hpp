@@ -10,7 +10,6 @@ private:
     std::vector<cBehaviourHandler *> paBehaviourHandlers;
     glm::vec3 poTarget;
     glm::vec2 poVelocity;
-    glm::vec2 poHeading;
     glm::vec2 poSteeringForce;
     float pfMass;
     float pfMaxSpeed;
@@ -18,7 +17,6 @@ public:
     cEntity(cMesh *mesh) : cEntityInterface(mesh)
     {
         poVelocity = glm::vec2(0, 0);
-        poHeading = glm::vec2(0, 0);
         poSteeringForce = glm::vec2(0, 0);
         pfMass = 1;
         pfMaxSpeed = 0.1;
@@ -26,17 +24,9 @@ public:
 
     void AddBehaviour(cBehaviourHandler *&poBehaviour);
 
-    void SetMass(float fMass) override;
-
-    float GetMass() override;
-
     void SetMaxSpeed(float fSpeed) override;
 
     float GetMaxSpeed() override;
-
-    void SetHeading(glm::vec2 oHeading) override;
-
-    glm::vec2 GetHeading() override;
 
     void SetVelocity(glm::vec2 oVelocity) override;
 
@@ -54,21 +44,12 @@ public:
 
     void Update();
 
+    void UpdatePosition();
 };
 
 void cEntity::AddBehaviour(cBehaviourHandler *&poBehaviour)
 {
     paBehaviourHandlers.push_back(poBehaviour);
-}
-
-void cEntity::SetMass(float fMass)
-{
-    pfMass = fMass;
-}
-
-float cEntity::GetMass()
-{
-    return pfMass;
 }
 
 void cEntity::SetMaxSpeed(float fSpeed)
@@ -80,17 +61,6 @@ float cEntity::GetMaxSpeed()
 {
     return pfMaxSpeed;
 }
-
-void cEntity::SetHeading(glm::vec2 oHeading)
-{
-    poHeading = oHeading;
-}
-
-glm::vec2 cEntity::GetHeading()
-{
-    return poHeading;
-}
-
 
 void cEntity::SetVelocity(glm::vec2 oVelocity)
 {

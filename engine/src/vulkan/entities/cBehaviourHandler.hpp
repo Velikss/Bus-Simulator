@@ -40,13 +40,10 @@ void cBehaviourHandler::AddBehaviour(std::string sBehaviourName, std::string sFi
     // Register the needed duktape functions to the engine's duktape context
     poBehaviourEngine->RegisterFunction(JavaScriptEntityFunctions::GetEntityCoordinates, 1, "GetEntityCoordinates");
     poBehaviourEngine->RegisterFunction(JavaScriptEntityFunctions::GetEntityTarget, 1, "GetEntityTarget");
-    poBehaviourEngine->RegisterFunction(JavaScriptEntityFunctions::GetEntityMass, 1, "GetEntityMass");
     poBehaviourEngine->RegisterFunction(JavaScriptEntityFunctions::GetEntityMaxSpeed, 1, "GetEntityMaxSpeed");
     poBehaviourEngine->RegisterFunction(JavaScriptEntityFunctions::GetEntityList, 1, "GetEntityList");
     poBehaviourEngine->RegisterFunction(JavaScriptEntityFunctions::GetEntityVelocity, 1, "GetEntityVelocity");
     poBehaviourEngine->RegisterFunction(JavaScriptEntityFunctions::SetEntityVelocity, 3, "SetEntityVelocity");
-    poBehaviourEngine->RegisterFunction(JavaScriptEntityFunctions::GetEntityHeading, 1, "GetEntityHeading");
-    poBehaviourEngine->RegisterFunction(JavaScriptEntityFunctions::SetEntityHeading, 3, "SetEntityHeading");
     poBehaviourEngine->RegisterFunction(JavaScriptEntityFunctions::AppendEntitySteeringForce, 3, "SetEntitySteeringForce");
 
     /* Compile the behaviours' script (it will be placed as bytecode on the engines' stack)
