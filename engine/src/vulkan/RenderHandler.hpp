@@ -10,7 +10,7 @@
 class cRenderHandler
 {
 private:
-    const uint uiMAX_FRAMES_IN_FLIGHT = 2;
+    const uint uiMAX_FRAMES_IN_FLIGHT = 1;
 
     cLogicalDevice* ppLogicalDevice;
     cSwapChain* ppSwapChain;
