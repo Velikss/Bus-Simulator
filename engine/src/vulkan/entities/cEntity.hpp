@@ -11,11 +11,15 @@ private:
     glm::vec3 poTarget;
     glm::vec2 poVelocity;
     glm::vec2 poSteeringForce;
-    float pfMass = 1;
-    float pfMaxSpeed = 0.1;
+    float pfMass;
+    float pfMaxSpeed;
 public:
     cEntity(cMesh *mesh) : cEntityInterface(mesh)
     {
+        poVelocity = glm::vec2(0, 0);
+        poSteeringForce = glm::vec2(0, 0);
+        pfMass = 1;
+        pfMaxSpeed = 0.1;
     }
 
     void AddBehaviour(cBehaviourHandler *&poBehaviour);
@@ -98,6 +102,7 @@ void cEntity::UpdatePosition()
     // Update velocity values
     glm::vec2 acceleration = poSteeringForce / pfMaxSpeed;
     poVelocity += acceleration;
+
     if (poVelocity.length() > pfMaxSpeed)
     {
         poVelocity = glm::normalize(poVelocity);
