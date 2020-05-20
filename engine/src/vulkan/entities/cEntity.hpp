@@ -97,14 +97,7 @@ glm::vec3 cEntity::GetTarget()
     return poTarget;
 }
 
-void cEntity::Update()
-{
-    poSteeringForce = glm::vec2(0, 0);
-    for (auto &cBehaviourHandler : paBehaviourHandlers)
-    {
-        // Runs JavaScript which calculates a steering force and appends it to the current force.
-        cBehaviourHandler->Update(this);
-    }
+void cEntity::UpdatePosition() {
     if (!isnan(poSteeringForce.x) && !isnan(poSteeringForce.y))
     {
         glm::vec2 acceleration = poSteeringForce / pfMaxSpeed;
@@ -123,6 +116,17 @@ void cEntity::Update()
             poVelocity *= 0.9;
         }
     }
+}
 
+void cEntity::Update()
+{
+    poSteeringForce = glm::vec2(0, 0);
+    for (auto &cBehaviourHandler : paBehaviourHandlers)
+    {
+        // Runs JavaScript which calculates a steering force and appends it to the current force.
+        cBehaviourHandler->Update(this);
+    }
+
+    UpdatePosition();
 }
 

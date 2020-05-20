@@ -155,13 +155,10 @@ namespace JavaScriptEntityFunctions
         duk_idx_t ArrayIndex;
         ArrayIndex = duk_push_array(poContext);
 
-        // Then we will fill the array with pointers to the group members
-        std::vector<cEntityInterface *> *entities;
-        poEntityGroup->ReturnEntities(&entities);
-
-        for (int i = 0; i < entities->size(); i++)
+        // Fill the array with pointers to the group members
+        for (int i = 0; i < poEntityGroup->GetEntities()->size(); i++)
         {
-            duk_push_pointer(poContext, (*entities)[i]);
+            duk_push_pointer(poContext, &poEntityGroup->GetEntities()[i]);
             duk_put_prop_index(poContext, ArrayIndex, i);
         }
 

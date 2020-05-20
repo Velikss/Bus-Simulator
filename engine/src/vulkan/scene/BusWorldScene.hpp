@@ -78,9 +78,9 @@ void cBusWorldScene::Update()
         dynamic_cast<cEntity *>(pmpObjects["entity3"])->SetTarget(dynamic_cast<cBus *>(pmpObjects["bus"])->GetDoorPosition());
     if(paKeys[GLFW_KEY_E])
     {
-        for (auto &entity : entityGroup.poEntities)
+        for (auto &entity : *entityGroup.GetEntities())
         {
-            entity->SetTarget(dynamic_cast<cBus *>(pmpObjects["bus"])->GetDoorPosition());
+            dynamic_cast<cEntity *>(entity)->SetTarget(dynamic_cast<cBus *>(pmpObjects["bus"])->GetDoorPosition());
         }
     }
     if(paKeys[GLFW_KEY_T])
