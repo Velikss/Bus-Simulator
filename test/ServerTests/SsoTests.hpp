@@ -8,6 +8,7 @@
 #include <filesystem>
 
 using namespace SSO;
+using namespace cHttp;
 
 TEST(SSOTests, Hash)
 {
@@ -113,10 +114,7 @@ TEST(SSOTests, CreateUserOnSSO)
 
 TEST(SSOTests, RequestResource)
 {
-    using namespace cHttp;
-
     // request resource.
-
     cRequest oRequest;
     std::vector<cHeader> aHeaders;
 
@@ -136,6 +134,7 @@ TEST(SSOTests, RequestResource)
     EXPECT_STREQ("login", oResponse.GetHeader("order").c_str());
 }
 
+string sSessionKey;
 TEST(SSOTests, Login)
 {
     // login
@@ -153,11 +152,29 @@ TEST(SSOTests, Login)
 
     string sRequest = oRequest.Serialize();
     poGameClient->SendBytes((const byte*)sRequest.c_str(), sRequest.size());
+
     cResponse oResponse;
     RecieveResponse(poGameClient.get(), oResponse, 300);
     EXPECT_EQ(200, oResponse.GetResponseCode());
-    std::cout << oResponse.Serialize() << std::endl;
-    EXPECT_TRUE(oResponse.GetHeader("session-key").size() > 0);
+    EXPECT_TRUE(oResponse.GetHeader("session-key").size() == 36);
+    sSessionKey = oResponse.GetHeader("session-key");
+}
+
+TEST(SSOTests, FinishRequest)
+{
+    cRequest oRequest;
+    std::vector<cHeader> aHeaders;
+
+    aHeaders.push_back({"Host", "127.0.0.1"});
+    aHeaders.push_back({"Connection", "keep-alive"});
+    aHeaders.push_back({"session-key", sSessionKey});
+
+    oRequest.SetMethod(cMethod::ePOST);
+    oRequest.SetResource("/player");
+    oRequest.SetHeaders(aHeaders);
+
+    string sRequest = oRequest.Serialize();
+    poGameClient->SendBytes((const byte*)sRequest.c_str(), sRequest.size());
 }
 
 TEST(SSOTests, Stop)

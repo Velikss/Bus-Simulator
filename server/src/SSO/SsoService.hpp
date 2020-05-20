@@ -10,6 +10,7 @@ class cSsoService : public cNetworkServer
 protected:
     string psSSOUuid;
     std::map<string, cNetworkConnection*> paSessions;
+    std::set<cNetworkConnection*> paIgnoredConnections;
 
     std::shared_ptr<cNetworkClient> pSSOClient = nullptr;
     std::shared_ptr<cNetworkConnection::tNetworkInitializationSettings> ptSSOClientSettings = nullptr;
@@ -18,9 +19,35 @@ public:
     {
     }
 
-    bool SessionExists(string sSessionKey)
+    bool ConnectToSSOServer(const string& sUuid, const string& sIp, const unsigned short& usPort);
+    SSO_STATUS HandleSession(cNetworkConnection* pConnection);
+    void WhiteListConnection(cNetworkConnection* pConnection)
     {
-        return (sSessionKey.size() > 0 && paSessions.find(sSessionKey) != paSessions.end());
+        if (paIgnoredConnections.find(pConnection) != paIgnoredConnections.end())
+            return;
+
+        paIgnoredConnections.insert(pConnection);
+    }
+    void UnWhiteListConnection(cNetworkConnection* pConnection)
+    {
+        if (paIgnoredConnections.find(pConnection) == paIgnoredConnections.end())
+            return;
+        paIgnoredConnections.erase(pConnection);
+    }
+    bool IsWhiteListed(cNetworkConnection* pConnection)
+    {
+        return paIgnoredConnections.find(pConnection) != paIgnoredConnections.end();
+    }
+private:
+    bool SessionExists(string sSessionKey, cNetworkConnection* pConnection)
+    {
+        if (paIgnoredConnections.find(pConnection) != paIgnoredConnections.end())
+            return true;
+
+        // Normal lookup sessions.
+        auto iIndex = paSessions.find(sSessionKey);
+        if (iIndex == paSessions.end()) return false;
+        return iIndex->second == pConnection;
     }
 
     bool RequestSession(cNetworkConnection* pConnection, cResponse & oAwnser, const string& sProvidedSessionKeyOpt = "")
@@ -46,36 +73,6 @@ public:
         return cHttp::RecieveResponse(pSSOClient.get(), oAwnser, 250);
     }
 
-    bool ConnectToSSOServer(const string& sUuid, const string& sIp, const unsigned short& usPort)
-    {
-        psSSOUuid = sUuid;
-
-        ptSSOClientSettings = std::make_shared<cNetworkConnection::tNetworkInitializationSettings>();
-        ptSSOClientSettings->sAddress = sIp;
-        ptSSOClientSettings->usPort = usPort;
-        ptSSOClientSettings->eIPVersion = cNetworkConnection::cIPVersion::eV4;
-        ptSSOClientSettings->eConnectionType = cNetworkConnection::cConnectionType::eTCP;
-        ptSSOClientSettings->eMode = cNetworkConnection::cMode::eNonBlocking;
-
-        pSSOClient = std::make_shared<cNetworkClient>(ptSSOClientSettings.get());
-
-        std::function<void(cNetworkConnection*)> _OnConnect = std::bind(&cSsoService::_OnConnect, this, std::placeholders::_1);
-        std::function<bool(cNetworkConnection*)> _OnRecieve = std::bind(&cSsoService::_OnRecieve, this, std::placeholders::_1);
-        std::function<void(cNetworkConnection*)> _OnDisconnect = std::bind(&cSsoService::_OnDisconnect, this, std::placeholders::_1);
-
-        pSSOClient->SetOnConnectEvent(_OnConnect);
-        pSSOClient->SetOnRecieveEvent(_OnRecieve);
-        pSSOClient->SetOnDisconnectEvent(_OnDisconnect);
-
-        if(pSSOClient->Connect())
-            return true;
-        else
-        {
-            pSSOClient->Disconnect();
-            return false;
-        }
-    }
-private:
     void _OnConnect(cNetworkConnection* pConnection);
     bool _OnRecieve(cNetworkConnection* pConnection);
     void _OnDisconnect(cNetworkConnection* pConnection);
@@ -112,4 +109,100 @@ bool cSsoService::_OnRecieve(cNetworkConnection *pConnection)
 void cSsoService::_OnDisconnect(cNetworkConnection *pConnection)
 {
 
+}
+
+SSO_STATUS cSsoService::HandleSession(cNetworkConnection *pConnection)
+{
+    using namespace cHttp;
+    cRequest oRequest;
+    cResponse oClientAwnser;
+    if (!cHttp::RecieveRequest(pConnection, oRequest)) return false;
+    cUri oUri = cUri::ParseFromRequest(oRequest.GetResource());
+    const string sSessionKey = oRequest.GetHeader("session-key");
+
+    if (oUri.pasPath.size() == 0) // If the application doesn't know what it's doing just terminate the connection after sending a blank 404
+    {
+        oClientAwnser.SetResponseCode(404);
+        string sBuffer = oClientAwnser.Serialize();
+        pConnection->SendBytes((byte*)sBuffer.c_str(), sBuffer.size());
+        return C_SSO_DISCONNECT;
+    }
+
+    if(oUri.pasPath[0] == "sso")
+    {
+        oRequest.SetHeader("client-ip", pConnection->GetConnectionString());
+        string sBuffer = oRequest.Serialize();
+        pSSOClient->SendBytes((byte*)sBuffer.c_str(), sBuffer.size());
+        cResponse oResponse;
+        cHttp::RecieveResponse(pSSOClient.get(), oResponse, 250);
+        if(oResponse.GetResponseCode() == 200 && oUri.pasPath.size() > 2)
+        {
+            if (oUri.pasPath[1] == "session" && oUri.pasPath[2] == "request")
+            {
+                paSessions.insert({oResponse.GetHeader("session-key"), pConnection});
+                string sResponseBuffer = oResponse.Serialize();
+                pConnection->SendBytes((byte*)sResponseBuffer.c_str(), sResponseBuffer.size());
+                return C_SSO_LOGIN_OK;
+            }
+        }
+        string sResponseBuffer = oResponse.Serialize();
+        pConnection->SendBytes((byte*)sResponseBuffer.c_str(), sResponseBuffer.size());
+
+        return C_SSO_NOHANDLE;
+    }
+
+    if (!SessionExists(sSessionKey, pConnection))
+    {
+        cResponse oAwnser;
+        bool bSuccess = RequestSession(pConnection, oAwnser, sSessionKey);
+        if (bSuccess && oAwnser.GetResponseCode() == 200 &&
+            oAwnser.GetHeader("client-ip") == pConnection->GetIP() &&
+            oAwnser.GetHeader("session-key") == sSessionKey)
+        {
+            paSessions.insert({oAwnser.GetHeader("session-key"), pConnection});
+            return C_SSO_OK;
+        }
+            // If a login is required.
+        else
+        {
+            string sBuffer = oAwnser.Serialize();
+            pConnection->SendBytes((byte*)sBuffer.c_str(), sBuffer.size());
+        }
+        return C_SSO_NOHANDLE;
+    }
+
+    return C_SSO_OK;
+}
+
+bool cSsoService::ConnectToSSOServer(const string &sUuid, const string &sIp, const unsigned short &usPort)
+{
+    psSSOUuid = sUuid;
+
+    ptSSOClientSettings = std::make_shared<cNetworkConnection::tNetworkInitializationSettings>();
+    ptSSOClientSettings->sAddress = sIp;
+    ptSSOClientSettings->usPort = usPort;
+    ptSSOClientSettings->eIPVersion = cNetworkConnection::cIPVersion::eV4;
+    ptSSOClientSettings->eConnectionType = cNetworkConnection::cConnectionType::eTCP;
+    ptSSOClientSettings->eMode = cNetworkConnection::cMode::eNonBlocking;
+
+    pSSOClient = std::make_shared<cNetworkClient>(ptSSOClientSettings.get());
+
+    std::function<void(cNetworkConnection *)> _OnConnect = std::bind(&cSsoService::_OnConnect, this,
+                                                                     std::placeholders::_1);
+    std::function<bool(cNetworkConnection *)> _OnRecieve = std::bind(&cSsoService::_OnRecieve, this,
+                                                                     std::placeholders::_1);
+    std::function<void(cNetworkConnection *)> _OnDisconnect = std::bind(&cSsoService::_OnDisconnect, this,
+                                                                        std::placeholders::_1);
+
+    pSSOClient->SetOnConnectEvent(_OnConnect);
+    pSSOClient->SetOnRecieveEvent(_OnRecieve);
+    pSSOClient->SetOnDisconnectEvent(_OnDisconnect);
+
+    if (pSSOClient->Connect())
+        return true;
+    else
+    {
+        pSSOClient->Disconnect();
+        return false;
+    }
 }

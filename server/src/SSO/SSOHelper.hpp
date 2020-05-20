@@ -3,6 +3,9 @@
 #include "server/src/cNetworkConnection.hpp"
 
 typedef int SSO_STATUS;
+#define C_SSO_LOGIN_OK    3
+#define C_SSO_NOHANDLE    2
+#define C_SSO_DISCONNECT  1
 #define C_SSO_OK          0
 #define C_SSO_ERR         -1
 #define C_SSO_FAIL_INIT   -2
