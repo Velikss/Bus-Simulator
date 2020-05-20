@@ -74,6 +74,8 @@ void cBusWorldScene::Update()
     entityGroup.UpdateEntities();
 
     if(paKeys[GLFW_KEY_Q])
+        dynamic_cast<cEntity *>(pmpObjects["entity3"])->SetTarget(dynamic_cast<cBus *>(pmpObjects["bus"])->GetDoorPosition());
+    if(paKeys[GLFW_KEY_E])
     {
         for (auto &entity : entityGroup.poEntities)
         {
@@ -123,8 +125,6 @@ void cBusWorldScene::Update()
 
     cScene::Update();
     if(poMultiplayerHandler) poMultiplayerHandler->PushData();
-
-    std::cout << "POS: " << pmpObjects["entity"]->GetPosition().x << " - " << pmpObjects["entity"]->GetPosition().z << std::endl;
 }
 
 void cBusWorldScene::HandleScroll(double dOffsetX, double dOffsetY)

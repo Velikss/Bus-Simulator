@@ -20,17 +20,9 @@ public:
 
     }
 
-    virtual void SetMass(float fMass) = 0;
-
-    virtual float GetMass() = 0;
-
     virtual void SetMaxSpeed(float fSpeed) = 0;
 
     virtual float GetMaxSpeed() = 0;
-
-    virtual void SetHeading(glm::vec2 oHeading) = 0;
-
-    virtual glm::vec2 GetHeading() = 0;
 
     virtual void SetVelocity(glm::vec2 oVelocity) = 0;
 
