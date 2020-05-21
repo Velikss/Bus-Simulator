@@ -25,6 +25,8 @@ public:
     void RemoveBehaviour(cBehaviourHandler *poBehaviour);
 
     void UpdateEntities();
+
+    void GetEntityList(std::vector<cEntityInterface *> **entities) override;
 };
 
 void cEntityGroup::AddEntity(cEntity *pEntity)
@@ -40,6 +42,11 @@ void cEntityGroup::RemoveEntity(cEntity *pEntity)
 std::vector<cEntityBaseInterface *>* cEntityGroup::GetEntities()
 {
     return reinterpret_cast<std::vector<cEntityBaseInterface *> *>(&poEntities);
+}
+
+void cEntityGroup::GetEntityList(std::vector<cEntityInterface *> **entities)
+{
+    *entities = reinterpret_cast<std::vector<cEntityInterface *> *>(&poEntities);
 }
 
 void cEntityGroup::AddBehaviour(cBehaviourHandler *&poBehaviour)
