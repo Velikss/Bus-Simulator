@@ -22,12 +22,12 @@ protected:
 
         pmpObjects["box1"] = new cBaseObject(pmpMeshes["box1"], cCollider::UnitCollider(0.5f), false);
         pmpObjects["box1"]->SetPosition(glm::vec3(2.1, 0, 0));
-        pmpObjects["box1"]->bLighting = false;
+        pmpObjects["box1"]->pbLighting = false;
 
         pmpObjects["box2"] = new cBaseObject(pmpMeshes["box2"], cCollider::UnitCollider(0.5f), false);
         pmpObjects["box2"]->SetPosition(glm::vec3(1, 0, 0));
         pmpObjects["box2"]->SetRotation(glm::vec3(0, 45, 0));
-        pmpObjects["box2"]->bLighting = false;
+        pmpObjects["box2"]->pbLighting = false;
 
         cScene::Load(pTextureHandler, pLogicalDevice);
     }
@@ -52,8 +52,10 @@ public:
             Quit();
 
         glm::vec3 pos = poCamera->GetPosition();
-        pos.y -= 4;
+        pos.y -= 2;
         pmpObjects["box2"]->SetPosition(pos);
+        glm::vec3 newPos = pmpObjects["box2"]->GetPosition();
+        poCamera->SetPosition(newPos);
 
         cBaseObject* pObject = pmpObjects["box2"];
         glm::mat4 matrix = pObject->GetModelMatrix();

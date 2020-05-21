@@ -64,7 +64,6 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/Scene.hpp src/vulkan/scene/BaseObject.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/TestScene.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/InputHandler.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/StreetScene.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/PipelineHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/uniform/UniformHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/renderpass/RenderPass.hpp

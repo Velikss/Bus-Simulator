@@ -10,7 +10,7 @@ class Camera
 {
 public:
     float fFoV = 45.0;
-    float fZNear = 1.0;
+    float fZNear = 0.1;
     float fZFar = 800.0;
 
     glm::vec3 cameraPos = glm::vec3(2.0f, 7.0f, 2.0f);

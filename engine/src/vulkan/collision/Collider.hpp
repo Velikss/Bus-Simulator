@@ -24,6 +24,8 @@ public:
     uint GetSize();
 
     static cCollider* UnitCollider(float fScalar = 1);
+    static cCollider* RectangleCollider(float xScale, float zScale);
+    static cCollider* RectangleCollider(float x1, float z1, float x2, float z2);
 };
 
 cCollider::cCollider(tRectangle tCollisionBox)
@@ -60,5 +62,25 @@ uint cCollider::GetSize()
 
 cCollider* cCollider::UnitCollider(float fScalar)
 {
-    return new cCollider(cCollisionHelper::UnitRectangle(fScalar));
+    return RectangleCollider(fScalar, fScalar);
+}
+
+cCollider* cCollider::RectangleCollider(float xScale, float zScale)
+{
+    tRectangle tRectangle = {};
+    tRectangle.aVertices[0] = glm::vec2(0, 0);
+    tRectangle.aVertices[1] = glm::vec2(0, -zScale);
+    tRectangle.aVertices[2] = glm::vec2(xScale, -zScale);
+    tRectangle.aVertices[3] = glm::vec2(xScale, 0);
+    return new cCollider(tRectangle);
+}
+
+cCollider* cCollider::RectangleCollider(float x1, float z1, float x2, float z2)
+{
+    tRectangle tRectangle = {};
+    tRectangle.aVertices[0] = glm::vec2(x1, z1);
+    tRectangle.aVertices[1] = glm::vec2(x1, z2);
+    tRectangle.aVertices[2] = glm::vec2(x2, z2);
+    tRectangle.aVertices[3] = glm::vec2(x2, z1);
+    return new cCollider(tRectangle);
 }
