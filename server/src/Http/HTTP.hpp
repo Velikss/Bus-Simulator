@@ -98,13 +98,15 @@ namespace cHttp
             this->psKey = sKey;
         }
 
-        const string &GetKey() noexcept
+        const string &GetKey() const noexcept
         {
             return this->psKey;
         }
 
         string Serialize() const noexcept
         {
+            if (this->psValue.size() == 0) return "";
+
             string sHeader;
             sHeader += this->psKey;
             sHeader += ": ";
@@ -213,7 +215,7 @@ namespace cHttp
             this->peVersion = eVersion;
         }
 
-        string Serialize()
+        string Serialize() const
         {
             string sMessage;
             SerializeMeta(sMessage);
@@ -221,12 +223,12 @@ namespace cHttp
             return sMessage;
         }
 
-        virtual void SerializeMeta(string & sTarget)
+        virtual void SerializeMeta(string & sTarget) const
         {
             // Stub
         }
 
-        void SerializeContent(string& sTarget)
+        void SerializeContent(string& sTarget) const
         {
             for (auto &oHeader : this->paHeaders)
                 if(oHeader.GetKey() != "content-length")
@@ -277,7 +279,7 @@ namespace cHttp
             this->peMethod = eMethod;
         }
 
-        virtual void SerializeMeta(string & sTarget) override
+        virtual void SerializeMeta(string & sTarget) const override
         {
             sTarget += aMethodToMethodStr.at(this->peMethod);
             sTarget += " ";
@@ -339,7 +341,7 @@ namespace cHttp
             this->pusResponseCode = usResponseCode;
         }
 
-        virtual void SerializeMeta(string & sTarget) override
+        virtual void SerializeMeta(string & sTarget) const override
         {
             sTarget += aVersionToVersionStr.at(this->peVersion);
             sTarget += " ";
@@ -388,15 +390,14 @@ namespace cHttp
         }
     };
 
-    bool RecieveRequest(cNetworkConnection* pConnection, cRequest& oRequest)
+    bool RecieveRequest(cNetworkConnection* pConnection, cRequest& oRequest, size_t uiTimeOut = 300)
     {
-        unsigned short usTimeOut = 0;
-        while (!pConnection->Available())
+        while (!pConnection->Available() && (uiTimeOut > 0 || uiTimeOut == -1))
         {
-            if(usTimeOut > 5) return false;
-            usTimeOut++;
-            fSleep(10);
+            fSleep(50);
+            if (uiTimeOut != -1) uiTimeOut-=50;
         }
+        if (!pConnection->Available()) return false;
 
         byte* aBytes = new byte[8192];
         size_t size = pConnection->ReceiveBytes(aBytes, 8192);
@@ -426,13 +427,14 @@ namespace cHttp
         return true;
     }
 
-    bool RecieveResponse(cNetworkConnection* pConnection, cResponse& oResponse, size_t uiSleepTime = 50)
+    bool RecieveResponse(cNetworkConnection* pConnection, cResponse& oResponse, int uiTimeOut = 300)
     {
-        if (!pConnection->Available())
+        while (!pConnection->Available() && (uiTimeOut > 0 || uiTimeOut == -1))
         {
-            fSleep(uiSleepTime);
-            if (!pConnection->Available()) return false;
+            fSleep(50);
+            if (uiTimeOut != -1) uiTimeOut-=50;
         }
+        if (!pConnection->Available()) return false;
 
         byte* aBytes = new byte[8192];
         size_t size = pConnection->ReceiveBytes(aBytes, 8192);

@@ -20,7 +20,7 @@ public:
     }
 
     bool ConnectToSSOServer(const string& sUuid, const string& sIp, const unsigned short& usPort);
-    SSO_STATUS HandleSession(cNetworkConnection* pConnection);
+    SSO_STATUS HandleSession(cNetworkConnection* pConnection, cRequest & oRequest);
     void WhiteListConnection(cNetworkConnection* pConnection)
     {
         if (paIgnoredConnections.find(pConnection) != paIgnoredConnections.end())
@@ -111,10 +111,9 @@ void cSsoService::_OnDisconnect(cNetworkConnection *pConnection)
 
 }
 
-SSO_STATUS cSsoService::HandleSession(cNetworkConnection *pConnection)
+SSO_STATUS cSsoService::HandleSession(cNetworkConnection *pConnection, cRequest & oRequest)
 {
     using namespace cHttp;
-    cRequest oRequest;
     cResponse oClientAwnser;
     if (!cHttp::RecieveRequest(pConnection, oRequest)) return false;
     cUri oUri = cUri::ParseFromRequest(oRequest.GetResource());
@@ -134,12 +133,20 @@ SSO_STATUS cSsoService::HandleSession(cNetworkConnection *pConnection)
         string sBuffer = oRequest.Serialize();
         pSSOClient->SendBytes((byte*)sBuffer.c_str(), sBuffer.size());
         cResponse oResponse;
-        cHttp::RecieveResponse(pSSOClient.get(), oResponse, 250);
+        cHttp::RecieveResponse(pSSOClient.get(), oResponse, -1);
+
         if(oResponse.GetResponseCode() == 200 && oUri.pasPath.size() > 2)
         {
             if (oUri.pasPath[1] == "session" && oUri.pasPath[2] == "request")
             {
                 paSessions.insert({oResponse.GetHeader("session-key"), pConnection});
+                string sResponseBuffer = oResponse.Serialize();
+                pConnection->SendBytes((byte*)sResponseBuffer.c_str(), sResponseBuffer.size());
+                return C_SSO_LOGIN_OK;
+            }
+            if (oUri.pasPath[1] == "session" && oUri.pasPath[2] == "destroy")
+            {
+                paSessions.erase(oResponse.GetHeader("session-key"));
                 string sResponseBuffer = oResponse.Serialize();
                 pConnection->SendBytes((byte*)sResponseBuffer.c_str(), sResponseBuffer.size());
                 return C_SSO_LOGIN_OK;

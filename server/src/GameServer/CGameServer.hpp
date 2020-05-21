@@ -78,8 +78,11 @@ bool cGameServer::OnConnect(cNetworkConnection* pConnection)
 
 bool cGameServer::OnRecieve(cNetworkConnection *pConnection)
 {
-    SSO_STATUS iStatus = HandleSession(pConnection);
-    if (iStatus == C_SSO_DISCONNECT) return false;
+    cRequest oRequest;
+    SSO_STATUS iStatus = HandleSession(pConnection, oRequest);
+
+    if (iStatus == C_SSO_DISCONNECT)
+        return false;
     if (iStatus == C_SSO_NOHANDLE) return true;
     if (iStatus == C_SSO_LOGIN_OK)
     {
@@ -89,8 +92,11 @@ bool cGameServer::OnRecieve(cNetworkConnection *pConnection)
 
     if (iStatus == C_SSO_OK)
     {
-        std::cout << "session data found." << std::endl;
-        std::cout << "WhiteListed: " << IsWhiteListed(pConnection) << std::endl;
+        cResponse oResponse;
+        oResponse.SetResponseCode(200);
+        string sBuffer = oResponse.Serialize();
+        pConnection->SendBytes((byte*)sBuffer.c_str(), sBuffer.size());
+        return true;
     }
     return false;
 }

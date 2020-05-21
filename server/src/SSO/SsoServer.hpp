@@ -149,8 +149,8 @@ bool cSSOServer::HandleSessionRequest(cNetworkConnection *pConnection, cUri & oU
         cODBCInstance::Escape(sSessionKey);
         cODBCInstance::Escape(sIp);
         std::vector<SQLROW> aSessions;
+
         if (sSessionKey.size() > 0) poDB->Fetch("SELECT * FROM Session WHERE Session.Key = '" +  sSessionKey + "' AND Session.Ip = '" + sIp + "';", &aSessions);
-        else std::cout << "no key or ip provided: session: " << sSessionKey << ", ip: " << sIp << std::endl;
 
         if (aSessions.size() == 0)
         {
@@ -171,7 +171,6 @@ bool cSSOServer::HandleSessionRequest(cNetworkConnection *pConnection, cUri & oU
     {
         string sLoginname = oRequest.GetHeader("loginname");
         string sPassword = oRequest.GetHeader("password");
-        std::cout << "server: " << "attempting login with creds: " + sLoginname + ":" + sPassword << std::endl;
 
         using namespace SSO;
         byte *aHash = new byte[128];
@@ -206,6 +205,33 @@ bool cSSOServer::HandleSessionRequest(cNetworkConnection *pConnection, cUri & oU
         else // failed to fetch users...?
             oResponse.SetResponseCode(403);
     }
+    else if(oUri.pasPath[2] == "destroy")
+    {
+        SQLLEN uiAffected = 0;
+        string sSessionKey = oRequest.GetHeader("session-key");
+        string sIp = oRequest.GetHeader("client-ip");
+        cODBCInstance::Escape(sSessionKey);
+        cODBCInstance::Escape(sIp);
+
+        poDB->Exec("DELETE FROM Session WHERE Session.Key = '" + sSessionKey + "' AND Session.Ip = '" + sIp + "';",
+                   &uiAffected);
+
+        if (uiAffected > 0)
+        {
+            oResponse.SetResponseCode(200);
+            oResponse.SetHeaders(aHeaders);
+            oResponse.SetHeader("Session-Key", sSessionKey);
+            oResponse.SetHeader("Order", "Destory");
+            string sResponse = oResponse.Serialize();
+            for (auto&[sServiceId, pServiceConnection] : paServices)
+            {
+                pServiceConnection->SendBytes((byte *) sResponse.c_str(), sResponse.size());
+            }
+            return true;
+        }
+        else
+            oResponse.SetResponseCode(403);
+    }
 
     oResponse.SetHeaders(aHeaders);
 
@@ -230,7 +256,8 @@ bool cSSOServer::CreateUser(const string &sLoginname, const string &sPassword)
 
     std::vector<SQLROW> aUsers;
     if(!poDB->Fetch("SELECT * FROM User WHERE User.UserName = '" + sLoginname + "';", &aUsers)) return false;
-    if (aUsers.size() > 0) return false;
+    if (aUsers.size() > 0)
+        return false;
 
     return poDB->Exec("INSERT INTO User (User.UserName, User.Password) VALUES('" + sLoginname + "', '" + sEncoded + "');");
 }

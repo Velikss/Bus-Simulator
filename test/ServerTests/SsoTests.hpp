@@ -4,7 +4,7 @@
 #include <server/vendor/StdUuid.hpp>
 #include <server/src/SSO/SsoServer.hpp>
 #include <server/src/GameServer/CGameServer.hpp>
-#include <server/src/cNetworkClient.hpp>
+#include <server/src/SSO/SsoClient.hpp>
 #include <filesystem>
 
 using namespace SSO;
@@ -34,7 +34,7 @@ TEST(SSOTests, UuidGeneration)
 
 std::shared_ptr<cSSOServer> poSSOServer;
 std::shared_ptr<cGameServer> poGameServer;
-std::shared_ptr<cNetworkClient> poGameClient;
+std::shared_ptr<cSSOClient> poGameClient;
 std::shared_ptr<cNetworkConnection::tNetworkInitializationSettings> ptSSOServerSettings = nullptr;
 std::shared_ptr<cNetworkConnection::tNetworkInitializationSettings> ptGameServerSettings = nullptr;
 std::shared_ptr<cNetworkConnection::tNetworkInitializationSettings> ptGameClientSettings = nullptr;
@@ -64,7 +64,7 @@ TEST(SSOTests, SetupSSOServer)
 
     poSSOServer = std::make_shared<cSSOServer>(ptSSOServerSettings.get());
     poGameServer = std::make_shared<cGameServer>(ptGameServerSettings.get());
-    poGameClient = std::make_shared<cNetworkClient>(ptGameClientSettings.get());
+    poGameClient = std::make_shared<cSSOClient>(ptGameClientSettings.get());
 
     string sGameServerUuid = uuids::to_string(uuids::uuid_system_generator{}());
 
@@ -116,6 +116,8 @@ TEST(SSOTests, RequestResource)
 {
     // request resource.
     cRequest oRequest;
+    cResponse oResponse;
+
     std::vector<cHeader> aHeaders;
 
     aHeaders.push_back({"Host", "127.0.0.1"});
@@ -126,55 +128,37 @@ TEST(SSOTests, RequestResource)
     oRequest.SetResource("/player");
     oRequest.SetHeaders(aHeaders);
 
-    string sRequest = oRequest.Serialize();
-    poGameClient->SendBytes((const byte*)sRequest.c_str(), sRequest.size());
-    cResponse oResponse;
-    RecieveResponse(poGameClient.get(), oResponse, 300);
+    EXPECT_TRUE(poGameClient->SendRequest(oRequest, oResponse));
     EXPECT_EQ(403, oResponse.GetResponseCode());
     EXPECT_STREQ("login", oResponse.GetHeader("order").c_str());
 }
 
-string sSessionKey;
 TEST(SSOTests, Login)
 {
-    // login
-    cRequest oRequest;
-    std::vector<cHeader> aHeaders;
-
-    aHeaders.push_back({"Host", "127.0.0.1"});
-    aHeaders.push_back({"Connection", "keep-alive"});
-    aHeaders.push_back({"Loginname", "root"});
-    aHeaders.push_back({"Password", "password"});
-
-    oRequest.SetMethod(cMethod::ePOST);
-    oRequest.SetResource("/sso/session/request");
-    oRequest.SetHeaders(aHeaders);
-
-    string sRequest = oRequest.Serialize();
-    poGameClient->SendBytes((const byte*)sRequest.c_str(), sRequest.size());
-
-    cResponse oResponse;
-    RecieveResponse(poGameClient.get(), oResponse, 300);
-    EXPECT_EQ(200, oResponse.GetResponseCode());
-    EXPECT_TRUE(oResponse.GetHeader("session-key").size() == 36);
-    sSessionKey = oResponse.GetHeader("session-key");
+    EXPECT_TRUE(poGameClient->Login("root", "password"));
 }
 
 TEST(SSOTests, FinishRequest)
 {
     cRequest oRequest;
+    cResponse oResponse;
+
     std::vector<cHeader> aHeaders;
 
     aHeaders.push_back({"Host", "127.0.0.1"});
     aHeaders.push_back({"Connection", "keep-alive"});
-    aHeaders.push_back({"session-key", sSessionKey});
 
     oRequest.SetMethod(cMethod::ePOST);
     oRequest.SetResource("/player");
     oRequest.SetHeaders(aHeaders);
 
-    string sRequest = oRequest.Serialize();
-    poGameClient->SendBytes((const byte*)sRequest.c_str(), sRequest.size());
+    EXPECT_TRUE(poGameClient->SendRequest(oRequest, oResponse));
+    EXPECT_EQ(oResponse.GetResponseCode(), 200);
+}
+
+TEST(SSOTests, Logout)
+{
+    EXPECT_TRUE(poGameClient->Logout());
 }
 
 TEST(SSOTests, Stop)

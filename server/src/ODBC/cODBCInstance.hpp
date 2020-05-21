@@ -208,7 +208,7 @@ public:
     bool Connect(string sConnectionString);
     bool Disconnect();
     bool Fetch(string sQuery, std::vector<SQLROW>* aRows);
-    bool Exec(string sQuery);
+    bool Exec(string sQuery, SQLLEN* puiAffected = nullptr);
     bool ExecFile(string sFileName);
     static void Escape(string & sString);
 };
@@ -400,7 +400,7 @@ bool cODBCInstance::Fetch(string sQuery, std::vector<SQLROW>* aRows)
     }
 }
 
-bool cODBCInstance::Exec(string sQuery)
+bool cODBCInstance::Exec(string sQuery, SQLLEN* puiAffected)
 {
     HSTMT stmt = nullptr;
     try
@@ -418,6 +418,17 @@ bool cODBCInstance::Exec(string sQuery)
             SQLFreeHandle(SQL_HANDLE_STMT, stmt);
             return false;
         }
+
+        if (puiAffected)
+        {
+            if (SQL_SUCCESS != SQLRowCount(stmt, puiAffected))
+            {
+                extract_error("Execute: ", stmt, SQL_HANDLE_STMT);
+                SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+                return false;
+            }
+        }
+        SQLFreeHandle(SQL_HANDLE_STMT, stmt);
         return true;
     }
     catch (std::exception& ex)
