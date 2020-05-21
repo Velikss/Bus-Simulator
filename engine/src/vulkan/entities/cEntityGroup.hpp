@@ -55,14 +55,17 @@ void cEntityGroup::RemoveBehaviour(cBehaviourHandler *poBehaviour)
 
 void cEntityGroup::UpdateEntities()
 {
-    for (auto &entity : poEntities)
+    if(!paBehaviourHandlers.empty())
     {
-        entity->SetSteeringForce(glm::vec2(0, 0));
-        for (auto &cBehaviourHandler : paBehaviourHandlers)
+        for (auto &entity : poEntities)
         {
-            cBehaviourHandler->Update(entity, this);
+            entity->SetSteeringForce(glm::vec2(0, 0));
+            for (auto &cBehaviourHandler : paBehaviourHandlers)
+            {
+                cBehaviourHandler->Update(entity, this);
+            }
+            entity->UpdatePosition();
         }
-        entity->UpdatePosition();
     }
 }
 

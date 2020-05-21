@@ -121,13 +121,16 @@ void cEntity::UpdatePosition()
 
 void cEntity::Update()
 {
-    poSteeringForce = glm::vec2(0, 0);
-    for (auto &cBehaviourHandler : paBehaviourHandlers)
+    if(!paBehaviourHandlers.empty())
     {
-        // Runs JavaScript which calculates a steering force and appends it to the current force.
-        cBehaviourHandler->Update(this);
-    }
+        poSteeringForce = glm::vec2(0, 0);
+        for (auto &cBehaviourHandler : paBehaviourHandlers)
+        {
+            // Runs JavaScript which calculates a steering force and appends it to the current force.
+            cBehaviourHandler->Update(this);
+        }
 
-    UpdatePosition();
+        UpdatePosition();
+    }
 }
 
