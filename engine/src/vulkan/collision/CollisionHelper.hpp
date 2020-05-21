@@ -18,30 +18,28 @@ struct tRectangle
 class cCollisionHelper
 {
 public:
-    static tRectangle UnitRectangle(float fScalar);
+    // Transform a rectangle with a given transformation matrix
     static tRectangle TransformRectangle(tRectangle tRectangle, glm::mat4 tMatrix);
+
+    // Returns true if two rectangles collide
     static bool Collides(tRectangle tRectangleA, tRectangle tRectangleB);
+
+    // Returns true if the rectangle collides with the line
     static bool CollidesWithLine(tRectangle tRectangle, tLine tLine);
+
+    // Returns true if the two lines intersect
     static bool LinesIntersect(tLine tLineA, tLine tLineB);
 };
-
-tRectangle cCollisionHelper::UnitRectangle(float fScalar)
-{
-    tRectangle tRectangle = {};
-    tRectangle.aVertices[0] = glm::vec2(-fScalar, -fScalar);
-    tRectangle.aVertices[1] = glm::vec2(fScalar, -fScalar);
-    tRectangle.aVertices[2] = glm::vec2(fScalar, fScalar);
-    tRectangle.aVertices[3] = glm::vec2(-fScalar, fScalar);
-    return tRectangle;
-}
 
 tRectangle cCollisionHelper::TransformRectangle(tRectangle tRectangleA, glm::mat4 tMatrix)
 {
     tRectangle tTransformed = {};
 
+    // Loop over all the vertices in the rectangle and transform them using the matrix
     for (uint uiIndex = 0; uiIndex < 4; uiIndex++)
     {
         glm::vec2 tVertex = tRectangleA.aVertices[uiIndex];
+        // The X and Y components of the rectangle represent the X and Z components in the transformation
         glm::vec4 tTransformedVertex = tMatrix * glm::vec4(tVertex.x, 0, tVertex.y, 1);
         tTransformed.aVertices[uiIndex] = glm::vec2(tTransformedVertex.x, tTransformedVertex.z);
     }

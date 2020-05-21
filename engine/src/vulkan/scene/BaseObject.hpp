@@ -117,6 +117,7 @@ bool cBaseObject::SetPosition(const glm::vec3 oPosition)
     // If the object is not static, is loaded and has a collider, handle collisions
     if (!pbStatic && pbLoaded && ppCollider != nullptr)
     {
+        ppCollider->ptWorldPosition = poPosition;
         glm::mat4 tMatrix = CalculateModelMatrix(oPosition, poScale, poRotation);
         if (HandleCollision(tMatrix)) return false;
     }
