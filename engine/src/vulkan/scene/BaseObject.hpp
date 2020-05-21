@@ -20,6 +20,8 @@ private:
     glm::mat4 poModelMatrix = glm::mat4(1);
 
 public:
+    bool pbLighting = true;
+    bool pbVisible = true;
     cCollider* ppCollider;
     // When set to false, this object will skip the lighting pass and will only be lit by ambient light
     bool bLighting = true;
@@ -64,6 +66,11 @@ cBaseObject::cBaseObject(cMesh* pMesh, cCollider* pCollider, bool bStatic) : ppM
 
 glm::mat4 cBaseObject::GetModelMatrix()
 {
+    if (!pbVisible)
+    {
+        return glm::scale(glm::mat4(1.0f), glm::vec3(0));
+    }
+
     return poModelMatrix;
 }
 

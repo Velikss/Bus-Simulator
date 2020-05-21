@@ -114,7 +114,10 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/multiplayer/SslHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/multiplayer/NetworkAbstractions.hpp
         ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkConnection.hpp
-        ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkClient.hpp src/multiplayer/cMultiplayerHandler.hpp ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBus.hpp src/vulkan/collision/Collider.hpp src/vulkan/collision/CollisionHelper.hpp src/vulkan/collision/ColliderSet.hpp)
+        ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkClient.hpp src/multiplayer/cMultiplayerHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBus.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBusStop.hpp
+        src/vulkan/collision/Collider.hpp src/vulkan/collision/CollisionHelper.hpp src/vulkan/collision/ColliderSet.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 
@@ -122,7 +125,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src ${GLEW_INCLUDE_DIRS} ${OPENGL_INCL
 add_library(${This} STATIC ${Sources} ${Headers})
 add_executable(${This}-bin ${Sources} ${Headers})
 
-IF (NOT WIN32)
+IF (WIN32)
     target_link_libraries(${This} PUBLIC /usr/lib/libuuid.a)
     add_custom_command(TARGET ${This}-bin PRE_BUILD COMMAND cd ${PROJECT_SOURCE_DIR}/shaders && ./compile.sh)
 ENDIF ()

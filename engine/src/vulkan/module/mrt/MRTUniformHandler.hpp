@@ -189,7 +189,7 @@ void cMRTUniformHandler::CreateUniformBuffers(cScene* pScene)
         // Struct with uniforms for the object
         tObjectUniformData tObjectData = {};
 
-        tObjectData.bLighting = oObject.second->bLighting;
+        tObjectData.bLighting = oObject.second->pbLighting;
 
         // Set the model matrix of the object
         tObjectData.tModel = oObject.second->GetModelMatrix();
@@ -235,7 +235,7 @@ void cMRTUniformHandler::UpdateUniformBuffers(cScene* pScene)
         // Struct with uniforms for the object
         tObjectUniformData tObjectData = {};
 
-        tObjectData.bLighting = oObject->bLighting;
+        tObjectData.bLighting = oObject->pbLighting && oObject->pbVisible;
 
         // Set the model matrix of the object
         tObjectData.tModel = oObject->GetModelMatrix();

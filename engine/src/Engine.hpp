@@ -24,7 +24,6 @@
 #include <vulkan/module/mrt/MRTRenderRecorder.hpp>
 #include <vulkan/command/ClearScreenRecorder.hpp>
 #include <vulkan/scene/TestScene.hpp>
-#include <vulkan/scene/StreetScene.hpp>
 #include <vulkan/module/overlay/OverlayRenderModule.hpp>
 #include <vulkan/module/lighting/LightingRenderModule.hpp>
 #include <vulkan/module/mrt/MRTRenderModule.hpp>

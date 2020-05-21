@@ -3,8 +3,8 @@ function calculate(entity, entities)
     // Do behaviour logic
     // check if entity and entities received
     if(entity && entities) {
-        var radius = 10;
-        var force = 10;
+        var radius = 5;
+        var force = 0.002;
         var maxspeed = GetEntityMaxSpeed(entity);
 
         var ME = GetEntityCoordinates(entity);
@@ -50,8 +50,13 @@ function calculate(entity, entities)
             desiredVelocity[0] = target[0] - ME[0];
             desiredVelocity[1] = target[1] - ME[1];
             var length = Math.sqrt((desiredVelocity[0] * desiredVelocity[0]) + (desiredVelocity[1] * desiredVelocity[1]))
-            desiredVelocity[0] = (desiredVelocity[0] / length) * maxspeed;
-            desiredVelocity[1] = (desiredVelocity[0] / length) * maxspeed;
+            if(length > 0){
+                desiredVelocity[0] = (desiredVelocity[0] / length) * maxspeed;
+                desiredVelocity[1] = (desiredVelocity[1] / length) * maxspeed;
+            }else{
+                desiredVelocity[0] = (desiredVelocity[0]) * maxspeed;
+                desiredVelocity[1] = (desiredVelocity[1]) * maxspeed;
+            }
             steeringforce[0] = desiredVelocity[0] - velocity[0];
             steeringforce[1] = desiredVelocity[1] - velocity[1];
         }

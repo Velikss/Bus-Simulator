@@ -3,60 +3,52 @@
 #include <pch.hpp>
 #include <vulkan/scene/BaseObject.hpp>
 
-class cEntityInterface : public cBaseObject
+class cEntityBaseInterface : public cBaseObject
 {
 public:
-    cEntityInterface(cMesh *mesh) : cBaseObject(mesh)
+    cEntityBaseInterface(cMesh *mesh) : cBaseObject(mesh, false)
+    {
+
+    }
+};
+
+class cEntityInterface : public cEntityBaseInterface
+{
+public:
+    cEntityInterface(cMesh *mesh) : cEntityBaseInterface(mesh)
     {
 
     }
 
-    virtual void ReturnMass(float *mass)
-    {
+    virtual void SetMaxSpeed(float fSpeed) = 0;
 
-    }
+    virtual float GetMaxSpeed() = 0;
 
-    virtual void ReturnMaxSpeed(float * speed)
-    {
+    virtual void SetVelocity(glm::vec2 oVelocity) = 0;
 
-    }
+    virtual glm::vec2 GetVelocity() = 0;
 
-    virtual void ReturnHeading(glm::vec2 *heading)
-    {
+    virtual void SetTarget(glm::vec3 oTarget) = 0;
 
-    }
+    virtual glm::vec3 GetTarget() = 0;
 
-    virtual void ReturnVelocity(glm::vec2 *velocity)
-    {
+    virtual void SetSteeringForce(glm::vec2 oSteeringForce) = 0;
 
-    }
+    virtual glm::vec2 GetSteeringForce() = 0;
 
-    virtual void SetVelocity(glm::vec2 *velocity)
-    {
-
-    }
-
-    virtual void SetHeading(glm::vec2 *heading)
-    {
-
-    }
-
-    virtual void AppendSteeringForce(glm::vec2 *SteeringForce)
-    {
-
-    }
+    virtual void AppendSteeringForce(glm::vec2 oSteeringForce) = 0;
 
 };
 
-class cEntityGroupInterface : public cEntityInterface
+class cEntityGroupInterface : public cEntityBaseInterface
 {
 public:
-    cEntityGroupInterface() : cEntityInterface(nullptr)
+    cEntityGroupInterface() : cEntityBaseInterface(nullptr)
     {
 
     }
 
-    virtual void ReturnEntities(std::vector<cEntityInterface *> **entities) = 0;
+    virtual std::vector<cEntityBaseInterface *>* GetEntities() = 0;
 
 };
 

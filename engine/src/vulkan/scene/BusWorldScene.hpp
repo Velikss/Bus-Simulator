@@ -4,6 +4,7 @@
 #include <vulkan/scene/BusCamera.hpp>
 #include <multiplayer/cMultiplayerHandler.hpp>
 #include <vulkan/entities/cBus.hpp>
+#include <vulkan/entities/cBusStop.hpp>
 #include <vulkan/entities/cEntity.hpp>
 #include <vulkan/entities/cEntityGroup.hpp>
 
@@ -31,8 +32,6 @@ private:
 
     void LoadMeshes();
 
-    void LoadModels();
-
     void LoadObjects();
 
     bool BusCentered = false;
@@ -49,7 +48,6 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
     LoadTextures(pTextureHandler);
     LoadGeometries(pLogicalDevice);
     LoadMeshes();
-    LoadModels();
     LoadObjects();
 
     // Connect to multiplayer instance if possbile.
@@ -74,10 +72,19 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
 
 void cBusWorldScene::Update()
 {
+    entityGroup.UpdateEntities();
+
     if(paKeys[GLFW_KEY_Q])
-        entityGroup.UpdateEntities();
-    if(paKeys[GLFW_KEY_Q])
-        entityGroup2.UpdateEntities();
+        dynamic_cast<cEntity *>(pmpObjects["entity3"])->SetTarget(dynamic_cast<cBus *>(pmpObjects["bus"])->GetDoorPosition());
+    if(paKeys[GLFW_KEY_E])
+    {
+        for (auto &entity : *entityGroup.GetEntities())
+        {
+            dynamic_cast<cEntity *>(entity)->SetTarget(dynamic_cast<cBus *>(pmpObjects["bus"])->GetDoorPosition());
+        }
+    }
+    if(paKeys[GLFW_KEY_T])
+        dynamic_cast<cEntity *>(pmpObjects["entity"])->SetPosition(glm::vec3(5, 5, 5));
     if (paKeys[GLFW_KEY_W])
         BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Accelerate() : poCamera->Forward();
     if (paKeys[GLFW_KEY_S])
@@ -109,10 +116,8 @@ void cBusWorldScene::Update()
     // temporary flight controls
     if (paKeys[GLFW_KEY_SPACE])
         poCamera->MoveUp();
-//        poCamera->cameraHeight += 0.01;
     if (paKeys[GLFW_KEY_LEFT_SHIFT])
         poCamera->MoveDown();
-//        poCamera->cameraHeight -= 0.01;
 
     if (paKeys[GLFW_KEY_ESCAPE])
         Quit();
@@ -151,8 +156,8 @@ void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
     // buses
     pmpTextures["schoolBus"] = pTextureHandler->LoadTextureFromFile("resources/textures/buses/schoolBus.png");
 
-    //entities
-    pmpTextures["entity"] = pTextureHandler->LoadTextureFromFile("resources/textures/buses/schoolBus.png");
+    // passengers
+    pmpTextures["passenger"] = pTextureHandler->LoadTextureFromFile("resources/textures/penguin.png");
 }
 
 void cBusWorldScene::LoadGeometries(cLogicalDevice *pLogicalDevice)
@@ -183,10 +188,10 @@ void cBusWorldScene::LoadGeometries(cLogicalDevice *pLogicalDevice)
     pmpGeometries["blockBuilding3"] = cGeometry::FromOBJFile("resources/geometries/buildings/blockBuilding3.obj", pLogicalDevice, 5, 5);
     pmpGeometries["blockBuilding4"] = cGeometry::FromOBJFile("resources/geometries/buildings/blockBuilding4.obj", pLogicalDevice, 8, 8);
 
-    // entities
-    pmpGeometries["entity"] = cGeometry::FromOBJFile("resources/geometries/busses/SchoolBus.obj", pLogicalDevice);
     // grass
     pmpGeometries["grassField1"] = cGeometry::FromOBJFile("resources/geometries/grassField1.obj", pLogicalDevice, 8, 8);
+    // penguin
+    pmpGeometries["passenger"] = cGeometry::FromOBJFile("resources/geometries/penguin.obj", pLogicalDevice);
 }
 
 void cBusWorldScene::LoadMeshes()
@@ -215,40 +220,11 @@ void cBusWorldScene::LoadMeshes()
     pmpMeshes["blockBuilding3"] = new cMesh(pmpGeometries["blockBuilding3"], pmpTextures["building"]);
     pmpMeshes["blockBuilding4"] = new cMesh(pmpGeometries["blockBuilding4"], pmpTextures["needle"]);
 
-    // entities
-    pmpMeshes["entity"] = new cMesh(pmpGeometries["entity"], pmpTextures["entity"]);
     // grass
     pmpMeshes["grassField1"] = new cMesh(pmpGeometries["grassField1"], pmpTextures["grass"]);
-}
 
-void cBusWorldScene::LoadModels()
-{
-    // streets
-    pmpModels["road30-10"] = new cModel(pmpMeshes["road30-10"]);
-    pmpModels["twoWayCrossing"] = new cModel(pmpMeshes["twoWayCrossing"]);
-    pmpModels["threeWayCrossing"] = new cModel(pmpMeshes["threeWayCrossing"]);
-    // walkways
-    pmpModels["walkways36-3WithCorners"] = new cModel(pmpMeshes["walkways36-3WithCorners"]);
-    pmpModels["walkways30-3"] = new cModel(pmpMeshes["walkways30-3"]);
-    pmpModels["walkways10-3"] = new cModel(pmpMeshes["walkways10-3"]);
-    // buses
-    pmpModels["bus"] = new cModel(pmpMeshes["bus"]);
-    // streetUtil
-    pmpModels["busStation"] = new cModel(pmpMeshes["busStation"]);
-    pmpModels["trafficLight"] = new cModel(pmpMeshes["trafficLight"]);
-    // streetDeco
-
-    // buildings
-    pmpModels["building"] = new cModel(pmpMeshes["building"]);
-    pmpModels["needleBuilding"] = new cModel(pmpMeshes["needleBuilding"]);
-    pmpModels["blockBuilding2"] = new cModel(pmpMeshes["blockBuilding2"]);
-    pmpModels["blockBuilding3"] = new cModel(pmpMeshes["blockBuilding3"]);
-    pmpModels["blockBuilding4"] = new cModel(pmpMeshes["blockBuilding4"]);
-
-    // entities
-    pmpModels["entity"] = new cModel(pmpMeshes["entity"]);
-    // grass
-    pmpModels["grassField1"] = new cModel(pmpMeshes["grassField1"]);
+    // passenger
+    pmpMeshes["passenger"] = new cMesh(pmpGeometries["passenger"], pmpTextures["passenger"]);
 }
 
 void cBusWorldScene::LoadObjects()
@@ -556,6 +532,20 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["busStation1"] = new cBaseObject(pmpMeshes["busStation"], cCollider::UnitCollider());
     pmpObjects["busStation1"]->SetPosition(glm::vec3(8.603f, 0.15f, -11.0f));
 
+    pmpObjects["busStation2"] = new cBusStop(pmpMeshes["busStation"]);
+    pmpObjects["busStation2"]->SetPosition(glm::vec3(-140.0f, 0.15f, -11.0f));
+
+    pmpObjects["busStation3"] = new cBusStop(pmpMeshes["busStation"]);
+    pmpObjects["busStation3"]->SetPosition(glm::vec3(-16.0f, 0.15f, -97.0f));
+    pmpObjects["busStation3"]->SetRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+
+    pmpObjects["busStation4"] = new cBusStop(pmpMeshes["busStation"]);
+    pmpObjects["busStation4"]->SetPosition(glm::vec3(66.0f, 0.15f, -61.0f));
+
+    pmpObjects["busStation5"] = new cBusStop(pmpMeshes["busStation"]);
+    pmpObjects["busStation5"]->SetPosition(glm::vec3(40.0f, 0.15f, -149.0f));
+    pmpObjects["busStation5"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
+
     // Traffic lights
     pmpObjects["trafficLight1"] = new cLightObject(pmpMeshes["trafficLight"], glm::vec3(1, 0, 0), 50);
     pmpObjects["trafficLight1"]->SetPosition(glm::vec3(34.0f, 0.15f, 2.0f));
@@ -567,6 +557,40 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["trafficLight3"] = new cLightObject(pmpMeshes["trafficLight"], glm::vec3(1, 0, 0), 50);
     pmpObjects["trafficLight3"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
     pmpObjects["trafficLight3"]->SetPosition(glm::vec3(46.0f, 0.15f, -12.0f));
+
+    pmpObjects["trafficLight4"] = new cBaseObject(pmpMeshes["trafficLight"]);
+    pmpObjects["trafficLight4"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
+    pmpObjects["trafficLight4"]->SetPosition(glm::vec3(-4.0f, 0.15f, -12.0f));
+
+    pmpObjects["trafficLight5"] = new cBaseObject(pmpMeshes["trafficLight"]);
+    pmpObjects["trafficLight5"]->SetRotation(glm::vec3(0.0f, 270.0f, 0.0f));
+    pmpObjects["trafficLight5"]->SetPosition(glm::vec3(-17.0f, 0.15f, -11.0f));
+
+    pmpObjects["trafficLight6"] = new cBaseObject(pmpMeshes["trafficLight"]);
+    pmpObjects["trafficLight6"]->SetPosition(glm::vec3(-16.0f, 0.15f, 2.0f));
+
+    pmpObjects["trafficLight7"] = new cBaseObject(pmpMeshes["trafficLight"]);
+    pmpObjects["trafficLight7"]->SetRotation(glm::vec3(0.0f, 270.0f, 0.0f));
+    pmpObjects["trafficLight7"]->SetPosition(glm::vec3(-17.0f, 0.15f, -61.0f));
+
+    pmpObjects["trafficLight8"] = new cBaseObject(pmpMeshes["trafficLight"]);
+    pmpObjects["trafficLight8"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
+    pmpObjects["trafficLight8"]->SetPosition(glm::vec3(-4.0f, 0.15f, -62.0f));
+
+    pmpObjects["trafficLight9"] = new cBaseObject(pmpMeshes["trafficLight"]);
+    pmpObjects["trafficLight9"]->SetRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+    pmpObjects["trafficLight9"]->SetPosition(glm::vec3(-3.0f, 0.15f, -49.0f));
+
+    pmpObjects["trafficLight10"] = new cBaseObject(pmpMeshes["trafficLight"]);
+    pmpObjects["trafficLight10"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
+    pmpObjects["trafficLight10"]->SetPosition(glm::vec3(46.0f, 0.15f, -62.0f));
+
+    pmpObjects["trafficLight11"] = new cBaseObject(pmpMeshes["trafficLight"]);
+    pmpObjects["trafficLight11"]->SetRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+    pmpObjects["trafficLight11"]->SetPosition(glm::vec3(47.0f, 0.15f, -49.0f));
+
+    pmpObjects["trafficLight12"] = new cBaseObject(pmpMeshes["trafficLight"]);
+    pmpObjects["trafficLight12"]->SetPosition(glm::vec3(34.0f, 0.15f, -48.0f));
 
     // Buildings
     pmpObjects["building"] = new cBaseObject(pmpMeshes["building"], cCollider::UnitCollider());
@@ -596,17 +620,19 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["bus"]->SetScale(glm::vec3(0.8, 0.8, 0.8));
 
     // Entities
-    pmpObjects["entity"] = new cEntity(pmpMeshes["entity"]);
-    pmpObjects["entity"]->SetPosition(glm::vec3(-10.0f, 0.0f, -26.0f));
+    pmpObjects["entity"] = new cEntity(pmpMeshes["passenger"]);
+    pmpObjects["entity"]->SetPosition(glm::vec3(10.0f, 0.15f, -10.5f));
+    dynamic_cast<cEntityInterface*>(pmpObjects["entity"])->SetTarget(glm::vec3(1, 0, 1));
 
-    pmpObjects["entity2"] = new cEntity(pmpMeshes["entity"]);
-    pmpObjects["entity2"]->SetPosition(glm::vec3(-14.0f, 0.0f, -26.0f));
+    pmpObjects["entity2"] = new cEntity(pmpMeshes["passenger"]);
+    pmpObjects["entity2"]->SetPosition(glm::vec3(11.0f, 0.15f, -10.5f));
+    dynamic_cast<cEntityInterface*>(pmpObjects["entity2"])->SetTarget(glm::vec3(21, 0, 1));
 
-    pmpObjects["entity3"] = new cEntity(pmpMeshes["entity"]);
-    pmpObjects["entity3"]->SetPosition(glm::vec3(-18.0f, 0.0f, -26.0f));
+    pmpObjects["entity3"] = new cEntity(pmpMeshes["passenger"]);
+    pmpObjects["entity3"]->SetPosition(glm::vec3(14.0f, 0.15f, -10.5f));
 
-    pmpObjects["entity4"] = new cEntity(pmpMeshes["entity"]);
-    pmpObjects["entity4"]->SetPosition(glm::vec3(-22.0f, 0.0f, -26.0f));
+    pmpObjects["entity4"] = new cEntity(pmpMeshes["passenger"]);
+    pmpObjects["entity4"]->SetPosition(glm::vec3(13.0f, 0.15f, -10.5f));
 
     for (uint i = 0; i < 10; i++)
     {
@@ -621,14 +647,13 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["grassField1_1"]->SetPosition(glm::vec3(-152.0f, 0.0f, -13.0f));
 
     // Create static behaviours
-    cBehaviourHandler::AddBehaviour("seperation", "src/scripting/seperation.js");
+    cBehaviourHandler::AddBehaviour("seperation", "resources/scripting/seperation.js");
+    cBehaviourHandler::AddBehaviour("cohesion", "resources/scripting/cohesion.js");
+    cBehaviourHandler::AddBehaviour("seeking", "resources/scripting/seeking.js");
 
     cBehaviourHandler *cbSeperation = new cBehaviourHandler("seperation");
-
-    cBehaviourHandler::AddBehaviour("cohesion", "src/scripting/cohesion.js");
-
     cBehaviourHandler *cbCohesion = new cBehaviourHandler("cohesion");
-
+    cBehaviourHandler *cbSeeking = new cBehaviourHandler("seeking");
 
     entityGroup.AddEntity(dynamic_cast<cEntity *>(pmpObjects["entity"]));
     entityGroup.AddEntity(dynamic_cast<cEntity *>(pmpObjects["entity2"]));
@@ -636,6 +661,6 @@ void cBusWorldScene::LoadObjects()
     entityGroup.AddEntity(dynamic_cast<cEntity *>(pmpObjects["entity4"]));
 
     entityGroup2 = entityGroup;
+    entityGroup.AddBehaviour(cbSeeking);
     entityGroup.AddBehaviour(cbSeperation);
-    entityGroup2.AddBehaviour(cbCohesion);
 }
