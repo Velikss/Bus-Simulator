@@ -11,14 +11,12 @@ private:
     glm::vec3 poTarget;
     glm::vec2 poVelocity;
     glm::vec2 poSteeringForce;
-    float pfMass;
     float pfMaxSpeed;
 public:
     cEntity(cMesh *mesh) : cEntityInterface(mesh)
     {
         poVelocity = glm::vec2(0, 0);
         poSteeringForce = glm::vec2(0, 0);
-        pfMass = 1;
         pfMaxSpeed = 0.1;
     }
 
@@ -72,6 +70,16 @@ glm::vec2 cEntity::GetVelocity()
     return poVelocity;
 }
 
+void cEntity::SetTarget(glm::vec3 oTarget)
+{
+    poTarget = oTarget;
+}
+
+glm::vec3 cEntity::GetTarget()
+{
+    return poTarget;
+}
+
 void cEntity::SetSteeringForce(glm::vec2 oSteeringForce)
 {
     poSteeringForce = oSteeringForce;
@@ -87,26 +95,19 @@ void cEntity::AppendSteeringForce(glm::vec2 oSteeringForce)
     poSteeringForce += oSteeringForce;
 }
 
-void cEntity::SetTarget(glm::vec3 oTarget)
+void cEntity::UpdatePosition()
 {
-    poTarget = oTarget;
-}
-
-glm::vec3 cEntity::GetTarget()
-{
-    return poTarget;
-}
-
-void cEntity::UpdatePosition() {
-    if (!isnan(poSteeringForce.x) && !isnan(poSteeringForce.y))
-    {
+    // if(poSteeringForce != glm::vec2(0,0))
+    // {
         glm::vec2 acceleration = poSteeringForce / pfMaxSpeed;
         poVelocity += acceleration;
+
         if (poVelocity.length() > pfMaxSpeed)
         {
             poVelocity = glm::normalize(poVelocity);
             poVelocity = poVelocity * pfMaxSpeed;
         }
+
         glm::vec3 pos = GetPosition();
         pos.x += poVelocity.x;
         pos.z += poVelocity.y;
@@ -115,7 +116,7 @@ void cEntity::UpdatePosition() {
         {
             poVelocity *= 0.9;
         }
-    }
+    // }
 }
 
 void cEntity::Update()
