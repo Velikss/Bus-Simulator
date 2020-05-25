@@ -104,7 +104,7 @@ bool cBaseObject::SetRotation(const glm::vec3 oRotation)
     poRotation.z = oRotation.z;
 
     // If the object is static or has not been loaded, set the new matrix directly
-    if (pbStatic || !pbLoaded) poModelMatrix = CalculateModelMatrix(poPosition, poScale, poRotation);
+    if (pbStatic || !pbLoaded || ppCollider == nullptr) poModelMatrix = CalculateModelMatrix(poPosition, poScale, poRotation);
 
     return true;
 }
@@ -128,7 +128,7 @@ bool cBaseObject::SetPosition(const glm::vec3 oPosition)
     poPosition.z = oPosition.z;
 
     // If the object is static or has not been loaded, set the new matrix directly
-    if (pbStatic || !pbLoaded) poModelMatrix = CalculateModelMatrix(poPosition, poScale, poRotation);
+    if (pbStatic || !pbLoaded || ppCollider == nullptr) poModelMatrix = CalculateModelMatrix(poPosition, poScale, poRotation);
 
     return true;
 }
@@ -154,7 +154,7 @@ bool cBaseObject::SetScale(const glm::vec3 oScale)
     pbVisible = true;
 
     // If the object is static or has not been loaded, set the new matrix directly
-    if (pbStatic || !pbLoaded) poModelMatrix = CalculateModelMatrix(poPosition, poScale, poRotation);
+    if (pbStatic || !pbLoaded || ppCollider == nullptr) poModelMatrix = CalculateModelMatrix(poPosition, poScale, poRotation);
 
     return true;
 }
