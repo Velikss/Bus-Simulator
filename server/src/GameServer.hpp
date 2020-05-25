@@ -1,6 +1,6 @@
 #pragma once
 #include <pch.hpp>
-#include <cNetworkServer.hpp>
+#include <NetworkServer.hpp>
 
 bool RecieveData(cNetworkConnection* pConnection, byte* & buffer, int & iRecievedContent)
 {
@@ -68,15 +68,15 @@ bool cGameServer::OnRecieve(cNetworkConnection *pConnection)
     std::string_view sBuffer((char*)buffer, 36);
     glm::vec3* oPos = (glm::vec3*)&buffer[36];
     glm::vec3* oRot = (glm::vec3*) & buffer[36 + sizeof(glm::vec3)];
-    for(uint i = 0; i < aConnections.size(); i++)
-        if (aConnections[i] != pConnection)
+    for(uint i = 0; i < paConnections.size(); i++)
+        if (paConnections[i] != pConnection)
         {
-            if (!SendData(aConnections[i], buffer, iRecievedContent))
+            if (!SendData(paConnections[i], buffer, iRecievedContent))
             {
-                std::cout << "failed sending to " << aConnections[i]->GetConnectionString() << ", error: " << aConnections[i]->piFailures << std::endl;;
-                if (aConnections[i]->piFailures++ >= 5)
+                std::cout << "failed sending to " << paConnections[i]->GetConnectionString() << ", error: " << paConnections[i]->piFailures << std::endl;;
+                if (paConnections[i]->piFailures++ >= 5)
                 {
-                    std::cout << "terminated connection " << aConnections[i]->GetConnectionString() << std::endl;;
+                    std::cout << "terminated connection " << paConnections[i]->GetConnectionString() << std::endl;;
                     RemoveConnectionAt(i);
                 }
             }

@@ -1,6 +1,6 @@
 #pragma once
 #include <pch.hpp>
-#include <server/src/cNetworkConnection.hpp>
+#include <server/src/NetworkConnection.hpp>
 
 namespace cHttp
 {
@@ -313,8 +313,8 @@ namespace cHttp
             oRequest.SetResource(sResource);
             oRequest.SetHeaders(aHeaders);
             oRequest.SetVersion(eVersion);
-            long iContentLength = GetContentLengthOfString(sRequest, oRequest, lBodyBegin);
-            oRequest.SetMissingContent(sRequest.size() - (lBodyBegin + iContentLength + 4)); //-V112
+            long lContentLength = GetContentLengthOfString(sRequest, oRequest, lBodyBegin);
+            oRequest.SetMissingContent(sRequest.size() - (lBodyBegin + lContentLength + 4)); //-V112
         }
 
         static cRequest Deserialize(const std::string_view & sRequest)
@@ -371,8 +371,8 @@ namespace cHttp
             for (size_t i = 1; i < aLines.size(); i++)
                 aHeaders.emplace_back(cHeader::Deserialize(aLines[i]));
 
-            long iContentLength = GetContentLengthOfString(sRequest, oResponse, lBodyBegin);
-            oResponse.SetMissingContent(sRequest.size() - (lBodyBegin + iContentLength + 4)); //-V112
+            long lContentLength = GetContentLengthOfString(sRequest, oResponse, lBodyBegin);
+            oResponse.SetMissingContent(sRequest.size() - (lBodyBegin + lContentLength + 4)); //-V112
 
             oResponse.SetResponseCode(usResponseCode);
             oResponse.SetHeaders(aHeaders);

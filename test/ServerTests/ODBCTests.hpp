@@ -1,6 +1,6 @@
 #pragma once
 #include <pch.hpp>
-#include <server/src/ODBC/cODBCInstance.hpp>
+#include <server/src/ODBC/ODBCInstance.hpp>
 
 std::shared_ptr<cODBCInstance> poInstance;
 string sUnicodeUTF8 = "おはようございます";

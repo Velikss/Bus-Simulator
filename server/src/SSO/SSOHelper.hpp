@@ -1,6 +1,6 @@
 #pragma once
 #include <pch.hpp>
-#include "server/src/cNetworkConnection.hpp"
+#include "server/src/NetworkConnection.hpp"
 
 typedef int SSO_STATUS;
 #define C_SSO_LOGIN_OK    3

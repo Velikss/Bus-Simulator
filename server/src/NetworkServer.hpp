@@ -1,5 +1,5 @@
 #pragma once
-#include "cNetworkConnection.hpp"
+#include "NetworkConnection.hpp"
 #include "Http/HTTP.hpp"
 #include "../vendor/Utf8.hpp"
 
@@ -9,8 +9,8 @@ protected:
     bool pbSleepOnRecieveOverride = false;
     bool pbSleepOnConnectOverride = false;
 
-    std::map<string, std::thread> threads;
-    std::vector<cNetworkConnection*> aConnections;
+    std::map<string, std::thread> paThreads;
+    std::vector<cNetworkConnection*> paConnections;
 
     std::function<bool(cNetworkConnection *)> OnConnect = nullptr;
     std::function<bool(cNetworkConnection *)> OnRecieve = nullptr;
@@ -37,7 +37,7 @@ public:
         pbShutdown = true;
 	    if(!pbDestroyed)
         {
-            for (auto&[name, t] : threads)
+            for (auto&[name, t] : paThreads)
                 if (t.joinable())
                     t.join();
             CloseConnection();
@@ -115,11 +115,11 @@ bool cNetworkServer::Listen()
         CloseConnection();
         return false;
     }
-    threads.insert({"recieve", std::thread(&cNetworkServer::OnRecieveLoop, this)});
+    paThreads.insert({"recieve", std::thread(&cNetworkServer::OnRecieveLoop, this)});
     if (pptNetworkSettings->eMode == cNetworkConnection::cMode::eBlocking)
         OnConnectLoop();
     else
-        threads.insert({"connect", std::thread(&cNetworkServer::OnConnectLoop, this)});
+        paThreads.insert({"connect", std::thread(&cNetworkServer::OnConnectLoop, this)});
     return true;
 }
 
@@ -134,7 +134,7 @@ void cNetworkServer::OnConnectLoop()
             bool bPass = true;
             if(OnConnect) bPass = OnConnect(incoming);
             if(bPass)
-                aConnections.push_back(incoming);
+                paConnections.push_back(incoming);
             else
                 delete incoming;
         }
@@ -146,15 +146,15 @@ void cNetworkServer::OnRecieveLoop()
 {
     while (!pbShutdown)
     {
-        for (uint i = 0; i < aConnections.size(); i++)
+        for (uint i = 0; i < paConnections.size(); i++)
         {
-            auto status = aConnections[i]->Status();
+            auto status = paConnections[i]->Status();
             if (status == cNetworkAbstractions::cConnectionStatus::eAVAILABLE)
             {
-                if (OnRecieve && !aConnections[i]->IsRecieveLocked())
-                    if(!OnRecieve(aConnections[i]))
+                if (OnRecieve && !paConnections[i]->IsRecieveLocked())
+                    if(!OnRecieve(paConnections[i]))
                     {
-                        aConnections.erase(aConnections.begin() + i);
+                        paConnections.erase(paConnections.begin() + i);
                         i--;
                         continue;
                     }
@@ -171,7 +171,7 @@ void cNetworkServer::OnRecieveLoop()
 
 void cNetworkServer::RemoveConnectionAt(uint& i)
 {
-    if (OnDisconnect) OnDisconnect(aConnections[i]);
-    aConnections.erase(aConnections.begin() + i);
+    if (OnDisconnect) OnDisconnect(paConnections[i]);
+    paConnections.erase(paConnections.begin() + i);
     i--;
 }

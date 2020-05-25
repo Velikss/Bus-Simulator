@@ -1,17 +1,17 @@
 #pragma once
 #include <pch.hpp>
-#include <server/src/ODBC/cODBCInstance.hpp>
+#include <server/src/ODBC/ODBCInstance.hpp>
 #include <server/src/SSO/SsoService.hpp>
 
-class cGameServer : public cSsoService
+class cGameServer : public cSSOService
 {
-    std::map<string, bool> aRequiredTables {
+    std::map<string, bool> pC_aRequiredTables {
             //{"User", false}
     };
 
     std::shared_ptr<cODBCInstance> poDB;
 public:
-    cGameServer(cNetworkConnection::tNetworkInitializationSettings* tSettings) : cSsoService(tSettings)
+    cGameServer(cNetworkConnection::tNetworkInitializationSettings* tSettings) : cSSOService(tSettings)
     {
         std::function<bool(cNetworkConnection*)> _OnConnect = std::bind(&cGameServer::OnConnect, this, std::placeholders::_1);
         std::function<bool(cNetworkConnection*)> _OnRecieve = std::bind(&cGameServer::OnRecieve, this, std::placeholders::_1);
@@ -32,24 +32,24 @@ public:
             {
                 string sTableName;
                 oValue->GetValueStr(sTableName);
-                if (aRequiredTables.find(sTableName) != aRequiredTables.end())
-                    aRequiredTables[sTableName] = true;
+                if (pC_aRequiredTables.find(sTableName) != pC_aRequiredTables.end())
+                    pC_aRequiredTables[sTableName] = true;
             }
 
-        for(auto& [sKey, bExists] : aRequiredTables)
+        for(auto& [sKey, bExists] : pC_aRequiredTables)
         {
             if(!bExists)
                 if(!poDB->ExecFile("./SQL/CreateGame" + sKey + ".sql"))
                     return false;
                 else
-                    aRequiredTables[sKey] = true;
+                    pC_aRequiredTables[sKey] = true;
         }
         return true;
     }
 
     bool DestroyDB()
     {
-        for(auto& [sKey, bExists] : aRequiredTables)
+        for(auto& [sKey, bExists] : pC_aRequiredTables)
             if(!poDB->Exec("DROP TABLE IF EXISTS " + sKey + ";"))
                 return false;
         return true;

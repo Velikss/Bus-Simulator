@@ -1,9 +1,9 @@
 #pragma once
-#include "cNetworkConnection.hpp"
+#include "NetworkConnection.hpp"
 
 class cNetworkClient : public cNetworkConnection
 {
-    std::map<string, std::thread> threads;
+    std::map<string, std::thread> paThreads;
 
     std::function<void(cNetworkConnection *)> OnConnect = nullptr;
     std::function<bool(cNetworkConnection *)> OnRecieve = nullptr;
@@ -24,7 +24,7 @@ public:
 	    if(!pbDestroyed)
         {
             pbShutdown = true;
-            for (auto&[name, t] : threads)
+            for (auto&[name, t] : paThreads)
                 if (t.joinable())
                     t.join();
             CloseConnection();
@@ -76,7 +76,7 @@ bool cNetworkClient::Connect()
     if (pptNetworkSettings->eMode != cNetworkConnection::cMode::eBlocking) cNetworkAbstractions::SetBlocking(poSock, false);
 
     if(OnConnect) OnConnect(this);
-    threads.insert({ "OnRecieveLoop", std::thread(&cNetworkClient::OnRecieveLoop, this) });
+    paThreads.insert({"OnRecieveLoop", std::thread(&cNetworkClient::OnRecieveLoop, this) });
 
     return true;
 }
