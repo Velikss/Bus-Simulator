@@ -123,6 +123,12 @@ void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevi
     {
         assert(oTexture.second != nullptr);
     }
+
+    for (auto oElement : pmpOverlay)
+    {
+        assert(oElement.second != nullptr);
+        oElement.second->LoadVertices();
+    }
 }
 
 void cScene::Tick()

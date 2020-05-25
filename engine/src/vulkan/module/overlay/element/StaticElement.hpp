@@ -14,7 +14,7 @@ struct tElementInfo
 
 class cStaticElement
 {
-private:
+protected:
     tVertex2D patVertices[6];
     cTexture* ppTexture;
 
@@ -33,50 +33,57 @@ public:
     cStaticElement(tElementInfo tInfo, cTexture* pTexture, cLogicalDevice* pLogicalDevice);
     ~cStaticElement();
 
-    cTexture* GetTexture();
+    virtual void LoadVertices();
+
+    virtual VkImageView& GetImageView();
+    virtual VkSampler& GetImageSampler();
 
     void CmdBindVertexBuffer(VkCommandBuffer& oCommandBuffer);
+    virtual uint GetVertexCount();
 
     void SetRotation(const glm::vec2 poRotation);
     void SetPosition(const glm::vec2 poPosition);
     void SetScale(const glm::vec2 poScale);
     void RotateLeft(float fAngleDiff);
+    void RotateRight(float fAngleDiff);
 
     glm::mat4 GetMatrix(cWindow* pWindow);
 
-private:
-    void CopyToDevice();
+protected:
+    virtual void CopyToDevice();
 };
 
 cStaticElement::cStaticElement(tElementInfo tInfo, cTexture* pTexture, cLogicalDevice* pLogicalDevice)
 {
-    assert(pTexture != nullptr);
     assert(pLogicalDevice != nullptr);
 
     ptInfo = tInfo;
     ppTexture = pTexture;
     ppLogicalDevice = pLogicalDevice;
-
-    patVertices[0] = {{0, 0},
-                      {0, 0}};
-    patVertices[1] = {{tInfo.uiWidth, tInfo.uiHeight},
-                      {1,             1}};
-    patVertices[2] = {{tInfo.uiWidth, 0},
-                      {1,             0}};
-    patVertices[3] = {{0, 0},
-                      {0, 0}};
-    patVertices[4] = {{0, tInfo.uiHeight},
-                      {0, 1}};
-    patVertices[5] = {{tInfo.uiWidth, tInfo.uiHeight},
-                      {1,             1}};
-
-    CopyToDevice();
 }
 
 cStaticElement::~cStaticElement()
 {
     ppLogicalDevice->DestroyBuffer(poVertexBuffer, nullptr);
     ppLogicalDevice->FreeMemory(poVertexBufferMemory, nullptr);
+}
+
+void cStaticElement::LoadVertices()
+{
+    patVertices[0] = {{0, 0},
+                      {0, 0}};
+    patVertices[1] = {{ptInfo.uiWidth, ptInfo.uiHeight},
+                      {1,              1}};
+    patVertices[2] = {{ptInfo.uiWidth, 0},
+                      {1,              0}};
+    patVertices[3] = {{0, 0},
+                      {0, 0}};
+    patVertices[4] = {{0, ptInfo.uiHeight},
+                      {0, 1}};
+    patVertices[5] = {{ptInfo.uiWidth, ptInfo.uiHeight},
+                      {1,              1}};
+
+    CopyToDevice();
 }
 
 void cStaticElement::CopyToDevice()
@@ -92,11 +99,6 @@ void cStaticElement::CmdBindVertexBuffer(VkCommandBuffer& oCommandBuffer)
 {
     VkDeviceSize ulOffset = 0;
     vkCmdBindVertexBuffers(oCommandBuffer, 0, 1, &poVertexBuffer, &ulOffset);
-}
-
-cTexture* cStaticElement::GetTexture()
-{
-    return ppTexture;
 }
 
 void cStaticElement::SetRotation(glm::vec2 oRotation)
@@ -124,6 +126,13 @@ void cStaticElement::RotateLeft(float fAngleDiff)
     ptRotation.y += fAngleDiff;
 }
 
+void cStaticElement::RotateRight(float fAngleDiff)
+{
+    if (ptRotation.y < 0.0f)
+        ptRotation.y = 360.0f;
+    ptRotation.y -= fAngleDiff;
+}
+
 glm::mat4 cStaticElement::GetMatrix(cWindow* pWindow)
 {
     glm::mat4 oModel(1.0f);
@@ -148,7 +157,22 @@ glm::mat4 cStaticElement::GetMatrix(cWindow* pWindow)
         oModel = glm::rotate(oModel, glm::radians(ptRotation.y), oRot_y);
     }
 
-    glm::mat4 proj = glm::ortho(0.0f, (float) pWindow->WIDTH, 0.0f, (float) pWindow->HEIGHT);
+    glm::mat4 proj = glm::ortho(0.0f, (float) WIDTH, 0.0f, (float) HEIGHT);
 
     return proj * oModel;
+}
+
+VkImageView& cStaticElement::GetImageView()
+{
+    return ppTexture->GetView();
+}
+
+VkSampler& cStaticElement::GetImageSampler()
+{
+    return ppTexture->GetSampler();
+}
+
+uint cStaticElement::GetVertexCount()
+{
+    return 6;
 }

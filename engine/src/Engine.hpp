@@ -180,7 +180,7 @@ void Engine::MainLoop(void)
             ENGINE_LOG("Loading scene...");
 
             // Create and load the scene
-            ppScene = new cBusWorldScene();
+            ppScene = new cTestScene();
             ppScene->Load(ppTextureHandler, ppLogicalDevice);
 
             // The scene will handle the input
@@ -210,6 +210,13 @@ void Engine::MainLoop(void)
 
             ENGINE_LOG("Scene loading, adding tick task");
             ppGameLoop->AddTask(ppScene);
+        }
+
+        if (TEXT_DIRTY)
+        {
+            TEXT_DIRTY = false;
+            ppLogicalDevice->WaitUntilIdle();
+            papCommandBuffers[2]->RecordBuffers(ppOverlayRenderModule->GetCommandRecorder());
         }
     }
 

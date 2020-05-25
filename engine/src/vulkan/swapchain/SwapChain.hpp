@@ -177,7 +177,7 @@ VkExtent2D cSwapChain::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& tCapabil
     {
         // If currentExtent is not present, use our window size clamped to the bounds of the capabilities
 
-        VkExtent2D actualExtent = {pWindow->WIDTH, pWindow->HEIGHT};
+        VkExtent2D actualExtent = {WIDTH, HEIGHT};
 
         actualExtent.width = std::max(tCapabilities.minImageExtent.width,
                                       std::min(tCapabilities.maxImageExtent.width, actualExtent.width));

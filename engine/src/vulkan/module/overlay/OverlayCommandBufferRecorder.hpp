@@ -82,9 +82,9 @@ void cOverlayCommandBufferRecorder::RecordCommands(VkCommandBuffer& oCommandBuff
 
         pElement->CmdBindVertexBuffer(oCommandBuffer);
 
-        ppUniformHandler->CmdBindDescriptorSets(oCommandBuffer, ppPipeline->GetLayout(), uiGeometryIndex);
+        ppUniformHandler->CmdBindDescriptorSets(oCommandBuffer, ppPipeline->GetLayout(), uiGeometryIndex++);
 
-        vkCmdDraw(oCommandBuffer, 6, 1, 0, 0);
+        vkCmdDraw(oCommandBuffer, pElement->GetVertexCount(), 1, 0, 0);
     }
 
     // End the render pass

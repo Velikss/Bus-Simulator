@@ -4,6 +4,7 @@
 #include <vulkan/uniform/UniformHandler.hpp>
 #include <vulkan/swapchain/SwapChain.hpp>
 #include <vulkan/module/overlay/text/Font.hpp>
+#include <vulkan/module/overlay/element/TextElement.hpp>
 
 struct tOverlayUniformObject
 {
@@ -13,6 +14,8 @@ struct tOverlayUniformObject
 struct tOverlayElementObject
 {
     glm::mat4 tMatrix;
+    glm::vec3 tColor;
+    bool bIsText;
 };
 
 class cOverlayUniformHandler : public iUniformHandler
@@ -254,11 +257,10 @@ void cOverlayUniformHandler::CreateDescriptorSet(cScene* pScene)
         tElementBufferInfo.offset = 0;
         tElementBufferInfo.range = sizeof(tOverlayElementObject);
 
-        cTexture* pTexture = oObject.second->GetTexture();
         VkDescriptorImageInfo tElementImageInfo = {};
         tElementImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        tElementImageInfo.imageView = pTexture->GetView();
-        tElementImageInfo.sampler = pTexture->GetSampler();
+        tElementImageInfo.imageView = oObject.second->GetImageView();
+        tElementImageInfo.sampler = oObject.second->GetImageSampler();
 
         std::array<VkWriteDescriptorSet, 2> atElementDescriptorWrites = {};
 
@@ -304,6 +306,13 @@ void cOverlayUniformHandler::UpdateUniformBuffers(cScene* pScene)
     {
         tOverlayElementObject tData = {};
         tData.tMatrix = oElement.second->GetMatrix(ppWindow);
+
+        cTextElement* pText = dynamic_cast<cTextElement*>(oElement.second);
+        tData.bIsText = pText != nullptr;
+        if (tData.bIsText) {
+            tData.tColor = pText->GetColor();
+        }
+
         CopyToDeviceMemory(paoElementUniformBuffersMemory[uiIndex++], &tData, sizeof(tData));
     }
 }

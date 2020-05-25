@@ -7,6 +7,15 @@
 #include <vulkan/VulkanInstance.hpp>
 #include <vulkan/scene/InputHandler.hpp>
 
+// Window size
+#ifdef QUAD_HD_RESOLUTION
+const uint WIDTH = 1920;
+const uint HEIGHT = 1080;
+#else
+static const uint WIDTH = 1920;
+const uint HEIGHT = 1080;
+#endif
+
 // Class representing the window which can be used for rendering
 class cWindow
 {
@@ -22,14 +31,6 @@ public:
     // Pointer to the GLFW window instance
     GLFWwindow* ppWindow = nullptr;
 
-    // Window size
-#ifdef QUAD_HD_RESOLUTION
-    static const uint WIDTH = 1920;
-    static const uint HEIGHT = 1080;
-#else
-    static const uint WIDTH = 1920;
-    static const uint HEIGHT = 1080;
-#endif
 
     iInputHandler* ppInputHandler = nullptr;
 

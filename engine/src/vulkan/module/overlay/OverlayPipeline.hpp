@@ -120,9 +120,15 @@ void cOverlayPipeline::CreatePipeline(cSwapChain* pSwapChain,
     tMultisampling.alphaToOneEnable = VK_FALSE;
 
     VkPipelineColorBlendAttachmentState tColorBlendAttachment = {};
-    tColorBlendAttachment.blendEnable = VK_FALSE;
+    tColorBlendAttachment.blendEnable = VK_TRUE;
     tColorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
                                            VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    tColorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+    tColorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    tColorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+    tColorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    tColorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+    tColorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
 
     VkPipelineColorBlendStateCreateInfo tColorBlending = {};
     tColorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;

@@ -115,7 +115,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkConnection.hpp
         ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkClient.hpp src/multiplayer/cMultiplayerHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBus.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBusStop.hpp src/vulkan/module/overlay/element/StaticElement.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBusStop.hpp src/vulkan/module/overlay/element/StaticElement.hpp src/vulkan/module/overlay/element/TextElement.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 

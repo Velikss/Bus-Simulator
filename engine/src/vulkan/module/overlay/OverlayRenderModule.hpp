@@ -10,6 +10,9 @@
 
 class cOverlayRenderModule : public cRenderModule
 {
+public:
+    static cFont* FONT;
+
 private:
     static const uint fontWidth = STB_FONT_arial_50_usascii_BITMAP_WIDTH;
     static const uint fontHeight = STB_FONT_arial_50_usascii_BITMAP_HEIGHT;
@@ -17,7 +20,6 @@ private:
     stb_fontchar stbFontData[STB_FONT_arial_50_usascii_NUM_CHARS];
     byte font24pixels[fontHeight][fontWidth];
 
-    cFont* ppFont;
     cText* ppText;
     cWindow* ppWindow;
 
@@ -42,6 +44,8 @@ private:
     void LoadText(cWindow* pWindow);
 };
 
+cFont* cOverlayRenderModule::FONT = nullptr;
+
 cOverlayRenderModule::cOverlayRenderModule(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain, cWindow* pWindow)
         : cRenderModule(pLogicalDevice, pSwapChain)
 {
@@ -56,19 +60,19 @@ cOverlayRenderModule::cOverlayRenderModule(cLogicalDevice* pLogicalDevice, cSwap
 void cOverlayRenderModule::LoadFont()
 {
     stb_font_arial_50_usascii(stbFontData, font24pixels, fontHeight);
-    ppFont = new cFont(ppLogicalDevice, fontWidth, fontHeight, &font24pixels[0][0]);
+    FONT = new cFont(ppLogicalDevice, fontWidth, fontHeight, &font24pixels[0][0], stbFontData);
 }
 
 void cOverlayRenderModule::LoadText(cWindow* pWindow)
 {
     ppText = new cText(ppLogicalDevice, pWindow);
     ppText->UpdateText("Loading...", 2.5f, stbFontData,
-                       (pWindow->WIDTH / 2) - 100, pWindow->HEIGHT / 2);
+                       (WIDTH / 2) - 100, HEIGHT / 2);
 }
 
 void cOverlayRenderModule::CreateUniformHandler()
 {
-    ppUniformHandler = new cOverlayUniformHandler(ppLogicalDevice, ppFont, ppWindow);
+    ppUniformHandler = new cOverlayUniformHandler(ppLogicalDevice, FONT, ppWindow);
 }
 
 void cOverlayRenderModule::CreateRenderPass()
@@ -99,6 +103,6 @@ iCommandBufferRecorder* cOverlayRenderModule::GetCommandRecorder()
 
 cOverlayRenderModule::~cOverlayRenderModule()
 {
-    delete ppFont;
+    delete FONT;
     delete ppText;
 }

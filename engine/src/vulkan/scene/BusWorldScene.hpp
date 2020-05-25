@@ -8,6 +8,7 @@
 #include <vulkan/entities/cBusStop.hpp>
 #include <vulkan/entities/cEntity.hpp>
 #include <vulkan/entities/cEntityGroup.hpp>
+#include <vulkan/module/overlay/element/TextElement.hpp>
 
 class cBusWorldScene : public cScene
 {
@@ -133,7 +134,8 @@ void cBusWorldScene::Update()
     cScene::Update();
     if (poMultiplayerHandler) poMultiplayerHandler->PushData();
 
-    pmpOverlay["test"]->RotateLeft(1);
+    //pmpOverlay["test"]->RotateLeft(1);
+    //pmpOverlay["test2"]->RotateRight(1);
 }
 
 void cBusWorldScene::HandleScroll(double dOffsetX, double dOffsetY)
@@ -692,4 +694,10 @@ void cBusWorldScene::LoadOverlay(cLogicalDevice* pLogicalDevice)
 {
     pmpOverlay["test"] = new cStaticElement({300, 300}, pmpTextures["grey"], pLogicalDevice);
     pmpOverlay["test"]->SetPosition(glm::vec2(500, 500));
+    pmpOverlay["test1"] = new cStaticElement({100, 100}, pmpTextures["moon"], pLogicalDevice);
+    pmpOverlay["test1"]->SetPosition(glm::vec2(500, 800));
+
+    pmpOverlay["test2"] = new cTextElement({100, 100}, nullptr, pLogicalDevice);
+    pmpOverlay["test2"]->SetPosition(glm::vec2(500, 500));
+    dynamic_cast<cTextElement*>(pmpOverlay["test2"])->SetFont(20, cOverlayRenderModule::FONT, glm::vec3(1, 1, 0));
 }
