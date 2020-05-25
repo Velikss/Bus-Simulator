@@ -3,7 +3,7 @@
 #include <server/src/ODBC/ODBCInstance.hpp>
 #include <server/src/SSO/SsoService.hpp>
 
-class cGameServer : public cSsoService
+class cGameServer : public cSSOService
 {
     std::map<string, bool> pC_aRequiredTables {
             //{"User", false}
@@ -11,7 +11,7 @@ class cGameServer : public cSsoService
 
     std::shared_ptr<cODBCInstance> poDB;
 public:
-    cGameServer(cNetworkConnection::tNetworkInitializationSettings* tSettings) : cSsoService(tSettings)
+    cGameServer(cNetworkConnection::tNetworkInitializationSettings* tSettings) : cSSOService(tSettings)
     {
         std::function<bool(cNetworkConnection*)> _OnConnect = std::bind(&cGameServer::OnConnect, this, std::placeholders::_1);
         std::function<bool(cNetworkConnection*)> _OnRecieve = std::bind(&cGameServer::OnRecieve, this, std::placeholders::_1);

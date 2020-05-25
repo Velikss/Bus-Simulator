@@ -5,7 +5,7 @@
 
 using namespace cHttp;
 
-class cSsoService : public cNetworkServer
+class cSSOService : public cNetworkServer
 {
 protected:
     string psSSOUuid;
@@ -15,7 +15,7 @@ protected:
     std::shared_ptr<cNetworkClient> pSSOClient = nullptr;
     std::shared_ptr<cNetworkConnection::tNetworkInitializationSettings> ptSSOClientSettings = nullptr;
 public:
-    cSsoService(cNetworkConnection::tNetworkInitializationSettings* ptNetworkSettings) : cNetworkServer(ptNetworkSettings)
+    cSSOService(cNetworkConnection::tNetworkInitializationSettings* ptNetworkSettings) : cNetworkServer(ptNetworkSettings)
     {
     }
 
@@ -78,7 +78,7 @@ private:
     void _OnDisconnect(cNetworkConnection* pConnection);
 };
 
-void cSsoService::_OnConnect(cNetworkConnection *pConnection)
+void cSSOService::_OnConnect(cNetworkConnection *pConnection)
 {
     // If no session-key was provided or if the session was not found on the server, make a call to the sso server.
     cRequest oRequest;
@@ -101,17 +101,17 @@ void cSsoService::_OnConnect(cNetworkConnection *pConnection)
     if (oResponse.GetResponseCode() != 200) throw std::runtime_error("inaccessible sso server, is the Service-ID correct?");
 }
 
-bool cSsoService::_OnRecieve(cNetworkConnection *pConnection)
+bool cSSOService::_OnRecieve(cNetworkConnection *pConnection)
 {
     return true;
 }
 
-void cSsoService::_OnDisconnect(cNetworkConnection *pConnection)
+void cSSOService::_OnDisconnect(cNetworkConnection *pConnection)
 {
 
 }
 
-SSO_STATUS cSsoService::HandleSession(cNetworkConnection *pConnection, cRequest & oRequest)
+SSO_STATUS cSSOService::HandleSession(cNetworkConnection *pConnection, cRequest & oRequest)
 {
     using namespace cHttp;
     cResponse oClientAwnser;
@@ -181,7 +181,7 @@ SSO_STATUS cSsoService::HandleSession(cNetworkConnection *pConnection, cRequest 
     return C_SSO_OK;
 }
 
-bool cSsoService::ConnectToSSOServer(const string &sUuid, const string &sIp, const unsigned short &usPort)
+bool cSSOService::ConnectToSSOServer(const string &sUuid, const string &sIp, const unsigned short &usPort)
 {
     psSSOUuid = sUuid;
 
@@ -194,11 +194,11 @@ bool cSsoService::ConnectToSSOServer(const string &sUuid, const string &sIp, con
 
     pSSOClient = std::make_shared<cNetworkClient>(ptSSOClientSettings.get());
 
-    std::function<void(cNetworkConnection *)> _OnConnect = std::bind(&cSsoService::_OnConnect, this,
+    std::function<void(cNetworkConnection *)> _OnConnect = std::bind(&cSSOService::_OnConnect, this,
                                                                      std::placeholders::_1);
-    std::function<bool(cNetworkConnection *)> _OnRecieve = std::bind(&cSsoService::_OnRecieve, this,
+    std::function<bool(cNetworkConnection *)> _OnRecieve = std::bind(&cSSOService::_OnRecieve, this,
                                                                      std::placeholders::_1);
-    std::function<void(cNetworkConnection *)> _OnDisconnect = std::bind(&cSsoService::_OnDisconnect, this,
+    std::function<void(cNetworkConnection *)> _OnDisconnect = std::bind(&cSSOService::_OnDisconnect, this,
                                                                         std::placeholders::_1);
 
     pSSOClient->SetOnConnectEvent(_OnConnect);
