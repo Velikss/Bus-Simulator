@@ -12,8 +12,8 @@ protected:
     std::map<string, cNetworkConnection*> paSessions;
     std::set<cNetworkConnection*> paIgnoredConnections;
 
-    std::shared_ptr<cNetworkClient> pSSOClient = nullptr;
-    std::shared_ptr<cNetworkConnection::tNetworkInitializationSettings> ptSSOClientSettings = nullptr;
+    std::shared_ptr<cNetworkClient> poSSOClient = nullptr;
+    std::shared_ptr<cNetworkConnection::tNetworkInitializationSettings> pttSSOClientSettings = nullptr;
 public:
     cSSOService(cNetworkConnection::tNetworkInitializationSettings* ptNetworkSettings) : cNetworkServer(ptNetworkSettings)
     {
@@ -52,7 +52,7 @@ private:
 
     bool RequestSession(cNetworkConnection* pConnection, cResponse & oAwnser, const string& sProvidedSessionKeyOpt = "")
     {
-        if(!pSSOClient->IsConnected()) return false;
+        if(!poSSOClient->IsConnected()) return false;
 
         // If no session-key was provided or if the session was not found on the server, make a call to the sso server.
         cRequest oRequest;
@@ -68,9 +68,9 @@ private:
         oRequest.SetHeaders(aHeaders);
 
         string sRequest = oRequest.Serialize();
-        pSSOClient->SendBytes((byte*)sRequest.c_str(), sRequest.size());
+        poSSOClient->SendBytes((byte*)sRequest.c_str(), sRequest.size());
 
-        return cHttp::RecieveResponse(pSSOClient.get(), oAwnser, 250);
+        return cHttp::RecieveResponse(poSSOClient.get(), oAwnser, 250);
     }
 
     void _OnConnect(cNetworkConnection* pConnection);
@@ -93,7 +93,7 @@ void cSSOService::_OnConnect(cNetworkConnection *pConnection)
     oRequest.SetHeaders(aHeaders);
 
     string sRequest = oRequest.Serialize();
-    pSSOClient->SendBytes((byte*)sRequest.c_str(), sRequest.size());
+    poSSOClient->SendBytes((byte*)sRequest.c_str(), sRequest.size());
 
     cResponse oResponse;
     RecieveResponse(pConnection, oResponse);
@@ -131,9 +131,9 @@ SSO_STATUS cSSOService::HandleSession(cNetworkConnection *pConnection, cRequest 
     {
         oRequest.SetHeader("client-ip", pConnection->GetConnectionString());
         string sBuffer = oRequest.Serialize();
-        pSSOClient->SendBytes((byte*)sBuffer.c_str(), sBuffer.size());
+        poSSOClient->SendBytes((byte*)sBuffer.c_str(), sBuffer.size());
         cResponse oResponse;
-        cHttp::RecieveResponse(pSSOClient.get(), oResponse, -1);
+        cHttp::RecieveResponse(poSSOClient.get(), oResponse, -1);
 
         if(oResponse.GetResponseCode() == 200 && oUri.pasPath.size() > 2)
         {
@@ -185,14 +185,14 @@ bool cSSOService::ConnectToSSOServer(const string &sUuid, const string &sIp, con
 {
     psSSOUuid = sUuid;
 
-    ptSSOClientSettings = std::make_shared<cNetworkConnection::tNetworkInitializationSettings>();
-    ptSSOClientSettings->sAddress = sIp;
-    ptSSOClientSettings->usPort = usPort;
-    ptSSOClientSettings->eIPVersion = cNetworkConnection::cIPVersion::eV4;
-    ptSSOClientSettings->eConnectionType = cNetworkConnection::cConnectionType::eTCP;
-    ptSSOClientSettings->eMode = cNetworkConnection::cMode::eNonBlocking;
+    pttSSOClientSettings = std::make_shared<cNetworkConnection::tNetworkInitializationSettings>();
+    pttSSOClientSettings->sAddress = sIp;
+    pttSSOClientSettings->usPort = usPort;
+    pttSSOClientSettings->eIPVersion = cNetworkConnection::cIPVersion::eV4;
+    pttSSOClientSettings->eConnectionType = cNetworkConnection::cConnectionType::eTCP;
+    pttSSOClientSettings->eMode = cNetworkConnection::cMode::eNonBlocking;
 
-    pSSOClient = std::make_shared<cNetworkClient>(ptSSOClientSettings.get());
+    poSSOClient = std::make_shared<cNetworkClient>(pttSSOClientSettings.get());
 
     std::function<void(cNetworkConnection *)> _OnConnect = std::bind(&cSSOService::_OnConnect, this,
                                                                      std::placeholders::_1);
@@ -201,15 +201,15 @@ bool cSSOService::ConnectToSSOServer(const string &sUuid, const string &sIp, con
     std::function<void(cNetworkConnection *)> _OnDisconnect = std::bind(&cSSOService::_OnDisconnect, this,
                                                                         std::placeholders::_1);
 
-    pSSOClient->SetOnConnectEvent(_OnConnect);
-    pSSOClient->SetOnRecieveEvent(_OnRecieve);
-    pSSOClient->SetOnDisconnectEvent(_OnDisconnect);
+    poSSOClient->SetOnConnectEvent(_OnConnect);
+    poSSOClient->SetOnRecieveEvent(_OnRecieve);
+    poSSOClient->SetOnDisconnectEvent(_OnDisconnect);
 
-    if (pSSOClient->Connect())
+    if (poSSOClient->Connect())
         return true;
     else
     {
-        pSSOClient->Disconnect();
+        poSSOClient->Disconnect();
         return false;
     }
 }
