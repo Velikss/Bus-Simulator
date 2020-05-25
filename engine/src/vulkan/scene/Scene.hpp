@@ -69,6 +69,8 @@ cScene::cScene()
 
 cScene::~cScene()
 {
+    delete ppColliders;
+
     for (auto oObject : pmpObjects)
     {
         delete oObject.second;

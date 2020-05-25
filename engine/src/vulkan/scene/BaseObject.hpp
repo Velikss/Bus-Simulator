@@ -197,6 +197,7 @@ bool cBaseObject::RotateRight(float fAngleDiff)
 
 cBaseObject::~cBaseObject()
 {
+    delete ppCollider;
 }
 
 bool cBaseObject::IsStatic()
