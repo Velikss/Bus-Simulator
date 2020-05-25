@@ -5,7 +5,7 @@
 
 class cGameServer : public cSsoService
 {
-    std::map<string, bool> aRequiredTables {
+    std::map<string, bool> pC_aRequiredTables {
             //{"User", false}
     };
 
@@ -32,24 +32,24 @@ public:
             {
                 string sTableName;
                 oValue->GetValueStr(sTableName);
-                if (aRequiredTables.find(sTableName) != aRequiredTables.end())
-                    aRequiredTables[sTableName] = true;
+                if (pC_aRequiredTables.find(sTableName) != pC_aRequiredTables.end())
+                    pC_aRequiredTables[sTableName] = true;
             }
 
-        for(auto& [sKey, bExists] : aRequiredTables)
+        for(auto& [sKey, bExists] : pC_aRequiredTables)
         {
             if(!bExists)
                 if(!poDB->ExecFile("./SQL/CreateGame" + sKey + ".sql"))
                     return false;
                 else
-                    aRequiredTables[sKey] = true;
+                    pC_aRequiredTables[sKey] = true;
         }
         return true;
     }
 
     bool DestroyDB()
     {
-        for(auto& [sKey, bExists] : aRequiredTables)
+        for(auto& [sKey, bExists] : pC_aRequiredTables)
             if(!poDB->Exec("DROP TABLE IF EXISTS " + sKey + ";"))
                 return false;
         return true;
