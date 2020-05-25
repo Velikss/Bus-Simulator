@@ -4,7 +4,7 @@
 int main()
 {
     // initialize server.
-    std::cout << "starting...." << std::endl;
+    std::cout << "Starting...." << std::endl;
     cNetworkConnection::tNetworkInitializationSettings tNetworkSettings;
     tNetworkSettings.sAddress = "0.0.0.0";
     tNetworkSettings.usPort = 8080;
@@ -12,9 +12,9 @@ int main()
 
     cGameServer oGameServer(&tNetworkSettings);
     if(oGameServer.Listen())
-        std::cout << "game server started." << std::endl;
+        std::cout << "Game-server started." << std::endl;
     else
-        std::cout << "game server failed to start." << std::endl;
+        std::cout << "Game-server failed to start." << std::endl;
     for(;;){ fSleep(1000);}
     return 0;
 }
