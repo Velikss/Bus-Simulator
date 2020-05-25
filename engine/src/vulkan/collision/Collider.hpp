@@ -11,7 +11,7 @@ private:
 
     bool pbUpdateTransformed = true;
 
-    uint uiSize;
+    uint puiSize;
 
 public:
     // Real world position of this collider
@@ -44,8 +44,8 @@ cCollider::cCollider(tRectangle tCollisionBox)
 {
     ptCollisionBox = tCollisionBox;
 
-    uiSize = (uint) glm::distance(tCollisionBox.aVertices[0], tCollisionBox.aVertices[2]);
-    if (uiSize == 0) uiSize = 1;
+    puiSize = (uint) glm::distance(tCollisionBox.aVertices[0], tCollisionBox.aVertices[2]);
+    if (puiSize == 0) puiSize = 1;
 }
 
 void cCollider::MarkShouldUpdate()
@@ -70,7 +70,7 @@ bool cCollider::Collides(glm::mat4 tOurMatrix, cCollider* pColliderB)
 
 uint cCollider::GetSize()
 {
-    return uiSize;
+    return puiSize;
 }
 
 cCollider* cCollider::UnitCollider(float fScalar)
