@@ -51,6 +51,5 @@ public:
     virtual void GetEntityList(std::vector<cEntityInterface *> **entities) = 0;
 
     virtual std::vector<cEntityBaseInterface *>* GetEntities() = 0;
-
 };
 

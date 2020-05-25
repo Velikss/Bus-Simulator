@@ -7,7 +7,7 @@
 class cBehaviourHandler
 {
 protected:
-    static std::map<std::string, cScriptingEngine *> poBehaviours;
+    static std::map<std::string, std::shared_ptr<cScriptingEngine>> poBehaviours;
     std::string psBehaviourName;
 public:
     cBehaviourHandler(std::string sBehaviourName)
@@ -20,22 +20,22 @@ public:
         psBehaviourName = sBehaviourName;
     }
 
-    static void UpdateEngine(std::string sBehaviourName, std::string sFileName);
+    static void UpdateEngine(const std::string& sBehaviourName, const std::string& sFileName);
 
-    static void AddBehaviour(std::string sBehaviourName, std::string sFileName);
+    static void AddBehaviour(const std::string& sBehaviourName, const std::string& sFileName);
 
-    virtual void Update(cBaseObject *oEntity, cEntityGroupInterface *oEntityGroup);
+    virtual void Update(cBaseObject *oEntity, cEntityGroupInterface *oEntityGroup = nullptr);
 };
 
-std::map<std::string, cScriptingEngine *> cBehaviourHandler::poBehaviours;
+std::map<std::string, std::shared_ptr<cScriptingEngine>> cBehaviourHandler::poBehaviours;
 
 /*
  * Add behaviour to poBehaviours.
  */
-void cBehaviourHandler::AddBehaviour(std::string sBehaviourName, std::string sFileName)
+void cBehaviourHandler::AddBehaviour(const std::string& sBehaviourName, const std::string& sFileName)
 {
     // Create the script engine
-    cScriptingEngine *poBehaviourEngine = new cScriptingEngine();
+    std::shared_ptr<cScriptingEngine> poBehaviourEngine = std::make_shared<cScriptingEngine>();
 
     // Register the needed duktape functions to the engine's duktape context
     poBehaviourEngine->RegisterFunction(JavaScriptEntityFunctions::GetEntityCoordinates, 1, "GetEntityCoordinates");
@@ -56,7 +56,7 @@ void cBehaviourHandler::AddBehaviour(std::string sBehaviourName, std::string sFi
 /*
  * Calls calculate function from the engines' stack, which will calculate a steering force and append it to the entity's steering force..
  */
-void cBehaviourHandler::Update(cBaseObject *oEntity, cEntityGroupInterface *oEntityGroup = nullptr)
+void cBehaviourHandler::Update(cBaseObject *oEntity, cEntityGroupInterface *oEntityGroup)
 {
     poBehaviours.at(psBehaviourName)->RunJavaScriptFunction("calculate", oEntity, oEntityGroup);
 }
