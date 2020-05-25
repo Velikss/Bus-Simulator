@@ -1,6 +1,6 @@
 #pragma once
 #include <pch.hpp>
-#include <server/src/SSO/SSOHelper.hpp>
+#include <server/src/SSO/SsoHelper.hpp>
 #include <server/vendor/StdUuid.hpp>
 #include <server/src/SSO/SsoServer.hpp>
 #include <server/src/GameServer/CGameServer.hpp>

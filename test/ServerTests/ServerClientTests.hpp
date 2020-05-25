@@ -2,8 +2,8 @@
 #include <pch.hpp>
 #include <gtest/gtest.h>
 #include <server/src/Http/HTTP.hpp>
-#include <server/src/cNetworkServer.hpp>
-#include <server/src/cNetworkClient.hpp>
+#include <server/src/NetworkServer.hpp>
+#include <server/src/NetworkClient.hpp>
 
 int iTimesRecieved = 0;
 

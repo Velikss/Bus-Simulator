@@ -1,6 +1,6 @@
 #pragma once
 #include <pch.hpp>
-#include <server/src/cNetworkConnection.hpp>
+#include <server/src/NetworkConnection.hpp>
 
 namespace cHttp
 {

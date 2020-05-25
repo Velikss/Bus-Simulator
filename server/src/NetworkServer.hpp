@@ -1,5 +1,5 @@
 #pragma once
-#include "cNetworkConnection.hpp"
+#include "NetworkConnection.hpp"
 #include "Http/HTTP.hpp"
 #include "../vendor/Utf8.hpp"
 

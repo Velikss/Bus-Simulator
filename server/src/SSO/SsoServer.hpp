@@ -1,8 +1,8 @@
 #pragma once
 #include <pch.hpp>
-#include <server/src/ODBC/cODBCInstance.hpp>
-#include <server/src/cNetworkServer.hpp>
-#include <server/src/SSO/SSOHelper.hpp>
+#include <server/src/ODBC/ODBCInstance.hpp>
+#include <server/src/NetworkServer.hpp>
+#include <server/src/SSO/SsoHelper.hpp>
 
 using namespace cHttp;
 

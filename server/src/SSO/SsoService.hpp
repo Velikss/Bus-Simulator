@@ -1,7 +1,7 @@
 #pragma once
 #include <pch.hpp>
-#include <server/src/cNetworkServer.hpp>
-#include <server/src/cNetworkClient.hpp>
+#include <server/src/NetworkServer.hpp>
+#include <server/src/NetworkClient.hpp>
 
 using namespace cHttp;
 

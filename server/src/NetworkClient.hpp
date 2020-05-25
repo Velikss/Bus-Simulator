@@ -1,5 +1,5 @@
 #pragma once
-#include "cNetworkConnection.hpp"
+#include "NetworkConnection.hpp"
 
 class cNetworkClient : public cNetworkConnection
 {

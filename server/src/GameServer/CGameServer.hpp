@@ -1,6 +1,6 @@
 #pragma once
 #include <pch.hpp>
-#include <server/src/ODBC/cODBCInstance.hpp>
+#include <server/src/ODBC/ODBCInstance.hpp>
 #include <server/src/SSO/SsoService.hpp>
 
 class cGameServer : public cSsoService

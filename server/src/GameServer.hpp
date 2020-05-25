@@ -1,6 +1,6 @@
 #pragma once
 #include <pch.hpp>
-#include <cNetworkServer.hpp>
+#include <NetworkServer.hpp>
 
 bool RecieveData(cNetworkConnection* pConnection, byte* & buffer, int & iRecievedContent)
 {
