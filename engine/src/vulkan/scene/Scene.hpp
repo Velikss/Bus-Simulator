@@ -10,6 +10,7 @@
 #include <vulkan/scene/InputHandler.hpp>
 #include <vulkan/loop/TickTask.hpp>
 #include <vulkan/geometry/ViewportQuadGeometry.hpp>
+#include <vulkan/module/overlay/element/StaticElement.hpp>
 
 class cScene : public iInputHandler, public iTickTask
 {
@@ -24,6 +25,8 @@ protected:
     std::map<string, cMesh*> pmpMeshes;
 
     std::map<string, cBaseObject*> pmpObjects;
+
+    std::map<string, cStaticElement*> pmpOverlay;
 
     bool paKeys[GLFW_KEY_LAST] = {false};
 
@@ -46,6 +49,7 @@ public:
     std::map<string, cMesh*>& GetMeshes();
     std::vector<cBaseObject*>& GetMovableObjects();
     std::vector<cLightObject*>& GetLightObjects();
+    std::map<string, cStaticElement*> GetOverlay();
 
     Camera& GetCamera();
 
@@ -154,6 +158,11 @@ std::vector<cBaseObject*>& cScene::GetMovableObjects()
 std::vector<cLightObject*>& cScene::GetLightObjects()
 {
     return papLightObjects;
+}
+
+std::map<string, cStaticElement*> cScene::GetOverlay()
+{
+    return pmpOverlay;
 }
 
 Camera& cScene::GetCamera()

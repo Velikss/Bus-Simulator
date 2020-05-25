@@ -19,6 +19,7 @@ private:
 
     cFont* ppFont;
     cText* ppText;
+    cWindow* ppWindow;
 
     iCommandBufferRecorder* ppCommandRecorder;
 
@@ -28,6 +29,7 @@ public:
 
     void UpdateText(string sText);
 
+    void CreateCommandRecorder(cScene* pScene);
     iCommandBufferRecorder* GetCommandRecorder();
 
 protected:
@@ -38,7 +40,6 @@ protected:
 private:
     void LoadFont();
     void LoadText(cWindow* pWindow);
-    void CreateCommandRecorder();
 };
 
 cOverlayRenderModule::cOverlayRenderModule(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain, cWindow* pWindow)
@@ -46,10 +47,10 @@ cOverlayRenderModule::cOverlayRenderModule(cLogicalDevice* pLogicalDevice, cSwap
 {
     assert(pWindow != nullptr);
 
+    ppWindow = pWindow;
+
     LoadFont();
-    LoadText(pWindow);
     Init();
-    CreateCommandRecorder();
 }
 
 void cOverlayRenderModule::LoadFont()
@@ -67,8 +68,7 @@ void cOverlayRenderModule::LoadText(cWindow* pWindow)
 
 void cOverlayRenderModule::CreateUniformHandler()
 {
-    ppUniformHandler = new cOverlayUniformHandler(ppLogicalDevice, ppFont);
-    ppUniformHandler->SetupUniformBuffers(nullptr, nullptr);
+    ppUniformHandler = new cOverlayUniformHandler(ppLogicalDevice, ppFont, ppWindow);
 }
 
 void cOverlayRenderModule::CreateRenderPass()
@@ -81,10 +81,10 @@ void cOverlayRenderModule::CreatePipeline()
     ppRenderPipeline = new cOverlayPipeline(ppSwapChain, ppLogicalDevice, ppRenderPass, ppUniformHandler);
 }
 
-void cOverlayRenderModule::CreateCommandRecorder()
+void cOverlayRenderModule::CreateCommandRecorder(cScene* pScene)
 {
     ppCommandRecorder = new cOverlayCommandBufferRecorder(ppRenderPass, ppSwapChain, ppRenderPipeline,
-                                                          ppUniformHandler, ppText);
+                                                          ppUniformHandler, ppText, pScene);
 }
 
 void cOverlayRenderModule::UpdateText(string sText)

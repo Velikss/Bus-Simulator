@@ -20,13 +20,14 @@ private:
     std::array<VkClearValue, 1> paoClearValues = {};
 
     cText* ppText;
+    cScene* ppScene;
 
 public:
     cOverlayCommandBufferRecorder(cRenderPass* pRenderPass,
                                   cSwapChain* pSwapChain,
                                   cRenderPipeline* pGraphicsPipeline,
                                   iUniformHandler* pUniformHandler,
-                                  cText* pText);
+                                  cText* pText, cScene* pScene);
 
     void Setup(uint uiIndex) override;
     void RecordCommands(VkCommandBuffer& oCommandBuffer, uint uiIndex) override;
@@ -36,13 +37,14 @@ cOverlayCommandBufferRecorder::cOverlayCommandBufferRecorder(cRenderPass* pRende
                                                              cSwapChain* pSwapChain,
                                                              cRenderPipeline* pGraphicsPipeline,
                                                              iUniformHandler* pUniformHandler,
-                                                             cText* pText)
+                                                             cText* pText, cScene* pScene)
 {
     ppRenderPass = pRenderPass;
     ppSwapChain = pSwapChain;
     ppPipeline = pGraphicsPipeline;
     ppUniformHandler = pUniformHandler;
     ppText = pText;
+    ppScene = pScene;
 }
 
 void cOverlayCommandBufferRecorder::Setup(uint uiIndex)
@@ -73,13 +75,16 @@ void cOverlayCommandBufferRecorder::RecordCommands(VkCommandBuffer& oCommandBuff
     vkCmdBindPipeline(oCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                       ppPipeline->GetPipeline());
 
-    ppUniformHandler->CmdBindDescriptorSets(oCommandBuffer, ppPipeline->GetLayout(), 0);
-
-    ppText->BindVertexBuffer(oCommandBuffer);
-
-    for (uint i = 0; i < ppText->GetNumLetters(); i++)
+    uint uiGeometryIndex = 0;
+    for (auto oElement : ppScene->GetOverlay())
     {
-        vkCmdDraw(oCommandBuffer, 4, 1, i * 4, 0);
+        cStaticElement* pElement = oElement.second;
+
+        pElement->CmdBindVertexBuffer(oCommandBuffer);
+
+        ppUniformHandler->CmdBindDescriptorSets(oCommandBuffer, ppPipeline->GetLayout(), uiGeometryIndex);
+
+        vkCmdDraw(oCommandBuffer, 6, 1, 0, 0);
     }
 
     // End the render pass

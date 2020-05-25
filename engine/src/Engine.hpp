@@ -140,9 +140,7 @@ void Engine::InitVulkan(void)
     cClearScreenRecorder clearRecorder(ppLightsRenderModule->GetRenderPass(), ppSwapChain);
     papCommandBuffers[0]->RecordBuffers(&clearRecorder);
     papCommandBuffers[1]->RecordBuffers(&clearRecorder);
-
-    // Record the overlay to the overlay command buffer
-    papCommandBuffers[2]->RecordBuffers(ppOverlayRenderModule->GetCommandRecorder());
+    papCommandBuffers[2]->RecordBuffers(&clearRecorder);
 
     ppGameLoop = new cGameLoop();
     ppGameThread = new std::thread(std::ref(*ppGameLoop));
@@ -191,6 +189,7 @@ void Engine::MainLoop(void)
             // Setup the buffers for uniform variables
             ppLightsRenderModule->GetUniformHandler()->SetupUniformBuffers(ppTextureHandler, ppScene);
             ppMRTRenderModule->GetUniformHandler()->SetupUniformBuffers(ppTextureHandler, ppScene);
+            ppOverlayRenderModule->GetUniformHandler()->SetupUniformBuffers(ppTextureHandler, ppScene);
 
             // We cannot (re-)record command buffers while the GPU is
             // using them, so we have to wait until it's idle.
@@ -205,6 +204,9 @@ void Engine::MainLoop(void)
                                           ppLightsRenderModule->GetUniformHandler(), ppScene);
             papCommandBuffers[0]->RecordBuffers(&mrt);
             papCommandBuffers[1]->RecordBuffers(&light);
+
+            ppOverlayRenderModule->CreateCommandRecorder(ppScene);
+            papCommandBuffers[2]->RecordBuffers(ppOverlayRenderModule->GetCommandRecorder());
 
             ENGINE_LOG("Scene loading, adding tick task");
             ppGameLoop->AddTask(ppScene);
