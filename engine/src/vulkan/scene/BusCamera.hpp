@@ -123,33 +123,41 @@ public:
             float rotationDifference = rotation - yaw;
             // difference is positive
             if (rotationDifference > 0) {
-                // rotate slower when closer to the back of the bus
-                if (rotationDifference > 1.0)
-                    if (rotationDifference < 180)
-                        yaw += 0.1;
-                    else
-                        yaw -= 0.1;
                 // rotate faster when further away from the back of the bus
                 if (rotationDifference > 5.0)
+                {
                     if (rotationDifference < 180)
                         yaw += 0.5;
                     else
                         yaw -= 0.5;
+                }
+                // rotate slower when closer to the back of the bus
+                else if (rotationDifference > 1.0)
+                {
+                    if (rotationDifference < 180)
+                        yaw += 0.1;
+                    else
+                        yaw -= 0.1;
+                }
             }
             // difference is negative
-            if (rotationDifference < 0) {
-                // rotate slower when closer to the back of the bus
-                if ((-1 * rotationDifference) > 1.0)
-                    if ((-1 * rotationDifference) < 180)
-                        yaw -= 0.1;
-                    else
-                        yaw += 0.1;
+            else if (rotationDifference < 0) {
                 // rotate faster when further away from the back of the bus
                 if ((-1 * rotationDifference) > 5.0)
+                {
                     if ((-1 * rotationDifference) < 180)
                         yaw -= 0.5;
                     else
                         yaw += 0.5;
+                }
+                // rotate slower when closer to the back of the bus
+                else if ((-1 * rotationDifference) > 1.0)
+                {
+                    if ((-1 * rotationDifference) < 180)
+                        yaw -= 0.1;
+                    else
+                        yaw += 0.1;
+                }
             }
         }
         // calculate camera position

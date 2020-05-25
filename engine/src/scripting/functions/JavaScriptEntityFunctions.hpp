@@ -156,9 +156,12 @@ namespace JavaScriptEntityFunctions
         ArrayIndex = duk_push_array(poContext);
 
         // Fill the array with pointers to the group members
+        std::vector<cEntityInterface *> *entities;
+        poEntityGroup->GetEntityList(&entities);
+
         for (int i = 0; i < poEntityGroup->GetEntities()->size(); i++)
         {
-            duk_push_pointer(poContext, &poEntityGroup->GetEntities()[i]);
+            duk_push_pointer(poContext, (*entities)[i]);
             duk_put_prop_index(poContext, ArrayIndex, i);
         }
 
@@ -180,10 +183,17 @@ namespace JavaScriptEntityFunctions
         cEntityInterface *poEntity = static_cast<cEntityInterface *>(p);
 
         // Get SteeringForce from stack
-        glm::vec2 SteeringForce(duk_to_number(poContext, -2), duk_to_number(poContext, -1));
+        float fXvalue = (float) duk_to_number(poContext, -2);
+        float fYvalue = (float) duk_to_number(poContext, -1);
+
+        glm::vec2 SteeringForce(fXvalue, fYvalue);
 
         // Set velocity to entity
-        poEntity->AppendSteeringForce(SteeringForce);
+        if (!isnan(SteeringForce.x) && !isnan(SteeringForce.y))
+            poEntity->AppendSteeringForce(SteeringForce);
+        else
+            ENGINE_WARN("Behaviour script returned NaN! " << duk_to_number(poContext, -2) << " & "
+                                                          << duk_to_number(poContext, -1));
 
         return 0;
     }

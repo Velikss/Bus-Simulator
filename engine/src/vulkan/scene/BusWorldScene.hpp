@@ -644,11 +644,9 @@ void cBusWorldScene::LoadObjects()
     // Entities
     pmpObjects["entity"] = new cEntity(pmpMeshes["passenger"]);
     pmpObjects["entity"]->SetPosition(glm::vec3(10.0f, 0.15f, -10.5f));
-    dynamic_cast<cEntityInterface*>(pmpObjects["entity"])->SetTarget(glm::vec3(1, 0, 1));
 
     pmpObjects["entity2"] = new cEntity(pmpMeshes["passenger"]);
     pmpObjects["entity2"]->SetPosition(glm::vec3(11.0f, 0.15f, -10.5f));
-    dynamic_cast<cEntityInterface*>(pmpObjects["entity2"])->SetTarget(glm::vec3(21, 0, 1));
 
     pmpObjects["entity3"] = new cEntity(pmpMeshes["passenger"]);
     pmpObjects["entity3"]->SetPosition(glm::vec3(14.0f, 0.15f, -10.5f));
@@ -684,5 +682,6 @@ void cBusWorldScene::LoadObjects()
 
     entityGroup2 = entityGroup;
     entityGroup.AddBehaviour(cbSeeking);
+    entityGroup.AddBehaviour(cbCohesion);
     entityGroup.AddBehaviour(cbSeperation);
 }

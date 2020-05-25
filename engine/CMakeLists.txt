@@ -124,7 +124,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src ${GLEW_INCLUDE_DIRS} ${OPENGL_INCL
 add_library(${This} STATIC ${Sources} ${Headers})
 add_executable(${This}-bin ${Sources} ${Headers})
 
-IF (WIN32)
+IF (NOT WIN32)
     target_link_libraries(${This} PUBLIC /usr/lib/libuuid.a)
     add_custom_command(TARGET ${This}-bin PRE_BUILD COMMAND cd ${PROJECT_SOURCE_DIR}/shaders && ./compile.sh)
 ENDIF ()
