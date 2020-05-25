@@ -3,7 +3,7 @@ function calculate(entity, entities)
     // Do behaviour logic
     // check if entity and entities received
     if(entity && entities) {
-        var radius = 1;
+        var radius = 5;
         var force = 0.005;
 
         var ME = GetEntityCoordinates(entity);
@@ -15,7 +15,7 @@ function calculate(entity, entities)
         function calc(ent, index)
         {
             var coords = GetEntityCoordinates(ent)
-            var distSquared = (ME[0] - coords[0]) * (ME[0] - coords[0]) + (ME[1] - coords[1]) * (ME[1] - coords[1]);
+            var distSquared = ((ME[0] - coords[0]) * (ME[0] - coords[0])) + ((ME[1] - coords[1]) * (ME[1] - coords[1]));
             if (distSquared < radius * radius && distSquared > 0)
             {
                 // seperation force
