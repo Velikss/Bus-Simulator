@@ -28,9 +28,9 @@ namespace JavaScriptEntityFunctions
         ArrayIndex = duk_push_array(poContext);
 
         // Then we will fill the array with the X Y coordinates of the entity. (we take Z as Y position because vec3 is used in BaseObject)
-        duk_push_int(poContext, poEntity->GetPosition().x);
+        duk_push_number(poContext, (double)poEntity->GetPosition().x);
         duk_put_prop_index(poContext, ArrayIndex, 0);
-        duk_push_int(poContext, poEntity->GetPosition().z);
+        duk_push_number(poContext, (double)poEntity->GetPosition().z);
         duk_put_prop_index(poContext, ArrayIndex, 1);
 
         return 1;
