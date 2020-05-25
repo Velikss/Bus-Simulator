@@ -10,7 +10,7 @@ class Camera
 {
 public:
     float fFoV = 45.0;
-    float fZNear = 1.0;
+    float fZNear = 0.1;
     float fZFar = 800.0;
 
     glm::vec3 cameraPos = glm::vec3(2.0f, 7.0f, 2.0f);
@@ -22,7 +22,7 @@ public:
     float yaw = 0;
     float pitch = 0;
 
-    const float cameraSpeed = 0.1f;
+    const float cameraSpeed = 0.05f;
     const float cameraSpeedLook = 1.0f;
     float mouseSpeed = 0.07f;
 

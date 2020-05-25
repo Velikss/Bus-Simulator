@@ -27,6 +27,8 @@ protected:
 
     bool paKeys[GLFW_KEY_LAST] = {false};
 
+    cColliderSet* ppColliders = new cColliderSet();
+
 private:
     std::vector<cBaseObject*> papMovableObjects;
     std::vector<cLightObject*> papLightObjects;
@@ -94,15 +96,27 @@ void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevi
     {
         assert(oObject.second != nullptr);
 
+        // If the object isn't static, add it to the list of movable objects
         if (!oObject.second->IsStatic())
         {
             papMovableObjects.push_back(oObject.second);
         }
 
+        // If the object is a light source, add it to the list of light sources
         if (instanceof<cLightObject>(oObject.second))
         {
             papLightObjects.push_back(dynamic_cast<cLightObject*>(oObject.second));
         }
+
+        // If the object is a collider, set it up and add it to the collider set
+        cCollider* pCollider = oObject.second->GetCollider();
+        if (pCollider != nullptr)
+        {
+            pCollider->Update(oObject.second->GetModelMatrix());
+            ppColliders->papColliders.push_back(pCollider);
+        }
+
+        oObject.second->Setup(ppColliders);
     }
 
     for (auto oMesh : pmpMeshes)

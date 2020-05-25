@@ -7,7 +7,7 @@ class cBusStop : public cBaseObject
 {
 public:
 
-    cBusStop(cMesh *mesh) : cBaseObject(mesh)
+    cBusStop(cMesh *mesh) : cBaseObject(mesh, cCollider::RectangleCollider(-0.8f, -0.8f, 2.8f, 0.8f))
     {
     }
 

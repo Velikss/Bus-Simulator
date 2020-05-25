@@ -17,7 +17,7 @@ public:
     int piPingTimeout;
     int piBusId;
 
-    cBus(cMesh *mesh) : cBaseObject(mesh, false)
+    cBus(cMesh* mesh) : cBaseObject(mesh, cCollider::RectangleCollider(-1.5f, -7.0f, 1.6f, 2.7f), false)
     {
     }
 
@@ -44,22 +44,43 @@ public:
 void cBus::Move()
 {
     glm::vec3 oDirection(sin(glm::radians(GetRotation().y)), 0, cos(glm::radians(GetRotation().y)));
-    SetPosition(GetPosition() - (oDirection * (pfCurrentSpeed / 100)));
+    bool moveCollision = !SetPosition(GetPosition() - (oDirection * (pfCurrentSpeed / 100)));
+
+    bool steerCollision = false;
     if (pfCurrentSpeed != 0)
-        pfSteeringModifier > 0 ? this->RotateLeft(pfSteeringModifier / 10) : this->RotateRight(
-                pfSteeringModifier * -1 / 10);
+    {
+        if (pfSteeringModifier > 0)
+        {
+            steerCollision = !this->RotateLeft(pfSteeringModifier / 10);
+        }
+        else
+        {
+            steerCollision = !this->RotateRight(pfSteeringModifier * -1 / 10);
+        }
+    }
+
+    if (steerCollision || moveCollision)
+    {
+        pfAccelerationModifier = 0;
+        pfSteeringModifier = 0;
+        pfCurrentSpeed = 0;
+    }
 }
 
 void cBus::Accelerate()
 {
     if (pfCurrentSpeed < pfMaxSpeed)
+    {
         pfCurrentSpeed += CalculateAcceleration() / 2;
+    }
 }
 
 void cBus::Decelerate()
 {
     if (pfCurrentSpeed > pfMinSpeed)
+    {
         pfCurrentSpeed -= CalculateDeceleration() / 2;
+    }
 }
 
 void cBus::IdleAcceleration()
@@ -73,7 +94,9 @@ void cBus::IdleAcceleration()
         pfCurrentSpeed *= 0.997;
     }
     if (pfCurrentSpeed < 0.5 && pfCurrentSpeed > -0.5)
+    {
         pfCurrentSpeed = 0;
+    }
 }
 
 void cBus::Steer(std::string sDirection)
@@ -85,19 +108,27 @@ void cBus::Steer(std::string sDirection)
     {
         // If the steering modifier is still set to right (lower than 0), reset the modifier to 0.
         if (pfSteeringModifier < 0)
+        {
             pfSteeringModifier = 0;
+        }
         // Only higher the modifier if the max value hasn't been reached.
         if (pfSteeringModifier < pfMaxSteeringModifier)
+        {
             pfSteeringModifier += 0.2;
+        }
     }
     if (sDirection == "right")
     {
         // If the steering modifier is still set to left (higher than 0), reset the modifier to 0.
         if (pfSteeringModifier > 0)
+        {
             pfSteeringModifier = 0;
+        }
         // Only higher the modifier if the min value hasn't been reached.
         if (pfSteeringModifier > pfMinSteeringModifier)
+        {
             pfSteeringModifier -= 0.2;
+        }
     }
 }
 
@@ -112,26 +143,13 @@ void cBus::IdleSteering()
  */
 float cBus::CalculateAcceleration()
 {
-    if ((pfMaxSpeed * 0.1) >= pfCurrentSpeed)
-        return pfAccelerationModifier = 1.0;
-    if ((pfMaxSpeed * 0.2) >= pfCurrentSpeed)
-        return pfAccelerationModifier = 0.9;
-    if ((pfMaxSpeed * 0.3) >= pfCurrentSpeed)
-        return pfAccelerationModifier = 0.8;
-    if ((pfMaxSpeed * 0.4) >= pfCurrentSpeed)
-        return pfAccelerationModifier = 0.7;
-    if ((pfMaxSpeed * 0.5) >= pfCurrentSpeed)
-        return pfAccelerationModifier = 0.6;
-    if ((pfMaxSpeed * 0.6) >= pfCurrentSpeed)
-        return pfAccelerationModifier = 0.5;
-    if ((pfMaxSpeed * 0.7) >= pfCurrentSpeed)
-        return pfAccelerationModifier = 0.4;
-    if ((pfMaxSpeed * 0.8) >= pfCurrentSpeed)
-        return pfAccelerationModifier = 0.3;
-    if ((pfMaxSpeed * 0.9) >= pfCurrentSpeed)
-        return pfAccelerationModifier = 0.2;
-    if ((pfMaxSpeed * 1.0) >= pfCurrentSpeed)
-        return pfAccelerationModifier = 0.1;
+    for (float fVal = 0.1; fVal <= 1.0; fVal += 0.1)
+    {
+        if (pfMaxSpeed * fVal >= pfCurrentSpeed)
+        {
+            return pfAccelerationModifier = 1.1 - fVal;
+        }
+    }
     return 0.0;
 }
 
@@ -140,20 +158,13 @@ float cBus::CalculateAcceleration()
  */
 float cBus::CalculateDeceleration()
 {
-    if ((pfMinSpeed * 0.7) <= pfCurrentSpeed)
-        return pfAccelerationModifier = 0.4;
-    if ((pfMinSpeed * 0.6) <= pfCurrentSpeed)
-        return pfAccelerationModifier = 0.5;
-    if ((pfMinSpeed * 0.5) <= pfCurrentSpeed)
-        return pfAccelerationModifier = 0.6;
-    if ((pfMinSpeed * 0.4) <= pfCurrentSpeed)
-        return pfAccelerationModifier = 0.7;
-    if ((pfMinSpeed * 0.3) <= pfCurrentSpeed)
-        return pfAccelerationModifier = 0.8;
-    if ((pfMinSpeed * 0.2) <= pfCurrentSpeed)
-        return pfAccelerationModifier = 0.9;
-    if ((pfMinSpeed * 0.1) <= pfCurrentSpeed)
-        return pfAccelerationModifier = 1.0;
+    for (float fVal = 0.7; fVal >= 0.1; fVal -= 0.1)
+    {
+        if (pfMinSpeed * fVal <= pfCurrentSpeed)
+        {
+            return pfAccelerationModifier = 1.1 - fVal;
+        }
+    }
     return 0.0;
 }
 
