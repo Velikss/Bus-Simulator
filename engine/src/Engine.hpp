@@ -226,9 +226,9 @@ void Engine::MainLoop(void)
 
             ppAudioHandler->SetScene(ppScene);
 
-            ppAudioHandler->LoadSound("resources/beep.wav", true, true, false);
+            ppAudioHandler->LoadSound("resources/beep.wav", true, true, true);
             glm::vec3 pos = glm::vec3(0, 5, 0);
-            ppAudioHandler->PlaySound("resources/beep.wav", pos, 0.2f);
+            ppAudioHandler->PlaySound("resources/beep.wav", pos, 0.11f);
         }
 
         if (TEXT_DIRTY)

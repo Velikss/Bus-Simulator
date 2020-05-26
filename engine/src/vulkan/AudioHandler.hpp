@@ -4,7 +4,6 @@
 
 #include <pch.hpp>
 #include <fmod.hpp>
-#include <fmod_studio.hpp>
 #include <util/Formatter.hpp>
 #include <vulkan/scene/Scene.hpp>
 
@@ -19,7 +18,6 @@ private:
     typedef std::map<uint, glm::vec3> PositionMap;
 
     // FMOD instances
-    FMOD::Studio::System* ppStudioSystem;
     FMOD::System* ppSystem;
 
     // Current active scene
@@ -35,12 +33,15 @@ private:
     // Positions of the active channels
     PositionMap pmPositions;
 
+    const FMOD_VECTOR ptCameraUp = {0, 1, 0};
+    FMOD_VECTOR ptCameraForward = {0, 0, 1};
+    FMOD_VECTOR ptCameraPos = {0, 0, 0};
+
 public:
     cAudioHandler();
     ~cAudioHandler();
 
-    // Must be called in a main loop. Fixed update
-    // rate is not required
+    // Must be called every frame
     void Update();
 
     // Set the current active scene. Is used to position
@@ -70,25 +71,27 @@ public:
     void SetChannelVolume(uint uiChannelId, float fVolume);
 
 private:
-    // Transform a vector with the camera view matrix and
-    // convert it to an FMOD vector
-    FMOD_VECTOR TransformToFMODVec(glm::vec3& tVector);
+    // Translate a GLM vec3 into an FMOD_VECTOR
+    FMOD_VECTOR GLMToFMODVec(glm::vec3& tVector);
 };
 
 cAudioHandler::cAudioHandler()
 {
-    // Initialize FMOD
-    FMOD::Studio::System::create(&ppStudioSystem);
-    ppStudioSystem->initialize(MAX_AUDIO_CHANNELS, FMOD_STUDIO_INIT_LIVEUPDATE,
-                               FMOD_INIT_PROFILE_ENABLE, nullptr);
-    ppStudioSystem->getCoreSystem(&ppSystem);
+    // Initialize the FMOD instance
+    FMOD::System_Create(&ppSystem);
+    ppSystem->init(MAX_AUDIO_CHANNELS, FMOD_INIT_NORMAL, nullptr);
 }
 
 cAudioHandler::~cAudioHandler()
 {
-    // Unload all sounds and release the FMOD instance
-    ppStudioSystem->unloadAll();
-    ppStudioSystem->release();
+    // Unload all sounds
+    for (auto& oSound : pmSounds)
+    {
+        oSound.second->release();
+    }
+
+    // Release the FMOD instance
+    ppSystem->release();
 }
 
 void cAudioHandler::SetScene(cScene* pScene)
@@ -114,19 +117,6 @@ void cAudioHandler::Update()
         {
             aStoppedChannels.push_back(oChannel.first);
         }
-        else
-        {
-            // Get the mode from the sound
-            FMOD_MODE eCurrMode;
-            pChannel->getMode(&eCurrMode);
-
-            // If 3D is enabled, update the channel position
-            if (eCurrMode & FMOD_3D)
-            {
-                FMOD_VECTOR tFMODPos = TransformToFMODVec(pmPositions[oChannel.first]);
-                pChannel->set3DAttributes(&tFMODPos, nullptr);
-            }
-        }
     }
 
     // Remove all stopped channels
@@ -135,8 +125,19 @@ void cAudioHandler::Update()
         pmChannels.erase(uiChannelId);
     }
 
+    // Update the listener position
+    ptCameraPos = GLMToFMODVec(ppScene->GetCamera().cameraPos);
+
+    // Update the listener direction
+    float fYaw = glm::radians(ppScene->GetCamera().yaw);
+    glm::vec3 tDirection = glm::normalize(glm::vec3(-cos(fYaw), 0, -sin(fYaw)));
+    ptCameraForward = GLMToFMODVec(tDirection);
+
+    // Update the 3D listener attributes
+    ppSystem->set3DListenerAttributes(0, &ptCameraPos, nullptr, &ptCameraForward, &ptCameraUp);
+
     // Call the audio system update
-    ppStudioSystem->update();
+    ppSystem->update();
 }
 
 void cAudioHandler::LoadSound(const string& sName, bool b3D, bool bLooping, bool bStream)
@@ -215,7 +216,7 @@ uint cAudioHandler::PlaySound(const string& sName, glm::vec3& tPosition, float f
     if (eCurrMode & FMOD_3D)
     {
         pmPositions[uiChannelId] = tPosition;
-        FMOD_VECTOR tFMODPos = TransformToFMODVec(tPosition);
+        FMOD_VECTOR tFMODPos = GLMToFMODVec(tPosition);
         pChannel->set3DAttributes(&tFMODPos, nullptr);
     }
 
@@ -259,7 +260,7 @@ void cAudioHandler::SetChannelPosition(uint uiChannelId, glm::vec3& tPosition)
 
     // Set the channel position
     pmPositions[uiChannelId] = tPosition;
-    FMOD_VECTOR tFMODPos = TransformToFMODVec(tPosition);
+    FMOD_VECTOR tFMODPos = GLMToFMODVec(tPosition);
     tResult->second->set3DAttributes(&tFMODPos, nullptr);
 }
 
@@ -278,12 +279,7 @@ void cAudioHandler::SetChannelVolume(uint uiChannelId, float fVolume)
     tResult->second->setVolume(fVolume);
 }
 
-FMOD_VECTOR cAudioHandler::TransformToFMODVec(glm::vec3& tVector)
+FMOD_VECTOR cAudioHandler::GLMToFMODVec(glm::vec3& tVector)
 {
-    assert(ppScene != nullptr);
-
-    // Transform the vector with the camera view pos to get a vector relative to the camera
-    glm::vec3 tRelative = ppScene->GetCamera().GetViewMatrix() * glm::vec4(tVector, 1);
-
-    return {tRelative.x, tRelative.y, tRelative.z};
+    return {tVector.x, tVector.y, tVector.z};
 }
