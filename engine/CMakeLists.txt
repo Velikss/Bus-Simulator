@@ -18,21 +18,30 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -luuid")
+
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(PkgConfig)
 set(OPENSSL_USE_STATIC_LIBS TRUE)
 find_package(OpenSSL REQUIRED)
 find_package(glfw3 REQUIRED)
+find_package(Vulkan REQUIRED)
+get_target_property(GLFW_INCLUDE_DIR glfw INTERFACE_INCLUDE_DIRECTORIES)
+IF (WIN32)
+    find_package(glm REQUIRED)
+    find_package(duktape REQUIRED)
+    get_target_property(GLM_INCLUDE_DIR glm INTERFACE_INCLUDE_DIRECTORIES)
+    get_target_property(GLFW_LIBRARIES glfw IMPORTED_IMPLIB_RELEASE)
+    set(ENGINE_LIBRARIES ${This} ${GLEW_LIBRARIES} ${GLFW_LIBRARIES} ${DUKTAPE_LIBRARY} ${Vulkan_LIBRARIES} ${OPENSSL_SSL_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARIES} ${ODBC_LIBRARY} PARENT_SCOPE)
+ELSE()
+    set(ENGINE_LIBRARIES ${This} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} /usr/lib/libduktape.so ${Vulkan_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${ODBC_LIBRARY} PARENT_SCOPE)
+ENDIF()
 
-#IF(NOT WIN32)
-    find_package(Vulkan REQUIRED)
-#ENDIF()
-
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -luuid")
+set(ENGINE_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src ${Vulkan_INCLUDE_DIRS} ${GLM_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS} ${GLFW_INCLUDE_DIR} ${DUKTAPE_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR} /usr/lib/libuuid.a PARENT_SCOPE)
 
 set(Headers
         ${PROJECT_SOURCE_DIR}/src/pch.hpp
@@ -119,19 +128,8 @@ set(Headers
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 
-include_directories(${PROJECT_SOURCE_DIR}/src ${GLEW_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS} ${DUKTAPE_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/src ${ENGINE_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS})
 add_library(${This} STATIC ${Sources} ${Headers})
-add_executable(${This}-bin ${Sources} ${Headers})
 
-IF (NOT WIN32)
-    target_link_libraries(${This} PUBLIC /usr/lib/libuuid.a)
-    add_custom_command(TARGET ${This}-bin PRE_BUILD COMMAND cd ${PROJECT_SOURCE_DIR}/shaders && ./compile.sh)
-ENDIF ()
-
-IF (WIN32)
-    find_package(glm REQUIRED)
-    find_package(duktape REQUIRED)
-    target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw glm ${OPENGL_INCLUDE_DIRS} ${DUKTAPE_LIBRARY} ${Vulkan_LIBRARIES} OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY})
-ELSE()
-    target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw /usr/lib/libduktape.so ${Vulkan_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${ODBC_LIBRARY})
-ENDIF()
+target_include_directories(${This} PUBLIC ${ENGINE_INCLUDE_DIRS})
+target_link_libraries(${This} PUBLIC ${GLEW_LIBRARIES} ${GLFW_LIBRARIES} ${DUKTAPE_LIBRARY} ${Vulkan_LIBRARIES} OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY})

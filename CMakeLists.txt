@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13.4)
 
-set(This GameProject)
+set(This Bus-Simulator)
 set(CompilerFlags
         CMAKE_CXX_FLAGS
         CMAKE_CXX_FLAGS_DEBUG
@@ -30,13 +30,8 @@ set(Sources
     ${PROJECT_SOURCE_DIR}/src/main.cpp
 )
 
-include_directories(${PROJECT_SOURCE_DIR}/src)
-add_library(${This} STATIC ${Sources} ${Headers})
-add_executable(${This}-bin ${Sources} ${Headers})
-
-IF (WIN32)
-    find_package(glm REQUIRED)
-    target_link_libraries(${This} PUBLIC glm)
-ENDIF()
+include_directories(${PROJECT_SOURCE_DIR}/src ${ENGINE_INCLUDE_DIRS})
+add_executable(${This} ${Sources} ${Headers})
+target_link_libraries(${This} ${ENGINE_LIBRARIES})
 
 add_subdirectory(test)
