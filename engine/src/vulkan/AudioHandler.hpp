@@ -148,7 +148,7 @@ void cAudioHandler::LoadSound(const string& sName, bool b3D, bool bLooping, bool
     FMOD_MODE eMode = FMOD_DEFAULT;
     eMode |= b3D ? FMOD_3D : FMOD_2D;
     eMode |= bLooping ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF;
-    eMode |= bStream ? FMOD_CREATESTREAM : FMOD_CREATECOMPRESSEDSAMPLE;
+    eMode |= bStream ? FMOD_CREATESTREAM : FMOD_CREATESAMPLE;
 
     // Create the sound
     cSound* pSound = nullptr;
