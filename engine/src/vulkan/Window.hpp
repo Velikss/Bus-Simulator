@@ -262,5 +262,7 @@ void cWindow::scrollCallback(GLFWwindow* pWindow, double dOffsetX, double dOffse
 
 void cWindow::characterCallback(GLFWwindow* pWindow, uint uiCharacter)
 {
+    if (poInstance == nullptr || poInstance->ppInputHandler == nullptr) return;
+
     poInstance->ppInputHandler->HandleCharacter((char) uiCharacter);
 }
