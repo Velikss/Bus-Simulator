@@ -1,9 +1,9 @@
 #pragma once
 #include <pch.hpp>
 #include <gtest/gtest.h>
-#include <server/src/Http/HTTP.hpp>
-#include <server/src/NetworkServer.hpp>
-#include <server/src/NetworkClient.hpp>
+#include "../src/Http/HTTP.hpp"
+#include "../src/NetworkServer.hpp"
+#include "../src/NetworkClient.hpp"
 
 int iTimesRecieved = 0;
 

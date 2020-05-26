@@ -23,5 +23,3 @@ set(Sources
 include_directories(${PROJECT_SOURCE_DIR}/src ${ENGINE_INCLUDE_DIRS})
 add_executable(${This} ${Sources} ${Headers})
 target_link_libraries(${This} ${ENGINE_LIBRARIES})
-
-add_subdirectory(test)

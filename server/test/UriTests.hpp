@@ -1,7 +1,7 @@
 #pragma once
 #include <pch.hpp>
 #include <gtest/gtest.h>
-#include <server/src/Uri.hpp>
+#include "../src/Uri.hpp"
 
 struct tUriTestCompositon
 {

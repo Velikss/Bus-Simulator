@@ -1,10 +1,10 @@
 #pragma once
 #include <pch.hpp>
-#include <server/src/SSO/SsoHelper.hpp>
-#include <server/vendor/StdUuid.hpp>
-#include <server/src/SSO/SsoServer.hpp>
-#include <server/src/GameServer/CGameServer.hpp>
-#include <server/src/SSO/SsoClient.hpp>
+#include "../src/SSO/SsoHelper.hpp"
+#include "../vendor/StdUuid.hpp"
+#include "../src/SSO/SsoServer.hpp"
+#include "../src/GameServer/CGameServer.hpp"
+#include "../src/SSO/SsoClient.hpp"
 #include <filesystem>
 
 using namespace SSO;
@@ -19,7 +19,10 @@ TEST(SSOTests, Hash)
                                     (unsigned char **) (&aHash), &uiHashSize);
     string sEncoded = base64_encode(aHash, uiHashSize);
     EXPECT_EQ(iStatus, C_SSO_OK);
-    EXPECT_STREQ(sEncoded.c_str(), "/emPKvUfnQlOF+7T2aWeaWHxXbxsMDBkA+/btWGE8H85QDtkE3TAl1h4CC3HT2zBaNPRT52zxqzEUMLkxMqrYQ==");
+    if (Is64Bit())
+        EXPECT_STREQ(sEncoded.c_str(), "/emPKvUfnQlOF+7T2aWeaWHxXbxsMDBkA+/btWGE8H85QDtkE3TAl1h4CC3HT2zBaNPRT52zxqzEUMLkxMqrYQ==");
+    else
+        EXPECT_STREQ(sEncoded.c_str(), "7HAHoQ7YwnORLBBqBnxo14ojo+UQWh8xb0hb9dZ0LMU=");
 }
 
 TEST(SSOTests, UuidGeneration)

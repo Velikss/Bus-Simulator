@@ -23,6 +23,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -luuid")
 
+find_package(GTest CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(PkgConfig)
@@ -125,12 +126,25 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkClient.hpp src/multiplayer/cMultiplayerHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBus.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBusStop.hpp
-        src/vulkan/collision/Collider.hpp src/vulkan/collision/CollisionHelper.hpp src/vulkan/collision/ColliderSet.hpp)
-set(Sources
-        ${PROJECT_SOURCE_DIR}/src/main.cpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/collision/Collider.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/collision/CollisionHelper.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/collision/ColliderSet.hpp)
 
 include_directories(${PROJECT_SOURCE_DIR}/src ${ENGINE_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS})
-add_library(${This} STATIC ${Sources} ${Headers})
+add_library(${This} STATIC ${PROJECT_SOURCE_DIR}/src/main.cpp ${Headers})
+add_executable(${This}-Test ${PROJECT_SOURCE_DIR}/test/main.cpp ${Headers})
 
 target_include_directories(${This} PUBLIC ${ENGINE_INCLUDE_DIRS})
 target_link_libraries(${This} PUBLIC ${GLEW_LIBRARIES} ${GLFW_LIBRARIES} ${DUKTAPE_LIBRARY} ${Vulkan_LIBRARIES} OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY})
+target_include_directories(${This}-Test PUBLIC ${ENGINE_INCLUDE_DIRS})
+
+IF (WIN32)
+    target_link_libraries(${This}-Test PUBLIC ${ENGINE_LIBRARIES} GTest::gtest)
+ELSE()
+    target_link_libraries(${This}-Test PUBLIC ${ENGINE_LIBRARIES} gtest)
+ENDIF()
+
+add_test(
+        NAME ${This}-Test
+        COMMAND ${This}-Test
+)
