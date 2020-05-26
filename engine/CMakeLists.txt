@@ -9,9 +9,9 @@ set(CompilerFlags
         CMAKE_C_FLAGS_DEBUG
         CMAKE_C_FLAGS_RELEASE
         )
-foreach(CompilerFlag ${CompilerFlags})
+foreach (CompilerFlag ${CompilerFlags})
     string(REPLACE "/MT" "/MD" ${CompilerFlag} "${${CompilerFlag}}")
-endforeach()
+endforeach ()
 project(${This} C CXX)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -26,7 +26,7 @@ find_package(OpenSSL REQUIRED)
 find_package(glfw3 REQUIRED)
 
 #IF(NOT WIN32)
-    find_package(Vulkan REQUIRED)
+find_package(Vulkan REQUIRED)
 #ENDIF()
 
 set(CMAKE_C_STANDARD 99)
@@ -116,11 +116,29 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBus.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBusStop.hpp
         src/vulkan/collision/Collider.hpp src/vulkan/collision/CollisionHelper.hpp src/vulkan/collision/ColliderSet.hpp
-        src/vulkan/module/overlay/element/StaticElement.hpp src/vulkan/module/overlay/element/TextElement.hpp)
+        src/vulkan/module/overlay/element/StaticElement.hpp src/vulkan/module/overlay/element/TextElement.hpp src/vulkan/AudioHandler.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 
-include_directories(${PROJECT_SOURCE_DIR}/src ${GLEW_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS} ${DUKTAPE_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR})
+add_library(fmod STATIC IMPORTED)
+add_library(fmod_studio STATIC IMPORTED)
+#IF(NOT WIN32)
+set_target_properties(fmod PROPERTIES
+        IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/fmod/linux/api/core/lib/x86_64/libfmod.so
+        INTERFACE_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/fmod/linux/api/core/inc/
+        )
+set_target_properties(fmod_studio PROPERTIES
+        IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/fmod/linux/api/studio/lib/x86_64/libfmodstudio.so
+        INTERFACE_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/fmod/linux/api/studio/inc/
+        )
+include_directories(${PROJECT_SOURCE_DIR}/fmod/linux/api/core/inc ${PROJECT_SOURCE_DIR}/fmod/linux/api/studio/inc)
+link_directories(${PROJECT_SOURCE_DIR}/fmod/linux/api/core/lib)
+link_directories(${PROJECT_SOURCE_DIR}/fmod/linux/api/studio/lib)
+#ELSE()
+#include_directories(${PROJECT_SOURCE_DIR}/fmod/windows/api/core/inc ${PROJECT_SOURCE_DIR}/fmod/windows/api/studio/inc)
+#ENDIF
+
+include_directories(${PROJECT_SOURCE_DIR}/src ${GLEW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS} ${DUKTAPE_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR})
 add_library(${This} STATIC ${Sources} ${Headers})
 add_executable(${This}-bin ${Sources} ${Headers})
 
@@ -133,6 +151,8 @@ IF (WIN32)
     find_package(glm REQUIRED)
     find_package(duktape REQUIRED)
     target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw glm ${OPENGL_INCLUDE_DIRS} ${DUKTAPE_LIBRARY} ${Vulkan_LIBRARIES} OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY})
-ELSE()
+ELSE ()
     target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw /usr/lib/libduktape.so ${Vulkan_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${ODBC_LIBRARY})
-ENDIF()
+ENDIF ()
+
+target_link_libraries(${This}-bin fmod fmod_studio)

@@ -33,6 +33,10 @@
 #include <thread>
 #include <chrono>
 
+#include <fmod.hpp>
+#include <fmod_studio.hpp>
+#include <vulkan/AudioHandler.hpp>
+
 class Engine
 {
 private:
@@ -58,12 +62,15 @@ private:
     cGameLoop* ppGameLoop;
     std::thread* ppGameThread;
 
+    cAudioHandler* ppAudioHandler;
+
 public:
     // Initializes and starts the engine and all of it's sub-components
     void Run(void);
 
 private:
     void CreateGLWindow(void);
+    void InitAudio(void);
     void InitVulkan(void);
     void MainLoop(void);
     void Cleanup(void);
@@ -72,6 +79,7 @@ private:
 void Engine::Run()
 {
     CreateGLWindow();
+    InitAudio();
     InitVulkan();
     MainLoop();
     Cleanup();
@@ -81,6 +89,11 @@ void Engine::CreateGLWindow(void)
 {
     ppWindow = new cWindow();
     ppWindow->CreateGLWindow();
+}
+
+void Engine::InitAudio(void)
+{
+    ppAudioHandler = new cAudioHandler();
 }
 
 void Engine::InitVulkan(void)
@@ -167,6 +180,9 @@ void Engine::MainLoop(void)
                 ENGINE_LOG("Scene is asking for application quit");
                 ppWindow->Close();
             }
+
+            // Update the audio handler
+            ppAudioHandler->Update();
         }
 
         // Draw a frame
@@ -210,6 +226,12 @@ void Engine::MainLoop(void)
 
             ENGINE_LOG("Scene loading, adding tick task");
             ppGameLoop->AddTask(ppScene);
+
+            ppAudioHandler->SetScene(ppScene);
+
+            ppAudioHandler->LoadSound("resources/beep.wav", true, true, false);
+            glm::vec3 pos = glm::vec3(0, 5, 0);
+            ppAudioHandler->PlaySound("resources/beep.wav", pos, 0.2f);
         }
 
         if (TEXT_DIRTY)
@@ -231,6 +253,8 @@ void Engine::MainLoop(void)
 void Engine::Cleanup(void)
 {
     ENGINE_LOG("Cleaning up engine...");
+
+    delete ppAudioHandler;
 
     // Clean up the game thread
     ppGameThread->join();
