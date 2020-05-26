@@ -58,8 +58,11 @@ public:
     // If the sound is not loaded, it will be loaded automatically
     // with default parameters
     uint PlaySound(const string& sName, glm::vec3& tPosition, float fVolume);
+
     // Check if a channel is currently playing
     bool IsPlaying(uint uiChannelId);
+    // Pause or resume playback of a channel
+    void SetPaused(uint uiChannelId, bool bPaused);
 
     // Set the position for a channel
     void SetChannelPosition(uint uiChannelId, glm::vec3& tPosition);
@@ -230,6 +233,19 @@ bool cAudioHandler::IsPlaying(uint uiChannelId)
 {
     // Return true if a channel with that ID can be found
     return pmChannels.find(uiChannelId) != pmChannels.end();
+}
+
+void cAudioHandler::SetPaused(uint uiChannelId, bool bPaused)
+{
+    // Find the channel with the given ID, throw an error if none found
+    auto tResult = pmChannels.find(uiChannelId);
+    if (tResult == pmChannels.end())
+    {
+        throw std::runtime_error(cFormatter() << "Unable to find audio channel " << uiChannelId);
+    }
+
+    // Set the paused value of the channel
+    tResult->second->setPaused(bPaused);
 }
 
 void cAudioHandler::SetChannelPosition(uint uiChannelId, glm::vec3& tPosition)
