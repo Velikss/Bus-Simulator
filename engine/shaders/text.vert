@@ -8,8 +8,7 @@ layout (location = 1) out vec4 text;
 
 layout(set = 1, binding = 1) uniform OverlayElementObject {
     mat4 matrix;
-    vec3 color;
-    bool text;
+    vec4 color;
 } uniforms;
 
 out gl_PerVertex
@@ -23,7 +22,7 @@ void main(void)
     gl_Position = uniforms.matrix * vec4(inPos, 0.0, 1.0);
 
     // If this vertex is for text, pass the text color to the fragment shader
-    text = uniforms.text ? vec4(uniforms.color, 1) : vec4(0);
+    text = uniforms.color;
 
     // Pass the UV coordinates to the fragment shader
     outUV = inUV;

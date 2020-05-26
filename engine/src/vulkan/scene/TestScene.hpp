@@ -15,6 +15,9 @@ protected:
     {
         pmpTextures["uvtemplate"] = pTextureHandler->LoadTextureFromFile("resources/textures/uvtemplate.bmp");
 
+        pmpOverlay["test"] = new cStaticElement({500, 500}, pmpTextures["uvtemplate"], pLogicalDevice);
+        pmpOverlay["test"]->SetPosition(glm::vec2(350, 350));
+
         ppText = new cTextElement({100, 100}, nullptr, pLogicalDevice);
         pmpOverlay["text"] = ppText;
         ppText->SetPosition(glm::vec2(500, 500));

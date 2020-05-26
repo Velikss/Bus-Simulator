@@ -14,8 +14,7 @@ struct tOverlayUniformObject
 struct tOverlayElementObject
 {
     glm::mat4 tMatrix;
-    glm::vec3 tColor;
-    bool bIsText;
+    glm::vec4 tColor;
 };
 
 class cOverlayUniformHandler : public iUniformHandler
@@ -316,10 +315,10 @@ void cOverlayUniformHandler::UpdateUniformBuffers(cScene* pScene)
         tData.tMatrix = oElement.second->GetMatrix(ppWindow);
 
         cTextElement* pText = dynamic_cast<cTextElement*>(oElement.second);
-        tData.bIsText = pText != nullptr;
-        if (tData.bIsText)
-        {
-            tData.tColor = pText->GetColor();
+        if (pText != nullptr) {
+            tData.tColor = glm::vec4(pText->GetColor(), 1);
+        } else {
+            tData.tColor = glm::vec4(0);
         }
 
         CopyToDeviceMemory(paoElementUniformBuffersMemory[uiIndex++], &tData, sizeof(tData));
