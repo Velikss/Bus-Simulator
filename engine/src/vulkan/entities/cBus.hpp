@@ -5,23 +5,37 @@
 #include "cEntityGroup.hpp"
 #include <vulkan/entities/IPassengerHolder.hpp>
 
+const float C_EMPTY_FLOAT = 0.0f;
+const int C_UNDEFINED = -1;
+
+// Steering & Acceleration values
+const float C_MAX_SPEED = 40.0f;
+const float C_MIN_SPEED = -15.0f;
+const float C_MAX_STEERING = 15.0f;
+const float C_MIN_STEERING = -15.0f;
+
+// Default collision values
+const float C_COLL_X1 = -1.5f;
+const float C_COLL_Z1 = -7.0f;
+const float C_COLL_X2 = 1.6f;
+const float C_COLL_Z2 = 2.7f;
+
 class cBus : public cBaseObject, IPassengerHolder
 {
 public:
-    float pfMaxSpeed = 40;
-    float pfMinSpeed = -15;
-    float pfCurrentSpeed;
-    float pfAccelerationModifier;
-    float pfSteeringModifier;
-    float pfMaxSteeringModifier = 15;
-    float pfMinSteeringModifier = -15;
-
-    int piPingTimeout;
-    int piBusId;
+    float pfMaxSpeed = C_MAX_SPEED;
+    float pfMinSpeed = C_MIN_SPEED;
+    float pfCurrentSpeed = C_EMPTY_FLOAT;
+    float pfAccelerationModifier = C_EMPTY_FLOAT;
+    float pfSteeringModifier = C_EMPTY_FLOAT;
+    float pfMaxSteeringModifier = C_MAX_STEERING;
+    float pfMinSteeringModifier = C_MIN_STEERING;
+    int piPingTimeout = C_UNDEFINED;
+    int piBusId = C_UNDEFINED;
 
     cEntityGroup* entityGroup;
 
-    cBus(cMesh* mesh) : cBaseObject(mesh, cCollider::RectangleCollider(-1.5f, -7.0f, 1.6f, 2.7f), false)
+    cBus(cMesh* mesh) : cBaseObject(mesh, cCollider::RectangleCollider(C_COLL_X1, C_COLL_Z1, C_COLL_X2, C_COLL_Z2), false)
     {
     }
 
