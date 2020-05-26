@@ -23,12 +23,11 @@ find_package(GLEW REQUIRED)
 find_package(PkgConfig)
 set(OPENSSL_USE_STATIC_LIBS TRUE)
 find_package(OpenSSL REQUIRED)
+find_package(glfw3 REQUIRED)
 
 #IF(NOT WIN32)
     find_package(Vulkan REQUIRED)
 #ENDIF()
-
-add_subdirectory(glfw)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
@@ -120,7 +119,7 @@ set(Headers
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 
-include_directories(${PROJECT_SOURCE_DIR}/src ${GLEW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS} ${DUKTAPE_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/src ${GLEW_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS} ${DUKTAPE_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR})
 add_library(${This} STATIC ${Sources} ${Headers})
 add_executable(${This}-bin ${Sources} ${Headers})
 
