@@ -55,6 +55,8 @@ public:
 
     // Play a sound at a specified position and volume
     // Returns the ID of the channel where this sound is playing
+    // If the sound is not loaded, it will be loaded automatically
+    // with default parameters
     uint PlaySound(const string& sName, glm::vec3& tPosition, float fVolume);
     // Check if a channel is currently playing
     bool IsPlaying(uint uiChannelId);
