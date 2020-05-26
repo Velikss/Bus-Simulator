@@ -3,19 +3,19 @@
 #include <pch.hpp>
 #include <vulkan/scene/BaseObject.hpp>
 
-class cEntityBaseInterface : public cBaseObject
+class IBaseEntity : public cBaseObject
 {
 public:
-    cEntityBaseInterface(cMesh *mesh) : cBaseObject(mesh, nullptr, false)
+    IBaseEntity(cMesh *mesh) : cBaseObject(mesh, nullptr, false)
     {
 
     }
 };
 
-class cEntityInterface : public cEntityBaseInterface
+class IEntity : public IBaseEntity
 {
 public:
-    cEntityInterface(cMesh *mesh) : cEntityBaseInterface(mesh)
+    IEntity(cMesh *mesh) : IBaseEntity(mesh)
     {
 
     }
@@ -40,16 +40,16 @@ public:
 
 };
 
-class cEntityGroupInterface : public cEntityBaseInterface
+class IEntityGroup : public IBaseEntity
 {
 public:
-    cEntityGroupInterface() : cEntityBaseInterface(nullptr)
+    IEntityGroup() : IBaseEntity(nullptr)
     {
 
     }
 
-    virtual void GetEntityList(std::vector<cEntityInterface *> **entities) = 0;
+    virtual void GetEntityList(std::vector<IEntity *> **entities) = 0;
 
-    virtual std::vector<cEntityBaseInterface *>* GetEntities() = 0;
+    virtual std::vector<IBaseEntity *>* GetEntities() = 0;
 };
 

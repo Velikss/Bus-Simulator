@@ -3,13 +3,13 @@
 #include <pch.hpp>
 #include <vulkan/entities/cEntity.hpp>
 
-class cEntityGroup : public cEntityGroupInterface
+class cEntityGroup : public IEntityGroup
 {
 private:
     std::vector<cEntity *> poEntities;
     std::vector<cBehaviourHandler *> paBehaviourHandlers;
 public:
-    cEntityGroup() : cEntityGroupInterface()
+    cEntityGroup() : IEntityGroup()
     {
 
     }
@@ -18,7 +18,7 @@ public:
 
     void RemoveEntity(cEntity *pEntity);
 
-    std::vector<cEntityBaseInterface *>* GetEntities();
+    std::vector<IBaseEntity *>* GetEntities();
 
     void AddBehaviour(cBehaviourHandler *&poBehaviour);
 
@@ -26,7 +26,7 @@ public:
 
     void UpdateEntities();
 
-    void GetEntityList(std::vector<cEntityInterface *> **entities) override;
+    void GetEntityList(std::vector<IEntity *> **entities) override;
 };
 
 void cEntityGroup::AddEntity(cEntity *pEntity)
@@ -39,14 +39,14 @@ void cEntityGroup::RemoveEntity(cEntity *pEntity)
     poEntities.erase(std::remove(poEntities.begin(), poEntities.end(), pEntity));
 }
 
-std::vector<cEntityBaseInterface *>* cEntityGroup::GetEntities()
+std::vector<IBaseEntity *>* cEntityGroup::GetEntities()
 {
-    return reinterpret_cast<std::vector<cEntityBaseInterface *> *>(&poEntities);
+    return reinterpret_cast<std::vector<IBaseEntity *> *>(&poEntities);
 }
 
-void cEntityGroup::GetEntityList(std::vector<cEntityInterface *> **entities)
+void cEntityGroup::GetEntityList(std::vector<IEntity *> **entities)
 {
-    *entities = reinterpret_cast<std::vector<cEntityInterface *> *>(&poEntities);
+    *entities = reinterpret_cast<std::vector<IEntity *> *>(&poEntities);
 }
 
 void cEntityGroup::AddBehaviour(cBehaviourHandler *&poBehaviour)

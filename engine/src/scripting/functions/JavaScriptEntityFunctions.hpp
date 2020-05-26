@@ -2,7 +2,7 @@
 
 #include <pch.hpp>
 #include <duktape.h>
-#include <vulkan/entities/cEntityInterface.hpp>
+#include <vulkan/entities/IEntity.hpp>
 
 /*
  * This namespace contains all duktape functions related to game entities, these functions are registered as javascript functions in cBehaviourHandler
@@ -48,7 +48,7 @@ namespace JavaScriptEntityFunctions
         void *p = duk_get_pointer(poContext, 0);
 
         // Cast pointer to Entity pointer, we know it's pointing to an entity.
-        cEntityInterface *poEntity = static_cast<cEntityInterface *>(p);
+        IEntity *poEntity = static_cast<IEntity *>(p);
 
         // Push coordinates to stack, first we'll push an empty array.
         duk_idx_t ArrayIndex;
@@ -75,7 +75,7 @@ namespace JavaScriptEntityFunctions
         void *p = duk_get_pointer(poContext, 0);
 
         // Cast pointer to Entity pointer, we know it's pointing to an entity
-        cEntityInterface *poEntity = static_cast<cEntityInterface *>(p);
+        IEntity *poEntity = static_cast<IEntity *>(p);
 
         // Get speed and push to the duk stack
         float speed = poEntity->GetMaxSpeed();
@@ -97,7 +97,7 @@ namespace JavaScriptEntityFunctions
         void *p = duk_get_pointer(poContext, 0);
 
         // Cast pointer to Entity pointer, we know it's pointing to an entity
-        cEntityInterface *poEntity = static_cast<cEntityInterface *>(p);
+        IEntity *poEntity = static_cast<IEntity *>(p);
 
         // Push coordinates to stack, first we'll push an empty array
         duk_idx_t ArrayIndex;
@@ -126,7 +126,7 @@ namespace JavaScriptEntityFunctions
         void *p = duk_to_pointer(poContext, -3);
 
         // Cast pointer to Entity pointer, we know it's pointing to an entity
-        cEntityInterface *poEntity = static_cast<cEntityInterface *>(p);
+        IEntity *poEntity = static_cast<IEntity *>(p);
 
         // Get velocity from stack
         glm::vec2 velocity(duk_to_number(poContext, -2), duk_to_number(poContext, -1));
@@ -149,14 +149,14 @@ namespace JavaScriptEntityFunctions
         void *p = duk_get_pointer(poContext, 0);
 
         // Cast pointer to Entity pointer, we know it's pointing to an entity
-        cEntityGroupInterface *poEntityGroup = static_cast<cEntityGroupInterface *>(p);
+        IEntityGroup *poEntityGroup = static_cast<IEntityGroup *>(p);
 
         // Push coordinates to stack, first we'll push an empty array
         duk_idx_t ArrayIndex;
         ArrayIndex = duk_push_array(poContext);
 
         // Fill the array with pointers to the group members
-        std::vector<cEntityInterface *> *entities;
+        std::vector<IEntity *> *entities;
         poEntityGroup->GetEntityList(&entities);
 
         for (int i = 0; i < poEntityGroup->GetEntities()->size(); i++)
@@ -180,7 +180,7 @@ namespace JavaScriptEntityFunctions
         void *p = duk_to_pointer(poContext, -3);
 
         // Cast pointer to Entity pointer, we know it's pointing to an entity
-        cEntityInterface *poEntity = static_cast<cEntityInterface *>(p);
+        IEntity *poEntity = static_cast<IEntity *>(p);
 
         // Get SteeringForce from stack
         float fXvalue = (float) duk_to_number(poContext, -2);

@@ -2,9 +2,9 @@
 
 #include <pch.hpp>
 #include <vulkan/entities/cBehaviourHandler.hpp>
-#include <vulkan/entities/cEntityInterface.hpp>
+#include <vulkan/entities/IEntity.hpp>
 
-class cEntity : public cEntityInterface
+class cEntity : public IEntity
 {
 private:
     std::vector<cBehaviourHandler *> paBehaviourHandlers;
@@ -13,7 +13,7 @@ private:
     glm::vec2 poSteeringForce;
     float pfMaxSpeed;
 public:
-    cEntity(cMesh *mesh) : cEntityInterface(mesh)
+    cEntity(cMesh *mesh) : IEntity(mesh)
     {
         poVelocity = glm::vec2(0, 0);
         poSteeringForce = glm::vec2(0, 0);
