@@ -64,6 +64,8 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
     LoadObjects();
     LoadOverlay(pLogicalDevice);
 
+    ppAudioHandler->PlaySound("resources/beep.wav", glm::vec3(0, 5, 0), 0.11f);
+
     // Connect to multiplayer instance if possbile.
     tConnectNetworkSettings.sAddress = "51.68.34.201";
     tConnectNetworkSettings.usPort = 8080;
@@ -141,15 +143,6 @@ void cBusWorldScene::Update()
 
     cScene::Update();
     if (poMultiplayerHandler) poMultiplayerHandler->PushData();
-
-    static bool test = true;
-    if (test)
-    {
-        test = false;
-
-        ppAudioHandler->LoadSound("resources/beep.wav", true, true, true);
-        ppAudioHandler->PlaySound("resources/beep.wav", glm::vec3(0, 5, 0), 0.11f);
-    }
 }
 
 void cBusWorldScene::HandleScroll(double dOffsetX, double dOffsetY)
