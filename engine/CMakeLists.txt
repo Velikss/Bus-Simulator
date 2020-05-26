@@ -102,7 +102,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/scripting/cScriptingEngine.hpp
         ${PROJECT_SOURCE_DIR}/src/scripting/functions/JavaScriptBaseFunctions.hpp
         ${PROJECT_SOURCE_DIR}/src/scripting/functions/JavaScriptEntityFunctions.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cEntityInterface.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/IEntity.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cEntity.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cEntityGroup.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBehaviourHandler.hpp

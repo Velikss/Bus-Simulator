@@ -24,7 +24,7 @@ public:
 
     static void AddBehaviour(const std::string& sBehaviourName, const std::string& sFileName);
 
-    virtual void Update(cBaseObject *oEntity, cEntityGroupInterface *oEntityGroup = nullptr);
+    virtual void Update(cBaseObject *oEntity, IEntityGroup *oEntityGroup = nullptr);
 };
 
 std::map<std::string, std::shared_ptr<cScriptingEngine>> cBehaviourHandler::poBehaviours;
@@ -56,7 +56,7 @@ void cBehaviourHandler::AddBehaviour(const std::string& sBehaviourName, const st
 /*
  * Calls calculate function from the engines' stack, which will calculate a steering force and append it to the entity's steering force..
  */
-void cBehaviourHandler::Update(cBaseObject *oEntity, cEntityGroupInterface *oEntityGroup)
+void cBehaviourHandler::Update(cBaseObject *oEntity, IEntityGroup *oEntityGroup)
 {
     poBehaviours.at(psBehaviourName)->RunJavaScriptFunction("calculate", oEntity, oEntityGroup);
 }
