@@ -133,10 +133,18 @@ cOverlayUniformHandler::cOverlayUniformHandler(cLogicalDevice* pLogicalDevice, c
 
 cOverlayUniformHandler::~cOverlayUniformHandler()
 {
+    ppLogicalDevice->DestroyDescriptorSetLayout(poElementDescriptorSetLayout, nullptr);
     ppLogicalDevice->DestroyDescriptorSetLayout(poDescriptorSetLayout, nullptr);
     ppLogicalDevice->DestroyDescriptorPool(poDescriptorPool, nullptr);
+
     ppLogicalDevice->DestroyBuffer(poBuffer, nullptr);
     ppLogicalDevice->FreeMemory(poBufferMemory, nullptr);
+
+    for (uint uiIndex = 0; uiIndex < paoElementUniformBuffers.size(); uiIndex++)
+    {
+        ppLogicalDevice->DestroyBuffer(paoElementUniformBuffers[uiIndex], nullptr);
+        ppLogicalDevice->FreeMemory(paoElementUniformBuffersMemory[uiIndex], nullptr);
+    }
 }
 
 void cOverlayUniformHandler::SetupUniformBuffers(cTextureHandler* pTextureHandler, cScene* pScene)
@@ -309,7 +317,8 @@ void cOverlayUniformHandler::UpdateUniformBuffers(cScene* pScene)
 
         cTextElement* pText = dynamic_cast<cTextElement*>(oElement.second);
         tData.bIsText = pText != nullptr;
-        if (tData.bIsText) {
+        if (tData.bIsText)
+        {
             tData.tColor = pText->GetColor();
         }
 

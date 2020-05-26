@@ -694,7 +694,7 @@ void cBusWorldScene::LoadOverlay(cLogicalDevice* pLogicalDevice)
 {
     pmpOverlay["test"] = new cStaticElement({300, 300}, pmpTextures["grey"], pLogicalDevice);
     pmpOverlay["test"]->SetPosition(glm::vec2(500, 500));
-    pmpOverlay["test1"] = new cStaticElement({100, 100}, pmpTextures["moon"], pLogicalDevice);
+    pmpOverlay["test1"] = new cStaticElement({100, 100}, pmpTextures["roof"], pLogicalDevice);
     pmpOverlay["test1"]->SetPosition(glm::vec2(500, 800));
 
     pmpOverlay["test2"] = new cTextElement({100, 100}, nullptr, pLogicalDevice);

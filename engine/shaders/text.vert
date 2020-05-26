@@ -19,7 +19,12 @@ out gl_PerVertex
 
 void main(void)
 {
+    // Transform the position with the matrix for this element
     gl_Position = uniforms.matrix * vec4(inPos, 0.0, 1.0);
-    outUV = inUV;
+
+    // If this vertex is for text, pass the text color to the fragment shader
     text = uniforms.text ? vec4(1, uniforms.color) : vec4(0);
+
+    // Pass the UV coordinates to the fragment shader
+    outUV = inUV;
 }

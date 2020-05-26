@@ -94,6 +94,11 @@ cScene::~cScene()
     {
         delete oTexture.second;
     }
+
+    for (auto oElement : pmpOverlay)
+    {
+        delete oElement.second;
+    }
 }
 
 void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice)
