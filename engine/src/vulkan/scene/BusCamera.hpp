@@ -114,9 +114,9 @@ public:
 
         // camera rotation
         if(yaw >= 360)
-            yaw = 0.1;
+            yaw = 0.1f;
         if(yaw <= 0)
-            yaw = 359.9;
+            yaw = 359.9f;
         // rotate camera when current speed is higher then 8
         if(dynamic_cast<cBus *>(cameraPivotObject)->pfCurrentSpeed > 8) {
             float rotation = cameraPivotObject->GetRotation().y;
@@ -127,17 +127,17 @@ public:
                 if (rotationDifference > 5.0)
                 {
                     if (rotationDifference < 180)
-                        yaw += 0.5;
+                        yaw += 0.5f;
                     else
-                        yaw -= 0.5;
+                        yaw -= 0.5f;
                 }
                 // rotate slower when closer to the back of the bus
                 else if (rotationDifference > 1.0)
                 {
                     if (rotationDifference < 180)
-                        yaw += 0.1;
+                        yaw += 0.1f;
                     else
-                        yaw -= 0.1;
+                        yaw -= 0.1f;
                 }
             }
             // difference is negative
@@ -146,17 +146,17 @@ public:
                 if ((-1 * rotationDifference) > 5.0)
                 {
                     if ((-1 * rotationDifference) < 180)
-                        yaw -= 0.5;
+                        yaw -= 0.5f;
                     else
-                        yaw += 0.5;
+                        yaw += 0.5f;
                 }
                 // rotate slower when closer to the back of the bus
                 else if ((-1 * rotationDifference) > 1.0)
                 {
                     if ((-1 * rotationDifference) < 180)
-                        yaw -= 0.1;
+                        yaw -= 0.1f;
                     else
-                        yaw += 0.1;
+                        yaw += 0.1f;
                 }
             }
         }

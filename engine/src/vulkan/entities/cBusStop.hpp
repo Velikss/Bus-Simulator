@@ -2,13 +2,31 @@
 
 #include <pch.hpp>
 #include <vulkan/scene/BaseObject.hpp>
+#include <vulkan/entities/cEntityGroup.hpp>
+#include <vulkan/entities/IPassengerHolder.hpp>
 
-class cBusStop : public cBaseObject
+class cBusStop : public cBaseObject, public IPassengerHolder
 {
 public:
+    cEntityGroup* entityGroup;
 
     cBusStop(cMesh *mesh) : cBaseObject(mesh, cCollider::RectangleCollider(-0.8f, -0.8f, 2.8f, 0.8f))
     {
     }
 
+    bool AddPassenger(IPassenger *passenger) override;
+
+    bool RemovePassenger(IPassenger *passenger) override;
+
+
 };
+
+bool cBusStop::AddPassenger(IPassenger *passenger)
+{
+    return false;
+}
+
+bool cBusStop::RemovePassenger(IPassenger *passenger)
+{
+    return false;
+}

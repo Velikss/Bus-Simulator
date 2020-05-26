@@ -9,9 +9,9 @@ set(CompilerFlags
         CMAKE_C_FLAGS_DEBUG
         CMAKE_C_FLAGS_RELEASE
         )
-foreach (CompilerFlag ${CompilerFlags})
+foreach(CompilerFlag ${CompilerFlags})
     string(REPLACE "/MT" "/MD" ${CompilerFlag} "${${CompilerFlag}}")
-endforeach ()
+endforeach()
 project(${This} C CXX)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -24,7 +24,10 @@ find_package(PkgConfig)
 set(OPENSSL_USE_STATIC_LIBS TRUE)
 find_package(OpenSSL REQUIRED)
 find_package(glfw3 REQUIRED)
-find_package(Vulkan REQUIRED)
+
+#IF(NOT WIN32)
+    find_package(Vulkan REQUIRED)
+#ENDIF()
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
@@ -109,11 +112,21 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/multiplayer/SslHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/multiplayer/NetworkAbstractions.hpp
         ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkConnection.hpp
-        ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkClient.hpp src/multiplayer/cMultiplayerHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkClient.hpp
+        ${PROJECT_SOURCE_DIR}/src/multiplayer/cMultiplayerHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBus.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBusStop.hpp
-        src/vulkan/collision/Collider.hpp src/vulkan/collision/CollisionHelper.hpp src/vulkan/collision/ColliderSet.hpp
-        src/vulkan/module/overlay/element/StaticElement.hpp src/vulkan/module/overlay/element/TextElement.hpp src/vulkan/AudioHandler.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/IPassengerHolder.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cPassenger.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/gamelogic/cGameLogicHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/gamelogic/cMissionHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/IPassenger.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/collision/Collider.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/collision/CollisionHelper.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/collision/ColliderSet.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/StaticElement.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/TextElement.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/AudioHandler.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
 
