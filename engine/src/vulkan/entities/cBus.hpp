@@ -2,8 +2,10 @@
 
 #include <pch.hpp>
 #include <vulkan/scene/BaseObject.hpp>
+#include "cEntityGroup.hpp"
+#include <vulkan/entities/IPassengerHolder.hpp>
 
-class cBus : public cBaseObject
+class cBus : public cBaseObject, IPassengerHolder
 {
 public:
     float pfMaxSpeed = 40;
@@ -16,6 +18,8 @@ public:
 
     int piPingTimeout;
     int piBusId;
+
+    cEntityGroup* entityGroup;
 
     cBus(cMesh* mesh) : cBaseObject(mesh, cCollider::RectangleCollider(-1.5f, -7.0f, 1.6f, 2.7f), false)
     {
@@ -38,6 +42,10 @@ public:
     void IdleSteering();
 
     glm::vec3 GetDoorPosition();
+
+    bool AddPassenger(IPassenger *passenger) override;
+
+    bool RemovePassenger(IPassenger *passenger) override;
 
 };
 
@@ -85,17 +93,17 @@ void cBus::Decelerate()
 
 void cBus::IdleAcceleration()
 {
-    if (pfCurrentSpeed > 0.5)
+    if (pfCurrentSpeed > 0.5f)
     {
-        pfCurrentSpeed *= 0.997;
+        pfCurrentSpeed *= 0.997f;
     }
-    if (pfCurrentSpeed < -0.5)
+    if (pfCurrentSpeed < -0.5f)
     {
-        pfCurrentSpeed *= 0.997;
+        pfCurrentSpeed *= 0.997f;
     }
-    if (pfCurrentSpeed < 0.5 && pfCurrentSpeed > -0.5)
+    if (pfCurrentSpeed < 0.5f && pfCurrentSpeed > -0.5f)
     {
-        pfCurrentSpeed = 0;
+        pfCurrentSpeed = 0.0f;
     }
 }
 
@@ -114,7 +122,7 @@ void cBus::Steer(std::string sDirection)
         // Only higher the modifier if the max value hasn't been reached.
         if (pfSteeringModifier < pfMaxSteeringModifier)
         {
-            pfSteeringModifier += 0.2;
+            pfSteeringModifier += 0.2f;
         }
     }
     if (sDirection == "right")
@@ -127,7 +135,7 @@ void cBus::Steer(std::string sDirection)
         // Only higher the modifier if the min value hasn't been reached.
         if (pfSteeringModifier > pfMinSteeringModifier)
         {
-            pfSteeringModifier -= 0.2;
+            pfSteeringModifier -= 0.2f;
         }
     }
 }
@@ -135,7 +143,7 @@ void cBus::Steer(std::string sDirection)
 void cBus::IdleSteering()
 {
     // No hands touching the steering wheel, it will slowly rotate back to 0.
-    pfSteeringModifier *= 0.985;
+    pfSteeringModifier *= 0.985f;
 }
 
 /*
@@ -143,11 +151,11 @@ void cBus::IdleSteering()
  */
 float cBus::CalculateAcceleration()
 {
-    for (float fVal = 0.1; fVal <= 1.0; fVal += 0.1)
+    for (float fVal = 0.1f; fVal <= 1.0f; fVal += 0.1f)
     {
         if (pfMaxSpeed * fVal >= pfCurrentSpeed)
         {
-            return pfAccelerationModifier = 1.1 - fVal;
+            return pfAccelerationModifier = 1.1f - fVal;
         }
     }
     return 0.0;
@@ -158,11 +166,11 @@ float cBus::CalculateAcceleration()
  */
 float cBus::CalculateDeceleration()
 {
-    for (float fVal = 0.7; fVal >= 0.1; fVal -= 0.1)
+    for (float fVal = 0.7f; fVal >= 0.1f; fVal -= 0.1f)
     {
         if (pfMinSpeed * fVal <= pfCurrentSpeed)
         {
-            return pfAccelerationModifier = 1.1 - fVal;
+            return pfAccelerationModifier = 1.1f - fVal;
         }
     }
     return 0.0;
@@ -176,4 +184,14 @@ glm::vec3 cBus::GetDoorPosition()
     glm::vec3 doorPos = GetPosition();
     doorPos -= (direction * 3.5f);
     return doorPos;
+}
+
+bool cBus::AddPassenger(IPassenger *passenger)
+{
+    return false;
+}
+
+bool cBus::RemovePassenger(IPassenger *passenger)
+{
+    return false;
 }

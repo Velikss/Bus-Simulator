@@ -115,6 +115,11 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkClient.hpp src/multiplayer/cMultiplayerHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBus.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBusStop.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/IPassengerHolder.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cPassenger.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/cGameLogicHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/cMissionHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/IPassenger.hpp
         src/vulkan/collision/Collider.hpp src/vulkan/collision/CollisionHelper.hpp src/vulkan/collision/ColliderSet.hpp)
 set(Sources
         ${PROJECT_SOURCE_DIR}/src/main.cpp)
