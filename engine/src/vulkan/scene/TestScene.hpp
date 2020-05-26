@@ -26,18 +26,26 @@ protected:
 public:
     void Update() override
     {
+        if (paKeys[GLFW_KEY_ESCAPE]) Quit();
+
         cScene::Update();
     }
 
     void HandleKey(uint uiKeyCode, uint uiAction) override
     {
-        if (uiAction == GLFW_PRESS) {
-            if (uiKeyCode == GLFW_KEY_BACKSPACE) {
+        if (uiAction == GLFW_PRESS)
+        {
+            if (uiKeyCode == GLFW_KEY_BACKSPACE)
+            {
                 psText = psText.substr(0, psText.size() - 1);
-            } else {
-                psText += uiKeyCode;
+                ppText->UpdateText(psText);
             }
-            ppText->UpdateText(psText);
         }
+    }
+
+    void HandleCharacter(char cCharacter) override
+    {
+        psText += cCharacter;
+        ppText->UpdateText(psText);
     }
 };

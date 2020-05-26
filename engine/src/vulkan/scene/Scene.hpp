@@ -62,6 +62,7 @@ public:
     void HandleMouse(uint uiDeltaX, uint uiDeltaY) override;
     void HandleKey(uint uiKeyCode, uint uiAction) override;
     void HandleScroll(double dOffsetX, double dOffsetY) override;
+    void HandleCharacter(char cCharacter) override;
 
 protected:
     void Quit();
@@ -222,6 +223,11 @@ void cScene::HandleKey(uint uiKeyCode, uint uiAction)
 }
 
 void cScene::HandleScroll(double dOffsetX, double dOffsetY)
+{
+
+}
+
+void cScene::HandleCharacter(char cCharacter)
 {
 
 }
