@@ -20,6 +20,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 enable_testing()
 
+add_subdirectory(server)
 add_subdirectory(engine)
 
 set(Headers

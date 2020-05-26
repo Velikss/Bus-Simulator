@@ -1,4 +1,9 @@
+#include <pch.hpp>
 #include <gtest/gtest.h>
+#include <ServerTests/UriTests.hpp>
+#include <ServerTests/ODBCTests.hpp>
+#include <ServerTests/ServerClientTests.hpp>
+#include <ServerTests/SsoTests.hpp>
 #include <EngineTests/ScriptingTests.hpp>
 
 int main(int argc, char **argv)

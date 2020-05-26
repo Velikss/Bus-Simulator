@@ -97,8 +97,8 @@ void cEntity::AppendSteeringForce(glm::vec2 oSteeringForce)
 
 void cEntity::UpdatePosition()
 {
-    // if(poSteeringForce != glm::vec2(0,0))
-    // {
+     if(poSteeringForce != glm::vec2(0,0))
+     {
         glm::vec2 acceleration = poSteeringForce / pfMaxSpeed;
         poVelocity += acceleration;
 
@@ -112,11 +112,12 @@ void cEntity::UpdatePosition()
         pos.x += poVelocity.x;
         pos.z += poVelocity.y;
         SetPosition(pos);
-        if (poVelocity.x > 0.001 && poVelocity.y > 0.001)
-        {
-            poVelocity *= 0.9;
-        }
-    // }
+     }
+
+    if (poVelocity.x > 0.001 && poVelocity.y > 0.001)
+    {
+        poVelocity *= 0.9;
+    }
 }
 
 void cEntity::Update()

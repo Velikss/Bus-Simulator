@@ -133,9 +133,6 @@ void cBusWorldScene::Update()
 
     cScene::Update();
     if (poMultiplayerHandler) poMultiplayerHandler->PushData();
-
-    //pmpOverlay["test"]->RotateLeft(1);
-    //pmpOverlay["test2"]->RotateRight(1);
 }
 
 void cBusWorldScene::HandleScroll(double dOffsetX, double dOffsetY)
@@ -573,71 +570,74 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["busStation5"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
 
     // Traffic lights
-    pmpObjects["trafficLight1"] = new cLightObject(pmpMeshes["trafficLight"], glm::vec3(1, 0, 0), 50);
+    pmpObjects["trafficLight1"] = new cLightObject(pmpMeshes["trafficLight"], glm::vec3(1, 0, 0), 50,
+                                                   cCollider::UnitCollider(0.4));
     pmpObjects["trafficLight1"]->SetPosition(glm::vec3(34.0f, 0.15f, 2.0f));
 
-    pmpObjects["trafficLight2"] = new cLightObject(pmpMeshes["trafficLight"], glm::vec3(1, 0, 0), 50);
+    pmpObjects["trafficLight2"] = new cLightObject(pmpMeshes["trafficLight"], glm::vec3(1, 0, 0), 50,
+                                                   cCollider::UnitCollider(0.4));
     pmpObjects["trafficLight2"]->SetRotation(glm::vec3(0.0f, 270.0f, 0.0f));
     pmpObjects["trafficLight2"]->SetPosition(glm::vec3(33.0f, 0.15f, -11.0f));
 
-    pmpObjects["trafficLight3"] = new cLightObject(pmpMeshes["trafficLight"], glm::vec3(1, 0, 0), 50);
+    pmpObjects["trafficLight3"] = new cLightObject(pmpMeshes["trafficLight"], glm::vec3(1, 0, 0), 50,
+                                                   cCollider::UnitCollider(0.4));
     pmpObjects["trafficLight3"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
     pmpObjects["trafficLight3"]->SetPosition(glm::vec3(46.0f, 0.15f, -12.0f));
 
-    pmpObjects["trafficLight4"] = new cBaseObject(pmpMeshes["trafficLight"]);
+    pmpObjects["trafficLight4"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4));
     pmpObjects["trafficLight4"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
     pmpObjects["trafficLight4"]->SetPosition(glm::vec3(-4.0f, 0.15f, -12.0f));
 
-    pmpObjects["trafficLight5"] = new cBaseObject(pmpMeshes["trafficLight"]);
+    pmpObjects["trafficLight5"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4));
     pmpObjects["trafficLight5"]->SetRotation(glm::vec3(0.0f, 270.0f, 0.0f));
     pmpObjects["trafficLight5"]->SetPosition(glm::vec3(-17.0f, 0.15f, -11.0f));
 
-    pmpObjects["trafficLight6"] = new cBaseObject(pmpMeshes["trafficLight"]);
+    pmpObjects["trafficLight6"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4));
     pmpObjects["trafficLight6"]->SetPosition(glm::vec3(-16.0f, 0.15f, 2.0f));
 
-    pmpObjects["trafficLight7"] = new cBaseObject(pmpMeshes["trafficLight"]);
+    pmpObjects["trafficLight7"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4));
     pmpObjects["trafficLight7"]->SetRotation(glm::vec3(0.0f, 270.0f, 0.0f));
     pmpObjects["trafficLight7"]->SetPosition(glm::vec3(-17.0f, 0.15f, -61.0f));
 
-    pmpObjects["trafficLight8"] = new cBaseObject(pmpMeshes["trafficLight"]);
+    pmpObjects["trafficLight8"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4));
     pmpObjects["trafficLight8"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
     pmpObjects["trafficLight8"]->SetPosition(glm::vec3(-4.0f, 0.15f, -62.0f));
 
-    pmpObjects["trafficLight9"] = new cBaseObject(pmpMeshes["trafficLight"]);
+    pmpObjects["trafficLight9"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4));
     pmpObjects["trafficLight9"]->SetRotation(glm::vec3(0.0f, 90.0f, 0.0f));
     pmpObjects["trafficLight9"]->SetPosition(glm::vec3(-3.0f, 0.15f, -49.0f));
 
-    pmpObjects["trafficLight10"] = new cBaseObject(pmpMeshes["trafficLight"]);
+    pmpObjects["trafficLight10"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4));
     pmpObjects["trafficLight10"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
     pmpObjects["trafficLight10"]->SetPosition(glm::vec3(46.0f, 0.15f, -62.0f));
 
-    pmpObjects["trafficLight11"] = new cBaseObject(pmpMeshes["trafficLight"]);
+    pmpObjects["trafficLight11"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4));
     pmpObjects["trafficLight11"]->SetRotation(glm::vec3(0.0f, 90.0f, 0.0f));
     pmpObjects["trafficLight11"]->SetPosition(glm::vec3(47.0f, 0.15f, -49.0f));
 
-    pmpObjects["trafficLight12"] = new cBaseObject(pmpMeshes["trafficLight"]);
+    pmpObjects["trafficLight12"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4));
     pmpObjects["trafficLight12"]->SetPosition(glm::vec3(34.0f, 0.15f, -48.0f));
 
     // Buildings
-    pmpObjects["building"] = new cBaseObject(pmpMeshes["building"]);
+    pmpObjects["building"] = new cBaseObject(pmpMeshes["building"], cCollider::UnitCollider(34));
     pmpObjects["building"]->SetPosition(glm::vec3(-2.0f, 0.0f, -13.0f));
 
-    pmpObjects["needleBuilding"] = new cBaseObject(pmpMeshes["needleBuilding"]);
+    pmpObjects["needleBuilding"] = new cBaseObject(pmpMeshes["needleBuilding"], cCollider::UnitCollider(34));
     pmpObjects["needleBuilding"]->SetPosition(glm::vec3(48.0f, 0.0f, -13.0f));
 
-    pmpObjects["blockBuilding2_1"] = new cBaseObject(pmpMeshes["blockBuilding2"]);
+    pmpObjects["blockBuilding2_1"] = new cBaseObject(pmpMeshes["blockBuilding2"], cCollider::UnitCollider(34));
     pmpObjects["blockBuilding2_1"]->SetPosition(glm::vec3(-2.0f, 0.0f, -63.0f));
 
-    pmpObjects["blockBuilding2_2"] = new cBaseObject(pmpMeshes["blockBuilding2"]);
+    pmpObjects["blockBuilding2_2"] = new cBaseObject(pmpMeshes["blockBuilding2"], cCollider::UnitCollider(34));
     pmpObjects["blockBuilding2_2"]->SetPosition(glm::vec3(48.0f, 0.0f, -113.0f));
 
-    pmpObjects["blockBuilding3_1"] = new cBaseObject(pmpMeshes["blockBuilding3"]);
+    pmpObjects["blockBuilding3_1"] = new cBaseObject(pmpMeshes["blockBuilding3"], cCollider::RectangleCollider(34, 50));
     pmpObjects["blockBuilding3_1"]->SetPosition(glm::vec3(-2.0f, 0.0f, -97.0f));
 
-    pmpObjects["blockBuilding3_2"] = new cBaseObject(pmpMeshes["blockBuilding3"]);
+    pmpObjects["blockBuilding3_2"] = new cBaseObject(pmpMeshes["blockBuilding3"], cCollider::RectangleCollider(34, 50));
     pmpObjects["blockBuilding3_2"]->SetPosition(glm::vec3(48.0f, 0.0f, -63.0f));
 
-    pmpObjects["blockBuilding4_1"] = new cBaseObject(pmpMeshes["blockBuilding4"]);
+    pmpObjects["blockBuilding4_1"] = new cBaseObject(pmpMeshes["blockBuilding4"], cCollider::RectangleCollider(16, 84));
     pmpObjects["blockBuilding4_1"]->SetPosition(glm::vec3(32.0f, 0.0f, -63.0f));
 
     pmpObjects["bus"] = new cBus(pmpMeshes["bus"]);
@@ -647,13 +647,13 @@ void cBusWorldScene::LoadObjects()
 
     // Entities
     pmpObjects["entity"] = new cEntity(pmpMeshes["passenger"]);
-    pmpObjects["entity"]->SetPosition(glm::vec3(10.0f, 0.15f, -10.5f));
+    pmpObjects["entity"]->SetPosition(glm::vec3(10.0f, 0.15f, -11.0f));
 
     pmpObjects["entity2"] = new cEntity(pmpMeshes["passenger"]);
     pmpObjects["entity2"]->SetPosition(glm::vec3(11.0f, 0.15f, -10.5f));
 
     pmpObjects["entity3"] = new cEntity(pmpMeshes["passenger"]);
-    pmpObjects["entity3"]->SetPosition(glm::vec3(14.0f, 0.15f, -10.5f));
+    pmpObjects["entity3"]->SetPosition(glm::vec3(14.0f, 0.15f, -11.0f));
 
     pmpObjects["entity4"] = new cEntity(pmpMeshes["passenger"]);
     pmpObjects["entity4"]->SetPosition(glm::vec3(13.0f, 0.15f, -10.5f));
@@ -686,7 +686,7 @@ void cBusWorldScene::LoadObjects()
 
     entityGroup2 = entityGroup;
     entityGroup.AddBehaviour(cbSeeking);
-    entityGroup.AddBehaviour(cbCohesion);
+//    entityGroup.AddBehaviour(cbCohesion);
     entityGroup.AddBehaviour(cbSeperation);
 }
 

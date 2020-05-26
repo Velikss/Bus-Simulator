@@ -184,6 +184,7 @@ void cMRTUniformHandler::CreateUniformBuffers(cScene* pScene)
     for (auto oObject : pScene->GetObjects())
     {
         oObject.second->puiUniformIndex = uiIndex;
+        oObject.second->pbLoaded = true;
 
         // Struct with uniforms for the object
         tObjectUniformData tObjectData = {};

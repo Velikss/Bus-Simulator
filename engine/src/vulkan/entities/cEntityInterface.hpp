@@ -6,7 +6,7 @@
 class cEntityBaseInterface : public cBaseObject
 {
 public:
-    cEntityBaseInterface(cMesh *mesh) : cBaseObject(mesh, false)
+    cEntityBaseInterface(cMesh *mesh) : cBaseObject(mesh, nullptr, false)
     {
 
     }
@@ -51,6 +51,5 @@ public:
     virtual void GetEntityList(std::vector<cEntityInterface *> **entities) = 0;
 
     virtual std::vector<cEntityBaseInterface *>* GetEntities() = 0;
-
 };
 
