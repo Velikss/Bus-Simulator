@@ -58,6 +58,17 @@ bool Is64Bit()
 #endif
 }
 
+void fSleep(int sleepMs)
+{
+#if defined(LINUX)
+    usleep(sleepMs * 1000);   // usleep takes sleep time in us (1 millionth of a second)
+#elif defined(WINDOWS)
+    Sleep(sleepMs);
+#else
+#error Unsupported Platform.
+#endif
+}
+
 void sleep(int sleepMs)
 {
 #if defined(LINUX)

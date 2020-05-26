@@ -18,20 +18,20 @@ public:
     void HandleScroll(double dOffsetX, double dOffsetY) override;
 
 protected:
-    void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice) override;
+    void Load(cTextureHandler *pTextureHandler, cLogicalDevice *pLogicalDevice) override;
 
 private:
     cNetworkConnection::tNetworkInitializationSettings tConnectNetworkSettings;
-    cMultiplayerHandler* poMultiplayerHandler = nullptr;
+    cMultiplayerHandler *poMultiplayerHandler = nullptr;
 
     ~cBusWorldScene()
     {
         if (poMultiplayerHandler) delete poMultiplayerHandler;
     }
 
-    void LoadTextures(cTextureHandler* pTextureHandler);
+    void LoadTextures(cTextureHandler *pTextureHandler);
 
-    void LoadGeometries(cLogicalDevice* pLogicalDevice);
+    void LoadGeometries(cLogicalDevice *pLogicalDevice);
 
     void LoadMeshes();
 
@@ -42,11 +42,11 @@ private:
     cEntityGroup entityGroup;
     cEntityGroup entityGroup2;
 
-    BusCamera* pBusCamera = new BusCamera;
-    FirstPersonFlyCamera* pFirstPersonFlyCamera = new FirstPersonFlyCamera;
+    BusCamera *pBusCamera = new BusCamera;
+    FirstPersonFlyCamera *pFirstPersonFlyCamera = new FirstPersonFlyCamera;
 };
 
-void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice)
+void cBusWorldScene::Load(cTextureHandler *pTextureHandler, cLogicalDevice *pLogicalDevice)
 {
     LoadTextures(pTextureHandler);
     LoadGeometries(pLogicalDevice);
@@ -62,8 +62,7 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
     if (poMultiplayerHandler->Start())
     {
         std::cout << "multiplayer connected." << std::endl;
-    }
-    else
+    } else
     {
         std::cout << "multiplayer failed to connect." << std::endl;
         delete poMultiplayerHandler;
@@ -78,29 +77,29 @@ void cBusWorldScene::Update()
     entityGroup.UpdateEntities();
 
     if (paKeys[GLFW_KEY_Q])
-        dynamic_cast<cEntity*>(pmpObjects["entity3"])->SetTarget(
-                dynamic_cast<cBus*>(pmpObjects["bus"])->GetDoorPosition());
+        dynamic_cast<cEntity *>(pmpObjects["entity3"])->SetTarget(
+                dynamic_cast<cBus *>(pmpObjects["bus"])->GetDoorPosition());
     if (paKeys[GLFW_KEY_E])
     {
-        for (auto& entity : *entityGroup.GetEntities())
+        for (auto &entity : *entityGroup.GetEntities())
         {
-            dynamic_cast<cEntity*>(entity)->SetTarget(dynamic_cast<cBus*>(pmpObjects["bus"])->GetDoorPosition());
+            dynamic_cast<cEntity *>(entity)->SetTarget(dynamic_cast<cBus *>(pmpObjects["bus"])->GetDoorPosition());
         }
     }
     if (paKeys[GLFW_KEY_T])
-        dynamic_cast<cEntity*>(pmpObjects["entity"])->SetPosition(glm::vec3(5, 5, 5));
+        dynamic_cast<cEntity *>(pmpObjects["entity"])->SetPosition(glm::vec3(5, 5, 5));
     if (paKeys[GLFW_KEY_W])
-        BusCentered ? dynamic_cast<cBus*>(pmpObjects["bus"])->Accelerate() : poCamera->Forward();
+        BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Accelerate() : poCamera->Forward();
     if (paKeys[GLFW_KEY_S])
-        BusCentered ? dynamic_cast<cBus*>(pmpObjects["bus"])->Decelerate() : poCamera->BackWard();
+        BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Decelerate() : poCamera->BackWard();
     if (!paKeys[GLFW_KEY_W] && !paKeys[GLFW_KEY_S])
-        if (BusCentered) dynamic_cast<cBus*>(pmpObjects["bus"])->IdleAcceleration();
+        if (BusCentered) dynamic_cast<cBus *>(pmpObjects["bus"])->IdleAcceleration();
     if (!paKeys[GLFW_KEY_A] && !paKeys[GLFW_KEY_D])
-        if (BusCentered) dynamic_cast<cBus*>(pmpObjects["bus"])->IdleSteering();
+        if (BusCentered) dynamic_cast<cBus *>(pmpObjects["bus"])->IdleSteering();
     if (paKeys[GLFW_KEY_A])
-        BusCentered ? dynamic_cast<cBus*>(pmpObjects["bus"])->Steer("left") : poCamera->MoveLeft();
+        BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Steer("left") : poCamera->MoveLeft();
     if (paKeys[GLFW_KEY_D])
-        BusCentered ? dynamic_cast<cBus*>(pmpObjects["bus"])->Steer("right") : poCamera->MoveRight();
+        BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Steer("right") : poCamera->MoveRight();
     if (paKeys[GLFW_KEY_C])
     {
         BusCentered = false;
@@ -126,7 +125,7 @@ void cBusWorldScene::Update()
     if (paKeys[GLFW_KEY_ESCAPE])
         Quit();
 
-    dynamic_cast<cBus*>(pmpObjects["bus"])->Move();
+    dynamic_cast<cBus *>(pmpObjects["bus"])->Move();
 
     cScene::Update();
     if (poMultiplayerHandler) poMultiplayerHandler->PushData();
@@ -137,7 +136,7 @@ void cBusWorldScene::HandleScroll(double dOffsetX, double dOffsetY)
     poCamera->LookMouseWheelDiff((float) dOffsetX, (float) dOffsetY);
 }
 
-void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
+void cBusWorldScene::LoadTextures(cTextureHandler *pTextureHandler)
 {
     pmpTextures["roof"] = pTextureHandler->LoadTextureFromFile("resources/textures/roof.jpg");
     pmpTextures["stoneHouse"] = pTextureHandler->LoadTextureFromFile("resources/textures/stone.jpg");
@@ -167,7 +166,7 @@ void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
     pmpTextures["passenger"] = pTextureHandler->LoadTextureFromFile("resources/textures/penguin.png");
 }
 
-void cBusWorldScene::LoadGeometries(cLogicalDevice* pLogicalDevice)
+void cBusWorldScene::LoadGeometries(cLogicalDevice *pLogicalDevice)
 {
     // skybox
     pmpGeometries["skybox"] = cGeometry::FromOBJFile("resources/geometries/skybox.obj", pLogicalDevice);
@@ -660,29 +659,29 @@ void cBusWorldScene::LoadObjects()
         string key = "multiplayer_bus_" + std::to_string(i);
         pmpObjects[key] = new cBus(pmpMeshes["bus"]);
         pmpObjects[key]->SetScale(glm::vec3(0));
-        dynamic_cast<cBus*>(pmpObjects[key])->piBusId = i;
+        dynamic_cast<cBus *>(pmpObjects[key])->piBusId = i;
     }
 
     // grass
     pmpObjects["grassField1_1"] = new cEntity(pmpMeshes["grassField1"]);
     pmpObjects["grassField1_1"]->SetPosition(glm::vec3(-152.0f, 0.0f, -13.0f));
 
-    // Create static behaviours
-    cBehaviourHandler::AddBehaviour("seperation", "resources/scripting/seperation.js");
-    cBehaviourHandler::AddBehaviour("cohesion", "resources/scripting/cohesion.js");
-    cBehaviourHandler::AddBehaviour("seeking", "resources/scripting/seeking.js");
+    // Init behaviour handler
+    cBehaviourHandler::Init();
+    cBehaviourHandler::AddBehavioursFromDirectory("resources/scripting");
 
-    cBehaviourHandler* cbSeperation = new cBehaviourHandler("seperation");
-    cBehaviourHandler* cbCohesion = new cBehaviourHandler("cohesion");
-    cBehaviourHandler* cbSeeking = new cBehaviourHandler("seeking");
 
-    entityGroup.AddEntity(dynamic_cast<cEntity*>(pmpObjects["entity"]));
-    entityGroup.AddEntity(dynamic_cast<cEntity*>(pmpObjects["entity2"]));
-    entityGroup.AddEntity(dynamic_cast<cEntity*>(pmpObjects["entity3"]));
-    entityGroup.AddEntity(dynamic_cast<cEntity*>(pmpObjects["entity4"]));
+    cBehaviourHandler *cbSeperation = new cBehaviourHandler("seperation");
+    cBehaviourHandler *cbCohesion = new cBehaviourHandler("cohesion");
+    cBehaviourHandler *cbSeeking = new cBehaviourHandler("seeking");
+
+    entityGroup.AddEntity(dynamic_cast<cEntity *>(pmpObjects["entity"]));
+    entityGroup.AddEntity(dynamic_cast<cEntity *>(pmpObjects["entity2"]));
+    entityGroup.AddEntity(dynamic_cast<cEntity *>(pmpObjects["entity3"]));
+    entityGroup.AddEntity(dynamic_cast<cEntity *>(pmpObjects["entity4"]));
 
     entityGroup2 = entityGroup;
     entityGroup.AddBehaviour(cbSeeking);
-//    entityGroup.AddBehaviour(cbCohesion);
+    entityGroup.AddBehaviour(cbCohesion);
     entityGroup.AddBehaviour(cbSeperation);
 }
