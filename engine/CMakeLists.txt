@@ -24,10 +24,7 @@ find_package(PkgConfig)
 set(OPENSSL_USE_STATIC_LIBS TRUE)
 find_package(OpenSSL REQUIRED)
 find_package(glfw3 REQUIRED)
-
-#IF(NOT WIN32)
 find_package(Vulkan REQUIRED)
-#ENDIF()
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
@@ -122,32 +119,32 @@ set(Sources
 
 add_library(fmod STATIC IMPORTED)
 add_library(fmod_studio STATIC IMPORTED)
-#IF(NOT WIN32)
-set_target_properties(fmod PROPERTIES
-        IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/fmod/linux/api/core/lib/x86_64/libfmod.so
-        INTERFACE_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/fmod/linux/api/core/inc/
-        )
-set_target_properties(fmod_studio PROPERTIES
-        IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/fmod/linux/api/studio/lib/x86_64/libfmodstudio.so
-        INTERFACE_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/fmod/linux/api/studio/inc/
-        )
-include_directories(${PROJECT_SOURCE_DIR}/fmod/linux/api/core/inc ${PROJECT_SOURCE_DIR}/fmod/linux/api/studio/inc)
-link_directories(${PROJECT_SOURCE_DIR}/fmod/linux/api/core/lib)
-link_directories(${PROJECT_SOURCE_DIR}/fmod/linux/api/studio/lib)
-#ELSE()
-set_target_properties(fmod PROPERTIES
-        IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/fmod/windows/api/core/lib/x86/fmod_vc.lib
-        INTERFACE_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/fmod/windows/api/core/inc/
-        )
-set_target_properties(fmod_studio PROPERTIES
-        IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/fmod/windows/api/studio/lib/x86/fmodstudio_vc.lib
-        INTERFACE_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/fmod/windows/api/studio/inc/
-        )
-include_directories(${PROJECT_SOURCE_DIR}/fmod/windows/api/core/inc ${PROJECT_SOURCE_DIR}/fmod/windows/api/studio/inc)
-link_directories(${PROJECT_SOURCE_DIR}/fmod/windows/api/core/lib)
-link_directories(${PROJECT_SOURCE_DIR}/fmod/windows/api/studio/lib)
-link_directories(${PROJECT_SOURCE_DIR}/fmod/windows/bin)
-#ENDIF
+IF (NOT WIN32)
+    set_target_properties(fmod PROPERTIES
+            IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/fmod/linux/api/core/lib/x86_64/libfmod.so
+            INTERFACE_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/fmod/linux/api/core/inc/
+            )
+    set_target_properties(fmod_studio PROPERTIES
+            IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/fmod/linux/api/studio/lib/x86_64/libfmodstudio.so
+            INTERFACE_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/fmod/linux/api/studio/inc/
+            )
+    include_directories(${PROJECT_SOURCE_DIR}/fmod/linux/api/core/inc ${PROJECT_SOURCE_DIR}/fmod/linux/api/studio/inc)
+    link_directories(${PROJECT_SOURCE_DIR}/fmod/linux/api/core/lib)
+    link_directories(${PROJECT_SOURCE_DIR}/fmod/linux/api/studio/lib)
+ELSE ()
+    set_target_properties(fmod PROPERTIES
+            IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/fmod/windows/api/core/lib/x86/fmod_vc.lib
+            INTERFACE_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/fmod/windows/api/core/inc/
+            )
+    set_target_properties(fmod_studio PROPERTIES
+            IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/fmod/windows/api/studio/lib/x86/fmodstudio_vc.lib
+            INTERFACE_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/fmod/windows/api/studio/inc/
+            )
+    include_directories(${PROJECT_SOURCE_DIR}/fmod/windows/api/core/inc ${PROJECT_SOURCE_DIR}/fmod/windows/api/studio/inc)
+    link_directories(${PROJECT_SOURCE_DIR}/fmod/windows/api/core/lib)
+    link_directories(${PROJECT_SOURCE_DIR}/fmod/windows/api/studio/lib)
+    link_directories(${PROJECT_SOURCE_DIR}/fmod/windows/bin)
+ENDIF ()
 
 include_directories(${PROJECT_SOURCE_DIR}/src ${GLEW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS} ${DUKTAPE_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR})
 add_library(${This} STATIC ${Sources} ${Headers})
