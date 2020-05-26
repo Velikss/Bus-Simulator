@@ -135,7 +135,18 @@ include_directories(${PROJECT_SOURCE_DIR}/fmod/linux/api/core/inc ${PROJECT_SOUR
 link_directories(${PROJECT_SOURCE_DIR}/fmod/linux/api/core/lib)
 link_directories(${PROJECT_SOURCE_DIR}/fmod/linux/api/studio/lib)
 #ELSE()
-#include_directories(${PROJECT_SOURCE_DIR}/fmod/windows/api/core/inc ${PROJECT_SOURCE_DIR}/fmod/windows/api/studio/inc)
+set_target_properties(fmod PROPERTIES
+        IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/fmod/windows/api/core/lib/x86/fmod_vc.lib
+        INTERFACE_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/fmod/windows/api/core/inc/
+        )
+set_target_properties(fmod_studio PROPERTIES
+        IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/fmod/windows/api/studio/lib/x86/fmodstudio_vc.lib
+        INTERFACE_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/fmod/windows/api/studio/inc/
+        )
+include_directories(${PROJECT_SOURCE_DIR}/fmod/windows/api/core/inc ${PROJECT_SOURCE_DIR}/fmod/windows/api/studio/inc)
+link_directories(${PROJECT_SOURCE_DIR}/fmod/windows/api/core/lib)
+link_directories(${PROJECT_SOURCE_DIR}/fmod/windows/api/studio/lib)
+link_directories(${PROJECT_SOURCE_DIR}/fmod/windows/bin)
 #ENDIF
 
 include_directories(${PROJECT_SOURCE_DIR}/src ${GLEW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLFW_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS} ${DUKTAPE_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR})
@@ -151,6 +162,15 @@ IF (WIN32)
     find_package(glm REQUIRED)
     find_package(duktape REQUIRED)
     target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw glm ${OPENGL_INCLUDE_DIRS} ${DUKTAPE_LIBRARY} ${Vulkan_LIBRARIES} OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY})
+
+    add_custom_command(TARGET ${This}-bin
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${PROJECT_SOURCE_DIR}/fmod/windows/api/core/lib/x86/fmod.dll"
+            $<TARGET_FILE_DIR:${This}-bin>)
+    add_custom_command(TARGET ${This}-bin
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${PROJECT_SOURCE_DIR}/fmod/windows/api/studio/lib/x86/fmodstudio.dll"
+            $<TARGET_FILE_DIR:${This}-bin>)
 ELSE ()
     target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw /usr/lib/libduktape.so ${Vulkan_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${ODBC_LIBRARY})
 ENDIF ()
