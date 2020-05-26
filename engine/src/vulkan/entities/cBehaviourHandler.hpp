@@ -27,8 +27,6 @@ public:
 
     static void AddBehavioursFromDirectory(const std::string &sDirectoryPath);
 
-    static void UpdateEngine(const std::string &sBehaviourName, const std::string &sFileName);
-
     static void AddBehaviour(const std::string &sBehaviourName, const std::string &sFileName);
 
     virtual void Update(cBaseObject *oEntity, IEntityGroup *oEntityGroup = nullptr);
@@ -39,6 +37,9 @@ public:
 cDirectoryWatcher *cBehaviourHandler::ppoDirectoryWatcher = nullptr;
 std::map<std::string, std::shared_ptr<cScriptingEngine>> cBehaviourHandler::poBehaviours;
 
+/*
+ * Initialize the behaviour handler, sets up a directory watcher on it's own thread.
+ */
 void cBehaviourHandler::Init()
 {
     if (!ppoDirectoryWatcher)
@@ -55,6 +56,9 @@ void cBehaviourHandler::Init()
 
 }
 
+/*
+ * Function to start the directory watchers on the given directory.
+ */
 void cBehaviourHandler::AddBehavioursFromDirectory(const std::string &sDirectoryPath)
 {
     for (auto &p: std::filesystem::directory_iterator(sDirectoryPath))
@@ -69,7 +73,8 @@ void cBehaviourHandler::AddBehavioursFromDirectory(const std::string &sDirectory
 }
 
 /*
- * Add behaviour to poBehaviours.
+ * Add behaviour to poBehaviours. Creates a ScriptingEngine with it's own duktape context,
+ * then compiles the given script and adds it to the directory watcher.
  */
 void cBehaviourHandler::AddBehaviour(const std::string &sBehaviourName, const std::string &sFileName)
 {
@@ -86,8 +91,9 @@ void cBehaviourHandler::AddBehaviour(const std::string &sBehaviourName, const st
     poBehaviourEngine->RegisterFunction(JavaScriptEntityFunctions::AppendEntitySteeringForce, 3,
                                         "SetEntitySteeringForce");
 
-    /* Compile the behaviours' script (it will be placed as bytecode on the engines' stack)
-     * If it compiles successful, add the behaviour with it's engine to poBehaviour.
+    /*
+     * Compile the behaviours' script (it will be placed as bytecode on the engines' stack)
+     * If it compiles successful, add the behaviour with it's engine to poBehaviour and add it to the directory watcher.
      */
     if (poBehaviourEngine->CompileJavaScriptFile(sFileName.c_str()))
     {
@@ -105,6 +111,9 @@ void cBehaviourHandler::Update(cBaseObject *oEntity, IEntityGroup *oEntityGroup)
     poBehaviours.at(psBehaviourName)->RunJavaScriptFunction("calculate", oEntity, oEntityGroup);
 }
 
+/*
+ * Runs if the directory watcher detects changes. Will add behaviours, recompile existing behaviours and remove them if that's the case.
+ */
 void cBehaviourHandler::OnFileChanged(std::string sFilePath, cDirectoryWatcher::FileStatus eFileStatus)
 {
     std::vector<std::string> sFileName = split(split(sFilePath, ".")[0], "/");
@@ -136,8 +145,8 @@ void cBehaviourHandler::OnFileChanged(std::string sFilePath, cDirectoryWatcher::
             poTempBehaviourEngine->RegisterFunction(JavaScriptEntityFunctions::AppendEntitySteeringForce, 3,
                                                     "SetEntitySteeringForce");
 
-            /* Compile the behaviours' script (it will be placed as bytecode on the engines' stack)
-             * If it compiles successful, add the behaviour with it's engine to poBehaviour.
+            /*
+             * If the script compiles successfully, replace the old scripting engine with the new one.
              */
             if (poTempBehaviourEngine->CompileJavaScriptFile(sFilePath.c_str()))
             {
@@ -145,7 +154,7 @@ void cBehaviourHandler::OnFileChanged(std::string sFilePath, cDirectoryWatcher::
                 ENGINE_LOG("Script succesfully compiled (" << sFilePath << ")");
             } else
             {
-                ENGINE_WARN("Compile of " << sFilePath << " failed.");
+                ENGINE_WARN("Compile of " << sFilePath << " failed. Changes made to the script are not applied.");
             }
             break;
         }
