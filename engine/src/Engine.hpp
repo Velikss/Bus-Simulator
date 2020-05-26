@@ -30,12 +30,9 @@
 #include <vulkan/module/lighting/LightingRenderRecorder.hpp>
 #include <vulkan/loop/GameLoop.hpp>
 #include <vulkan/scene/BusWorldScene.hpp>
+#include <vulkan/AudioHandler.hpp>
 #include <thread>
 #include <chrono>
-
-#include <fmod.hpp>
-#include <fmod_studio.hpp>
-#include <vulkan/AudioHandler.hpp>
 
 class Engine
 {

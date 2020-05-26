@@ -1,5 +1,7 @@
 #pragma once
 
+#define MAX_AUDIO_CHANNELS 32
+
 #include <pch.hpp>
 #include <fmod.hpp>
 #include <fmod_studio.hpp>
@@ -11,53 +13,75 @@ class cAudioHandler
 private:
     typedef FMOD::Sound cSound;
     typedef FMOD::Channel cChannel;
+
     typedef std::map<string, cSound*> SoundMap;
     typedef std::map<uint, cChannel*> ChannelMap;
     typedef std::map<uint, glm::vec3> PositionMap;
-    typedef std::map<string, FMOD::Studio::EventInstance*> EventMap;
-    typedef std::map<string, FMOD::Studio::Bank*> BankMap;
 
+    // FMOD instances
     FMOD::Studio::System* ppStudioSystem;
     FMOD::System* ppSystem;
 
+    // Current active scene
     cScene* ppScene = nullptr;
 
-    uint puiNextChannelID;
+    // Unique ID for the next channel
+    uint puiNextChannelID = 0;
 
-    BankMap pmBanks;
-    EventMap pmEvents;
+    // All the loaded sounds
     SoundMap pmSounds;
+    // All the active (playing) channels
     ChannelMap pmChannels;
+    // Positions of the active channels
     PositionMap pmPositions;
 
 public:
     cAudioHandler();
     ~cAudioHandler();
 
-    void SetScene(cScene* pScene);
-
+    // Must be called in a main loop. Fixed update
+    // rate is not required
     void Update();
 
+    // Set the current active scene. Is used to position
+    // the sounds relative to the camera
+    void SetScene(cScene* pScene);
+
+    // Load a sound with optional parameters
     void LoadSound(const string& sName, bool b3D = true, bool bLooping = false, bool bStream = false);
+    // Unload a sound. Note that all sounds will be automatically
+    // unloaded when the AudioHandler is destroyed
     void UnloadSound(const string& sName);
 
+    // Play a sound at a specified position and volume
+    // Returns the ID of the channel where this sound is playing
     uint PlaySound(const string& sName, glm::vec3& tPosition, float fVolume);
+    // Check if a channel is currently playing
+    bool IsPlaying(uint uiChannelId);
 
+    // Set the position for a channel
     void SetChannelPosition(uint uiChannelId, glm::vec3& tPosition);
+    // Set the volume for a channel
     void SetChannelVolume(uint uiChannelId, float fVolume);
 
-    FMOD_VECTOR GLMToFMODVec(glm::vec3& tVector);
+private:
+    // Transform a vector with the camera view matrix and
+    // convert it to an FMOD vector
+    FMOD_VECTOR TransformToFMODVec(glm::vec3& tVector);
 };
 
 cAudioHandler::cAudioHandler()
 {
+    // Initialize FMOD
     FMOD::Studio::System::create(&ppStudioSystem);
-    ppStudioSystem->initialize(32, FMOD_STUDIO_INIT_LIVEUPDATE, FMOD_INIT_PROFILE_ENABLE, nullptr);
+    ppStudioSystem->initialize(MAX_AUDIO_CHANNELS, FMOD_STUDIO_INIT_LIVEUPDATE,
+                               FMOD_INIT_PROFILE_ENABLE, nullptr);
     ppStudioSystem->getCoreSystem(&ppSystem);
 }
 
 cAudioHandler::~cAudioHandler()
 {
+    // Unload all sounds and release the FMOD instance
     ppStudioSystem->unloadAll();
     ppStudioSystem->release();
 }
@@ -71,7 +95,7 @@ void cAudioHandler::SetScene(cScene* pScene)
 
 void cAudioHandler::Update()
 {
-    std::vector<int> aStoppedChannels;
+    std::vector<uint> aStoppedChannels;
 
     // Loop over all active channels
     for (auto& oChannel : pmChannels)
@@ -94,7 +118,7 @@ void cAudioHandler::Update()
             // If 3D is enabled, update the channel position
             if (eCurrMode & FMOD_3D)
             {
-                FMOD_VECTOR tFMODPos = GLMToFMODVec(pmPositions[oChannel.first]);
+                FMOD_VECTOR tFMODPos = TransformToFMODVec(pmPositions[oChannel.first]);
                 pChannel->set3DAttributes(&tFMODPos, nullptr);
             }
         }
@@ -112,6 +136,8 @@ void cAudioHandler::Update()
 
 void cAudioHandler::LoadSound(const string& sName, bool b3D, bool bLooping, bool bStream)
 {
+    assert(sName.length() > 0);
+
     // Check if the sound is already loaded, if so, just return
     auto tResult = pmSounds.find(sName);
     if (tResult != pmSounds.end()) return;
@@ -138,6 +164,8 @@ void cAudioHandler::LoadSound(const string& sName, bool b3D, bool bLooping, bool
 
 void cAudioHandler::UnloadSound(const string& sName)
 {
+    assert(sName.length() > 0);
+
     // Check if the sound is not loaded, if so, just return
     auto tResult = pmSounds.find(sName);
     if (tResult == pmSounds.end()) return;
@@ -149,6 +177,10 @@ void cAudioHandler::UnloadSound(const string& sName)
 
 uint cAudioHandler::PlaySound(const string& sName, glm::vec3& tPosition, float fVolume)
 {
+    assert(sName.length() > 0);
+    assert(fVolume >= 0 && fVolume <= 1);           // Volume must be between 0 and 1
+    assert(pmChannels.size() < MAX_AUDIO_CHANNELS); // Make sure we're within our channel limit
+
     uint uiChannelId = puiNextChannelID++;
 
     // Find the sound, and if it's not loaded, load it
@@ -178,7 +210,7 @@ uint cAudioHandler::PlaySound(const string& sName, glm::vec3& tPosition, float f
     if (eCurrMode & FMOD_3D)
     {
         pmPositions[uiChannelId] = tPosition;
-        FMOD_VECTOR tFMODPos = GLMToFMODVec(tPosition);
+        FMOD_VECTOR tFMODPos = TransformToFMODVec(tPosition);
         pChannel->set3DAttributes(&tFMODPos, nullptr);
     }
 
@@ -192,35 +224,43 @@ uint cAudioHandler::PlaySound(const string& sName, glm::vec3& tPosition, float f
     return uiChannelId;
 }
 
+bool cAudioHandler::IsPlaying(uint uiChannelId)
+{
+    // Return true if a channel with that ID can be found
+    return pmChannels.find(uiChannelId) != pmChannels.end();
+}
+
 void cAudioHandler::SetChannelPosition(uint uiChannelId, glm::vec3& tPosition)
 {
     // Find the channel with the given ID, throw an error if none found
     auto tResult = pmChannels.find(uiChannelId);
     if (tResult == pmChannels.end())
     {
-        throw std::runtime_error(cFormatter() << "Unable to find channel " << uiChannelId);
+        throw std::runtime_error(cFormatter() << "Unable to find audio channel " << uiChannelId);
     }
 
     // Set the channel position
     pmPositions[uiChannelId] = tPosition;
-    FMOD_VECTOR tFMODPos = GLMToFMODVec(tPosition);
+    FMOD_VECTOR tFMODPos = TransformToFMODVec(tPosition);
     tResult->second->set3DAttributes(&tFMODPos, nullptr);
 }
 
 void cAudioHandler::SetChannelVolume(uint uiChannelId, float fVolume)
 {
+    assert(fVolume >= 0 && fVolume <= 1); // Volume must be between 0 and 1
+
     // Find the channel with the given ID, throw an error if none found
     auto tResult = pmChannels.find(uiChannelId);
     if (tResult == pmChannels.end())
     {
-        throw std::runtime_error(cFormatter() << "Unable to find channel " << uiChannelId);
+        throw std::runtime_error(cFormatter() << "Unable to find audio channel " << uiChannelId);
     }
 
     // Set the channel volume
     tResult->second->setVolume(fVolume);
 }
 
-FMOD_VECTOR cAudioHandler::GLMToFMODVec(glm::vec3& tVector)
+FMOD_VECTOR cAudioHandler::TransformToFMODVec(glm::vec3& tVector)
 {
     assert(ppScene != nullptr);
 
