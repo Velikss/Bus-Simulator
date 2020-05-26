@@ -133,11 +133,11 @@ IF (NOT WIN32)
     link_directories(${PROJECT_SOURCE_DIR}/fmod/linux/api/studio/lib)
 ELSE ()
     set_target_properties(fmod PROPERTIES
-            IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/fmod/windows/api/core/lib/x86/fmod_vc.lib
+            IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/fmod/windows/api/core/lib/x64/fmod_vc.lib
             INTERFACE_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/fmod/windows/api/core/inc/
             )
     set_target_properties(fmod_studio PROPERTIES
-            IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/fmod/windows/api/studio/lib/x86/fmodstudio_vc.lib
+            IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/fmod/windows/api/studio/lib/x64/fmodstudio_vc.lib
             INTERFACE_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/fmod/windows/api/studio/inc/
             )
     include_directories(${PROJECT_SOURCE_DIR}/fmod/windows/api/core/inc ${PROJECT_SOURCE_DIR}/fmod/windows/api/studio/inc)
@@ -162,11 +162,11 @@ IF (WIN32)
 
     add_custom_command(TARGET ${This}-bin
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${PROJECT_SOURCE_DIR}/fmod/windows/api/core/lib/x86/fmod.dll"
+            "${PROJECT_SOURCE_DIR}/fmod/windows/api/core/lib/x64/fmod.dll"
             $<TARGET_FILE_DIR:${This}-bin>)
     add_custom_command(TARGET ${This}-bin
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${PROJECT_SOURCE_DIR}/fmod/windows/api/studio/lib/x86/fmodstudio.dll"
+            "${PROJECT_SOURCE_DIR}/fmod/windows/api/studio/lib/x64/fmodstudio.dll"
             $<TARGET_FILE_DIR:${This}-bin>)
 ELSE ()
     target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw /usr/lib/libduktape.so ${Vulkan_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${ODBC_LIBRARY})
