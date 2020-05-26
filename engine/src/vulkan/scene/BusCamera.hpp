@@ -166,14 +166,8 @@ public:
         cameraPos.z = cos(glm::radians(yaw)) * orbitDistance + cameraPivotPos.z;
 
         // calculate lookat variables
-        cameraFront = glm::normalize((cameraPivotPos) - cameraPos);
-        glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-        glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraFront));
-        cameraUp = glm::normalize(glm::cross(cameraFront, cameraRight));
-
-        view = glm::lookAt(cameraPos, glm::vec3(cameraPivotPos.x,
-                                                cameraPivotPos.y,
-                                                cameraPivotPos.z) + cameraFront, cameraUp);
+        cameraFront = glm::normalize(cameraPivotPos - cameraPos);
+        view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
     }
 
     glm::mat4& GetViewMatrix()

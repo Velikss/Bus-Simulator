@@ -9,6 +9,7 @@
 #include <vulkan/entities/cEntity.hpp>
 #include <vulkan/entities/cEntityGroup.hpp>
 #include <vulkan/module/overlay/element/TextElement.hpp>
+#include <vulkan/AudioHandler.hpp>
 
 class cBusWorldScene : public cScene
 {
@@ -23,6 +24,13 @@ protected:
 private:
     cNetworkConnection::tNetworkInitializationSettings tConnectNetworkSettings;
     cMultiplayerHandler* poMultiplayerHandler = nullptr;
+    cAudioHandler* ppAudioHandler;
+
+public:
+    cBusWorldScene(cAudioHandler* pAudioHandler)
+    {
+        ppAudioHandler = pAudioHandler;
+    }
 
     ~cBusWorldScene()
     {
@@ -133,6 +141,15 @@ void cBusWorldScene::Update()
 
     cScene::Update();
     if (poMultiplayerHandler) poMultiplayerHandler->PushData();
+
+    static bool test = true;
+    if (test)
+    {
+        test = false;
+
+        ppAudioHandler->LoadSound("resources/beep.wav", true, true, true);
+        ppAudioHandler->PlaySound("resources/beep.wav", glm::vec3(0, 5, 0), 0.11f);
+    }
 }
 
 void cBusWorldScene::HandleScroll(double dOffsetX, double dOffsetY)

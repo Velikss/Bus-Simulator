@@ -193,7 +193,7 @@ void Engine::MainLoop(void)
             ENGINE_LOG("Loading scene...");
 
             // Create and load the scene
-            ppScene = new cBusWorldScene();
+            ppScene = new cBusWorldScene(ppAudioHandler);
             ppScene->Load(ppTextureHandler, ppLogicalDevice);
 
             // The scene will handle the input
@@ -226,9 +226,9 @@ void Engine::MainLoop(void)
 
             ppAudioHandler->SetScene(ppScene);
 
-            ppAudioHandler->LoadSound("resources/beep.wav", true, true, true);
+            /*ppAudioHandler->LoadSound("resources/beep.wav", true, true, true);
             glm::vec3 pos = glm::vec3(0, 5, 0);
-            ppAudioHandler->PlaySound("resources/beep.wav", pos, 0.11f);
+            ppAudioHandler->PlaySound("resources/beep.wav", pos, 0.11f);*/
         }
 
         if (TEXT_DIRTY)

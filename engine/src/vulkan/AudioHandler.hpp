@@ -58,7 +58,7 @@ public:
     // Returns the ID of the channel where this sound is playing
     // If the sound is not loaded, it will be loaded automatically
     // with default parameters
-    uint PlaySound(const string& sName, glm::vec3& tPosition, float fVolume);
+    uint PlaySound(const string& sName, glm::vec3 tPosition, float fVolume);
 
     // Check if a channel is currently playing
     bool IsPlaying(uint uiChannelId);
@@ -66,13 +66,13 @@ public:
     void SetPaused(uint uiChannelId, bool bPaused);
 
     // Set the position for a channel
-    void SetChannelPosition(uint uiChannelId, glm::vec3& tPosition);
+    void SetChannelPosition(uint uiChannelId, glm::vec3 tPosition);
     // Set the volume for a channel
     void SetChannelVolume(uint uiChannelId, float fVolume);
 
 private:
     // Translate a GLM vec3 into an FMOD_VECTOR
-    FMOD_VECTOR GLMToFMODVec(glm::vec3& tVector);
+    FMOD_VECTOR GLMToFMODVec(glm::vec3 tVector);
 };
 
 cAudioHandler::cAudioHandler()
@@ -80,6 +80,7 @@ cAudioHandler::cAudioHandler()
     // Initialize the FMOD instance
     FMOD::System_Create(&ppSystem);
     ppSystem->init(MAX_AUDIO_CHANNELS, FMOD_INIT_NORMAL, nullptr);
+    ppSystem->set3DSettings(1.0, 2, 1.0);
 }
 
 cAudioHandler::~cAudioHandler()
@@ -129,8 +130,7 @@ void cAudioHandler::Update()
     ptCameraPos = GLMToFMODVec(ppScene->GetCamera().cameraPos);
 
     // Update the listener direction
-    float fYaw = glm::radians(ppScene->GetCamera().yaw);
-    glm::vec3 tDirection = glm::normalize(glm::vec3(-cos(fYaw), 0, -sin(fYaw)));
+    glm::vec3 tDirection = glm::normalize(ppScene->GetCamera().cameraFront * glm::vec3(-1, 0, -1));
     ptCameraForward = GLMToFMODVec(tDirection);
 
     // Update the 3D listener attributes
@@ -181,7 +181,7 @@ void cAudioHandler::UnloadSound(const string& sName)
     pmSounds.erase(tResult);
 }
 
-uint cAudioHandler::PlaySound(const string& sName, glm::vec3& tPosition, float fVolume)
+uint cAudioHandler::PlaySound(const string& sName, glm::vec3 tPosition, float fVolume)
 {
     assert(sName.length() > 0);
     assert(fVolume >= 0 && fVolume <= 1);           // Volume must be between 0 and 1
@@ -249,7 +249,7 @@ void cAudioHandler::SetPaused(uint uiChannelId, bool bPaused)
     tResult->second->setPaused(bPaused);
 }
 
-void cAudioHandler::SetChannelPosition(uint uiChannelId, glm::vec3& tPosition)
+void cAudioHandler::SetChannelPosition(uint uiChannelId, glm::vec3 tPosition)
 {
     // Find the channel with the given ID, throw an error if none found
     auto tResult = pmChannels.find(uiChannelId);
@@ -279,7 +279,7 @@ void cAudioHandler::SetChannelVolume(uint uiChannelId, float fVolume)
     tResult->second->setVolume(fVolume);
 }
 
-FMOD_VECTOR cAudioHandler::GLMToFMODVec(glm::vec3& tVector)
+FMOD_VECTOR cAudioHandler::GLMToFMODVec(glm::vec3 tVector)
 {
     return {tVector.x, tVector.y, tVector.z};
 }
