@@ -132,8 +132,8 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/AudioHandler.hpp)
 
 
-add_library(fmod SHARED IMPORTED)
 IF (NOT WIN32)
+    add_library(fmod SHARED IMPORTED)
     set_target_properties(fmod PROPERTIES
             IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/vendor/fmod/linux/api/core/lib/x86_64/libfmod.so
             INTERFACE_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/vendor/fmod/linux/api/core/inc/
@@ -141,6 +141,7 @@ IF (NOT WIN32)
     include_directories(${PROJECT_SOURCE_DIR}/vendor/fmod/linux/api/core/inc)
     link_directories(${PROJECT_SOURCE_DIR}/vendor/fmod/linux/api/core/lib)
 ELSE ()
+    add_library(fmod STATIC IMPORTED)
     set_target_properties(fmod PROPERTIES
             IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/vendor/fmod/windows/api/core/lib/x64/fmod_vc.lib
             INTERFACE_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/vendor/fmod/windows/api/core/inc/
