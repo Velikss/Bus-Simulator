@@ -20,6 +20,6 @@ set(Sources
     ${PROJECT_SOURCE_DIR}/src/main.cpp
 )
 
-include_directories(${PROJECT_SOURCE_DIR}/src ${ENGINE_INCLUDE_DIRS})
+include_directories(${PROJECT_SOURCE_DIR}/src)
 add_executable(${This} ${Sources} ${Headers})
-target_link_libraries(${This} ${ENGINE_LIBRARIES})
+target_link_libraries(${This} engine)
