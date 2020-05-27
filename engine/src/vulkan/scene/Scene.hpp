@@ -11,11 +11,12 @@
 #include <vulkan/loop/TickTask.hpp>
 #include <vulkan/geometry/ViewportQuadGeometry.hpp>
 #include <vulkan/module/overlay/element/StaticElement.hpp>
+#include <vulkan/AudioHandler.hpp>
 
 class cScene : public iInputHandler, public iTickTask
 {
 private:
-    bool bQuit;
+    bool bQuit = false;
 
 protected:
     Camera* poCamera = new FirstPersonFlyCamera;
@@ -31,6 +32,8 @@ protected:
     bool paKeys[GLFW_KEY_LAST] = {false};
 
     cColliderSet* ppColliders = new cColliderSet();
+
+    cAudioHandler* ppAudioHandler = nullptr;
 
 private:
     std::vector<cBaseObject*> papMovableObjects;
@@ -54,10 +57,13 @@ public:
     std::map<string, cStaticElement*> GetOverlay();
 
     Camera& GetCamera();
+    Camera** GetCameraRef();
 
     bool ShouldQuit();
 
-    virtual void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice);
+    virtual void Load(cTextureHandler* pTextureHandler,
+                      cLogicalDevice* pLogicalDevice,
+                      cAudioHandler* pAudioHandler = nullptr);
 
     void HandleMouse(uint uiDeltaX, uint uiDeltaY) override;
     void HandleKey(uint uiKeyCode, uint uiAction) override;
@@ -102,8 +108,10 @@ cScene::~cScene()
     }
 }
 
-void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice)
+void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler)
 {
+    this->ppAudioHandler = pAudioHandler;
+
     for (auto oObject : pmpObjects)
     {
         assert(oObject.second != nullptr);
@@ -230,4 +238,9 @@ void cScene::HandleScroll(double dOffsetX, double dOffsetY)
 void cScene::HandleCharacter(char cCharacter)
 {
 
+}
+
+Camera **cScene::GetCameraRef()
+{
+    return &poCamera;
 }

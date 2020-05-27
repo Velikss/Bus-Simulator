@@ -193,8 +193,8 @@ void Engine::MainLoop(void)
             ENGINE_LOG("Loading scene...");
 
             // Create and load the scene
-            ppScene = new cBusWorldScene(ppAudioHandler);
-            ppScene->Load(ppTextureHandler, ppLogicalDevice);
+            ppScene = new cBusWorldScene();
+            ppScene->Load(ppTextureHandler, ppLogicalDevice, ppAudioHandler);
 
             // The scene will handle the input
             ppWindow->ppInputHandler = ppScene;
@@ -224,14 +224,14 @@ void Engine::MainLoop(void)
             ENGINE_LOG("Scene loading, adding tick task");
             ppGameLoop->AddTask(ppScene);
 
-            ppAudioHandler->SetScene(ppScene);
+            ppAudioHandler->SetCamera(ppScene->GetCameraRef());
         }
 
-        if (TEXT_DIRTY)
+        if (cTextElement::Invalidated())
         {
-            TEXT_DIRTY = false;
             ppLogicalDevice->WaitUntilIdle();
             papCommandBuffers[2]->RecordBuffers(ppOverlayRenderModule->GetCommandRecorder());
+            cTextElement::Validate();
         }
     }
 

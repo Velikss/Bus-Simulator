@@ -20,19 +20,13 @@ public:
     void HandleScroll(double dOffsetX, double dOffsetY) override;
 
 protected:
-    void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice) override;
+    void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler) override;
 
 private:
     cNetworkConnection::tNetworkInitializationSettings tConnectNetworkSettings;
     cMultiplayerHandler* poMultiplayerHandler = nullptr;
-    cAudioHandler* ppAudioHandler;
 
 public:
-    cBusWorldScene(cAudioHandler* pAudioHandler)
-    {
-        ppAudioHandler = pAudioHandler;
-    }
-
     ~cBusWorldScene()
     {
         if (poMultiplayerHandler) delete poMultiplayerHandler;
@@ -57,15 +51,14 @@ public:
     FirstPersonFlyCamera* pFirstPersonFlyCamera = new FirstPersonFlyCamera;
 };
 
-void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice)
+void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler)
 {
+    std::cout << (void*)pAudioHandler << std::endl;
     LoadTextures(pTextureHandler);
     LoadGeometries(pLogicalDevice);
     LoadMeshes();
     LoadObjects();
     LoadOverlay(pLogicalDevice);
-
-    ppAudioHandler->PlaySound("resources/beep.wav", glm::vec3(0, 5, 0), 0.11f);
 
     // Connect to multiplayer instance if possbile.
     tConnectNetworkSettings.sAddress = "51.68.34.201";
@@ -83,8 +76,7 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
         delete poMultiplayerHandler;
         poMultiplayerHandler = nullptr;
     }
-
-    cScene::Load(pTextureHandler, pLogicalDevice);
+    cScene::Load(pTextureHandler, pLogicalDevice, pAudioHandler);
 }
 
 void cBusWorldScene::Update()
@@ -148,6 +140,9 @@ void cBusWorldScene::Update()
 
 void cBusWorldScene::HandleScroll(double dOffsetX, double dOffsetY)
 {
+    std::cout << (void*)ppAudioHandler << std::endl;
+    ppAudioHandler->PlaySound("resources/beep.wav", glm::vec3(0, 5, 0), 0.11f);
+
     poCamera->LookMouseWheelDiff((float) dOffsetX, (float) dOffsetY);
 }
 

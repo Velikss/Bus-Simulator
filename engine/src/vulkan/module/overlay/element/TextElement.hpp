@@ -6,8 +6,6 @@
 #include <vulkan/module/overlay/element/StaticElement.hpp>
 #include <vulkan/module/overlay/text/Font.hpp>
 
-bool TEXT_DIRTY = false;
-
 class cTextElement : public cStaticElement
 {
 private:
@@ -15,12 +13,12 @@ private:
 
     VkDeviceSize pulBufferSize;
 
-    string psText = "Test";
+    string psText = "";
 
     float pfFontSize = 3.0f;
-    cFont* ppFont;
+    cFont* ppFont = nullptr;
     glm::vec3 ptColor;
-
+    static bool pbInValidated;
 public:
     cTextElement(const tElementInfo& tInfo, cTexture* pTexture, cLogicalDevice* pLogicalDevice);
     void LoadVertices() override;
@@ -31,11 +29,15 @@ public:
     VkSampler& GetImageSampler() override;
     uint GetVertexCount() override;
     glm::vec3 GetColor();
-
+    static bool Invalidated();
+    static void Validate();
+    static void Invalidate();
 private:
     void CopyToDevice() override;
 
 };
+
+bool cTextElement::pbInValidated = true;
 
 cTextElement::cTextElement(const tElementInfo& tInfo, cTexture* pTexture, cLogicalDevice* pLogicalDevice)
         : cStaticElement(tInfo, pTexture, pLogicalDevice)
@@ -138,7 +140,7 @@ void cTextElement::UpdateText(string sText)
     // Unmap the memory again
     ppLogicalDevice->UnmapMemory(poVertexBufferMemory);
 
-    TEXT_DIRTY = true;
+    Invalidate();
 }
 
 uint cTextElement::GetVertexCount()
@@ -159,4 +161,19 @@ VkSampler& cTextElement::GetImageSampler()
 glm::vec3 cTextElement::GetColor()
 {
     return ptColor;
+}
+
+bool cTextElement::Invalidated()
+{
+    return pbInValidated;
+}
+
+void cTextElement::Invalidate()
+{
+    pbInValidated = true;
+}
+
+void cTextElement::Validate()
+{
+    pbInValidated = false;
 }

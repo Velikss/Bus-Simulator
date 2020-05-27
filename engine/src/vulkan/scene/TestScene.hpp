@@ -11,7 +11,7 @@ private:
     cTextElement* ppText;
 
 protected:
-    void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice) override
+    void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler) override
     {
         pmpTextures["uvtemplate"] = pTextureHandler->LoadTextureFromFile("resources/textures/uvtemplate.bmp");
 
@@ -23,7 +23,7 @@ protected:
         ppText->SetPosition(glm::vec2(500, 500));
         ppText->SetFont(20, cOverlayRenderModule::FONT, glm::vec3(1, 1, 0));
 
-        cScene::Load(pTextureHandler, pLogicalDevice);
+        cScene::Load(pTextureHandler, pLogicalDevice, pAudioHandler);
     }
 
 public:

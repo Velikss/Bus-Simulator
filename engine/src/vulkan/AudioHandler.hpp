@@ -5,7 +5,7 @@
 #include <pch.hpp>
 #include <fmod.hpp>
 #include <util/Formatter.hpp>
-#include <vulkan/scene/Scene.hpp>
+#include <vulkan/scene/Camera.hpp>
 
 class cAudioHandler
 {
@@ -21,7 +21,7 @@ private:
     FMOD::System* ppSystem;
 
     // Current active scene
-    cScene* ppScene = nullptr;
+    Camera** ppCamera = nullptr;
 
     // Unique ID for the next channel
     uint puiNextChannelID = 0;
@@ -46,7 +46,7 @@ public:
 
     // Set the current active scene. Is used to position
     // the sounds relative to the camera
-    void SetScene(cScene* pScene);
+    void SetCamera(Camera** pCamera);
 
     // Load a sound with optional parameters
     void LoadSound(const string& sName, bool b3D = true, bool bLooping = false, bool bStream = false);
@@ -95,11 +95,11 @@ cAudioHandler::~cAudioHandler()
     ppSystem->release();
 }
 
-void cAudioHandler::SetScene(cScene* pScene)
+void cAudioHandler::SetCamera(Camera **pCamera)
 {
-    assert(pScene != nullptr);
+    assert(pCamera != nullptr);
 
-    ppScene = pScene;
+    ppCamera = pCamera;
 }
 
 void cAudioHandler::Update()
@@ -127,10 +127,10 @@ void cAudioHandler::Update()
     }
 
     // Update the listener position
-    ptCameraPos = GLMToFMODVec(ppScene->GetCamera().cameraPos);
+    ptCameraPos = GLMToFMODVec((*ppCamera)->cameraPos);
 
     // Update the listener direction
-    glm::vec3 tDirection = glm::normalize(ppScene->GetCamera().cameraFront * glm::vec3(-1, 0, -1));
+    glm::vec3 tDirection = glm::normalize((*ppCamera)->cameraFront * glm::vec3(-1, 0, -1));
     ptCameraForward = GLMToFMODVec(tDirection);
 
     // Update the 3D listener attributes
