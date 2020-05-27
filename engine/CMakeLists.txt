@@ -71,8 +71,8 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/CommandBuffer.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/CommandBufferRecorder.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/ClearScreenRecorder.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/Scene.hpp src/vulkan/scene/BaseObject.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/TestScene.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/Scene.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/BaseObject.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/InputHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/PipelineHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/uniform/UniformHandler.hpp
@@ -106,9 +106,6 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/LightObject.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/util/EngineLog.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/ViewportQuadGeometry.hpp src/vulkan/texture/TextureSampler.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/BusCamera.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/BusWorldScene.hpp
-        ${PROJECT_SOURCE_DIR}/src/pch.hpp
         ${PROJECT_SOURCE_DIR}/src/vendor/tiny_obj_loader.h
         ${PROJECT_SOURCE_DIR}/src/loaders/fileloader.hpp
         ${PROJECT_SOURCE_DIR}/src/loaders/objectloader.hpp
@@ -123,9 +120,8 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/multiplayer/SslHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/multiplayer/NetworkAbstractions.hpp
         ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkConnection.hpp
-        ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkClient.hpp src/multiplayer/cMultiplayerHandler.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBus.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBusStop.hpp
+        ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkClient.hpp
+        ${PROJECT_SOURCE_DIR}/src/multiplayer/cMultiplayerHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/collision/Collider.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/collision/CollisionHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/collision/ColliderSet.hpp)
