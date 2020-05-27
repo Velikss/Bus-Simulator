@@ -3,3 +3,6 @@
 cmake-build-debug/
 build-alpine/
 build-vs/
+build/
+googletest/
+*.spv

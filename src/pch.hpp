@@ -1,4 +1,6 @@
 #pragma once
+#include <assert.h>
+#include <array>
 #include <string>
 #include <vector>
 #include <stack>
@@ -9,7 +11,6 @@
 #include <set>
 #include <tuple>
 #include <iterator>
-#include <ctime>
 #include <fstream>
 #include <iomanip>
 #include <chrono>
@@ -57,6 +58,17 @@ bool Is64Bit()
 #endif
 }
 
+void sleep(int sleepMs)
+{
+#if defined(LINUX)
+    usleep(sleepMs * 1000);   // usleep takes sleep time in us (1 millionth of a second)
+#elif defined(WINDOWS)
+    Sleep(sleepMs);
+#else
+#error Unsupported Platform.
+#endif
+}
+
 void fSleep(int sleepMs)
 {
 #if defined(LINUX)
@@ -67,6 +79,22 @@ void fSleep(int sleepMs)
 #error Unsupported Platform.
 #endif
 }
+
+#define GLFW_INCLUDE_VULKAN                 // We want to use GLFW with Vulkan
+#define GLM_FORCE_RADIANS                   // Force GLM to use radians everywhere
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES  // Force GLM to use aligned types by default
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE         // Vulkan uses a depth range from 0 to 1, so we need GLM to do the same
+
+#define STB_IMAGE_IMPLEMENTATION
+#define TINYOBJLOADER_IMPLEMENTATION
+
+#include <vendor/stb_image.h>
+#include <vendor/stb_font_arial_50_usascii.inl>
+#include <vendor/tiny_obj_loader.h>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 typedef std::string string;
 typedef unsigned int uint;
@@ -117,36 +145,37 @@ int toInteger(string& str, long long& value)
     }
 }
 
-std::vector<string> split(string str, string delim) noexcept
+std::vector<string> split(string str, const string& delim) noexcept
 {
     std::vector<string>result;
     while (str.size()) {
-        int index = str.find(delim);
+        size_t index = str.find(delim);
         if (index != string::npos) {
-            result.push_back(str.substr(0, index));
+            result.emplace_back(str.substr(0, index)); //-V106
             str = str.substr(index + delim.size());
             if (str.size() == 0)result.push_back(str);
         }
         else {
             result.push_back(str);
-            str = "";
+            str.clear();
         }
     }
     return result;
 }
 
-string concat(const std::vector<string>& strings, const string& delim = "", uint from = 0) noexcept
+string concat(const std::vector<string>& strings, const string& delim = "", size_t from = 0) noexcept
 {
     string s;
-    for (unsigned int i = from; i < strings.size(); i++)
+    for (size_t i = from; i < strings.size(); i++)
     {
         if (i == strings.size() - 1)
-            s += strings[i];
+            s += strings[i]; //-V108
         else
-            s += strings[i] + delim;
+            s += strings[i] + delim; //-V108
     }
     return s;
-}/*
+}
+/*
    base64.cpp and base64.h
 
    Copyright (C) 2004-2008 René Nyffenegger
@@ -188,7 +217,7 @@ std::string base64_encode(unsigned char const* bytes_to_encode, unsigned int in_
     int i = 0;
     int j = 0;
     unsigned char char_array_3[3];
-    unsigned char char_array_4[4];
+    unsigned char char_array_4[4]; //-V112
 
     while (in_len--) {
         char_array_3[i++] = *(bytes_to_encode++);
@@ -198,7 +227,7 @@ std::string base64_encode(unsigned char const* bytes_to_encode, unsigned int in_
             char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
             char_array_4[3] = char_array_3[2] & 0x3f;
 
-            for(i = 0; (i <4) ; i++)
+            for(i = 0; (i <4) ; i++) //-V112
                 ret += base64_chars[char_array_4[i]];
             i = 0;
         }
@@ -226,17 +255,17 @@ std::string base64_encode(unsigned char const* bytes_to_encode, unsigned int in_
 
 }
 std::string base64_decode(std::string const& encoded_string) {
-    int in_len = encoded_string.size();
+    size_t in_len = encoded_string.size();
     int i = 0;
     int j = 0;
     int in_ = 0;
-    unsigned char char_array_4[4], char_array_3[3];
+    unsigned char char_array_4[4], char_array_3[3]; //-V112
     std::string ret;
 
-    while (in_len-- && ( encoded_string[in_] != '=') && is_base64(encoded_string[in_])) {
-        char_array_4[i++] = encoded_string[in_]; in_++;
-        if (i ==4) {
-            for (i = 0; i <4; i++)
+    while (in_len-- && ( encoded_string[in_] != '=') && is_base64(encoded_string[in_])) { //-V108
+        char_array_4[i++] = encoded_string[in_]; in_++; //-V108
+        if (i ==4) { //-V112
+            for (i = 0; i <4; i++) //-V112
                 char_array_4[i] = base64_chars.find(char_array_4[i]);
 
             char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
@@ -250,10 +279,10 @@ std::string base64_decode(std::string const& encoded_string) {
     }
 
     if (i) {
-        for (j = i; j <4; j++)
+        for (j = i; j <4; j++) //-V112
             char_array_4[j] = 0;
 
-        for (j = 0; j <4; j++)
+        for (j = 0; j <4; j++) //-V112
             char_array_4[j] = base64_chars.find(char_array_4[j]);
 
         char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
@@ -264,4 +293,10 @@ std::string base64_decode(std::string const& encoded_string) {
     }
 
     return ret;
+}
+
+template<typename Base, typename T>
+inline bool instanceof(const T* ptr)
+{
+    return dynamic_cast<const Base*>(ptr) != nullptr;
 }
