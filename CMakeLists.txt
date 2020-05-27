@@ -21,7 +21,7 @@ set(Sources
 )
 
 include_directories(${PROJECT_SOURCE_DIR}/src)
-add_executable(${This} ${Sources} ${Headers})
+add_executable(${This} ${Sources} ${Headers} src/overlay/TestOverlay.hpp)
 target_link_libraries(${This} engine)
 
 IF (WIN32)

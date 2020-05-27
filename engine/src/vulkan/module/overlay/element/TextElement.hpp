@@ -20,7 +20,7 @@ private:
     glm::vec3 ptColor;
     static bool pbInValidated;
 public:
-    cTextElement(const tElementInfo& tInfo, cTexture* pTexture, cLogicalDevice* pLogicalDevice);
+    cTextElement(cLogicalDevice* pLogicalDevice);
     void LoadVertices() override;
 
     void SetFont(float fFontSize, cFont* pFont, glm::vec3 tColor);
@@ -39,8 +39,8 @@ private:
 
 bool cTextElement::pbInValidated = true;
 
-cTextElement::cTextElement(const tElementInfo& tInfo, cTexture* pTexture, cLogicalDevice* pLogicalDevice)
-        : cStaticElement(tInfo, pTexture, pLogicalDevice)
+cTextElement::cTextElement(cLogicalDevice* pLogicalDevice)
+        : cStaticElement({0, 0}, nullptr, pLogicalDevice)
 {
     // Create a buffer for the text data
     pulBufferSize = MAX_CHARACTER_COUNT * 4 * sizeof(tVertex2D);

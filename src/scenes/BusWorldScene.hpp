@@ -30,7 +30,14 @@ private:
     cNetworkConnection::tNetworkInitializationSettings tConnectNetworkSettings;
     cMultiplayerHandler *poMultiplayerHandler = nullptr;
 
+    iOverlayProvider* ppOverlayProvider;
+
 public:
+    cBusWorldScene(iOverlayProvider* pOverlayProvider)
+    {
+        ppOverlayProvider = pOverlayProvider;
+    }
+
     ~cBusWorldScene()
     {
         if (poMultiplayerHandler) delete poMultiplayerHandler;
@@ -43,8 +50,6 @@ public:
     void LoadMeshes();
 
     void LoadObjects();
-
-    void LoadOverlay(cLogicalDevice* pLogicalDevice);
 
     void LoadMissions();
 
@@ -67,7 +72,6 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
     LoadGeometries(pLogicalDevice);
     LoadMeshes();
     LoadObjects();
-    LoadOverlay(pLogicalDevice);
     LoadMissions();
 
     // Connect to multiplayer instance if possbile.
@@ -140,7 +144,7 @@ void cBusWorldScene::Update()
         poCamera->MoveDown();
 
     if (paKeys[GLFW_KEY_ESCAPE])
-        Quit();
+        ppOverlayProvider->ActivateOverlayWindow("test");
 
     dynamic_cast<cBus *>(pmpObjects["bus"])->Move();
 
@@ -740,16 +744,4 @@ void cBusWorldScene::LoadObjects()
     entityGroup.AddBehaviour(cbSeperation);
     entityGroup.AddBehaviour(cbCohesion);
     entityGroup.AddBehaviour(cbSeeking);
-}
-
-void cBusWorldScene::LoadOverlay(cLogicalDevice* pLogicalDevice)
-{
-    pmpOverlay["test"] = new cStaticElement({300, 300}, pmpTextures["grey"], pLogicalDevice);
-    pmpOverlay["test"]->SetPosition(glm::vec2(500, 500));
-    pmpOverlay["test1"] = new cStaticElement({100, 100}, pmpTextures["roof"], pLogicalDevice);
-    pmpOverlay["test1"]->SetPosition(glm::vec2(500, 800));
-
-    pmpOverlay["test2"] = new cTextElement({100, 100}, nullptr, pLogicalDevice);
-    pmpOverlay["test2"]->SetPosition(glm::vec2(500, 500));
-    dynamic_cast<cTextElement*>(pmpOverlay["test2"])->SetFont(20, cOverlayRenderModule::FONT, glm::vec3(1, 1, 0));
 }
