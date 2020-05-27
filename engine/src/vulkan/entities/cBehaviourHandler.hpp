@@ -65,7 +65,12 @@ void cBehaviourHandler::AddBehavioursFromDirectory(const std::string &sDirectory
     {
         std::string sPath = p.path().string();
         std::vector<std::string> soSplit = split(sPath, ".");
+#if defined(LINUX)
         std::vector<std::string> soSplit2 = split(soSplit[0], "/");
+#elif defined(WINDOWS)
+        std::vector<std::string> soSplit2 = split(soSplit[0], "\\");
+#endif
+        ENGINE_WARN(soSplit2[soSplit2.size() - 1]);
         AddBehaviour(soSplit2[soSplit2.size() - 1], sPath);
     }
 
