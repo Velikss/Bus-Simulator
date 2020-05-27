@@ -15,10 +15,13 @@ private:
     VkDeviceMemory poFontImageMemory = VK_NULL_HANDLE;
 
 public:
+    stb_fontchar* ppFontData = nullptr;
+
     VkImageView poFontImageView = VK_NULL_HANDLE;
     VkSampler poFontImageSampler = VK_NULL_HANDLE;
 
-    cFont(cLogicalDevice* pLogicalDevice, uint uiFontWidth, uint uiFontHeight, byte* abFont24pixels);
+    cFont(cLogicalDevice* pLogicalDevice, uint uiFontWidth, uint uiFontHeight,
+          byte* abFont24pixels, stb_fontchar* pFontData);
     ~cFont();
 
 private:
@@ -26,13 +29,15 @@ private:
     void CreateTextureSampler(cLogicalDevice* pLogicalDevice);
 };
 
-cFont::cFont(cLogicalDevice* pLogicalDevice, uint uiFontWidth, uint uiFontHeight, byte* abFont24pixels)
+cFont::cFont(cLogicalDevice* pLogicalDevice, uint uiFontWidth, uint uiFontHeight,
+             byte* abFont24pixels, stb_fontchar* pFontData)
 {
     assert(pLogicalDevice != nullptr);           // logical device must exist
     assert(uiFontWidth > 0 && uiFontHeight > 0); // font must have a valid size
     assert(abFont24pixels != nullptr);           // font data must exist
 
     ppLogicalDevice = pLogicalDevice;
+    ppFontData = pFontData;
 
     CreateFontImage(pLogicalDevice, uiFontWidth, uiFontHeight, abFont24pixels);
     CreateTextureSampler(pLogicalDevice);

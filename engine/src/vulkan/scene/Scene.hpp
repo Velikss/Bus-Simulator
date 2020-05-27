@@ -10,11 +10,13 @@
 #include <vulkan/scene/InputHandler.hpp>
 #include <vulkan/loop/TickTask.hpp>
 #include <vulkan/geometry/ViewportQuadGeometry.hpp>
+#include <vulkan/module/overlay/element/StaticElement.hpp>
+#include <vulkan/AudioHandler.hpp>
 
 class cScene : public iInputHandler, public iTickTask
 {
 private:
-    bool bQuit;
+    bool bQuit = false;
 
 protected:
     Camera* poCamera = new FirstPersonFlyCamera;
@@ -25,9 +27,13 @@ protected:
 
     std::map<string, cBaseObject*> pmpObjects;
 
+    std::map<string, cStaticElement*> pmpOverlay;
+
     bool paKeys[GLFW_KEY_LAST] = {false};
 
     cColliderSet* ppColliders = new cColliderSet();
+
+    cAudioHandler* ppAudioHandler = nullptr;
 
 private:
     std::vector<cBaseObject*> papMovableObjects;
@@ -48,16 +54,21 @@ public:
     std::map<string, cMesh*>& GetMeshes();
     std::vector<cBaseObject*>& GetMovableObjects();
     std::vector<cLightObject*>& GetLightObjects();
+    std::map<string, cStaticElement*> GetOverlay();
 
     Camera& GetCamera();
+    Camera** GetCameraRef();
 
     bool ShouldQuit();
 
-    virtual void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice);
+    virtual void Load(cTextureHandler* pTextureHandler,
+                      cLogicalDevice* pLogicalDevice,
+                      cAudioHandler* pAudioHandler = nullptr);
 
     void HandleMouse(uint uiDeltaX, uint uiDeltaY) override;
     void HandleKey(uint uiKeyCode, uint uiAction) override;
     void HandleScroll(double dOffsetX, double dOffsetY) override;
+    void HandleCharacter(char cCharacter) override;
 
 protected:
     void Quit();
@@ -90,10 +101,17 @@ cScene::~cScene()
     {
         delete oTexture.second;
     }
+
+    for (auto oElement : pmpOverlay)
+    {
+        delete oElement.second;
+    }
 }
 
-void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice)
+void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler)
 {
+    this->ppAudioHandler = pAudioHandler;
+
     for (auto oObject : pmpObjects)
     {
         assert(oObject.second != nullptr);
@@ -135,6 +153,12 @@ void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevi
     {
         assert(oTexture.second != nullptr);
     }
+
+    for (auto oElement : pmpOverlay)
+    {
+        assert(oElement.second != nullptr);
+        oElement.second->LoadVertices();
+    }
 }
 
 void cScene::Tick()
@@ -172,6 +196,11 @@ std::vector<cLightObject*>& cScene::GetLightObjects()
     return papLightObjects;
 }
 
+std::map<string, cStaticElement*> cScene::GetOverlay()
+{
+    return pmpOverlay;
+}
+
 Camera& cScene::GetCamera()
 {
     return *poCamera;
@@ -204,4 +233,14 @@ void cScene::HandleKey(uint uiKeyCode, uint uiAction)
 void cScene::HandleScroll(double dOffsetX, double dOffsetY)
 {
 
+}
+
+void cScene::HandleCharacter(char cCharacter)
+{
+
+}
+
+Camera **cScene::GetCameraRef()
+{
+    return &poCamera;
 }

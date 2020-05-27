@@ -28,6 +28,7 @@
 #include <vulkan/module/mrt/MRTRenderModule.hpp>
 #include <vulkan/module/lighting/LightingRenderRecorder.hpp>
 #include <vulkan/loop/GameLoop.hpp>
+#include <vulkan/AudioHandler.hpp>
 #include <thread>
 #include <chrono>
 
@@ -56,8 +57,8 @@ private:
     cGameLoop* ppGameLoop;
     std::thread* ppGameThread;
 
-protected:
     cScene* ppScene = nullptr;
+    cAudioHandler* ppAudioHandler;
 
 public:
     cEngine(const string& sAppName);
@@ -74,6 +75,7 @@ protected:
 
 private:
     void CreateGLWindow(void);
+    void InitAudio(void);
     void InitVulkan(void);
     void MainLoop(void);
     void Cleanup(void);
@@ -86,6 +88,7 @@ cEngine::cEngine(const string& sAppName) : psAppName(sAppName)
 void cEngine::Run()
 {
     CreateGLWindow();
+    InitAudio();
     InitVulkan();
     MainLoop();
     Cleanup();
@@ -95,6 +98,11 @@ void cEngine::CreateGLWindow(void)
 {
     ppWindow = new cWindow(psAppName);
     ppWindow->CreateGLWindow();
+}
+
+void cEngine::InitAudio(void)
+{
+    ppAudioHandler = new cAudioHandler();
 }
 
 void cEngine::InitVulkan(void)
@@ -162,9 +170,7 @@ void cEngine::InitVulkan(void)
     cClearScreenRecorder clearRecorder(ppLightsRenderModule->GetRenderPass(), ppSwapChain);
     papCommandBuffers[0]->RecordBuffers(&clearRecorder);
     papCommandBuffers[1]->RecordBuffers(&clearRecorder);
-
-    // Record the overlay to the overlay command buffer
-    papCommandBuffers[2]->RecordBuffers(ppOverlayRenderModule->GetCommandRecorder());
+    papCommandBuffers[2]->RecordBuffers(&clearRecorder);
 
     ppGameLoop = new cGameLoop();
     ppGameThread = new std::thread(std::ref(*ppGameLoop));
@@ -191,6 +197,9 @@ void cEngine::MainLoop(void)
                 ENGINE_LOG("Scene is asking for application quit");
                 ppWindow->Close();
             }
+
+            // Update the audio handler
+            ppAudioHandler->Update();
         }
 
         // Draw a frame
@@ -207,7 +216,7 @@ void cEngine::MainLoop(void)
             LoadScene(&ppScene);
 
             // Create and load the scene
-            ppScene->Load(ppTextureHandler, ppLogicalDevice);
+            ppScene->Load(ppTextureHandler, ppLogicalDevice, ppAudioHandler);
 
             // The scene will handle the input
             ppWindow->ppInputHandler = ppScene;
@@ -215,6 +224,7 @@ void cEngine::MainLoop(void)
             // Setup the buffers for uniform variables
             ppLightsRenderModule->GetUniformHandler()->SetupUniformBuffers(ppTextureHandler, ppScene);
             ppMRTRenderModule->GetUniformHandler()->SetupUniformBuffers(ppTextureHandler, ppScene);
+            ppOverlayRenderModule->GetUniformHandler()->SetupUniformBuffers(ppTextureHandler, ppScene);
 
             // We cannot (re-)record command buffers while the GPU is
             // using them, so we have to wait until it's idle.
@@ -230,8 +240,20 @@ void cEngine::MainLoop(void)
             papCommandBuffers[0]->RecordBuffers(&mrt);
             papCommandBuffers[1]->RecordBuffers(&light);
 
+            ppOverlayRenderModule->CreateCommandRecorder(ppScene);
+            papCommandBuffers[2]->RecordBuffers(ppOverlayRenderModule->GetCommandRecorder());
+
             ENGINE_LOG("Scene loading, adding tick task");
             ppGameLoop->AddTask(ppScene);
+
+            ppAudioHandler->SetCamera(ppScene->GetCameraRef());
+        }
+
+        if (cTextElement::Invalidated())
+        {
+            ppLogicalDevice->WaitUntilIdle();
+            papCommandBuffers[2]->RecordBuffers(ppOverlayRenderModule->GetCommandRecorder());
+            cTextElement::Validate();
         }
     }
 
@@ -246,6 +268,8 @@ void cEngine::MainLoop(void)
 void cEngine::Cleanup(void)
 {
     ENGINE_LOG("Cleaning up engine...");
+
+    delete ppAudioHandler;
 
     // Clean up the game thread
     ppGameThread->join();

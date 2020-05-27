@@ -6,61 +6,49 @@
 
 class cTestScene : public cScene
 {
+private:
+    string psText = "";
+    cTextElement* ppText;
+
 protected:
-    void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice) override
+    void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler) override
     {
-        // textures
-        pmpTextures["street"] = pTextureHandler->LoadTextureFromFile("resources/textures/street.jpg");
-        pmpTextures["moon"] = pTextureHandler->LoadTextureFromFile("resources/textures/moon.jpg");
+        pmpTextures["uvtemplate"] = pTextureHandler->LoadTextureFromFile("resources/textures/uvtemplate.bmp");
 
-        // geometry
-        pmpGeometries["box"] = cGeometry::FromOBJFile("resources/geometries/box.obj", pLogicalDevice);
+        pmpOverlay["test"] = new cStaticElement({500, 500}, pmpTextures["uvtemplate"], pLogicalDevice);
+        pmpOverlay["test"]->SetPosition(glm::vec2(350, 350));
 
-        // mesh
-        pmpMeshes["box1"] = new cMesh(pmpGeometries["box"], pmpTextures["street"]);
-        pmpMeshes["box2"] = new cMesh(pmpGeometries["box"], pmpTextures["moon"]);
+        ppText = new cTextElement({100, 100}, nullptr, pLogicalDevice);
+        pmpOverlay["text"] = ppText;
+        ppText->SetPosition(glm::vec2(500, 500));
+        ppText->SetFont(20, cOverlayRenderModule::FONT, glm::vec3(1, 1, 0));
 
-        pmpObjects["box1"] = new cBaseObject(pmpMeshes["box1"], cCollider::UnitCollider(0.5f), false);
-        pmpObjects["box1"]->SetPosition(glm::vec3(2.1, 0, 0));
-        pmpObjects["box1"]->pbLighting = false;
-
-        pmpObjects["box2"] = new cBaseObject(pmpMeshes["box2"], cCollider::UnitCollider(0.5f), false);
-        pmpObjects["box2"]->SetPosition(glm::vec3(1, 0, 0));
-        pmpObjects["box2"]->SetRotation(glm::vec3(0, 45, 0));
-        pmpObjects["box2"]->pbLighting = false;
-
-        cScene::Load(pTextureHandler, pLogicalDevice);
+        cScene::Load(pTextureHandler, pLogicalDevice, pAudioHandler);
     }
 
 public:
     void Update() override
     {
-        if (paKeys[GLFW_KEY_W])
-            poCamera->Forward();
-        if (paKeys[GLFW_KEY_S])
-            poCamera->BackWard();
-        if (paKeys[GLFW_KEY_A])
-            poCamera->MoveLeft();
-        if (paKeys[GLFW_KEY_D])
-            poCamera->MoveRight();
-        if (paKeys[GLFW_KEY_SPACE])
-            poCamera->cameraHeight += 0.1;
-        if (paKeys[GLFW_KEY_LEFT_SHIFT])
-            poCamera->cameraHeight -= 0.1;
-
-        if (paKeys[GLFW_KEY_ESCAPE])
-            Quit();
-
-        glm::vec3 pos = poCamera->GetPosition();
-        pos.y -= 2;
-        pmpObjects["box2"]->SetPosition(pos);
-        glm::vec3 newPos = pmpObjects["box2"]->GetPosition();
-        poCamera->SetPosition(newPos);
-
-        cBaseObject* pObject = pmpObjects["box2"];
-        glm::mat4 matrix = pObject->GetModelMatrix();
-        ENGINE_LOG(ppColliders->Collides(pObject->ppCollider, matrix));
+        if (paKeys[GLFW_KEY_ESCAPE]) Quit();
 
         cScene::Update();
+    }
+
+    void HandleKey(uint uiKeyCode, uint uiAction) override
+    {
+        if (uiAction == GLFW_PRESS)
+        {
+            if (uiKeyCode == GLFW_KEY_BACKSPACE)
+            {
+                psText = psText.substr(0, psText.size() - 1);
+                ppText->UpdateText(psText);
+            }
+        }
+    }
+
+    void HandleCharacter(char cCharacter) override
+    {
+        psText += cCharacter;
+        ppText->UpdateText(psText);
     }
 };

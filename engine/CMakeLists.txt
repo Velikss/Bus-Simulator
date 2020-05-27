@@ -126,7 +126,29 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/multiplayer/cMultiplayerHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/collision/Collider.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/collision/CollisionHelper.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/collision/ColliderSet.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/collision/ColliderSet.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/StaticElement.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/TextElement.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/AudioHandler.hpp)
+
+
+add_library(fmod STATIC IMPORTED)
+IF (NOT WIN32)
+    set_target_properties(fmod PROPERTIES
+            IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/vendor/fmod/linux/api/core/lib/x86_64/libfmod.so
+            INTERFACE_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/vendor/fmod/linux/api/core/inc/
+            )
+    include_directories(${PROJECT_SOURCE_DIR}/vendor/fmod/linux/api/core/inc)
+    link_directories(${PROJECT_SOURCE_DIR}/vendor/fmod/linux/api/core/lib)
+ELSE ()
+    set_target_properties(fmod PROPERTIES
+            IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/vendor/fmod/windows/api/core/lib/x64/fmod_vc.lib
+            INTERFACE_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/vendor/fmod/windows/api/core/inc/
+            )
+    include_directories(${PROJECT_SOURCE_DIR}/vendor/fmod/windows/api/core/inc)
+    link_directories(${PROJECT_SOURCE_DIR}/vendor/fmod/windows/api/core/lib)
+    link_directories(${PROJECT_SOURCE_DIR}/vendor/fmod/windows/bin)
+ENDIF ()
 
 include_directories(${_ENGINE_INCLUDE_DIRS})
 add_library(${This} STATIC ${PROJECT_SOURCE_DIR}/src/main.cpp ${Headers})
@@ -135,11 +157,11 @@ target_include_directories(${This} INTERFACE ${_ENGINE_INCLUDE_DIRS})
 target_include_directories(${This}-Test INTERFACE ${_ENGINE_INCLUDE_DIRS})
 
 IF (WIN32)
-    target_link_libraries(${This} PUBLIC ${_ENGINE_LIBRARIES} glm)
-    target_link_libraries(${This}-Test PUBLIC ${_ENGINE_LIBRARIES} glm GTest::gtest)
+    target_link_libraries(${This} PUBLIC ${_ENGINE_LIBRARIES} glm fmod)
+    target_link_libraries(${This}-Test PUBLIC ${_ENGINE_LIBRARIES} glm fmod GTest::gtest)
 ELSE()
-    target_link_libraries(${This} PUBLIC ${_ENGINE_LIBRARIES})
-    target_link_libraries(${This}-Test PUBLIC ${_ENGINE_LIBRARIES} gtest)
+    target_link_libraries(${This} PUBLIC ${_ENGINE_LIBRARIES} fmod)
+    target_link_libraries(${This}-Test PUBLIC ${_ENGINE_LIBRARIES} fmod gtest)
 ENDIF()
 
 add_test(

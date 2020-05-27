@@ -177,7 +177,7 @@ VkExtent2D cSwapChain::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& tCapabil
     {
         // If currentExtent is not present, use our window size clamped to the bounds of the capabilities
 
-        VkExtent2D actualExtent = {pWindow->WIDTH, pWindow->HEIGHT};
+        VkExtent2D actualExtent = {WIDTH, HEIGHT};
 
         actualExtent.width = std::max(tCapabilities.minImageExtent.width,
                                       std::min(tCapabilities.maxImageExtent.width, actualExtent.width));
@@ -412,7 +412,7 @@ void cSwapChain::CreateResources(void) // TODO: This might belong somewhere else
     cSwapChainHelper::CreateAttachment(VK_FORMAT_R8G8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
                                        &ptOffScreenBuffer.ptMaterialAttachment, ppLogicalDevice, ptSwapChainExtent);
 
-    cSwapChainHelper::CreateAttachment(VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+    cSwapChainHelper::CreateAttachment(VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
                                        &ptOverlayBuffer.ptColorAttachment, ppLogicalDevice, ptSwapChainExtent);
 
     // Create sampler to sample from the color attachments

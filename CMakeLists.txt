@@ -23,3 +23,10 @@ set(Sources
 include_directories(${PROJECT_SOURCE_DIR}/src)
 add_executable(${This} ${Sources} ${Headers})
 target_link_libraries(${This} engine)
+
+IF (WIN32)
+    add_custom_command(TARGET ${This}
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${PROJECT_SOURCE_DIR}/engine/vendor/fmod/windows/api/core/lib/x64/fmod.dll"
+            $<TARGET_FILE_DIR:${This}>)
+ENDIF()
