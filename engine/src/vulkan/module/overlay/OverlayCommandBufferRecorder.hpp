@@ -20,14 +20,14 @@ private:
     std::array<VkClearValue, 1> paoClearValues = {};
 
     cText* ppText;
-    cScene* ppScene;
+    iOverlayProvider* ppOverlayProvider;
 
 public:
     cOverlayCommandBufferRecorder(cRenderPass* pRenderPass,
                                   cSwapChain* pSwapChain,
                                   cRenderPipeline* pGraphicsPipeline,
                                   iUniformHandler* pUniformHandler,
-                                  cText* pText, cScene* pScene);
+                                  cText* pText, iOverlayProvider* pOverlayProvider);
 
     void Setup(uint uiIndex) override;
     void RecordCommands(VkCommandBuffer& oCommandBuffer, uint uiIndex) override;
@@ -37,14 +37,14 @@ cOverlayCommandBufferRecorder::cOverlayCommandBufferRecorder(cRenderPass* pRende
                                                              cSwapChain* pSwapChain,
                                                              cRenderPipeline* pGraphicsPipeline,
                                                              iUniformHandler* pUniformHandler,
-                                                             cText* pText, cScene* pScene)
+                                                             cText* pText, iOverlayProvider* pOverlayProvider)
 {
     ppRenderPass = pRenderPass;
     ppSwapChain = pSwapChain;
     ppPipeline = pGraphicsPipeline;
     ppUniformHandler = pUniformHandler;
     ppText = pText;
-    ppScene = pScene;
+    ppOverlayProvider = pOverlayProvider;
 }
 
 void cOverlayCommandBufferRecorder::Setup(uint uiIndex)
@@ -75,16 +75,20 @@ void cOverlayCommandBufferRecorder::RecordCommands(VkCommandBuffer& oCommandBuff
     vkCmdBindPipeline(oCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                       ppPipeline->GetPipeline());
 
-    uint uiGeometryIndex = 0;
-    for (auto oElement : ppScene->GetOverlay())
+    cOverlayWindow* pOverlayWindow = ppOverlayProvider->GetActiveOverlayWindow();
+    if (pOverlayWindow != nullptr)
     {
-        cStaticElement* pElement = oElement.second;
+        uint uiGeometryIndex = 0;
+        for (auto oElement : pOverlayWindow->GetElements())
+        {
+            cStaticElement* pElement = oElement.second;
 
-        pElement->CmdBindVertexBuffer(oCommandBuffer);
+            pElement->CmdBindVertexBuffer(oCommandBuffer);
 
-        ppUniformHandler->CmdBindDescriptorSets(oCommandBuffer, ppPipeline->GetLayout(), uiGeometryIndex++);
+            ppUniformHandler->CmdBindDescriptorSets(oCommandBuffer, ppPipeline->GetLayout(), uiGeometryIndex++);
 
-        vkCmdDraw(oCommandBuffer, pElement->GetVertexCount(), 1, 0, 0);
+            vkCmdDraw(oCommandBuffer, pElement->GetVertexCount(), 1, 0, 0);
+        }
     }
 
     // End the render pass

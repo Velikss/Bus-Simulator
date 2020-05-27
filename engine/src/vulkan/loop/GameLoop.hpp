@@ -24,6 +24,7 @@ private:
 
     // If false, the loop will terminate
     bool pbRunning = true;
+    bool pbPaused = false;
 
 public:
     // Destroys all the tasks inside this loop
@@ -37,6 +38,8 @@ public:
 
     // Stop this GameLoop
     void Stop();
+
+    void SetPaused(bool bPaused);
 
 private:
     // Main loop handling the timing
@@ -72,6 +75,11 @@ void cGameLoop::Stop()
     pbRunning = false;
 }
 
+void cGameLoop::SetPaused(bool bPaused)
+{
+    pbPaused = bPaused;
+}
+
 void cGameLoop::MainLoop()
 {
     // tNext is the time at which the next tick should start
@@ -87,8 +95,11 @@ void cGameLoop::MainLoop()
         CheckTickTime(tPrev, tNow);
         tPrev = tNow;
 
-        // Run all the tick tasks
-        Tick();
+        if (!pbPaused)
+        {
+            // Run all the tick tasks
+            Tick();
+        }
 
         // The next tick should start PERIOD milliseconds after the last one
         tNext += tPERIOD;

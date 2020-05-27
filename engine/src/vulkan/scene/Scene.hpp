@@ -27,8 +27,6 @@ protected:
 
     std::map<string, cBaseObject*> pmpObjects;
 
-    std::map<string, cStaticElement*> pmpOverlay;
-
     bool paKeys[GLFW_KEY_LAST] = {false};
 
     cColliderSet* ppColliders = new cColliderSet();
@@ -40,7 +38,6 @@ private:
     std::vector<cLightObject*> papLightObjects;
 
 public:
-    glm::vec3 textColor = glm::vec3(0, 1, 0);
     float pfAmbientLight = 0.2f;
 
     cScene();
@@ -51,10 +48,8 @@ public:
 
     uint GetObjectCount();
     std::map<string, cBaseObject*>& GetObjects();
-    std::map<string, cMesh*>& GetMeshes();
     std::vector<cBaseObject*>& GetMovableObjects();
     std::vector<cLightObject*>& GetLightObjects();
-    std::map<string, cStaticElement*> GetOverlay();
 
     Camera& GetCamera();
     Camera** GetCameraRef();
@@ -69,6 +64,8 @@ public:
     void HandleKey(uint uiKeyCode, uint uiAction) override;
     void HandleScroll(double dOffsetX, double dOffsetY) override;
     void HandleCharacter(char cCharacter) override;
+
+    virtual void OnInputDisable();
 
 protected:
     void Quit();
@@ -101,11 +98,6 @@ cScene::~cScene()
     for (auto oTexture : pmpTextures)
     {
         delete oTexture.second;
-    }
-
-    for (auto oElement : pmpOverlay)
-    {
-        delete oElement.second;
     }
 }
 
@@ -154,12 +146,6 @@ void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevi
     {
         assert(oTexture.second != nullptr);
     }
-
-    for (auto oElement : pmpOverlay)
-    {
-        assert(oElement.second != nullptr);
-        oElement.second->LoadVertices();
-    }
 }
 
 void cScene::Tick()
@@ -182,11 +168,6 @@ std::map<string, cBaseObject*>& cScene::GetObjects()
     return pmpObjects;
 }
 
-std::map<string, cMesh*>& cScene::GetMeshes()
-{
-    return pmpMeshes;
-}
-
 std::vector<cBaseObject*>& cScene::GetMovableObjects()
 {
     return papMovableObjects;
@@ -195,11 +176,6 @@ std::vector<cBaseObject*>& cScene::GetMovableObjects()
 std::vector<cLightObject*>& cScene::GetLightObjects()
 {
     return papLightObjects;
-}
-
-std::map<string, cStaticElement*> cScene::GetOverlay()
-{
-    return pmpOverlay;
 }
 
 Camera& cScene::GetCamera()
@@ -241,7 +217,15 @@ void cScene::HandleCharacter(char cCharacter)
 
 }
 
-Camera **cScene::GetCameraRef()
+Camera** cScene::GetCameraRef()
 {
     return &poCamera;
+}
+
+void cScene::OnInputDisable()
+{
+    for (uint uiIndex = 0; uiIndex < sizeof(paKeys) / sizeof(paKeys[0]); uiIndex++)
+    {
+        paKeys[uiIndex] = false;
+    }
 }
