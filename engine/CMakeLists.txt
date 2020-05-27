@@ -135,11 +135,11 @@ set(Headers
 IF (NOT WIN32)
     add_library(fmod SHARED IMPORTED)
     set_target_properties(fmod PROPERTIES
-            IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/vendor/fmod/linux/api/core/lib/x86_64/libfmod.so
+            IMPORTED_LOCATION /usr/lib/fmod/libfmod.so
             INTERFACE_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/vendor/fmod/linux/api/core/inc/
             )
     include_directories(${PROJECT_SOURCE_DIR}/vendor/fmod/linux/api/core/inc)
-    link_directories(${PROJECT_SOURCE_DIR}/vendor/fmod/linux/api/core/lib)
+    link_directories(/usr/lib/fmod/)
 ELSE ()
     add_library(fmod STATIC IMPORTED)
     set_target_properties(fmod PROPERTIES
