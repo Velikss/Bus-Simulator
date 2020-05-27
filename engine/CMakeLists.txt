@@ -83,7 +83,6 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/RenderPipeline.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/swapchain/SwapChainHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/swapchain/SwapChain.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/Shaders.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/mrt/MRTPipeline.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/mrt/MRTRenderModule.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/mrt/MRTRenderPass.hpp
