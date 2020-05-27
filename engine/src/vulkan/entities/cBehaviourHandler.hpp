@@ -158,9 +158,5 @@ void cBehaviourHandler::OnFileChanged(std::string sFilePath, cDirectoryWatcher::
             }
             break;
         }
-        case cDirectoryWatcher::FileStatus::erased:
-        {
-            //TODO: support for removing behaviour files
-        }
     }
 }
