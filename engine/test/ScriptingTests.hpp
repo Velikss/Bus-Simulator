@@ -14,13 +14,13 @@ TEST(ScriptingTests, TestEngineCompilesCorrectFilePath)
 {
     cScriptingEngine engine;
 
-    ASSERT_TRUE(engine.CompileJavaScriptFile("../test/EngineTests/test.js"));
+    ASSERT_TRUE(engine.CompileJavaScriptFile("test.js"));
 }
 
 TEST(ScriptingTests, TestScriptFunction)
 {
     cScriptingEngine engine;
-    engine.CompileJavaScriptFile("../test/EngineTests/test.js");
+    engine.CompileJavaScriptFile("test.js");
 
     ASSERT_TRUE(engine.RunJavaScriptFunction("test"));
 }
@@ -28,7 +28,7 @@ TEST(ScriptingTests, TestScriptFunction)
 TEST(ScriptingTests, TestScriptWrongFunctionName)
 {
     cScriptingEngine engine;
-    engine.CompileJavaScriptFile("../test/EngineTests/test.js");
+    engine.CompileJavaScriptFile("test.js");
 
     ASSERT_FALSE(engine.RunJavaScriptFunction("testwrong"));
 }

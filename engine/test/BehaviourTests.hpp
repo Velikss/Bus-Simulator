@@ -6,7 +6,7 @@
 
 TEST(ScriptingTests, CheckIfCoordinatesChangeAfterSeperationUpdate)
 {
-    cBehaviourHandler::AddBehaviour("seperation", "../engine/src/scripting/seperation.js");
+    cBehaviourHandler::AddBehaviour("seperation", "../../resources/scripting/seperation.js");
 
     cEntityGroup entityGroup;
     cBehaviourHandler *cb = new cBehaviourHandler("seperation");
@@ -46,7 +46,7 @@ TEST(ScriptingTests, CheckIfCoordinatesChangeAfterSeperationUpdate)
 
 TEST(ScriptingTests, CheckIfCoordinatesChangeAfterCohesionUpdate)
 {
-    cBehaviourHandler::AddBehaviour("cohesion", "../engine/src/scripting/cohesion.js");
+    cBehaviourHandler::AddBehaviour("cohesion", "../../resources/scripting/cohesion.js");
 
     cEntityGroup entityGroup;
     cBehaviourHandler *cb = new cBehaviourHandler("cohesion");
