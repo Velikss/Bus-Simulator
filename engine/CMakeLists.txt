@@ -31,6 +31,7 @@ set(OPENSSL_USE_STATIC_LIBS TRUE)
 find_package(OpenSSL REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(Vulkan REQUIRED)
+
 get_target_property(GLFW_INCLUDE_DIR glfw INTERFACE_INCLUDE_DIRECTORIES)
 IF (WIN32)
     find_package(glm REQUIRED)
@@ -40,7 +41,7 @@ IF (WIN32)
     set(ENGINE_LIBRARIES ${This} ${GLEW_LIBRARIES} ${GLFW_LIBRARIES} ${DUKTAPE_LIBRARY} ${Vulkan_LIBRARIES} ${OPENSSL_SSL_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARIES} ${ODBC_LIBRARY} PARENT_SCOPE)
 ELSE()
     get_target_property(GLFW_LIBRARIES glfw IMPORTED_LOCATION_NOCONFIG)
-    set(ENGINE_LIBRARIES ${This} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} /usr/lib/libduktape.so ${Vulkan_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${ODBC_LIBRARY} PARENT_SCOPE)
+    set(ENGINE_LIBRARIES ${This} ${GLEW_LIBRARIES} ${GLFW_LIBRARIES} /usr/lib/libduktape.so ${Vulkan_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${ODBC_LIBRARY} PARENT_SCOPE)
 ENDIF()
 
 set(ENGINE_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src ${Vulkan_INCLUDE_DIRS} ${GLM_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS} ${GLFW_INCLUDE_DIR} ${DUKTAPE_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR} /usr/lib/libuuid.a PARENT_SCOPE)
@@ -126,14 +127,15 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/collision/CollisionHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/collision/ColliderSet.hpp)
 
-include_directories(${PROJECT_SOURCE_DIR}/src ${ENGINE_INCLUDE_DIRS})
+include_directories(${PROJECT_SOURCE_DIR}/src ${ENGINE_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS})
 
 add_library(${This} STATIC ${PROJECT_SOURCE_DIR}/src/main.cpp ${Headers})
 add_executable(${This}-Test ${PROJECT_SOURCE_DIR}/test/main.cpp ${Headers})
 
 target_link_libraries(${This} PUBLIC ${ENGINE_LIBRARIES})
 IF (WIN32)
-    target_link_libraries(${This}-Test PUBLIC ${ENGINE_LIBRARIES} GTest::gtest)
+    target_link_libraries(${This} PUBLIC glm)
+    target_link_libraries(${This}-Test PUBLIC ${ENGINE_LIBRARIES}  GTest::gtest)
 ELSE()
     target_link_libraries(${This}-Test PUBLIC ${ENGINE_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} gtest)
 ENDIF()
