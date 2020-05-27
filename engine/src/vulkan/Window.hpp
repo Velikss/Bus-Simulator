@@ -13,6 +13,8 @@ class cWindow
 private:
     static cWindow* poInstance;
 
+    const string& psWindowName;
+
     cVulkanInstance* ppVulkanInstance;
 
 
@@ -33,7 +35,7 @@ public:
 
     iInputHandler* ppInputHandler = nullptr;
 
-    cWindow();
+    cWindow(const string& sWindowName);
     ~cWindow();
 
     // Create and initialize the window
@@ -68,7 +70,7 @@ private:
 
 cWindow* cWindow::poInstance = nullptr;
 
-cWindow::cWindow()
+cWindow::cWindow(const string& sWindowName) : psWindowName(sWindowName)
 {
     glfwInit();
 
@@ -98,7 +100,7 @@ void cWindow::CreateGLWindow()
 {
     assert(ppWindow == nullptr); // don't create a window if it has already been created
 
-    ppWindow = glfwCreateWindow(WIDTH, HEIGHT, "BUS", nullptr, nullptr);
+    ppWindow = glfwCreateWindow(WIDTH, HEIGHT, psWindowName.c_str(), nullptr, nullptr);
 
     glfwSetCursorPosCallback(ppWindow, mouseCallback);
     //glfwSetInputMode(ppWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);

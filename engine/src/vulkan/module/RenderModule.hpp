@@ -16,8 +16,10 @@ protected:
     cLogicalDevice* ppLogicalDevice = nullptr;
     cSwapChain* ppSwapChain = nullptr;
 
+    std::vector<string>& paShaders;
+
 public:
-    cRenderModule(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
+    cRenderModule(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain, std::vector<string>& aShaders);
     virtual ~cRenderModule();
 
     iUniformHandler* GetUniformHandler();
@@ -29,10 +31,11 @@ protected:
 
     virtual void CreateUniformHandler() = 0;
     virtual void CreateRenderPass() = 0;
-    virtual void CreatePipeline() = 0;
+    virtual void CreatePipeline(std::vector<string>& aShaders) = 0;
 };
 
-cRenderModule::cRenderModule(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain)
+cRenderModule::cRenderModule(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain, std::vector<string>& aShaders)
+        : paShaders(aShaders)
 {
     assert(pLogicalDevice != nullptr);
     assert(pSwapChain != nullptr);
@@ -49,7 +52,7 @@ void cRenderModule::Init()
     CreateRenderPass();
     assert(ppRenderPass != nullptr); // render pass should be created
 
-    CreatePipeline();
+    CreatePipeline(paShaders);
     assert(ppRenderPipeline != nullptr); // pipeline should be created
 
     ENGINE_LOG("Render module '" << CURRENT_CLASS_NAME << "' initialized");

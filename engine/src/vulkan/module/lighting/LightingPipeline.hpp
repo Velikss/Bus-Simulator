@@ -8,7 +8,6 @@
 #include <vulkan/module/mrt/MRTUniformHandler.hpp>
 #include <vulkan/pipeline/PipelineHelper.hpp>
 #include <vulkan/pipeline/RenderPipeline.hpp>
-#include <vulkan/pipeline/Shaders.hpp>
 
 class cLightingPipeline : public cRenderPipeline
 {
@@ -16,7 +15,8 @@ public:
     cLightingPipeline(cSwapChain* pSwapChain,
                       cLogicalDevice* pLogicalDevice,
                       cRenderPass* pRenderPass,
-                      iUniformHandler* pUniformHandler);
+                      iUniformHandler* pUniformHandler,
+                      std::vector<string>& aShaders);
 
 protected:
     void CreatePipelineLayout(cSwapChain* pSwapChain,
@@ -26,15 +26,17 @@ protected:
     void CreatePipeline(cSwapChain* pSwapChain,
                         cLogicalDevice* pLogicalDevice,
                         cRenderPass* pRenderPass,
-                        iUniformHandler* pUniformHandler) override;
+                        iUniformHandler* pUniformHandler,
+                        std::vector<string>& aShaders) override;
 };
 
 cLightingPipeline::cLightingPipeline(cSwapChain* pSwapChain,
                                      cLogicalDevice* pLogicalDevice,
                                      cRenderPass* pRenderPass,
-                                     iUniformHandler* pUniformHandler)
+                                     iUniformHandler* pUniformHandler,
+                                     std::vector<string>& aShaders)
 {
-    Init(pSwapChain, pLogicalDevice, pRenderPass, pUniformHandler);
+    Init(pSwapChain, pLogicalDevice, pRenderPass, pUniformHandler, aShaders);
 }
 
 void cLightingPipeline::CreatePipelineLayout(cSwapChain* pSwapChain,
@@ -60,11 +62,12 @@ void cLightingPipeline::CreatePipelineLayout(cSwapChain* pSwapChain,
 void cLightingPipeline::CreatePipeline(cSwapChain* pSwapChain,
                                        cLogicalDevice* pLogicalDevice,
                                        cRenderPass* pRenderPass,
-                                       iUniformHandler* pUniformHandler)
+                                       iUniformHandler* pUniformHandler,
+                                       std::vector<string>& aShaders)
 {
     // Read the shader files
-    std::vector<char> acVertShaderCode = cPipelineHelper::ReadFile(LIGHTING_VERT_SHADER);
-    std::vector<char> acFragShaderCode = cPipelineHelper::ReadFile(LIGHTING_FRAG_SHADER);
+    std::vector<char> acVertShaderCode = cPipelineHelper::ReadFile(aShaders[0]);
+    std::vector<char> acFragShaderCode = cPipelineHelper::ReadFile(aShaders[1]);
 
     // Load the shader code into modules
     VkShaderModule oVertShaderModule = cPipelineHelper::CreateShaderModule(acVertShaderCode, pLogicalDevice);

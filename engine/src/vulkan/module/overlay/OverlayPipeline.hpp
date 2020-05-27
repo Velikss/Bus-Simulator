@@ -12,7 +12,6 @@
 #include <vulkan/pipeline/PipelineHelper.hpp>
 #include <vulkan/module/overlay/text/Vertex2D.hpp>
 #include <vulkan/module/overlay/OverlayRenderPass.hpp>
-#include <vulkan/pipeline/Shaders.hpp>
 
 class cOverlayPipeline : public cRenderPipeline
 {
@@ -20,7 +19,8 @@ public:
     cOverlayPipeline(cSwapChain* pSwapChain,
                      cLogicalDevice* pLogicalDevice,
                      cRenderPass* pRenderPass,
-                     iUniformHandler* pUniformHandler);
+                     iUniformHandler* pUniformHandler,
+                     std::vector<string>& aShaders);
 
 protected:
     void CreatePipelineLayout(cSwapChain* pSwapChain,
@@ -30,15 +30,17 @@ protected:
     void CreatePipeline(cSwapChain* pSwapChain,
                         cLogicalDevice* pLogicalDevice,
                         cRenderPass* pRenderPass,
-                        iUniformHandler* pUniformHandler) override;
+                        iUniformHandler* pUniformHandler,
+                        std::vector<string>& aShaders) override;
 };
 
 cOverlayPipeline::cOverlayPipeline(cSwapChain* pSwapChain,
                                    cLogicalDevice* pLogicalDevice,
                                    cRenderPass* pRenderPass,
-                                   iUniformHandler* pUniformHandler)
+                                   iUniformHandler* pUniformHandler,
+                                   std::vector<string>& aShaders)
 {
-    Init(pSwapChain, pLogicalDevice, pRenderPass, pUniformHandler);
+    Init(pSwapChain, pLogicalDevice, pRenderPass, pUniformHandler, aShaders);
 }
 
 void cOverlayPipeline::CreatePipelineLayout(cSwapChain* pSwapChain,
@@ -64,11 +66,12 @@ void cOverlayPipeline::CreatePipelineLayout(cSwapChain* pSwapChain,
 void cOverlayPipeline::CreatePipeline(cSwapChain* pSwapChain,
                                       cLogicalDevice* pLogicalDevice,
                                       cRenderPass* pRenderPass,
-                                      iUniformHandler* pUniformHandler)
+                                      iUniformHandler* pUniformHandler,
+                                      std::vector<string>& aShaders)
 {
     // Read the shader files
-    std::vector<char> acVertShaderCode = cPipelineHelper::ReadFile(TEXT_VERT_SHADER);
-    std::vector<char> acFragShaderCode = cPipelineHelper::ReadFile(TEXT_FRAG_SHADER);
+    std::vector<char> acVertShaderCode = cPipelineHelper::ReadFile(aShaders[0]);
+    std::vector<char> acFragShaderCode = cPipelineHelper::ReadFile(aShaders[1]);
 
     // Load the shader code into modules
     VkShaderModule oVertShaderModule = cPipelineHelper::CreateShaderModule(acVertShaderCode, pLogicalDevice);
