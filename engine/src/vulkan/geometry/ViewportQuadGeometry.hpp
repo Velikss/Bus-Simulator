@@ -47,8 +47,8 @@ cViewportQuadGeometry::cViewportQuadGeometry(cLogicalDevice* pLogicalDevice)
     }
 
     // Get the amount of vertices and indices
-    puiVertexCount = patVertices.size();
-    puiIndexCount = paiIndices.size();
+    puiVertexCount = (uint)patVertices.size();
+    puiIndexCount = (uint)paiIndices.size();
 
     // Setup the buffers on the device and copy the data there
     CopyToDevice(pLogicalDevice);

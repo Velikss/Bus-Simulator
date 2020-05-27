@@ -39,7 +39,7 @@ cCommandBuffer::cCommandBuffer(cLogicalDevice* pLogicalDevice, cSwapChain* pSwap
 cCommandBuffer::~cCommandBuffer(void)
 {
     ppLogicalDevice->FreeCommandBuffers(cCommandHelper::poCommandPool,
-                                        paoCommandBuffers.size(),
+                                        (uint)paoCommandBuffers.size(),
                                         paoCommandBuffers.data());
 }
 

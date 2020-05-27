@@ -100,9 +100,9 @@ void cOverlayPipeline::CreatePipeline(cSwapChain* pSwapChain,
     // Struct with information about the data we want to pass into the vertex shader
     VkPipelineVertexInputStateCreateInfo tVertexInputInfo = {};
     tVertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    tVertexInputInfo.vertexBindingDescriptionCount = atBindingDescriptions.size();
+    tVertexInputInfo.vertexBindingDescriptionCount = (uint)atBindingDescriptions.size();
     tVertexInputInfo.pVertexBindingDescriptions = atBindingDescriptions.data();
-    tVertexInputInfo.vertexAttributeDescriptionCount = atAttributeDescriptions.size();
+    tVertexInputInfo.vertexAttributeDescriptionCount = (uint)atAttributeDescriptions.size();
     tVertexInputInfo.pVertexAttributeDescriptions = atAttributeDescriptions.data();
 
     // Struct with information about the kind of geometry we want to draw

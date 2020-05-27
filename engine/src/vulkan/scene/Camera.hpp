@@ -9,9 +9,9 @@ The camera class, it is however FP based and should have its own sub-class in a 
 class Camera
 {
 public:
-    float fFoV = 45.0;
-    float fZNear = 0.1;
-    float fZFar = 800.0;
+    float fFoV = 45.0f;
+    float fZNear = 0.1f;
+    float fZFar = 800.0f;
 
     glm::vec3 cameraPos = glm::vec3(2.0f, 7.0f, 2.0f);
     glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);

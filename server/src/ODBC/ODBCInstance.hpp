@@ -179,7 +179,7 @@ class cODBCInstance
             SQLHANDLE handle,
             SQLSMALLINT type)
     {
-        SQLINTEGER i = 0;
+        SQLSMALLINT i = 0;
         SQLINTEGER native;
         SQLCHAR state[7];
         SQLCHAR text[256];
@@ -246,6 +246,7 @@ bool cODBCInstance::Connect(string sConnectionString)
     }
     catch (std::exception& ex)
     {
+        std::cout << ex.what() << std::endl;
         Disconnect();
         return false;
     }
@@ -265,6 +266,7 @@ bool cODBCInstance::Disconnect()
         }
         catch (std::exception& ex)
         {
+            std::cout << ex.what() << std::endl;
             std::cout << "failed disconnect." << std::endl;
         }
 
@@ -394,6 +396,7 @@ bool cODBCInstance::Fetch(string sQuery, std::vector<SQLROW>* aRows)
     }
     catch (std::exception& ex)
     {
+        std::cout << ex.what() << std::endl;
         extract_error("Fetch: ", stmt, SQL_HANDLE_STMT);
         SQLFreeHandle(SQL_HANDLE_STMT, stmt);
         return false;
@@ -433,6 +436,7 @@ bool cODBCInstance::Exec(string sQuery, SQLLEN* puiAffected)
     }
     catch (std::exception& ex)
     {
+        std::cout << ex.what() << std::endl;
         extract_error("Execute: ", stmt, SQL_HANDLE_STMT);
         SQLFreeHandle(SQL_HANDLE_STMT, stmt);
         return false;

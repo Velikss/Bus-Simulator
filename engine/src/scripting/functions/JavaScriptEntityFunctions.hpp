@@ -55,9 +55,9 @@ namespace JavaScriptEntityFunctions
         ArrayIndex = duk_push_array(poContext);
 
         // Then we will fill the array with the X Y coordinates of the entity's target. (we take Z as Y position because vec3 is used in BaseObject)
-        duk_push_int(poContext, poEntity->GetTarget().x);
+        duk_push_number(poContext, (double)poEntity->GetTarget().x);
         duk_put_prop_index(poContext, ArrayIndex, 0);
-        duk_push_int(poContext, poEntity->GetTarget().z);
+        duk_push_number(poContext, (double)poEntity->GetTarget().z);
         duk_put_prop_index(poContext, ArrayIndex, 1);
 
         return 1;
@@ -106,9 +106,9 @@ namespace JavaScriptEntityFunctions
         // Get Velocity and push the values to the array
         glm::vec2 velocity = poEntity->GetVelocity();
 
-        duk_push_int(poContext, velocity[0]);
+        duk_push_number(poContext, (double)velocity[0]);
         duk_put_prop_index(poContext, ArrayIndex, 0);
-        duk_push_int(poContext, velocity[1]);
+        duk_push_number(poContext, (double)velocity[1]);
         duk_put_prop_index(poContext, ArrayIndex, 1);
 
         return 1;

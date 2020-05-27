@@ -1,17 +1,6 @@
 cmake_minimum_required(VERSION 3.13.4)
 
 set(This engine)
-set(CompilerFlags
-        CMAKE_CXX_FLAGS
-        CMAKE_CXX_FLAGS_DEBUG
-        CMAKE_CXX_FLAGS_RELEASE
-        CMAKE_C_FLAGS
-        CMAKE_C_FLAGS_DEBUG
-        CMAKE_C_FLAGS_RELEASE
-        )
-foreach(CompilerFlag ${CompilerFlags})
-    string(REPLACE "/MT" "/MD" ${CompilerFlag} "${${CompilerFlag}}")
-endforeach()
 project(${This} C CXX)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)

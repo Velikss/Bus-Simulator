@@ -81,7 +81,7 @@ cVulkanInstance::cVulkanInstance(void)
     // If validation layers are enabled, add them to the create info
     if (pbENABLE_VALIDATION_LAYERS)
     {
-        tCreateInfo.enabledLayerCount = pasValidationLayers.size();
+        tCreateInfo.enabledLayerCount = (uint)pasValidationLayers.size();
         tCreateInfo.ppEnabledLayerNames = pasValidationLayers.data();
     }
     else

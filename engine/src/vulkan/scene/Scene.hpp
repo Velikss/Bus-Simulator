@@ -41,7 +41,7 @@ private:
 
 public:
     glm::vec3 textColor = glm::vec3(0, 1, 0);
-    float pfAmbientLight = 0.2;
+    float pfAmbientLight = 0.2f;
 
     cScene();
     virtual ~cScene();
@@ -173,7 +173,7 @@ void cScene::Update()
 
 uint cScene::GetObjectCount()
 {
-    return pmpObjects.size();
+    return (uint)pmpObjects.size();
 }
 
 std::map<string, cBaseObject*>& cScene::GetObjects()

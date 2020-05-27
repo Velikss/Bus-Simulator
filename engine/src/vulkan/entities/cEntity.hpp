@@ -17,7 +17,7 @@ public:
     {
         poVelocity = glm::vec2(0, 0);
         poSteeringForce = glm::vec2(0, 0);
-        pfMaxSpeed = 0.1;
+        pfMaxSpeed = 0.1f;
     }
 
     void AddBehaviour(cBehaviourHandler *&poBehaviour);

@@ -179,8 +179,8 @@ void cWindow::HandleGamepad(uint uiJoystickId)
     if (glfwGetGamepadState(uiJoystickId, &tState))
     {
         // Pass the right stick on as mouse input
-        ppInputHandler->HandleMouse(tState.axes[GLFW_GAMEPAD_AXIS_RIGHT_X],
-                                    tState.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
+        ppInputHandler->HandleMouse((uint)tState.axes[GLFW_GAMEPAD_AXIS_RIGHT_X],
+                                    (uint)tState.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
 
         // Temporary mapping for the left stick to keyboard keys
         float fMoveY = tState.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] - (tState.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] + 1);
@@ -218,7 +218,7 @@ void cWindow::HandleGamepad(uint uiJoystickId)
 void cWindow::mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY)
 {
     static bool bFirstMouse = true;
-    static float uiLastX = WIDTH, uiLastY = HEIGHT;
+    static double uiLastX = WIDTH, uiLastY = HEIGHT;
 
     if (poInstance == nullptr || poInstance->ppInputHandler == nullptr) return;
 
@@ -232,8 +232,8 @@ void cWindow::mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY)
     }
 
     // Calculate the delta between the last and current position
-    float uiDeltaX = dPosX - uiLastX;
-    float uiDeltaY = dPosY - uiLastY;
+    double uiDeltaX = dPosX - uiLastX;
+    double uiDeltaY = dPosY - uiLastY;
 
     // Set the last position to the current
     uiLastX = dPosX;
@@ -245,7 +245,7 @@ void cWindow::mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY)
     uiDeltaY *= fSensitivity;
 
     // Pass the delta X and Y on to the input handler
-    poInstance->ppInputHandler->HandleMouse(uiDeltaX, uiDeltaY);
+    poInstance->ppInputHandler->HandleMouse((uint)uiDeltaX, (uint)uiDeltaY);
 }
 
 void cWindow::keyCallback(GLFWwindow* pWindow, int iKey, int iScanCode, int iAction, int iMods)

@@ -364,7 +364,7 @@ void cSwapChain::CreateFramebuffers(VkRenderPass& oFinalRenderPass,
     tFramebufferInfo.pNext = NULL;
     tFramebufferInfo.renderPass = oOffScreenRenderPass;
     tFramebufferInfo.pAttachments = atAttachments.data();
-    tFramebufferInfo.attachmentCount = atAttachments.size();
+    tFramebufferInfo.attachmentCount = (uint)atAttachments.size();
     tFramebufferInfo.width = ptSwapChainExtent.width;
     tFramebufferInfo.height = ptSwapChainExtent.height;
     tFramebufferInfo.layers = 1;
@@ -438,7 +438,7 @@ void cSwapChain::CreateResources(void) // TODO: This might belong somewhere else
 
 uint cSwapChain::GetFramebufferSize(void)
 {
-    return paoSwapChainFramebuffers.size();
+    return (uint)paoSwapChainFramebuffers.size();
 }
 
 VkFramebuffer& cSwapChain::GetFramebuffer(uint index)

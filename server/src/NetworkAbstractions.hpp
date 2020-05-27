@@ -97,7 +97,7 @@ int cNetworkAbstractions::CloseSocket(NET_SOCK & oSock)
     iResult = close(oSock);
 #endif
 
-    oSock = NET_INVALID_SOCKET_ID;
+    oSock = (NET_SOCK) NET_INVALID_SOCKET_ID;
     return iResult;
 }
 

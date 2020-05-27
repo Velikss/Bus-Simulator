@@ -405,7 +405,7 @@ namespace cHttp
         cHttp::cRequest::DeserializeMeta(sBytes, oRequest);
 
         int iContentLength = std::atoi(oRequest.GetHeader("content-length").c_str());
-        int iRequestLength = iContentLength + oRequest.GetMetaLength();
+        size_t iRequestLength = iContentLength + oRequest.GetMetaLength();
         if (iRequestLength >= 8192)
         {
             byte* aNewBuffer = new byte[iRequestLength];
@@ -420,7 +420,7 @@ namespace cHttp
         size_t lMissingContent = 0;
         while ((lMissingContent = oRequest.GetMissingContent()) != 0)
         {
-            size += pConnection->ReceiveBytes(aBytes + size, lMissingContent);
+            size += (size_t) pConnection->ReceiveBytes(aBytes + size, (int) lMissingContent);
             cHttp::cRequest::DeserializeContent(sBytes, oRequest);
         }
 
@@ -442,7 +442,7 @@ namespace cHttp
         cHttp::cResponse::DeserializeMeta(sBytes, oResponse);
 
         int iContentLength = std::atoi(oResponse.GetHeader("content-length").c_str());
-        int iRequestLength = iContentLength + oResponse.GetMetaLength();
+        size_t iRequestLength = iContentLength + oResponse.GetMetaLength();
         if (iRequestLength >= 8192)
         {
             byte* aNewBuffer = new byte[iRequestLength];
@@ -457,7 +457,7 @@ namespace cHttp
         size_t lMissingContent = 0;
         while ((lMissingContent = oResponse.GetMissingContent()) != 0)
         {
-            size += pConnection->ReceiveBytes(aBytes + size, lMissingContent);
+            size += (size_t) pConnection->ReceiveBytes(aBytes + size, (int) lMissingContent);
             cHttp::cResponse::DeserializeContent(sBytes, oResponse);
         }
 

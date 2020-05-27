@@ -101,7 +101,7 @@ void cGameLoop::CheckTickTime(time_point<steady_clock> tPrev, time_point<steady_
     const uint uiPERIOD_COUNT = tPERIOD.count();
 
     // Calculate the time this tick took
-    uint uiTickTime = round<milliseconds>(tNow - tPrev).count();
+    uint uiTickTime = (uint)round<milliseconds>(tNow - tPrev).count();
 
     // If the time exceeds a threshold, print a warning
     if (uiTickTime > uiPERIOD_COUNT && uiTickTime - uiPERIOD_COUNT > 2)

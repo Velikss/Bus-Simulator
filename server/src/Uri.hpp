@@ -88,6 +88,7 @@ cUri cUri::ParseFromString(const string& in)
         }
         catch (std::exception & ex) // Should the value be too high.
         {
+            std::cout << ex.what() << std::endl;
             return oUri;
         }
 

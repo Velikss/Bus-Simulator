@@ -68,8 +68,7 @@ cStaticElement::~cStaticElement()
     ppLogicalDevice->FreeMemory(poVertexBufferMemory, nullptr);
 }
 
-void cStaticElement::LoadVertices()
-{
+void cStaticElement::LoadVertices() {
     patVertices[0] = {{0, 0},
                       {0, 0}};
     patVertices[1] = {{ptInfo.uiWidth, ptInfo.uiHeight},

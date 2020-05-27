@@ -33,7 +33,7 @@ protected:
     tNetworkInitializationSettings* pptNetworkSettings = nullptr;
     int piLastStatus = 0;
     sockaddr_in ptAddress = {};
-    NET_SOCK poSock = NET_INVALID_SOCKET_ID;
+    NET_SOCK poSock = (NET_SOCK)NET_INVALID_SOCKET_ID;
 public:
     SSL_CTX* ppSSLContext = nullptr;
     SSL* ppConnectionSSL = nullptr;
@@ -104,25 +104,25 @@ public:
 	    return GetIP() + ":" + GetPortStr();
     }
 
-	bool SendBytes(const byte* pBuffer, size_t uiNumBytes)
+	bool SendBytes(const byte* pBuffer, int iNumBytes)
     {
-        long long lResult = 0;
+        int iResult = 0;
         if (ppConnectionSSL)
-            lResult = SSL_write(ppConnectionSSL, pBuffer, uiNumBytes);
+            iResult = SSL_write(ppConnectionSSL, pBuffer, iNumBytes);
         else
-            lResult = send(poSock, (char *) pBuffer, uiNumBytes, 0);
-        if (lResult == NET_SOCKET_ERROR) return false;
+            iResult = send(poSock, (char *) pBuffer, iNumBytes, 0);
+        if (iResult == (int) NET_SOCKET_ERROR) return false;
         return true;
     }
 
-    long ReceiveBytes(byte* pBuffer, size_t uiNumBytes)
+    int ReceiveBytes(byte* pBuffer, int iNumBytes)
     {
-        long long size = 0;
+        int iResult = 0;
         if(ppConnectionSSL)
-            size = SSL_read(ppConnectionSSL, (char*) pBuffer, uiNumBytes);
+            iResult = SSL_read(ppConnectionSSL, (char*) pBuffer, iNumBytes);
         else
-            size = recv(poSock, (char*)pBuffer, uiNumBytes, 0);
-        return size;
+            iResult = recv(poSock, (char*)pBuffer, iNumBytes, 0);
+        return iResult;
     }
 
 	static unsigned int puiNumberOfAliveSockets;
@@ -138,7 +138,7 @@ cNetworkConnection::cNetworkConnection(cNetworkConnection::tNetworkInitializatio
     ptAddress.sin_addr.s_addr = (ptNetworkSettings->sAddress.empty()) ? INADDR_ANY : inet_addr(ptNetworkSettings->sAddress.c_str());
     ptAddress.sin_port = htons(ptNetworkSettings->usPort);
 
-    poSock = socket(ptNetworkSettings->eIPVersion == cIPVersion::eV4 ? AF_INET : AF_INET6,
+    poSock = (NET_SOCK) socket(ptNetworkSettings->eIPVersion == cIPVersion::eV4 ? AF_INET : AF_INET6,
                     ptNetworkSettings->eConnectionType == cConnectionType::eTCP ? SOCK_STREAM : SOCK_DGRAM,
                     IPPROTO_TCP);
 

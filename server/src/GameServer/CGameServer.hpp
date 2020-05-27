@@ -95,7 +95,7 @@ bool cGameServer::OnRecieve(cNetworkConnection *pConnection)
         cResponse oResponse;
         oResponse.SetResponseCode(200);
         string sBuffer = oResponse.Serialize();
-        pConnection->SendBytes((byte*)sBuffer.c_str(), sBuffer.size());
+        pConnection->SendBytes((byte*)sBuffer.c_str(), (int) sBuffer.size());
         return true;
     }
     return false;
