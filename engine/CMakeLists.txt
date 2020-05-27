@@ -126,18 +126,16 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/collision/CollisionHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/collision/ColliderSet.hpp)
 
-include_directories(${PROJECT_SOURCE_DIR}/src ${ENGINE_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS})
+include_directories(${PROJECT_SOURCE_DIR}/src ${ENGINE_INCLUDE_DIRS})
+
 add_library(${This} STATIC ${PROJECT_SOURCE_DIR}/src/main.cpp ${Headers})
 add_executable(${This}-Test ${PROJECT_SOURCE_DIR}/test/main.cpp ${Headers})
 
-target_include_directories(${This} PUBLIC ${ENGINE_INCLUDE_DIRS})
-target_link_libraries(${This} PUBLIC ${GLEW_LIBRARIES} ${GLFW_LIBRARIES} ${DUKTAPE_LIBRARY} ${Vulkan_LIBRARIES} OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY})
-target_include_directories(${This}-Test PUBLIC ${ENGINE_INCLUDE_DIRS})
-
+target_link_libraries(${This} PUBLIC ${ENGINE_LIBRARIES})
 IF (WIN32)
     target_link_libraries(${This}-Test PUBLIC ${ENGINE_LIBRARIES} GTest::gtest)
 ELSE()
-    target_link_libraries(${This}-Test PUBLIC ${ENGINE_LIBRARIES} gtest)
+    target_link_libraries(${This}-Test PUBLIC ${ENGINE_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} gtest)
 ENDIF()
 
 add_test(
