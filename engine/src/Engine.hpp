@@ -317,23 +317,34 @@ void cEngine::MainLoop(void)
         {
             ENGINE_LOG("Switching overlay window");
 
+            // Wait until the GPU is idle
             ppLogicalDevice->WaitUntilIdle();
+
+            // Pause the game loop and optionally tell the scene to disable input
             ppGameLoop->SetPaused(true);
             if (ppRequestedOverlayWindow != nullptr && ppRequestedOverlayWindow->ShouldHandleInput())
             {
                 ppScene->OnInputDisable();
             }
 
+            // Set the active window to the new one
             ppActiveOverlayWindow = ppRequestedOverlayWindow;
+
+            // Setup the new uniform buffers
             ppOverlayRenderModule->GetUniformHandler()->SetupUniformBuffers(ppTextureHandler, ppScene);
+            // Re-record the command buffers
             papCommandBuffers[2]->RecordBuffers(ppOverlayRenderModule->GetCommandRecorder());
 
+            // Unpause the game loop
             ppGameLoop->SetPaused(false);
+
+            // Clear the request variables
             ppRequestedOverlayWindow = nullptr;
             pbUpdateOverlayWindow = false;
         }
     }
 
+    // Stop the game loop before closing the main loop
     ppGameLoop->Stop();
 
     ENGINE_LOG("Main loop closed");
