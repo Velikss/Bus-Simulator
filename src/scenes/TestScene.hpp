@@ -2,7 +2,7 @@
 
 #include <pch.hpp>
 #include <vulkan/scene/Scene.hpp>
-#include "LightObject.hpp"
+#include "vulkan/scene/LightObject.hpp"
 
 class cTestScene : public cScene
 {

@@ -23,13 +23,11 @@
 #include <vulkan/command/CommandBuffer.hpp>
 #include <vulkan/module/mrt/MRTRenderRecorder.hpp>
 #include <vulkan/command/ClearScreenRecorder.hpp>
-#include <vulkan/scene/TestScene.hpp>
 #include <vulkan/module/overlay/OverlayRenderModule.hpp>
 #include <vulkan/module/lighting/LightingRenderModule.hpp>
 #include <vulkan/module/mrt/MRTRenderModule.hpp>
 #include <vulkan/module/lighting/LightingRenderRecorder.hpp>
 #include <vulkan/loop/GameLoop.hpp>
-#include <vulkan/scene/BusWorldScene.hpp>
 #include <thread>
 #include <chrono>
 
@@ -53,11 +51,11 @@ private:
     cOverlayRenderModule* ppOverlayRenderModule = nullptr;
     cMRTRenderModule* ppMRTRenderModule;
 
-    cScene* ppScene = nullptr;
-
     cGameLoop* ppGameLoop;
     std::thread* ppGameThread;
 
+protected:
+    cScene* ppScene = nullptr;
 public:
     // Initializes and starts the engine and all of it's sub-components
     void Run(void);
@@ -182,7 +180,6 @@ void Engine::MainLoop(void)
             ENGINE_LOG("Loading scene...");
 
             // Create and load the scene
-            ppScene = new cBusWorldScene();
             ppScene->Load(ppTextureHandler, ppLogicalDevice);
 
             // The scene will handle the input

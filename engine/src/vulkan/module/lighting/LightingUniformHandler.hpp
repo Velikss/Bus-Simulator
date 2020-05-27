@@ -121,7 +121,6 @@ cLightingUniformHandler::cLightingUniformHandler(cLogicalDevice* pLogicalDevice,
     }
 }
 
-
 cLightingUniformHandler::~cLightingUniformHandler()
 {
     ppLogicalDevice->DestroyDescriptorSetLayout(poDescriptorSetLayout, nullptr);

@@ -1,14 +1,24 @@
 #include "pch.hpp"
 #include <iostream>
 #include <Engine.hpp>
+#include <scenes/BusWorldScene.hpp>
+
+class cApplication : public Engine
+{
+public:
+    cApplication()
+    {
+        ppScene = new cBusWorldScene();
+    }
+};
 
 int main(int argc, char** argv)
 {
-    Engine oEngine;
+    cApplication oGame;
 
     try
     {
-        oEngine.Run();
+        oGame.Run();
     }
     catch (const std::exception& e)
     {

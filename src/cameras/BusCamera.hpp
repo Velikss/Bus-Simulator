@@ -1,8 +1,8 @@
 #pragma once
 
 #include <pch.hpp>
-#include <vulkan/entities/cBus.hpp>
-#include "Camera.hpp"
+#include <entities/cBus.hpp>
+#include "vulkan/scene/Camera.hpp"
 
 class BusCamera : public Camera
 {
