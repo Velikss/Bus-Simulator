@@ -135,7 +135,8 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/collision/ColliderSet.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/StaticElement.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/TextElement.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/AudioHandler.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/AudioHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/util/DirectoryWatcher.hpp)
 
 include_directories(${_ENGINE_INCLUDE_DIRS})
 add_library(${This} STATIC ${PROJECT_SOURCE_DIR}/src/main.cpp ${Headers})

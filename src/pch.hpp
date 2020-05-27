@@ -69,6 +69,17 @@ void sleep(int sleepMs)
 #endif
 }
 
+void fSleep(int sleepMs)
+{
+#if defined(LINUX)
+    usleep(sleepMs * 1000);   // usleep takes sleep time in us (1 millionth of a second)
+#elif defined(WINDOWS)
+    Sleep(sleepMs);
+#else
+#error Unsupported Platform.
+#endif
+}
+
 #define GLFW_INCLUDE_VULKAN                 // We want to use GLFW with Vulkan
 #define GLM_FORCE_RADIANS                   // Force GLM to use radians everywhere
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES  // Force GLM to use aligned types by default
