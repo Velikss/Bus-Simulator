@@ -69,7 +69,7 @@ void cMRTRenderPass::CreateRenderPass()
     tSubpassDescription.flags = 0;
     tSubpassDescription.inputAttachmentCount = 0;
     tSubpassDescription.pInputAttachments = NULL;
-    tSubpassDescription.colorAttachmentCount = (uint)atColorReferences.size();
+    tSubpassDescription.colorAttachmentCount = (uint) atColorReferences.size();
     tSubpassDescription.pColorAttachments = atColorReferences.data();
     tSubpassDescription.pResolveAttachments = NULL;
     tSubpassDescription.pDepthStencilAttachment = &depthReference;
@@ -79,7 +79,7 @@ void cMRTRenderPass::CreateRenderPass()
     VkRenderPassCreateInfo tRenderPassInfo = {};
     tRenderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     tRenderPassInfo.pNext = NULL;
-    tRenderPassInfo.attachmentCount = (uint)atAttachmentDescriptions.size();
+    tRenderPassInfo.attachmentCount = (uint) atAttachmentDescriptions.size();
     tRenderPassInfo.pAttachments = atAttachmentDescriptions.data();
     tRenderPassInfo.subpassCount = 1;
     tRenderPassInfo.pSubpasses = &tSubpassDescription;

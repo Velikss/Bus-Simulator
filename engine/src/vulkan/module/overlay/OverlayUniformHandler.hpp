@@ -102,7 +102,7 @@ cOverlayUniformHandler::cOverlayUniformHandler(cLogicalDevice* pLogicalDevice,
 
     VkDescriptorSetLayoutCreateInfo tLayoutInfo = {};
     tLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    tLayoutInfo.bindingCount = (uint)atBindings.size();
+    tLayoutInfo.bindingCount = (uint) atBindings.size();
     tLayoutInfo.pBindings = atBindings.data();
 
     if (!pLogicalDevice->CreateDescriptorSetLayout(&tLayoutInfo, nullptr, &poDescriptorSetLayout))
@@ -129,7 +129,7 @@ cOverlayUniformHandler::cOverlayUniformHandler(cLogicalDevice* pLogicalDevice,
 
     VkDescriptorSetLayoutCreateInfo tElementLayoutInfo = {};
     tElementLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    tElementLayoutInfo.bindingCount = (uint)atElementBindings.size();
+    tElementLayoutInfo.bindingCount = (uint) atElementBindings.size();
     tElementLayoutInfo.pBindings = atElementBindings.data();
 
     if (!pLogicalDevice->CreateDescriptorSetLayout(&tElementLayoutInfo, nullptr, &poElementDescriptorSetLayout))
@@ -162,6 +162,8 @@ void cOverlayUniformHandler::Cleanup()
         ppLogicalDevice->FreeMemory(paoElementUniformBuffersMemory[uiIndex], nullptr); //-V108
     }
 
+    ENGINE_LOG("Cleaned up allocated memory for overlay");
+
     pbAllocated = false;
 }
 
@@ -190,7 +192,7 @@ void cOverlayUniformHandler::CreateUniformBuffers()
     if (pOverlayWindow != nullptr)
     {
         VkDeviceSize bufferSize = sizeof(tOverlayElementObject);
-        uint uiCount = (uint)pOverlayWindow->GetElements().size();
+        uint uiCount = (uint) pOverlayWindow->GetElements().size();
 
         paoElementUniformBuffers.resize(uiCount);
         paoElementUniformBuffersMemory.resize(uiCount);
@@ -210,16 +212,16 @@ void cOverlayUniformHandler::CreateDescriptorPool()
 {
     std::array<VkDescriptorPoolSize, 2> atPoolSizes = {};
     atPoolSizes[0].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    atPoolSizes[0].descriptorCount = 1 + (uint)paoElementUniformBuffers.size();
+    atPoolSizes[0].descriptorCount = 1 + (uint) paoElementUniformBuffers.size();
     atPoolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    atPoolSizes[1].descriptorCount = 1 + (uint)paoElementUniformBuffers.size();
+    atPoolSizes[1].descriptorCount = 1 + (uint) paoElementUniformBuffers.size();
 
     VkDescriptorPoolCreateInfo tPoolInfo = {};
     tPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    tPoolInfo.poolSizeCount = (uint)atPoolSizes.size();
+    tPoolInfo.poolSizeCount = (uint) atPoolSizes.size();
     tPoolInfo.pPoolSizes = atPoolSizes.data();
 
-    tPoolInfo.maxSets = 1 + (uint)paoElementUniformBuffers.size();
+    tPoolInfo.maxSets = 1 + (uint) paoElementUniformBuffers.size();
 
     if (!ppLogicalDevice->CreateDescriptorPool(&tPoolInfo, nullptr, &poDescriptorPool))
     {
@@ -235,7 +237,7 @@ void cOverlayUniformHandler::CreateDescriptorSet()
     tAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 
     tAllocInfo.descriptorPool = poDescriptorPool;
-    tAllocInfo.descriptorSetCount = (uint)aoLayouts.size();
+    tAllocInfo.descriptorSetCount = (uint) aoLayouts.size();
     tAllocInfo.pSetLayouts = aoLayouts.data();
 
     if (!ppLogicalDevice->AllocateDescriptorSets(&tAllocInfo, &poDescriptorSet))
@@ -270,7 +272,7 @@ void cOverlayUniformHandler::CreateDescriptorSet()
     atDescriptorWrites[1].descriptorCount = 1;
     atDescriptorWrites[1].pBufferInfo = &tBufferInfo;
 
-    ppLogicalDevice->UpdateDescriptorSets((uint)atDescriptorWrites.size(), atDescriptorWrites.data(),
+    ppLogicalDevice->UpdateDescriptorSets((uint) atDescriptorWrites.size(), atDescriptorWrites.data(),
                                           0, nullptr);
 
     std::vector<VkDescriptorSetLayout> aoElementLayouts(paoElementUniformBuffers.size(), poElementDescriptorSetLayout);
@@ -279,7 +281,7 @@ void cOverlayUniformHandler::CreateDescriptorSet()
     tElementAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 
     tElementAllocInfo.descriptorPool = poDescriptorPool;
-    tElementAllocInfo.descriptorSetCount = (uint)aoElementLayouts.size();
+    tElementAllocInfo.descriptorSetCount = (uint) aoElementLayouts.size();
     tElementAllocInfo.pSetLayouts = aoElementLayouts.data();
 
     paoElementDescriptorSets.resize(paoElementUniformBuffers.size());
@@ -323,7 +325,8 @@ void cOverlayUniformHandler::CreateDescriptorSet()
             atElementDescriptorWrites[1].descriptorCount = 1;
             atElementDescriptorWrites[1].pBufferInfo = &tElementBufferInfo;
 
-            ppLogicalDevice->UpdateDescriptorSets((uint)atElementDescriptorWrites.size(), atElementDescriptorWrites.data(),
+            ppLogicalDevice->UpdateDescriptorSets((uint) atElementDescriptorWrites.size(),
+                                                  atElementDescriptorWrites.data(),
                                                   0, nullptr);
 
             uiIndex++;

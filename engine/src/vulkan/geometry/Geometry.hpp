@@ -60,8 +60,8 @@ cGeometry* cGeometry::FromOBJFile(const char* sFilePath,
     cModelHelper::LoadModel(sFilePath, pGeometry->patVertices, pGeometry->paiIndices);
 
     // Get the amount of vertices and indices
-    pGeometry->puiVertexCount = (uint)pGeometry->patVertices.size();
-    pGeometry->puiIndexCount = (uint)pGeometry->paiIndices.size();
+    pGeometry->puiVertexCount = (uint) pGeometry->patVertices.size();
+    pGeometry->puiIndexCount = (uint) pGeometry->paiIndices.size();
 
     assert(pGeometry->puiVertexCount > 0);  // there should be vertices
     assert(pGeometry->puiIndexCount > 0);   // there should be indices

@@ -83,10 +83,10 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
     poMultiplayerHandler = new cMultiplayerHandler(&tConnectNetworkSettings, this);
     if (poMultiplayerHandler->Start())
     {
-        std::cout << "multiplayer connected." << std::endl;
+        ENGINE_LOG("Multiplayer connected");
     } else
     {
-        std::cout << "multiplayer failed to connect." << std::endl;
+        ENGINE_WARN("Multiplayer failed to connect");
         delete poMultiplayerHandler;
         poMultiplayerHandler = nullptr;
     }

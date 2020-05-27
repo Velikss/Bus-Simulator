@@ -179,8 +179,8 @@ void cWindow::HandleGamepad(uint uiJoystickId)
     if (glfwGetGamepadState(uiJoystickId, &tState))
     {
         // Pass the right stick on as mouse input
-        ppInputHandler->HandleMouse((uint)tState.axes[GLFW_GAMEPAD_AXIS_RIGHT_X],
-                                    (uint)tState.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
+        ppInputHandler->HandleMouse((uint) tState.axes[GLFW_GAMEPAD_AXIS_RIGHT_X],
+                                    (uint) tState.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]);
 
         // Temporary mapping for the left stick to keyboard keys
         float fMoveY = tState.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] - (tState.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] + 1);
@@ -245,7 +245,7 @@ void cWindow::mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY)
     uiDeltaY *= fSensitivity;
 
     // Pass the delta X and Y on to the input handler
-    poInstance->ppInputHandler->HandleMouse((uint)uiDeltaX, (uint)uiDeltaY);
+    poInstance->ppInputHandler->HandleMouse((uint) uiDeltaX, (uint) uiDeltaY);
 }
 
 void cWindow::keyCallback(GLFWwindow* pWindow, int iKey, int iScanCode, int iAction, int iMods)

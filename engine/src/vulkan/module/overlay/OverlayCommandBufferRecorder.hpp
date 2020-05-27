@@ -62,7 +62,7 @@ void cOverlayCommandBufferRecorder::Setup(uint uiIndex)
 
     // Defines the clear color value to use
     paoClearValues[0].color = {0.0f, 0.0f, 0.0f, 0.0f}; // black with 0% opacity
-    ptRenderPassInfo.clearValueCount = (uint)paoClearValues.size();
+    ptRenderPassInfo.clearValueCount = (uint) paoClearValues.size();
     ptRenderPassInfo.pClearValues = paoClearValues.data();
 }
 

@@ -99,11 +99,31 @@ cScene::~cScene()
     {
         delete oTexture.second;
     }
+
+    ENGINE_LOG("Cleaned up scene");
 }
 
 void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler)
 {
     this->ppAudioHandler = pAudioHandler;
+
+    for (auto oTexture : pmpTextures)
+    {
+        assert(oTexture.second != nullptr);
+    }
+    ENGINE_LOG("Loaded " << pmpTextures.size() << " textures");
+
+    for (auto oGeometry : pmpGeometries)
+    {
+        assert(oGeometry.second != nullptr);
+    }
+    ENGINE_LOG("Loaded " << pmpGeometries.size() << " geometries");
+
+    for (auto oMesh : pmpMeshes)
+    {
+        assert(oMesh.second != nullptr);
+    }
+    ENGINE_LOG("Loaded " << pmpMeshes.size() << " meshes");
 
     for (auto oObject : pmpObjects)
     {
@@ -131,21 +151,8 @@ void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevi
 
         oObject.second->Setup(ppColliders);
     }
-
-    for (auto oMesh : pmpMeshes)
-    {
-        assert(oMesh.second != nullptr);
-    }
-
-    for (auto oGeometry : pmpGeometries)
-    {
-        assert(oGeometry.second != nullptr);
-    }
-
-    for (auto oTexture : pmpTextures)
-    {
-        assert(oTexture.second != nullptr);
-    }
+    ENGINE_LOG("Loaded " << pmpObjects.size() << " objects, of which " << papMovableObjects.size()
+                         << " are movable and " << papLightObjects.size() << " are lights");
 }
 
 void cScene::Tick()
@@ -160,7 +167,7 @@ void cScene::Update()
 
 uint cScene::GetObjectCount()
 {
-    return (uint)pmpObjects.size();
+    return (uint) pmpObjects.size();
 }
 
 std::map<string, cBaseObject*>& cScene::GetObjects()

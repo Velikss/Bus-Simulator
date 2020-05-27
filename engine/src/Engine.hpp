@@ -121,6 +121,8 @@ void cEngine::CreateGLWindow(void)
 
 void cEngine::InitAudio(void)
 {
+    ENGINE_LOG("Initializing audio system...");
+
     ppAudioHandler = new cAudioHandler();
 }
 
@@ -149,6 +151,8 @@ void cEngine::InitVulkan(void)
 
     // Create and setup the depth resources
     ppSwapChain->CreateResources();
+
+    ENGINE_LOG("Creating render pipeline...");
 
     std::vector<string> aMRTShaders;
     LoadMRTShaders(aMRTShaders);
@@ -186,12 +190,15 @@ void cEngine::InitVulkan(void)
     // Create the texture handler. This deals with loading, binding and sampling the textures
     ppTextureHandler = new cTextureHandler(ppLogicalDevice);
 
+    ENGINE_LOG("Preparing for rendering...");
+
     // Record a clear screen to the graphics command buffer
     cClearScreenRecorder clearRecorder(ppLightsRenderModule->GetRenderPass(), ppSwapChain);
     papCommandBuffers[0]->RecordBuffers(&clearRecorder);
     papCommandBuffers[1]->RecordBuffers(&clearRecorder);
     papCommandBuffers[2]->RecordBuffers(&clearRecorder);
 
+    // Set up the game loop
     ppGameLoop = new cGameLoop();
     ppGameThread = new std::thread(std::ref(*ppGameLoop));
 
@@ -262,11 +269,14 @@ void cEngine::MainLoop(void)
         // scene, to allow loading text to be displayed
         if (!pbInitialized)
         {
+            ENGINE_LOG("Loading overlay windows...");
+
             LoadOverlayWindows(pmOverlayWindows);
             for (auto oOverlayWindow : pmOverlayWindows)
             {
                 oOverlayWindow.second->Construct(ppTextureHandler, ppLogicalDevice);
             }
+            ENGINE_LOG("Loaded " << pmOverlayWindows.size() << " overlay windows");
 
             ENGINE_LOG("Loading scene...");
 
@@ -298,7 +308,7 @@ void cEngine::MainLoop(void)
             ppOverlayRenderModule->CreateCommandRecorder();
             papCommandBuffers[2]->RecordBuffers(ppOverlayRenderModule->GetCommandRecorder());
 
-            ENGINE_LOG("Scene loading, adding tick task");
+            ENGINE_LOG("Scene loaded, adding tick task...");
             ppGameLoop->AddTask(ppScene);
 
             ppAudioHandler->SetCamera(ppScene->GetCameraRef());
@@ -308,6 +318,8 @@ void cEngine::MainLoop(void)
 
         if (cTextElement::Invalidated())
         {
+            ENGINE_LOG("Updating overlay text...");
+
             ppLogicalDevice->WaitUntilIdle();
             papCommandBuffers[2]->RecordBuffers(ppOverlayRenderModule->GetCommandRecorder());
             cTextElement::Validate();
@@ -315,7 +327,7 @@ void cEngine::MainLoop(void)
 
         if (pbUpdateOverlayWindow)
         {
-            ENGINE_LOG("Switching overlay window");
+            ENGINE_LOG("Switching overlay window...");
 
             // Wait until the GPU is idle
             ppLogicalDevice->WaitUntilIdle();

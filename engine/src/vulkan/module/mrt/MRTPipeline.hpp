@@ -100,7 +100,7 @@ void cMRTPipeline::CreatePipeline(cSwapChain* pSwapChain,
     tVertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     tVertexInputInfo.vertexBindingDescriptionCount = 1;
     tVertexInputInfo.pVertexBindingDescriptions = &atBindingDescription;
-    tVertexInputInfo.vertexAttributeDescriptionCount = (uint)atAttributeDescriptions.size();
+    tVertexInputInfo.vertexAttributeDescriptionCount = (uint) atAttributeDescriptions.size();
     tVertexInputInfo.pVertexAttributeDescriptions = atAttributeDescriptions.data();
 
     // Struct with information about the kind of geometry we want to draw
@@ -164,7 +164,7 @@ void cMRTPipeline::CreatePipeline(cSwapChain* pSwapChain,
     VkPipelineColorBlendStateCreateInfo tColorBlending = {};
     tColorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     tColorBlending.logicOpEnable = VK_FALSE;
-    tColorBlending.attachmentCount = (uint)atBlendAttachments.size();
+    tColorBlending.attachmentCount = (uint) atBlendAttachments.size();
     tColorBlending.pAttachments = atBlendAttachments.data();
 
     // Struct with information for creating the graphics pipeline

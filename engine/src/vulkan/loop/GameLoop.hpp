@@ -68,6 +68,8 @@ void cGameLoop::AddTask(iTickTask* pTask)
     poTasksMutex.lock();
     papTasks.push_back(pTask);
     poTasksMutex.unlock();
+
+    ENGINE_LOG("Added new task to game loop");
 }
 
 void cGameLoop::Stop()
@@ -88,6 +90,8 @@ void cGameLoop::MainLoop()
     // tPrev is the time when the last tick started
     time_point tPrev = tNext - tPERIOD;
 
+    ENGINE_LOG("Game loop started");
+
     while (pbRunning)
     {
         // Run tick time checks
@@ -105,6 +109,8 @@ void cGameLoop::MainLoop()
         tNext += tPERIOD;
         std::this_thread::sleep_until(tNext);
     }
+
+    ENGINE_LOG("Game loop stopped");
 }
 
 void cGameLoop::CheckTickTime(time_point<steady_clock> tPrev, time_point<steady_clock> tNow)
@@ -112,7 +118,7 @@ void cGameLoop::CheckTickTime(time_point<steady_clock> tPrev, time_point<steady_
     const uint uiPERIOD_COUNT = tPERIOD.count();
 
     // Calculate the time this tick took
-    uint uiTickTime = (uint)round<milliseconds>(tNow - tPrev).count();
+    uint uiTickTime = (uint) round<milliseconds>(tNow - tPrev).count();
 
     // If the time exceeds a threshold, print a warning
     if (uiTickTime > uiPERIOD_COUNT && uiTickTime - uiPERIOD_COUNT > 2)

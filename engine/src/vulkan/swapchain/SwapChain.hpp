@@ -300,6 +300,8 @@ void cSwapChain::CreateSwapChain(cWindow* pWindow)
     vkGetSwapchainImagesKHR(oDevice, poSwapChain, &uiImageCount, nullptr);
     paoSwapChainImages.resize(uiImageCount); //-V106
     vkGetSwapchainImagesKHR(oDevice, poSwapChain, &uiImageCount, paoSwapChainImages.data());
+
+    ENGINE_LOG("Created swap chain with " << uiImageCount << " images");
 }
 
 void cSwapChain::CreateImageViews(void)
@@ -364,7 +366,7 @@ void cSwapChain::CreateFramebuffers(VkRenderPass& oFinalRenderPass,
     tFramebufferInfo.pNext = NULL;
     tFramebufferInfo.renderPass = oOffScreenRenderPass;
     tFramebufferInfo.pAttachments = atAttachments.data();
-    tFramebufferInfo.attachmentCount = (uint)atAttachments.size();
+    tFramebufferInfo.attachmentCount = (uint) atAttachments.size();
     tFramebufferInfo.width = ptSwapChainExtent.width;
     tFramebufferInfo.height = ptSwapChainExtent.height;
     tFramebufferInfo.layers = 1;
@@ -434,11 +436,13 @@ void cSwapChain::CreateResources(void) // TODO: This might belong somewhere else
     {
         throw std::runtime_error("failed to create offscreen sampler!");
     }
+
+    ENGINE_LOG("Render target resources loaded");
 }
 
 uint cSwapChain::GetFramebufferSize(void)
 {
-    return (uint)paoSwapChainFramebuffers.size();
+    return (uint) paoSwapChainFramebuffers.size();
 }
 
 VkFramebuffer& cSwapChain::GetFramebuffer(uint index)

@@ -104,7 +104,7 @@ cMRTUniformHandler::cMRTUniformHandler(cLogicalDevice* pLogicalDevice, //-V730
                                                               tMaterialLayoutBinding};
     VkDescriptorSetLayoutCreateInfo tLayoutInfo = {};
     tLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    tLayoutInfo.bindingCount = (uint)atBindings.size();
+    tLayoutInfo.bindingCount = (uint) atBindings.size();
     tLayoutInfo.pBindings = atBindings.data();
 
     if (!pLogicalDevice->CreateDescriptorSetLayout(&tLayoutInfo, nullptr, &poObjectDescriptorSetLayout))
@@ -264,20 +264,20 @@ void cMRTUniformHandler::CreateDescriptorPool()
 {
     std::array<VkDescriptorPoolSize, 4> atPoolSizes = {};
     atPoolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    atPoolSizes[0].descriptorCount = (uint)paoObjectUniformBuffers.size();
+    atPoolSizes[0].descriptorCount = (uint) paoObjectUniformBuffers.size();
     atPoolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    atPoolSizes[1].descriptorCount = (uint)paoObjectUniformBuffers.size();
+    atPoolSizes[1].descriptorCount = (uint) paoObjectUniformBuffers.size();
     atPoolSizes[2].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     atPoolSizes[2].descriptorCount = 1;
     atPoolSizes[3].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    atPoolSizes[3].descriptorCount = (uint)paoObjectUniformBuffers.size();
+    atPoolSizes[3].descriptorCount = (uint) paoObjectUniformBuffers.size();
 
     VkDescriptorPoolCreateInfo tPoolInfo = {};
     tPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    tPoolInfo.poolSizeCount = (uint)atPoolSizes.size();
+    tPoolInfo.poolSizeCount = (uint) atPoolSizes.size();
     tPoolInfo.pPoolSizes = atPoolSizes.data();
 
-    tPoolInfo.maxSets = (uint)paoObjectUniformBuffers.size() + 1;
+    tPoolInfo.maxSets = (uint) paoObjectUniformBuffers.size() + 1;
 
     if (!ppLogicalDevice->CreateDescriptorPool(&tPoolInfo, nullptr, &poDescriptorPool))
     {
@@ -293,10 +293,10 @@ void cMRTUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, 
     tAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 
     tAllocInfo.descriptorPool = poDescriptorPool;
-    tAllocInfo.descriptorSetCount = (uint)paoObjectUniformBuffers.size();
+    tAllocInfo.descriptorSetCount = (uint) paoObjectUniformBuffers.size();
     tAllocInfo.pSetLayouts = aoLayouts.data();
 
-    poObjectDescriptorSets.resize((uint)paoObjectUniformBuffers.size()); //-V106 //-V220
+    poObjectDescriptorSets.resize((uint) paoObjectUniformBuffers.size()); //-V106 //-V220
     if (!ppLogicalDevice->AllocateDescriptorSets(&tAllocInfo, poObjectDescriptorSets.data()))
     {
         throw std::runtime_error("failed to allocate descriptor sets!");
@@ -348,7 +348,7 @@ void cMRTUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, 
         atDescriptorWrites[2].descriptorCount = 1;
         atDescriptorWrites[2].pImageInfo = &tMaterialInfo;
 
-        ppLogicalDevice->UpdateDescriptorSets((uint)atDescriptorWrites.size(), atDescriptorWrites.data(),
+        ppLogicalDevice->UpdateDescriptorSets((uint) atDescriptorWrites.size(), atDescriptorWrites.data(),
                                               0, nullptr);
 
         uiIndex++;

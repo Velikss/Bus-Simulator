@@ -81,6 +81,8 @@ cAudioHandler::cAudioHandler()
     FMOD::System_Create(&ppSystem);
     ppSystem->init(MAX_AUDIO_CHANNELS, FMOD_INIT_NORMAL, nullptr);
     ppSystem->set3DSettings(1.0, 2, 1.0);
+
+    ENGINE_LOG("Audio handler ready");
 }
 
 cAudioHandler::~cAudioHandler()
@@ -95,7 +97,7 @@ cAudioHandler::~cAudioHandler()
     ppSystem->release();
 }
 
-void cAudioHandler::SetCamera(Camera **pCamera)
+void cAudioHandler::SetCamera(Camera** pCamera)
 {
     assert(pCamera != nullptr);
 

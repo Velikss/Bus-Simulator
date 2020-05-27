@@ -26,20 +26,20 @@ public:
 
     }
 
-    void AddDirectory(const std::string &sDirectoryPath);
+    void AddDirectory(const std::string& sDirectoryPath);
 
-    void AddFile(const std::string &sFilePath);
+    void AddFile(const std::string& sFilePath);
 
-    void Start(const std::function<void(std::string, FileStatus)> &pReferencedFunction);
+    void Start(const std::function<void(std::string, FileStatus)>& pReferencedFunction);
 
     void Stop();
 
-    void RemoveFile(const string &sFilePath);
+    void RemoveFile(const string& sFilePath);
 
     void OnFileChanged(string sFileName, FileStatus eFileStatus);
 };
 
-void cDirectoryWatcher::Start(const std::function<void(std::string, FileStatus)> &pReferencedFunction)
+void cDirectoryWatcher::Start(const std::function<void(std::string, FileStatus)>& pReferencedFunction)
 {
     while (pbRunning)
     {
@@ -54,13 +54,14 @@ void cDirectoryWatcher::Start(const std::function<void(std::string, FileStatus)>
             {
                 pReferencedFunction(tPath->first, FileStatus::erased);
                 tPath = patPaths.erase(tPath);
-            } else
+            }
+            else
                 tPath++;
         }
 
         // Check if a file was created or modified
-        for (auto &sDirectory : psPathsToWatch)
-            for (auto &tFile : std::filesystem::recursive_directory_iterator(sDirectory))
+        for (auto& sDirectory : psPathsToWatch)
+            for (auto& tFile : std::filesystem::recursive_directory_iterator(sDirectory))
             {
                 const string sFilePath = tFile.path().string();
                 auto tLastWriteTime = std::filesystem::last_write_time(tFile);
@@ -70,7 +71,8 @@ void cDirectoryWatcher::Start(const std::function<void(std::string, FileStatus)>
                 {
                     patPaths[sFilePath] = tLastWriteTime;
                     pReferencedFunction(sFilePath, FileStatus::created);
-                } else
+                }
+                else
                 {
                     if (patPaths[sFilePath] != tLastWriteTime)
                     {
@@ -90,19 +92,19 @@ void cDirectoryWatcher::Stop()
     { fSleep(50); }
 }
 
-void cDirectoryWatcher::AddFile(const string &sFilePath)
+void cDirectoryWatcher::AddFile(const string& sFilePath)
 {
     patPaths.insert({sFilePath, std::filesystem::last_write_time(std::filesystem::path(sFilePath))});
 }
 
-void cDirectoryWatcher::RemoveFile(const string &sFilePath)
+void cDirectoryWatcher::RemoveFile(const string& sFilePath)
 {
     patPaths.erase(sFilePath);
 }
 
-void cDirectoryWatcher::AddDirectory(const string &sDirectoryPath)
+void cDirectoryWatcher::AddDirectory(const string& sDirectoryPath)
 {
-    for (auto &file : std::filesystem::recursive_directory_iterator(sDirectoryPath))
+    for (auto& file : std::filesystem::recursive_directory_iterator(sDirectoryPath))
         patPaths[file.path().string()] = std::filesystem::last_write_time(file);
     psPathsToWatch.push_back(sDirectoryPath);
 }

@@ -64,8 +64,8 @@ void cText::UpdateText(const string& sText, float fFontSize, stb_fontchar* stbFo
     assert(iPosX < uiScreenWidth);  // x must be less than the screen width
     assert(iPosY < uiScreenHeight); // y must be less than the screen height
 
-    float x = (float)iPosX;
-    float y = (float)iPosY;
+    float x = (float) iPosX;
+    float y = (float) iPosY;
 
     const uint32_t firstChar = STB_FONT_arial_50_usascii_FIRST_CHAR;
 

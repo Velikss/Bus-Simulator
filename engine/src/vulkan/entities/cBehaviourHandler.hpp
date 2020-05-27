@@ -10,10 +10,10 @@ class cBehaviourHandler
 {
 protected:
     static std::map<std::string, std::shared_ptr<cScriptingEngine>> poBehaviours;
-    static cDirectoryWatcher *ppoDirectoryWatcher;
+    static cDirectoryWatcher* ppoDirectoryWatcher;
     std::string psBehaviourName;
 public:
-    cBehaviourHandler(const std::string &sBehaviourName) //-V818
+    cBehaviourHandler(const std::string& sBehaviourName) //-V818
     {
         if (poBehaviours.find(sBehaviourName) == poBehaviours.end())
         {
@@ -25,16 +25,16 @@ public:
 
     static void Init();
 
-    static void AddBehavioursFromDirectory(const std::string &sDirectoryPath);
+    static void AddBehavioursFromDirectory(const std::string& sDirectoryPath);
 
-    static void AddBehaviour(const std::string &sBehaviourName, const std::string &sFileName);
+    static void AddBehaviour(const std::string& sBehaviourName, const std::string& sFileName);
 
-    virtual void Update(cBaseObject *oEntity, IEntityGroup *oEntityGroup = nullptr);
+    virtual void Update(cBaseObject* oEntity, IEntityGroup* oEntityGroup = nullptr);
 
     static void OnFileChanged(const string& sFilePath, cDirectoryWatcher::FileStatus eFileStatus);
 };
 
-cDirectoryWatcher *cBehaviourHandler::ppoDirectoryWatcher = nullptr;
+cDirectoryWatcher* cBehaviourHandler::ppoDirectoryWatcher = nullptr;
 std::map<std::string, std::shared_ptr<cScriptingEngine>> cBehaviourHandler::poBehaviours;
 
 /*
@@ -59,9 +59,9 @@ void cBehaviourHandler::Init()
 /*
  * Function to start the directory watchers on the given directory.
  */
-void cBehaviourHandler::AddBehavioursFromDirectory(const std::string &sDirectoryPath)
+void cBehaviourHandler::AddBehavioursFromDirectory(const std::string& sDirectoryPath)
 {
-    for (auto &p: std::filesystem::directory_iterator(sDirectoryPath))
+    for (auto& p: std::filesystem::directory_iterator(sDirectoryPath))
     {
         std::string sPath = p.path().string();
         std::vector<std::string> soSplit = split(sPath, ".");
@@ -81,7 +81,7 @@ void cBehaviourHandler::AddBehavioursFromDirectory(const std::string &sDirectory
  * Add behaviour to poBehaviours. Creates a ScriptingEngine with it's own duktape context,
  * then compiles the given script and adds it to the directory watcher.
  */
-void cBehaviourHandler::AddBehaviour(const std::string &sBehaviourName, const std::string &sFileName)
+void cBehaviourHandler::AddBehaviour(const std::string& sBehaviourName, const std::string& sFileName)
 {
     // Create the script engine
     std::shared_ptr<cScriptingEngine> poBehaviourEngine = std::make_shared<cScriptingEngine>();
@@ -111,7 +111,7 @@ void cBehaviourHandler::AddBehaviour(const std::string &sBehaviourName, const st
 /*
  * Calls calculate function from the engines' stack, which will calculate a steering force and append it to the entity's steering force..
  */
-void cBehaviourHandler::Update(cBaseObject *oEntity, IEntityGroup *oEntityGroup)
+void cBehaviourHandler::Update(cBaseObject* oEntity, IEntityGroup* oEntityGroup)
 {
     poBehaviours.at(psBehaviourName)->RunJavaScriptFunction("calculate", oEntity, oEntityGroup);
 }
@@ -157,7 +157,8 @@ void cBehaviourHandler::OnFileChanged(const std::string& sFilePath, cDirectoryWa
             {
                 poBehaviours.at(sFileName.back()) = poTempBehaviourEngine;
                 ENGINE_LOG("Script succesfully compiled (" << sFilePath << ")");
-            } else
+            }
+            else
             {
                 ENGINE_WARN("Compile of " << sFilePath << " failed. Changes made to the script are not applied.");
             }

@@ -112,7 +112,7 @@ cLightingUniformHandler::cLightingUniformHandler(cLogicalDevice* pLogicalDevice,
 
     VkDescriptorSetLayoutCreateInfo tCameraLayoutInfo = {};
     tCameraLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    tCameraLayoutInfo.bindingCount = (uint)atLayoutBindings.size();
+    tCameraLayoutInfo.bindingCount = (uint) atLayoutBindings.size();
     tCameraLayoutInfo.pBindings = atLayoutBindings.data();
 
     if (!pLogicalDevice->CreateDescriptorSetLayout(&tCameraLayoutInfo, nullptr, &poDescriptorSetLayout))
@@ -224,7 +224,7 @@ void cLightingUniformHandler::CreateDescriptorPool()
 
     VkDescriptorPoolCreateInfo tPoolInfo = {};
     tPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    tPoolInfo.poolSizeCount = (uint)atPoolSizes.size();
+    tPoolInfo.poolSizeCount = (uint) atPoolSizes.size();
     tPoolInfo.pPoolSizes = atPoolSizes.data();
 
     tPoolInfo.maxSets = 6;
@@ -329,7 +329,7 @@ void cLightingUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHand
     atDescriptorWrites[5].descriptorCount = 1;
     atDescriptorWrites[5].pImageInfo = &tOverlayInfo;
 
-    ppLogicalDevice->UpdateDescriptorSets((uint)atDescriptorWrites.size(), atDescriptorWrites.data(),
+    ppLogicalDevice->UpdateDescriptorSets((uint) atDescriptorWrites.size(), atDescriptorWrites.data(),
                                           0, nullptr);
 }
 

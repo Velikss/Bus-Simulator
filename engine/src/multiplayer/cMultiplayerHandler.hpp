@@ -34,7 +34,7 @@ bool RecieveData(cNetworkConnection* pConnection, byte*& buffer, int& iRecievedC
 {
     int iSize = 0;
     const long recievedSize = pConnection->ReceiveBytes(((byte*) &iSize), 4); //-V206 //-V112
-    if (recievedSize != 4) std::cout << "didn't recieve header." << std::endl; //-V112
+    if (recievedSize != 4) ENGINE_WARN("Didn't receive header"); //-V112
     buffer = new byte[iSize]; //-V121
     while (iRecievedContent != iSize)
     {
@@ -127,7 +127,7 @@ protected:
 
 void cMultiplayerHandler::OnConnect(cNetworkConnection* pConnection)
 {
-    std::cout << "connected client." << std::endl;
+    ENGINE_LOG("Connected client");
 }
 
 bool cMultiplayerHandler::OnRecieve(cNetworkConnection* pConnection)
@@ -178,5 +178,5 @@ bool cMultiplayerHandler::OnRecieve(cNetworkConnection* pConnection)
 
 void cMultiplayerHandler::OnDisconnect(cNetworkConnection* pConnection)
 {
-    std::cout << "disconnected client." << std::endl;
+    ENGINE_LOG("Disconnected client");
 }
