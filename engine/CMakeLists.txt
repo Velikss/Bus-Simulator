@@ -132,7 +132,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/AudioHandler.hpp)
 
 
-add_library(fmod STATIC IMPORTED)
+add_library(fmod SHARED IMPORTED)
 IF (NOT WIN32)
     set_target_properties(fmod PROPERTIES
             IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/vendor/fmod/linux/api/core/lib/x86_64/libfmod.so
