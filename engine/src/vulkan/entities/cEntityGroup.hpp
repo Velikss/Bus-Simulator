@@ -40,7 +40,7 @@ void cEntityGroup::AddEntity(cEntity *pEntity)
 
 void cEntityGroup::RemoveEntity(cEntity *pEntity)
 {
-    poEntities.erase(std::remove(poEntities.begin(), poEntities.end(), pEntity));
+    poEntities.erase(std::remove(poEntities.begin(), poEntities.end(), pEntity)); //-V783
 }
 
 std::vector<IBaseEntity *>* cEntityGroup::GetEntities()
@@ -60,7 +60,7 @@ void cEntityGroup::AddBehaviour(cBehaviourHandler *&poBehaviour)
 
 void cEntityGroup::RemoveBehaviour(cBehaviourHandler *poBehaviour)
 {
-    paBehaviourHandlers.erase(std::remove(paBehaviourHandlers.begin(), paBehaviourHandlers.end(), poBehaviour));
+    paBehaviourHandlers.erase(std::remove(paBehaviourHandlers.begin(), paBehaviourHandlers.end(), poBehaviour)); //-V783
 }
 
 bool cEntityGroup::BehaviourExists(cBehaviourHandler* cbBehaviour)

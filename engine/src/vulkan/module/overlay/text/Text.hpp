@@ -25,7 +25,7 @@ public:
     cText(cLogicalDevice* pLogicalDevice, cWindow* pWindow);
     ~cText();
 
-    void UpdateText(string sText, float fFontSize, stb_fontchar* stbFontData, uint iPosX, uint iPosY);
+    void UpdateText(const string& sText, float fFontSize, stb_fontchar* stbFontData, uint iPosX, uint iPosY);
     void BindVertexBuffer(VkCommandBuffer& oCommandBuffer);
     uint GetNumLetters();
 };
@@ -53,7 +53,7 @@ cText::~cText()
     ppLogicalDevice->FreeMemory(poBufferMemory, nullptr);
 }
 
-void cText::UpdateText(string sText, float fFontSize, stb_fontchar* stbFontData, uint iPosX, uint iPosY)
+void cText::UpdateText(const string& sText, float fFontSize, stb_fontchar* stbFontData, uint iPosX, uint iPosY) //-V813
 {
     const uint uiScreenWidth = WIDTH;
     const uint uiScreenHeight = HEIGHT;
@@ -82,7 +82,7 @@ void cText::UpdateText(string sText, float fFontSize, stb_fontchar* stbFontData,
     float textWidth = 0;
     for (auto letter : sText)
     {
-        stb_fontchar* charData = &stbFontData[(uint32_t) letter - firstChar];
+        stb_fontchar* charData = &stbFontData[(uint32_t) letter - firstChar]; //-V108
         textWidth += charData->advance * charW;
     }
 
@@ -97,7 +97,7 @@ void cText::UpdateText(string sText, float fFontSize, stb_fontchar* stbFontData,
     // Generate a uv mapped quad per char in the new text
     for (auto letter : sText)
     {
-        stb_fontchar* charData = &stbFontData[(uint32_t) letter - firstChar];
+        stb_fontchar* charData = &stbFontData[(uint32_t) letter - firstChar]; //-V108
 
         mapped->pos.x = (x + (float) charData->x0 * charW);
         mapped->pos.y = (y + (float) charData->y0 * charH);

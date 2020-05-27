@@ -81,6 +81,7 @@ cScene::cScene()
 cScene::~cScene()
 {
     delete ppColliders;
+    delete poCamera;
 
     for (auto oObject : pmpObjects)
     {

@@ -19,19 +19,19 @@ class cCollisionHelper
 {
 public:
     // Transform a rectangle with a given transformation matrix
-    static tRectangle TransformRectangle(tRectangle tRectangle, glm::mat4 tMatrix);
+    static tRectangle TransformRectangle(const tRectangle& tRectangle, const glm::mat4& tMatrix);
 
     // Returns true if two rectangles collide
-    static bool Collides(tRectangle tRectangleA, tRectangle tRectangleB);
+    static bool Collides(const tRectangle& tRectangleA, const tRectangle& tRectangleB);
 
     // Returns true if the rectangle collides with the line
-    static bool CollidesWithLine(tRectangle tRectangle, tLine tLine);
+    static bool CollidesWithLine(const tRectangle& tRectangle, const tLine& tLine);
 
     // Returns true if the two lines intersect
-    static bool LinesIntersect(tLine tLineA, tLine tLineB);
+    static bool LinesIntersect(const tLine& tLineA, const tLine& tLineB);
 };
 
-tRectangle cCollisionHelper::TransformRectangle(tRectangle tRectangleA, glm::mat4 tMatrix)
+tRectangle cCollisionHelper::TransformRectangle(const tRectangle& tRectangleA, const glm::mat4& tMatrix)
 {
     tRectangle tTransformed = {};
 
@@ -47,7 +47,7 @@ tRectangle cCollisionHelper::TransformRectangle(tRectangle tRectangleA, glm::mat
     return tTransformed;
 }
 
-bool cCollisionHelper::Collides(tRectangle tRectangleA, tRectangle tRectangleB)
+bool cCollisionHelper::Collides(const tRectangle& tRectangleA, const tRectangle& tRectangleB)
 {
     // Loop over all vertices in rectangle A
     for (uint uiCurrent = 0; uiCurrent < 4; uiCurrent++)
@@ -72,7 +72,7 @@ bool cCollisionHelper::Collides(tRectangle tRectangleA, tRectangle tRectangleB)
     return false;
 }
 
-bool cCollisionHelper::CollidesWithLine(tRectangle tRectangle, tLine tLineA)
+bool cCollisionHelper::CollidesWithLine(const tRectangle& tRectangle, const tLine& tLineA)
 {
     // Loop over all vertices in the rectangle
     for (uint uiCurrent = 0; uiCurrent < 4; uiCurrent++)
@@ -97,7 +97,7 @@ bool cCollisionHelper::CollidesWithLine(tRectangle tRectangle, tLine tLineA)
     return false;
 }
 
-bool cCollisionHelper::LinesIntersect(tLine tLineA, tLine tLineB)
+bool cCollisionHelper::LinesIntersect(const tLine& tLineA, const tLine& tLineB)
 {
     /*
      * I'm not going to explain this code here, it just checks if two

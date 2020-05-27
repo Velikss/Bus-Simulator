@@ -62,19 +62,20 @@ void cDirectoryWatcher::Start(const std::function<void(std::string, FileStatus)>
         for (auto &sDirectory : psPathsToWatch)
             for (auto &tFile : std::filesystem::recursive_directory_iterator(sDirectory))
             {
+                const string sFilePath = tFile.path().string();
                 auto tLastWriteTime = std::filesystem::last_write_time(tFile);
 
                 // If the file can't be found then it has been created, otherwise it has been modified.
-                if (patPaths.find(tFile.path().string()) == patPaths.end())
+                if (patPaths.find(sFilePath) == patPaths.end())
                 {
-                    patPaths[tFile.path().string()] = tLastWriteTime;
-                    pReferencedFunction(tFile.path().string(), FileStatus::created);
+                    patPaths[sFilePath] = tLastWriteTime;
+                    pReferencedFunction(sFilePath, FileStatus::created);
                 } else
                 {
-                    if (patPaths[tFile.path().string()] != tLastWriteTime)
+                    if (patPaths[sFilePath] != tLastWriteTime)
                     {
-                        patPaths[tFile.path().string()] = tLastWriteTime;
-                        pReferencedFunction(tFile.path().string(), FileStatus::modified);
+                        patPaths[sFilePath] = tLastWriteTime;
+                        pReferencedFunction(sFilePath, FileStatus::modified);
                     }
                 }
             }

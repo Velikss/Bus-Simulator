@@ -33,13 +33,13 @@ struct tVertex2D
         atAttributeDescriptions[0].binding = 0;
         atAttributeDescriptions[0].location = 0;
         atAttributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
-        atAttributeDescriptions[0].offset = offsetof(tVertex2D, pos);
+        atAttributeDescriptions[0].offset = offsetof(tVertex2D, pos); //-V103
 
         // Attribute at location 1 (texCoord)
         atAttributeDescriptions[1].binding = 0;
         atAttributeDescriptions[1].location = 1;
         atAttributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
-        atAttributeDescriptions[1].offset = offsetof(tVertex2D, texCoord);
+        atAttributeDescriptions[1].offset = offsetof(tVertex2D, texCoord); //-V103
 
         return atAttributeDescriptions;
     }

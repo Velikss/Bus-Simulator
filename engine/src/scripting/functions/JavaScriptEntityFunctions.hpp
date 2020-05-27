@@ -159,9 +159,9 @@ namespace JavaScriptEntityFunctions
         std::vector<IEntity *> *entities;
         poEntityGroup->GetEntityList(&entities);
 
-        for (int i = 0; i < poEntityGroup->GetEntities()->size(); i++)
+        for (int i = 0; i < poEntityGroup->GetEntities()->size(); i++) //-V104
         {
-            duk_push_pointer(poContext, (*entities)[i]);
+            duk_push_pointer(poContext, (*entities)[i]); //-V108
             duk_put_prop_index(poContext, ArrayIndex, i);
         }
 

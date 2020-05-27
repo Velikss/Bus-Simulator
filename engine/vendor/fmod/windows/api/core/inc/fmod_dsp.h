@@ -116,7 +116,7 @@ typedef FMOD_RESULT (F_CALL *FMOD_DSP_PAN_GETROLLOFFGAIN_FUNC)            (FMOD_
     DSP Structures
 */
 struct FMOD_DSP_BUFFER_ARRAY
-{
+{ //-V802
     int                numbuffers;
     int               *buffernumchannels;
     FMOD_CHANNELMASK  *bufferchannelmask;
@@ -285,7 +285,8 @@ typedef struct FMOD_DSP_STATE_FUNCTIONS
 } FMOD_DSP_STATE_FUNCTIONS;
 
 struct FMOD_DSP_STATE
-{
+{ //-V802
+
     void                     *instance;
     void                     *plugindata;
     FMOD_CHANNELMASK          channelmask;

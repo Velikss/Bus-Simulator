@@ -53,7 +53,7 @@ protected:
     virtual void CopyToDevice();
 };
 
-cStaticElement::cStaticElement(tElementInfo tInfo, cTexture* pTexture, cLogicalDevice* pLogicalDevice)
+cStaticElement::cStaticElement(tElementInfo tInfo, cTexture* pTexture, cLogicalDevice* pLogicalDevice) //-V730
 {
     assert(pLogicalDevice != nullptr);
 

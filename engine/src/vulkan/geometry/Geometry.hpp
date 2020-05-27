@@ -67,7 +67,7 @@ cGeometry* cGeometry::FromOBJFile(const char* sFilePath,
     assert(pGeometry->puiIndexCount > 0);   // there should be indices
 
     // If a custom UV scale is specified, rescale the UV's
-    if (fXUVScale != 1.0f || fYUVScale != 1.0f)
+    if (fXUVScale != 1.0f || fYUVScale != 1.0f) //-V550
     {
         for (Vertex& tVertex : pGeometry->patVertices)
         {

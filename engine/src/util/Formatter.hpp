@@ -6,7 +6,7 @@
 
 // https://stackoverflow.com/a/12262626
 
-class cFormatter
+class cFormatter //-V690
 {
 public:
     cFormatter()

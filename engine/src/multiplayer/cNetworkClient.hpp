@@ -58,7 +58,7 @@ bool cNetworkClient::Connect()
 {
     cNetworkAbstractions::SetBlocking(poSock, true);
 
-    if (connect(poSock, (const sockaddr *) &ptAddress, sizeof(ptAddress)) != 0)
+    if (connect(poSock, (const sockaddr *) &ptAddress, sizeof(ptAddress)) != 0) //-V106
         return false;
 
     if (pptNetworkSettings->bUseSSL)

@@ -66,7 +66,7 @@ private:
     void CreateDescriptorSets(cTextureHandler* pTextureHandler, cScene* pScene);
 };
 
-cLightingUniformHandler::cLightingUniformHandler(cLogicalDevice* pLogicalDevice,
+cLightingUniformHandler::cLightingUniformHandler(cLogicalDevice* pLogicalDevice, //-V730
                                                  cSwapChain* pSwapChain)
 {
     ppLogicalDevice = pLogicalDevice;
@@ -98,7 +98,7 @@ cLightingUniformHandler::cLightingUniformHandler(cLogicalDevice* pLogicalDevice,
     atLayoutBindings[3].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
     atLayoutBindings[3].pImmutableSamplers = nullptr;
 
-    atLayoutBindings[4].binding = 4;
+    atLayoutBindings[4].binding = 4; //-V112
     atLayoutBindings[4].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     atLayoutBindings[4].descriptorCount = 1;
     atLayoutBindings[4].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -152,10 +152,10 @@ void cLightingUniformHandler::CreateUniformBuffers(cScene* pScene)
 
     // The code below assumes that tLightsInfo is less than or
     // equal to 32 bytes, and tLight is exactly 32 bytes.
-    static_assert(sizeof(tLightsInfo) <= 32, "Alignment code needs to be updated when tLightsInfo changes");
-    static_assert(sizeof(tLight) == 32, "Alignment code needs to be updated when tLight changes");
+    static_assert(sizeof(tLightsInfo) <= 32, "Alignment code needs to be updated when tLightsInfo changes"); //-V112
+    static_assert(sizeof(tLight) == 32, "Alignment code needs to be updated when tLight changes"); //-V112
 
-    puiLightsMemorySize = 32 + (sizeof(tLight) * puiLightsCount);
+    puiLightsMemorySize = 32 + (sizeof(tLight) * puiLightsCount); //-V112 //-V104
     cBufferHelper::CreateBuffer(ppLogicalDevice, puiLightsMemorySize,
                                 VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
                                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
@@ -195,8 +195,8 @@ void cLightingUniformHandler::UpdateUniformBuffers(cScene* pScene)
 
     // The code below assumes that tLightsInfo is less than or
     // equal to 32 bytes, and tLight is exactly 32 bytes.
-    static_assert(sizeof(tLightsInfo) <= 32, "Alignment code needs to be updated when tLightsInfo changes");
-    static_assert(sizeof(tLight) == 32, "Alignment code needs to be updated when tLight changes");
+    static_assert(sizeof(tLightsInfo) <= 32, "Alignment code needs to be updated when tLightsInfo changes"); //-V112
+    static_assert(sizeof(tLight) == 32, "Alignment code needs to be updated when tLight changes"); //-V112
 
     // Copy the data to memory
     byte* pMappedMemory;
@@ -204,7 +204,7 @@ void cLightingUniformHandler::UpdateUniformBuffers(cScene* pScene)
                                0, reinterpret_cast<void**>(&pMappedMemory));
     {
         memcpy(pMappedMemory, &tLightsInfo, sizeof(tLightsInfo));
-        memcpy(pMappedMemory + 32, &atLights[0], puiLightsMemorySize - 32);
+        memcpy(pMappedMemory + 32, &atLights[0], puiLightsMemorySize - 32); //-V112
     }
     ppLogicalDevice->UnmapMemory(poUniformBufferMemory);
 
@@ -271,7 +271,7 @@ void cLightingUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHand
 
     VkDescriptorImageInfo tMaterialInfo = {};
     tMaterialInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    tMaterialInfo.imageView = ppSwapChain->GetAttachment(4).oView;
+    tMaterialInfo.imageView = ppSwapChain->GetAttachment(4).oView; //-V112
     tMaterialInfo.sampler = ppSwapChain->GetSampler();
 
     VkDescriptorImageInfo tOverlayInfo = {};
@@ -315,7 +315,7 @@ void cLightingUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHand
 
     atDescriptorWrites[4].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
     atDescriptorWrites[4].dstSet = poDescriptorSet;
-    atDescriptorWrites[4].dstBinding = 4;
+    atDescriptorWrites[4].dstBinding = 4; //-V112
     atDescriptorWrites[4].dstArrayElement = 0;
     atDescriptorWrites[4].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     atDescriptorWrites[4].descriptorCount = 1;

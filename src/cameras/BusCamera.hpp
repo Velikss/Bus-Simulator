@@ -49,9 +49,9 @@ public:
 
     void MovePivotX(float fMultiplier)
     {
-        glm::vec3 direction(sin(glm::radians(cameraPivotObject->GetRotation().y)), 0, cos(glm::radians(
+        glm::vec3 tDirection(sin(glm::radians(cameraPivotObject->GetRotation().y)), 0, cos(glm::radians(
                 cameraPivotObject->GetRotation().y)));
-        cameraPivotPos -= (direction * fMultiplier);
+        cameraPivotPos -= (tDirection * fMultiplier);
     }
 
     void MovePivotY(float fMultiplier)

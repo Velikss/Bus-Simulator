@@ -24,7 +24,7 @@ public:
     void LoadVertices() override;
 
     void SetFont(float fFontSize, cFont* pFont, glm::vec3 tColor);
-    void UpdateText(string sText);
+    void UpdateText(const string& sText);
     VkImageView& GetImageView() override;
     VkSampler& GetImageSampler() override;
     uint GetVertexCount() override;
@@ -70,7 +70,7 @@ void cTextElement::SetFont(float fFontSize, cFont* pFont, glm::vec3 tColor)
     ptColor = tColor;
 }
 
-void cTextElement::UpdateText(string sText)
+void cTextElement::UpdateText(const string& sText)
 {
     assert(ppFont != nullptr);
 
@@ -91,7 +91,7 @@ void cTextElement::UpdateText(string sText)
     float textWidth = 0;
     for (auto letter : sText)
     {
-        stb_fontchar* charData = &ppFont->ppFontData[(uint) letter - firstChar];
+        stb_fontchar* charData = &ppFont->ppFontData[(uint) letter - firstChar]; //-V108
         textWidth += charData->advance * charW;
     }
 
@@ -106,7 +106,7 @@ void cTextElement::UpdateText(string sText)
     // Generate a uv mapped quad per char in the new text
     for (auto letter : sText)
     {
-        stb_fontchar* charData = &ppFont->ppFontData[(uint) letter - firstChar];
+        stb_fontchar* charData = &ppFont->ppFontData[(uint) letter - firstChar]; //-V108
 
         mapped->pos.x = (x + (float) charData->x0 * charW);
         mapped->pos.y = (y + (float) charData->y0 * charH);

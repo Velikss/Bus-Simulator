@@ -61,7 +61,7 @@ private:
     cAudioHandler* ppAudioHandler;
 
 public:
-    cEngine(const string& sAppName);
+    cEngine(const string& sAppName = "");
 
     // Initializes and starts the engine and all of it's sub-components
     void Run(void);

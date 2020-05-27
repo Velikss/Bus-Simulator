@@ -48,12 +48,12 @@ bool cGameLogicHandler::LoadMission()
     // TODO probably need to make a global stack
     // stack for all the passengers currently available
     std::stack<int> oPassengersQueue;
-    for (auto& num : {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}) {
+    for (auto& num : {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}) { //-V112
         oPassengersQueue.push(num);
     }
 
     // loop through all busStops on the route
-    for(uint i = 0; i < oRoute.size(); i++)
+    for(uint i = 0; i < oRoute.size(); i++) //-V104
     {
         // get random amount of passengers to spawn next to the busStop
         int iPassengerAmount = rand() % (iMaxBusStopPassengers + 1); // rand between 0 and iMaxBusStopPassengers
@@ -66,32 +66,32 @@ bool cGameLogicHandler::LoadMission()
                 int iKeyNum = oPassengersQueue.top();
                 string key = "passenger" + std::to_string(iKeyNum);
                 // check if addPassenger was successful
-                if(oRoute[i]->AddPassenger(dynamic_cast<IPassenger*>(mpObjects[key])))
+                if(oRoute[i]->AddPassenger(dynamic_cast<IPassenger*>(mpObjects[key]))) //-V108
                 {
-                    glm::vec3 oBusStopRotation =  oRoute[i]->GetRotation();
+                    glm::vec3 oBusStopRotation =  oRoute[i]->GetRotation(); //-V108
                     // Check the rotation of the bus stop and place the passengers accordingly.
                     // The passengers can't be placed on the same position otherwise the behaviours break.
                     // this is why one of the values is multiplied by iKeyNum
                     if(oBusStopRotation.y == 0.0f)
                     {
-                        mpObjects[key]->SetPosition(oRoute[i]->GetPosition() + glm::vec3(iKeyNum * 0.1f, 0.0f, 0.5f));
+                        mpObjects[key]->SetPosition(oRoute[i]->GetPosition() + glm::vec3(iKeyNum * 0.1f, 0.0f, 0.5f)); //-V108
                     }
                     else if(oBusStopRotation.y == 90.0f)
                     {
-                        mpObjects[key]->SetPosition(oRoute[i]->GetPosition() + glm::vec3(0.5f, 0.0f, iKeyNum * -0.1f));
+                        mpObjects[key]->SetPosition(oRoute[i]->GetPosition() + glm::vec3(0.5f, 0.0f, iKeyNum * -0.1f)); //-V108
                     }
                     else if(oBusStopRotation.y == 180.0f)
                     {
-                        mpObjects[key]->SetPosition(oRoute[i]->GetPosition() + glm::vec3(iKeyNum * -0.1f, 0.0f, -0.5f));
+                        mpObjects[key]->SetPosition(oRoute[i]->GetPosition() + glm::vec3(iKeyNum * -0.1f, 0.0f, -0.5f)); //-V108
                     }
                     else if(oBusStopRotation.y == 270.0f)
                     {
-                        mpObjects[key]->SetPosition(oRoute[i]->GetPosition() + glm::vec3(-0.5f, 0.0f, iKeyNum * 0.1f));
+                        mpObjects[key]->SetPosition(oRoute[i]->GetPosition() + glm::vec3(-0.5f, 0.0f, iKeyNum * 0.1f)); //-V108
                     }
                     else{
                         // If rotation is not one of the 4 default rotations
                         // then it will move them on the X-axis
-                        mpObjects[key]->SetPosition(oRoute[i]->GetPosition() + glm::vec3(iKeyNum * 0.1f, 0.0f, 0.0f));
+                        mpObjects[key]->SetPosition(oRoute[i]->GetPosition() + glm::vec3(iKeyNum * 0.1f, 0.0f, 0.0f)); //-V108
                     }
                     // set rotation the same as the bus stop
                     mpObjects[key]->SetRotation(glm::vec3(0.0f, oBusStopRotation.y, 0.0f));
@@ -102,8 +102,8 @@ bool cGameLogicHandler::LoadMission()
         }
         // Todo how do we want to add behaviours to the missions, always the same behaviours? (Currently always seperation)
         // Check if busStops already have this behaviour
-        if(!oRoute[i]->poEntityGroup->BehaviourExists(pcbSeperation))
-            oRoute[i]->poEntityGroup->AddBehaviour(pcbSeperation);
+        if(!oRoute[i]->poEntityGroup->BehaviourExists(pcbSeperation)) //-V108
+            oRoute[i]->poEntityGroup->AddBehaviour(pcbSeperation); //-V108
     }
 
     return true;

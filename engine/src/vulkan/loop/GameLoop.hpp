@@ -23,7 +23,7 @@ private:
     std::mutex poTasksMutex;
 
     // If false, the loop will terminate
-    bool pbRunning;
+    bool pbRunning = true;
 
 public:
     // Destroys all the tasks inside this loop

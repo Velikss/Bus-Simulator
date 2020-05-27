@@ -210,7 +210,7 @@ namespace cHttp
         {
             return this->peVersion;
         }
-        void SetVersion(cVersion &eVersion)
+        void SetVersion(const cVersion &eVersion) //-V669
         {
             this->peVersion = eVersion;
         }
@@ -314,7 +314,7 @@ namespace cHttp
             oRequest.SetHeaders(aHeaders);
             oRequest.SetVersion(eVersion);
             long lContentLength = GetContentLengthOfString(sRequest, oRequest, lBodyBegin);
-            oRequest.SetMissingContent(sRequest.size() - (lBodyBegin + lContentLength + 4)); //-V112
+            oRequest.SetMissingContent(sRequest.size() - (lBodyBegin + lContentLength + 4)); //-V112 //-V104
         }
 
         static cRequest Deserialize(const std::string_view & sRequest)
@@ -372,7 +372,7 @@ namespace cHttp
                 aHeaders.emplace_back(cHeader::Deserialize(aLines[i]));
 
             long lContentLength = GetContentLengthOfString(sRequest, oResponse, lBodyBegin);
-            oResponse.SetMissingContent(sRequest.size() - (lBodyBegin + lContentLength + 4)); //-V112
+            oResponse.SetMissingContent(sRequest.size() - (lBodyBegin + lContentLength + 4)); //-V112 //-V104
 
             oResponse.SetResponseCode(usResponseCode);
             oResponse.SetHeaders(aHeaders);
@@ -390,22 +390,22 @@ namespace cHttp
         }
     };
 
-    bool RecieveRequest(cNetworkConnection* pConnection, cRequest& oRequest, size_t uiTimeOut = 300)
+    bool RecieveRequest(cNetworkConnection* pConnection, cRequest& oRequest, int iTimeOut = 300)
     {
-        while (!pConnection->Available() && (uiTimeOut > 0 || uiTimeOut == -1))
+        while (!pConnection->Available() && (iTimeOut > 0 || iTimeOut == -1))
         {
             fSleep(50);
-            if (uiTimeOut != -1) uiTimeOut-=50;
+            if (iTimeOut != -1) iTimeOut-=50;
         }
         if (!pConnection->Available()) return false;
 
         byte* aBytes = new byte[8192];
-        size_t size = pConnection->ReceiveBytes(aBytes, 8192);
+        size_t size = pConnection->ReceiveBytes(aBytes, 8192); //-V101
         std::string_view sBytes((const char*)aBytes, size);
         cHttp::cRequest::DeserializeMeta(sBytes, oRequest);
 
         int iContentLength = std::atoi(oRequest.GetHeader("content-length").c_str());
-        size_t iRequestLength = iContentLength + oRequest.GetMetaLength();
+        size_t iRequestLength = iContentLength + oRequest.GetMetaLength(); //-V104
         if (iRequestLength >= 8192)
         {
             byte* aNewBuffer = new byte[iRequestLength];
@@ -437,12 +437,12 @@ namespace cHttp
         if (!pConnection->Available()) return false;
 
         byte* aBytes = new byte[8192];
-        size_t size = pConnection->ReceiveBytes(aBytes, 8192);
+        size_t size = pConnection->ReceiveBytes(aBytes, 8192); //-V101
         std::string_view sBytes((const char*)aBytes, size);
         cHttp::cResponse::DeserializeMeta(sBytes, oResponse);
 
         int iContentLength = std::atoi(oResponse.GetHeader("content-length").c_str());
-        size_t iRequestLength = iContentLength + oResponse.GetMetaLength();
+        size_t iRequestLength = iContentLength + oResponse.GetMetaLength(); //-V104
         if (iRequestLength >= 8192)
         {
             byte* aNewBuffer = new byte[iRequestLength];

@@ -100,7 +100,7 @@ namespace uuids
                 return (value << count) ^ (value >> (32 - count)); //-V112
             }
 
-            sha1() { reset(); }
+            sha1() { reset(); } //-V730
 
             void reset()
             {
@@ -889,7 +889,7 @@ namespace uuids
 
                 clock_seq &= 0x3FFF;
 
-                auto ptm = reinterpret_cast<uuids::uuid::value_type*>(&tm);
+                auto ptm = reinterpret_cast<uuids::uuid::value_type*>(&tm); //-V206
                 ptm[0] &= 0x0F;
 
                 memcpy(&data[0], ptm + 4, 4); //-V112

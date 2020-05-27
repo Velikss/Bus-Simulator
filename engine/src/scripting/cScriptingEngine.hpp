@@ -104,6 +104,7 @@ bool cScriptingEngine::RunJavaScriptFunction(const char *psFunctionName, void *p
             // An error occurred - display a stack trace
             duk_get_prop_string(ppoContext, -1, "stack");
             std::cout << duk_safe_to_string(ppoContext, -1) << std::endl;
+            bReturnVal = false;
         }
         else
         {

@@ -5,12 +5,12 @@
 bool RecieveData(cNetworkConnection* pConnection, byte* & buffer, int & iRecievedContent)
 {
     int iSize = 0;
-    const long recievedSize = pConnection->ReceiveBytes(((byte *) &iSize), 4);
-    if (recievedSize != 4) std::cout << "didn't recieve header." << std::endl;
-    buffer = new byte[iSize];
+    const size_t recievedSize = (size_t) pConnection->ReceiveBytes(((byte *) &iSize), 4); //-V206 //-V112
+    if (recievedSize != 4) std::cout << "didn't recieve header." << std::endl; //-V112
+    buffer = new byte[iSize]; //-V121
     while (iRecievedContent != iSize)
     {
-        iRecievedContent += pConnection->ReceiveBytes(buffer + iRecievedContent, iSize - iRecievedContent);
+        iRecievedContent += pConnection->ReceiveBytes(buffer + iRecievedContent, iSize - iRecievedContent); //-V104
         if (iRecievedContent == -1) iRecievedContent += 1;
     }
     return true;
@@ -18,7 +18,7 @@ bool RecieveData(cNetworkConnection* pConnection, byte* & buffer, int & iRecieve
 
 bool SendData(cNetworkConnection* pConnection, byte* buffer, int iSize)
 {
-    if(!pConnection->SendBytes((byte*)&iSize, 4)) return false;
+    if(!pConnection->SendBytes((byte*)&iSize, 4)) return false; //-V206 //-V112
     if(!pConnection->SendBytes(buffer, iSize)) return false;
     return true;
 }
@@ -64,19 +64,18 @@ bool cGameServer::OnRecieve(cNetworkConnection *pConnection)
     int iRecievedContent = 0;
     if (!RecieveData(pConnection, buffer, iRecievedContent))
         return false;
-
-    std::string_view sBuffer((char*)buffer, 36);
+ //-V808
     glm::vec3* oPos = (glm::vec3*)&buffer[36];
     glm::vec3* oRot = (glm::vec3*) & buffer[36 + sizeof(glm::vec3)];
-    for(uint i = 0; i < paConnections.size(); i++)
-        if (paConnections[i] != pConnection)
+    for(uint i = 0; i < paConnections.size(); i++) //-V104
+        if (paConnections[i] != pConnection) //-V108
         {
-            if (!SendData(paConnections[i], buffer, iRecievedContent))
+            if (!SendData(paConnections[i], buffer, iRecievedContent)) //-V108
             {
-                std::cout << "failed sending to " << paConnections[i]->GetConnectionString() << ", error: " << paConnections[i]->piFailures << std::endl;;
-                if (paConnections[i]->piFailures++ >= 5)
+                std::cout << "failed sending to " << paConnections[i]->GetConnectionString() << ", error: " << paConnections[i]->piFailures << std::endl;; //-V108
+                if (paConnections[i]->piFailures++ >= 5) //-V108
                 {
-                    std::cout << "terminated connection " << paConnections[i]->GetConnectionString() << std::endl;;
+                    std::cout << "terminated connection " << paConnections[i]->GetConnectionString() << std::endl;; //-V108
                     RemoveConnectionAt(i);
                 }
             }

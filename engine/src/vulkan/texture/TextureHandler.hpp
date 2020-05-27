@@ -73,7 +73,7 @@ cTexture* cTextureHandler::LoadTextureFromFile(const char* sFilePath, cTextureSa
     tTextureInfo tTextureInfo = {};
     tTextureInfo.uiWidth = iTexWidth;
     tTextureInfo.uiHeight = iTexHeight;
-    tTextureInfo.uiSize = iTexWidth * iTexHeight * 4; // we're using RGBA so 4 byte per pixel
+    tTextureInfo.uiSize = iTexWidth * iTexHeight * 4; // we're using RGBA so 4 byte per pixel //-V112
     tTextureInfo.uiMipLevels = (uint)std::floor(std::log2(std::max(iTexWidth, iTexHeight))) + 1;
 
     // Create the texture object and return it

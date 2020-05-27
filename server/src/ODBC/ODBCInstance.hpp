@@ -110,7 +110,7 @@ public:
     bool GetValueInteger(SQLINTEGER* piValue)
     {
         if(psType != SQL_INTEGER) return false;
-        *piValue = *(SQLINTEGER*)pvValue;
+        *piValue = *(SQLINTEGER*)pvValue; //-V206
         return true;
     }
 
@@ -132,7 +132,7 @@ public:
             sValue = dt::to_string(*ptTimeStamp);
         }
         else if (psType == SQL_INTEGER)
-            sValue = std::to_string(*(long*)pvValue);
+            sValue = std::to_string(*(long*)pvValue); //-V206
         else
             sValue = string((const char*)pvValue, puiLen);
         return true;
@@ -150,7 +150,7 @@ public:
         switch (psType)
         {
             case SQL_INTEGER:
-                delete (SQLINTEGER *) pvValue;
+                delete (SQLINTEGER *) pvValue; //-V206
                 break;
             case SQL_CHAR:
                 delete[] (SQLCHAR *) pvValue;
@@ -225,7 +225,7 @@ bool cODBCInstance::Connect(string sConnectionString)
 
     /* Set the ODBC version to version 3 (the highest version) */
     SQLSetEnvAttr( henv, SQL_ATTR_ODBC_VERSION,
-                   (void *)SQL_OV_ODBC3, 0 );
+                   (void *)SQL_OV_ODBC3, 0 ); //-V566
 
     /* Allocate the connection handle. */
     SQLAllocHandle( SQL_HANDLE_DBC, henv, &hdbc );
@@ -320,7 +320,7 @@ bool cODBCInstance::Fetch(string sQuery, std::vector<SQLROW>* aRows)
             SQLSMALLINT columnType = SQL_UNKNOWN_TYPE;
 
             if (SQL_SUCCESS !=
-                SQLDescribeCol(stmt, i, (SQLCHAR *) &caName, sizeof(caName), &iNameLength, &columnType,
+                SQLDescribeCol(stmt, i, (SQLCHAR *) &caName, sizeof(caName), &iNameLength, &columnType, //-V206
                                &columnLength, nullptr, nullptr))
             {
                 SQLFreeHandle(SQL_HANDLE_STMT, stmt);
@@ -374,7 +374,7 @@ bool cODBCInstance::Fetch(string sQuery, std::vector<SQLROW>* aRows)
                 void* vValueBuffer = malloc(tColumnDef.uiSize);
                 if (tColumnDef.sType == SQL_CHAR)
                 {
-                    memset(vValueBuffer, ' ', tColumnDef.uiSize - 1);
+                    memset(vValueBuffer, ' ', tColumnDef.uiSize - 1); //-V575
                     ((char*)vValueBuffer)[tColumnDef.uiSize - 1] = '\0';
                 }
                 else

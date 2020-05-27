@@ -165,7 +165,7 @@ cLogicalDevice::cLogicalDevice()
 
     for (uint uiQueueFamily : uniqueQueueFamilies)
     {
-        queueCreateInfos.push_back(GetQueueCreateInfo(uiQueueFamily));
+        queueCreateInfos.emplace_back(GetQueueCreateInfo(uiQueueFamily)); //-V823
     }
 
     VkDeviceCreateInfo tDeviceCreateInfo = GetDeviceCreateInfo(queueCreateInfos, tDeviceFeatures,

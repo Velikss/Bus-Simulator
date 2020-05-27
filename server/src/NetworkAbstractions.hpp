@@ -48,8 +48,8 @@ public:
     static void NetShutdown();
     static void SetBlocking(NET_SOCK oSock, bool bBlocking = true);
     static cConnectionStatus IsConnected(NET_SOCK oSock, bool bBlocking);
-    static string DNSLookup(string sDomain);
-    static string DNSReverseLookup(string sIp);
+    static string DNSLookup(const string& sDomain);
+    static string DNSReverseLookup(const string& sIp);
     static int CloseSocket(NET_SOCK & oSock);
 };
 
@@ -78,7 +78,7 @@ void cNetworkAbstractions::SetBlocking(NET_SOCK oSock, bool bBlocking)
 {
 #if defined(WINDOWS)
     u_long ulArgument = (bBlocking) ? 0 : 1;
-    ioctlsocket(oSock, FIONBIO, &ulArgument);
+    ioctlsocket(oSock, FIONBIO, &ulArgument); //-V106
 #else
       const int flags = fcntl(oSock, F_GETFL, 0);
     fcntl(oSock, F_SETFL, bBlocking ? flags ^ O_NONBLOCK : flags | O_NONBLOCK);
@@ -90,8 +90,8 @@ int cNetworkAbstractions::CloseSocket(NET_SOCK & oSock)
     int iResult = -1;
 
 #ifdef _WIN32
-    iResult = shutdown(oSock, SD_BOTH);
-    iResult = closesocket(oSock);
+    iResult = shutdown(oSock, SD_BOTH); //-V106
+    iResult = closesocket(oSock); //-V106 //-V519
 #else
     iResult = shutdown(oSock, SHUT_RDWR);
     iResult = close(oSock);
@@ -104,7 +104,7 @@ int cNetworkAbstractions::CloseSocket(NET_SOCK & oSock)
 cNetworkAbstractions::cConnectionStatus cNetworkAbstractions::IsConnected(NET_SOCK oSock, bool bBlocking)
 {
     char pBuffer;
-    int size = recv(oSock, &pBuffer, 1, MSG_PEEK);
+    int size = recv(oSock, &pBuffer, 1, MSG_PEEK); //-V106
 #if defined(WINDOWS)
     int err = WSAGetLastError();
     if (err == WSAECONNRESET)
@@ -116,7 +116,7 @@ cNetworkAbstractions::cConnectionStatus cNetworkAbstractions::IsConnected(NET_SO
     else return cNetworkAbstractions::cConnectionStatus::eCONNECTED;
 }
 
-string cNetworkAbstractions::DNSLookup(string sDomain)
+string cNetworkAbstractions::DNSLookup(const string& sDomain) //-V813
 {
     if (!pbInit) NetInit();
     addrinfo *result;
@@ -125,7 +125,7 @@ string cNetworkAbstractions::DNSLookup(string sDomain)
     return string(inet_ntoa(((sockaddr_in*)result->ai_addr)->sin_addr));
 }
 
-string cNetworkAbstractions::DNSReverseLookup(string sIp)
+string cNetworkAbstractions::DNSReverseLookup(const string& sIp) //-V813
 {
     sockaddr_in saGNI;
     char hostname[MAX_HOSTNAME];

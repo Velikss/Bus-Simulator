@@ -76,7 +76,7 @@ cNetworkConnection *cNetworkServer::AcceptConnection(bool bBlockingSocket) const
     sockaddr_in tClientAddr = {};
     socklen_t iClientAddrLength = sizeof(tClientAddr);
 
-    const NET_SOCK oSock = (NET_SOCK) accept(poSock, (struct sockaddr *) &tClientAddr,
+    const NET_SOCK oSock = (NET_SOCK) accept(poSock, (struct sockaddr *) &tClientAddr, //-V106
                                   &iClientAddrLength);
 
     if (oSock < 1) return nullptr;
@@ -105,12 +105,12 @@ cNetworkConnection *cNetworkServer::AcceptConnection(bool bBlockingSocket) const
 
 bool cNetworkServer::Listen()
 {
-    if ((piLastStatus = bind(poSock, (const sockaddr*)&ptAddress, sizeof(ptAddress))) != 0)
+    if ((piLastStatus = bind(poSock, (const sockaddr*)&ptAddress, sizeof(ptAddress))) != 0) //-V106
     {
         CloseConnection();
         return false;
     }
-    if ((piLastStatus = listen(poSock, SOMAXCONN)) != 0)
+    if ((piLastStatus = listen(poSock, SOMAXCONN)) != 0) //-V106
     {
         CloseConnection();
         return false;
@@ -144,15 +144,15 @@ void cNetworkServer::OnConnectLoop()
 
 void cNetworkServer::OnRecieveLoop()
 {
-    while (!pbShutdown)
+    while (!pbShutdown) //-V104
     {
-        for (uint i = 0; i < paConnections.size(); i++)
+        for (uint i = 0; i < (uint)paConnections.size(); i++)
         {
-            auto status = paConnections[i]->Status();
+            auto status = paConnections[i]->Status(); //-V108
             if (status == cNetworkAbstractions::cConnectionStatus::eAVAILABLE)
             {
-                if (OnRecieve && !paConnections[i]->IsRecieveLocked())
-                    if(!OnRecieve(paConnections[i]))
+                if (OnRecieve && !paConnections[i]->IsRecieveLocked()) //-V108
+                    if(!OnRecieve(paConnections[i])) //-V108
                     {
                         paConnections.erase(paConnections.begin() + i);
                         i--;
@@ -171,7 +171,7 @@ void cNetworkServer::OnRecieveLoop()
 
 void cNetworkServer::RemoveConnectionAt(uint& i)
 {
-    if (OnDisconnect) OnDisconnect(paConnections[i]);
+    if (OnDisconnect) OnDisconnect(paConnections[i]); //-V108
     paConnections.erase(paConnections.begin() + i);
     i--;
 }

@@ -60,15 +60,15 @@ void cRenderModule::Init()
 
 cRenderModule::~cRenderModule()
 {
-    if (ppRenderPipeline != nullptr)
+    if (ppRenderPipeline != nullptr) //-V809
     {
         delete ppRenderPipeline;
     }
-    if (ppRenderPass != nullptr)
+    if (ppRenderPass != nullptr) //-V809
     {
         delete ppRenderPass;
     }
-    if (ppUniformHandler != nullptr)
+    if (ppUniformHandler != nullptr) //-V809
     {
         delete ppUniformHandler;
     }

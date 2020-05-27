@@ -39,10 +39,10 @@ void cMissionHandler::UnloadBusStop(cBusStop* oBusStop)
 {
     std::vector<IEntity *> *entities;
     oBusStop->poEntityGroup->GetEntityList(&entities);
-    for (int i = 0; i < oBusStop->poEntityGroup->GetEntities()->size(); i++)
+    for (int i = 0; i < oBusStop->poEntityGroup->GetEntities()->size(); i++) //-V104
     {
         // TODO make default vec3 position global const
-        (*entities)[i]->SetPosition(glm::vec3(200.0f, 0.15f, -200.0f));
+        (*entities)[i]->SetPosition(glm::vec3(200.0f, 0.15f, -200.0f)); //-V108
     }
     oBusStop->poEntityGroup->ClearEntities();
 }
@@ -50,9 +50,9 @@ void cMissionHandler::UnloadBusStop(cBusStop* oBusStop)
 // Unload all the busStops on the route of the missionHandler
 void cMissionHandler::UnloadMissionHandler()
 {
-    for(uint i = 0; i < poRoute.size(); i++)
+    for(uint i = 0; i < poRoute.size(); i++) //-V104
     {
-        UnloadBusStop(poRoute[i]);
+        UnloadBusStop(poRoute[i]); //-V108
     }
 }
 

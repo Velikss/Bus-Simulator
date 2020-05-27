@@ -182,7 +182,7 @@ bool cSSOServer::HandleSessionRequest(cNetworkConnection *pConnection, cUri & oU
         string sEncoded = base64_encode(aHash, uiHashSize);
         cODBCInstance::Escape(sLoginname);
 
-        std::vector<SQLROW> aUsers, aSessions;
+        std::vector<SQLROW> aUsers;
         if(poDB->Fetch(
                 "SELECT * FROM User WHERE User.UserName = '" + sLoginname + "' AND User.Password = '" + sEncoded + "';", &aUsers))
         {

@@ -13,7 +13,7 @@ protected:
     static cDirectoryWatcher *ppoDirectoryWatcher;
     std::string psBehaviourName;
 public:
-    cBehaviourHandler(const std::string &sBehaviourName)
+    cBehaviourHandler(const std::string &sBehaviourName) //-V818
     {
         if (poBehaviours.find(sBehaviourName) == poBehaviours.end())
         {
@@ -31,7 +31,7 @@ public:
 
     virtual void Update(cBaseObject *oEntity, IEntityGroup *oEntityGroup = nullptr);
 
-    static void OnFileChanged(string sFilePath, cDirectoryWatcher::FileStatus eFileStatus);
+    static void OnFileChanged(const string& sFilePath, cDirectoryWatcher::FileStatus eFileStatus);
 };
 
 cDirectoryWatcher *cBehaviourHandler::ppoDirectoryWatcher = nullptr;
@@ -119,13 +119,13 @@ void cBehaviourHandler::Update(cBaseObject *oEntity, IEntityGroup *oEntityGroup)
 /*
  * Runs if the directory watcher detects changes. Will add behaviours, recompile existing behaviours and remove them if that's the case.
  */
-void cBehaviourHandler::OnFileChanged(std::string sFilePath, cDirectoryWatcher::FileStatus eFileStatus)
+void cBehaviourHandler::OnFileChanged(const std::string& sFilePath, cDirectoryWatcher::FileStatus eFileStatus)
 {
     std::vector<std::string> sFileName = split(split(sFilePath, ".")[0], "/");
 
-    switch (eFileStatus)
+    switch (eFileStatus) //-V719
     {
-        case cDirectoryWatcher::FileStatus::created:
+        case cDirectoryWatcher::FileStatus::created: //-V813
         {
             AddBehaviour(sFileName.back(), sFilePath);
             ENGINE_LOG("Added behaviour script (" << sFilePath << ")");

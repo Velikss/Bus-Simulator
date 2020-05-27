@@ -88,7 +88,7 @@ private:
     void CreateImageViews(void);
 };
 
-cSwapChain::cSwapChain(cLogicalDevice* pLogicalDevice, cWindow* pWindow)
+cSwapChain::cSwapChain(cLogicalDevice* pLogicalDevice, cWindow* pWindow) //-V730
 {
     ppLogicalDevice = pLogicalDevice;
 
@@ -298,7 +298,7 @@ void cSwapChain::CreateSwapChain(cWindow* pWindow)
 
     // Get the swap chain image handles
     vkGetSwapchainImagesKHR(oDevice, poSwapChain, &uiImageCount, nullptr);
-    paoSwapChainImages.resize(uiImageCount);
+    paoSwapChainImages.resize(uiImageCount); //-V106
     vkGetSwapchainImagesKHR(oDevice, poSwapChain, &uiImageCount, paoSwapChainImages.data());
 }
 
@@ -443,7 +443,7 @@ uint cSwapChain::GetFramebufferSize(void)
 
 VkFramebuffer& cSwapChain::GetFramebuffer(uint index)
 {
-    return paoSwapChainFramebuffers[index];
+    return paoSwapChainFramebuffers[index]; //-V108
 }
 
 void cSwapChain::AcquireNextImage(int64 ulTimeout,

@@ -36,7 +36,7 @@ public:
 
     iInputHandler* ppInputHandler = nullptr;
 
-    cWindow(const string& sWindowName);
+    cWindow(const string& sWindowName = "");
     ~cWindow();
 
     // Create and initialize the window

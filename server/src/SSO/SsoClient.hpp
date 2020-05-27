@@ -54,7 +54,7 @@ bool cSSOClient::Logout()
     oRequest.SetHeaders(aHeaders);
 
     SendRequest(oRequest, oResponse, -1);
-    psSessionKey = "";
+    psSessionKey.clear();
     return oResponse.GetResponseCode() == 200;
 }
 

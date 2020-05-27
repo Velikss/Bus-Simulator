@@ -21,7 +21,7 @@ public:
         SetOnDisconnectEvent(_OnDisconnect);
     }
 
-    bool InitDB(string sODBCConnectionString)
+    bool InitDB(const string& sODBCConnectionString)
     {
         poDB = std::make_shared<cODBCInstance>();
         std::vector<SQLROW> aTables;
@@ -90,7 +90,7 @@ bool cGameServer::OnRecieve(cNetworkConnection *pConnection)
         return true;
     }
 
-    if (iStatus == C_SSO_OK)
+    if (iStatus == C_SSO_OK) //-V547
     {
         cResponse oResponse;
         oResponse.SetResponseCode(200);

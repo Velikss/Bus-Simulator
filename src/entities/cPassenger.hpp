@@ -11,5 +11,5 @@ private:
     cBusStop* ppoDestination;
 
 public:
-    cPassenger(cMesh *mesh) : IPassenger(mesh){}
+    cPassenger(cMesh *mesh) : IPassenger(mesh){} //-V730
 };

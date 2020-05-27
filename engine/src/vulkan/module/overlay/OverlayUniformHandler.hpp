@@ -63,7 +63,7 @@ private:
     void CopyToDeviceMemory(VkDeviceMemory& oDeviceMemory, void* pData, uint uiDataSize);
 };
 
-cOverlayUniformHandler::cOverlayUniformHandler(cLogicalDevice* pLogicalDevice, cFont* pFont, cWindow* pWindow)
+cOverlayUniformHandler::cOverlayUniformHandler(cLogicalDevice* pLogicalDevice, cFont* pFont, cWindow* pWindow) //-V730
 {
     assert(pLogicalDevice != nullptr);
     assert(pFont != nullptr);
@@ -139,10 +139,10 @@ cOverlayUniformHandler::~cOverlayUniformHandler()
     ppLogicalDevice->DestroyBuffer(poBuffer, nullptr);
     ppLogicalDevice->FreeMemory(poBufferMemory, nullptr);
 
-    for (uint uiIndex = 0; uiIndex < paoElementUniformBuffers.size(); uiIndex++)
+    for (uint uiIndex = 0; uiIndex < paoElementUniformBuffers.size(); uiIndex++) //-V104
     {
-        ppLogicalDevice->DestroyBuffer(paoElementUniformBuffers[uiIndex], nullptr);
-        ppLogicalDevice->FreeMemory(paoElementUniformBuffersMemory[uiIndex], nullptr);
+        ppLogicalDevice->DestroyBuffer(paoElementUniformBuffers[uiIndex], nullptr); //-V108
+        ppLogicalDevice->FreeMemory(paoElementUniformBuffersMemory[uiIndex], nullptr); //-V108
     }
 }
 
@@ -163,14 +163,14 @@ void cOverlayUniformHandler::CreateUniformBuffers(cScene* pScene)
     VkDeviceSize bufferSize = sizeof(tOverlayElementObject);
     uint uiCount = (uint)pScene->GetOverlay().size();
 
-    paoElementUniformBuffers.resize(uiCount);
-    paoElementUniformBuffersMemory.resize(uiCount);
+    paoElementUniformBuffers.resize(uiCount); //-V106
+    paoElementUniformBuffersMemory.resize(uiCount); //-V106
     for (uint i = 0; i < uiCount; i++)
     {
         cBufferHelper::CreateBuffer(ppLogicalDevice, bufferSize,
                                     VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                                    paoElementUniformBuffers[i], paoElementUniformBuffersMemory[i]);
+                                    paoElementUniformBuffers[i], paoElementUniformBuffersMemory[i]); //-V108
     }
 }
 
@@ -260,7 +260,7 @@ void cOverlayUniformHandler::CreateDescriptorSet(cScene* pScene)
     for (auto oObject : pScene->GetOverlay())
     {
         VkDescriptorBufferInfo tElementBufferInfo = {};
-        tElementBufferInfo.buffer = paoElementUniformBuffers[uiIndex];
+        tElementBufferInfo.buffer = paoElementUniformBuffers[uiIndex]; //-V108
         tElementBufferInfo.offset = 0;
         tElementBufferInfo.range = sizeof(tOverlayElementObject);
 
@@ -272,7 +272,7 @@ void cOverlayUniformHandler::CreateDescriptorSet(cScene* pScene)
         std::array<VkWriteDescriptorSet, 2> atElementDescriptorWrites = {};
 
         atElementDescriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        atElementDescriptorWrites[0].dstSet = paoElementDescriptorSets[uiIndex];
+        atElementDescriptorWrites[0].dstSet = paoElementDescriptorSets[uiIndex]; //-V108
         atElementDescriptorWrites[0].dstBinding = 0;
         atElementDescriptorWrites[0].dstArrayElement = 0;
         atElementDescriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -280,7 +280,7 @@ void cOverlayUniformHandler::CreateDescriptorSet(cScene* pScene)
         atElementDescriptorWrites[0].pImageInfo = &tElementImageInfo;
 
         atElementDescriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        atElementDescriptorWrites[1].dstSet = paoElementDescriptorSets[uiIndex];
+        atElementDescriptorWrites[1].dstSet = paoElementDescriptorSets[uiIndex]; //-V108
         atElementDescriptorWrites[1].dstBinding = 1;
         atElementDescriptorWrites[1].dstArrayElement = 0;
         atElementDescriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -309,7 +309,7 @@ void cOverlayUniformHandler::UpdateUniformBuffers(cScene* pScene)
     ppLogicalDevice->UnmapMemory(poBufferMemory);
 
     uint uiIndex = 0;
-    for (auto oElement : pScene->GetOverlay())
+    for (auto oElement : pScene->GetOverlay()) //-V1004
     {
         tOverlayElementObject tData = {};
         tData.tMatrix = oElement.second->GetMatrix(ppWindow);
@@ -321,7 +321,7 @@ void cOverlayUniformHandler::UpdateUniformBuffers(cScene* pScene)
             tData.tColor = glm::vec4(0);
         }
 
-        CopyToDeviceMemory(paoElementUniformBuffersMemory[uiIndex++], &tData, sizeof(tData));
+        CopyToDeviceMemory(paoElementUniformBuffersMemory[uiIndex++], &tData, sizeof(tData)); //-V108
     }
 }
 
@@ -330,7 +330,7 @@ void cOverlayUniformHandler::CopyToDeviceMemory(VkDeviceMemory& oDeviceMemory, v
     void* pMappedMemory;
     ppLogicalDevice->MapMemory(oDeviceMemory, 0, uiDataSize, 0, &pMappedMemory);
     {
-        memcpy(pMappedMemory, pData, uiDataSize);
+        memcpy(pMappedMemory, pData, uiDataSize); //-V106
     }
     ppLogicalDevice->UnmapMemory(oDeviceMemory);
 }
@@ -350,7 +350,7 @@ void cOverlayUniformHandler::CmdBindDescriptorSets(VkCommandBuffer& commandBuffe
                                                    uint uiIndex)
 {
     paoCurrentDescriptorSets[0] = poDescriptorSet;
-    paoCurrentDescriptorSets[1] = paoElementDescriptorSets[uiIndex];
+    paoCurrentDescriptorSets[1] = paoElementDescriptorSets[uiIndex]; //-V108
     vkCmdBindDescriptorSets(commandBuffer,
                             VK_PIPELINE_BIND_POINT_GRAPHICS,
                             oPipelineLayout, 0,

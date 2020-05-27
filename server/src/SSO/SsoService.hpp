@@ -39,7 +39,7 @@ public:
         return paIgnoredConnections.find(pConnection) != paIgnoredConnections.end();
     }
 private:
-    bool SessionExists(string sSessionKey, cNetworkConnection* pConnection)
+    bool SessionExists(const string& sSessionKey, cNetworkConnection* pConnection)
     {
         if (paIgnoredConnections.find(pConnection) != paIgnoredConnections.end())
             return true;
@@ -115,7 +115,7 @@ SSO_STATUS cSSOService::HandleSession(cNetworkConnection *pConnection, cRequest 
 {
     using namespace cHttp;
     cResponse oClientAwnser;
-    if (!cHttp::RecieveRequest(pConnection, oRequest)) return false;
+    if (!cHttp::RecieveRequest(pConnection, oRequest)) return C_SSO_ERR;
     cUri oUri = cUri::ParseFromRequest(oRequest.GetResource());
     const string sSessionKey = oRequest.GetHeader("session-key");
 

@@ -7,7 +7,7 @@
 const uint C_MAX_URI_SIZE = 131072; // 128 kB
 const uint C_MAX_PROTOCOL_CHAR_SIZE = 6;
 const uint C_MAX_PORT_CHAR_SIZE = 5;
-const std::map<string, ushort> C_PROTOCOL_PORT = {
+const std::map<string, ushort> C_PROTOCOL_PORT = { //-V1043
         {"https", 443},
         {"http", 80}
 };
@@ -71,7 +71,7 @@ cUri cUri::ParseFromString(const string& in)
         uiPortLastIndex = in.find('/', uiPortIndex);
         // Possible: https://google.com:8080 - without /
         if (uiPortLastIndex == string::npos) uiPortLastIndex = in.size();
-        if (uiPortLastIndex - uiPortIndex > C_MAX_PORT_CHAR_SIZE) return oUri;
+        if (uiPortLastIndex - uiPortIndex > C_MAX_PORT_CHAR_SIZE) return oUri; //-V658
 
         // Check for http://google.com:
         if (uiPortLastIndex - uiPortIndex <= 1) return oUri;

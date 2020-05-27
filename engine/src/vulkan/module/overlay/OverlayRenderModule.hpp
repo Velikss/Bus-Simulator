@@ -29,7 +29,7 @@ public:
     cOverlayRenderModule(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain, cWindow* pWindow, std::vector<string> & aShaders);
     virtual ~cOverlayRenderModule();
 
-    void UpdateText(string sText);
+    void UpdateText(const string& sText);
 
     void CreateCommandRecorder(cScene* pScene);
     iCommandBufferRecorder* GetCommandRecorder();
@@ -91,7 +91,7 @@ void cOverlayRenderModule::CreateCommandRecorder(cScene* pScene)
                                                           ppUniformHandler, ppText, pScene);
 }
 
-void cOverlayRenderModule::UpdateText(string sText)
+void cOverlayRenderModule::UpdateText(const string& sText)
 {
     ppText->UpdateText(sText, 1.5f, stbFontData, 10, 10);
 }

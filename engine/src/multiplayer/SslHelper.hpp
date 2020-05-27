@@ -28,9 +28,9 @@ public:
     static void Lock(int mode, int n, const char* file, int line)
     {
         if(mode & CRYPTO_LOCK)
-            paMutex[n].lock();
+            paMutex[n].lock(); //-V108
         else
-            paMutex[n].unlock();
+            paMutex[n].unlock(); //-V108
     }
 
     // Server

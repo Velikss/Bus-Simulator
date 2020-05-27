@@ -110,7 +110,7 @@ public:
         if (ppConnectionSSL)
             iResult = SSL_write(ppConnectionSSL, pBuffer, iNumBytes);
         else
-            iResult = send(poSock, (char *) pBuffer, iNumBytes, 0);
+            iResult = send(poSock, (char *) pBuffer, iNumBytes, 0); //-V106
         if (iResult == (int) NET_SOCKET_ERROR) return false;
         return true;
     }
@@ -121,7 +121,7 @@ public:
         if(ppConnectionSSL)
             iResult = SSL_read(ppConnectionSSL, (char*) pBuffer, iNumBytes);
         else
-            iResult = recv(poSock, (char*)pBuffer, iNumBytes, 0);
+            iResult = recv(poSock, (char*)pBuffer, iNumBytes, 0); //-V106
         return iResult;
     }
 
@@ -142,7 +142,7 @@ cNetworkConnection::cNetworkConnection(cNetworkConnection::tNetworkInitializatio
                     ptNetworkSettings->eConnectionType == cConnectionType::eTCP ? SOCK_STREAM : SOCK_DGRAM,
                     IPPROTO_TCP);
 
-    if (poSock == -1 || poSock == NET_INVALID_SOCKET_ID)
+    if (poSock == -1 || poSock == NET_INVALID_SOCKET_ID) //-V104
         throw std::runtime_error("invalid");
 
     // Optionally set non-blocking.
@@ -153,7 +153,7 @@ void cNetworkConnection::CloseConnection()
 {
     if (!pbDestroyed)
     {
-        if (poSock != NET_INVALID_SOCKET_ID)
+        if (poSock != NET_INVALID_SOCKET_ID) //-V104
         {
             if (cNetworkAbstractions::CloseSocket(poSock) != 0)
                 throw std::runtime_error("could not close socket");

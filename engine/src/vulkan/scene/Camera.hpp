@@ -6,7 +6,7 @@
 /*
 The camera class, it is however FP based and should have its own sub-class in a later version.
 */
-class Camera
+class Camera //-V730
 {
 public:
     float fFoV = 45.0f;

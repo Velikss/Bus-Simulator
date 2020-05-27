@@ -59,7 +59,7 @@ void cBufferHelper::CopyToNewBuffer(cLogicalDevice* pLogicalDevice,
     pLogicalDevice->MapMemory(oStagingBufferMemory, 0, ulSize, 0, &pBuffer);
     {
         // Copy the data to the mapped memory
-        memcpy(pBuffer, pData, (uint) ulSize);
+        memcpy(pBuffer, pData, (uint) ulSize); //-V106
     }
     // Unmap the memory again
     pLogicalDevice->UnmapMemory(oStagingBufferMemory);

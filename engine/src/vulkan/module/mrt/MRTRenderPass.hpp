@@ -37,7 +37,7 @@ void cMRTRenderPass::CreateRenderPass()
     atColorReferences.push_back({0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
     atColorReferences.push_back({1, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
     atColorReferences.push_back({2, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
-    atColorReferences.push_back({4, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
+    atColorReferences.push_back({4, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL}); //-V112
 
     VkAttachmentReference depthReference = {};
     depthReference.attachment = 3;

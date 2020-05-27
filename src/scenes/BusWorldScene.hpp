@@ -33,7 +33,8 @@ private:
 public:
     ~cBusWorldScene()
     {
-        if (poMultiplayerHandler) delete poMultiplayerHandler;
+        if (poMultiplayerHandler) delete poMultiplayerHandler; //-V809
+        delete pMissionHandler2;
     }
 
     void LoadTextures(cTextureHandler *pTextureHandler);
@@ -94,8 +95,8 @@ void cBusWorldScene::Update()
     entityGroup.UpdateEntities();
 
     if (paKeys[GLFW_KEY_Q])
-        dynamic_cast<cEntity *>(pmpObjects["entity3"])->SetTarget(
-                dynamic_cast<cBus *>(pmpObjects["bus"])->GetDoorPosition());
+        dynamic_cast<cEntity *>(pmpObjects["entity3"])->SetTarget( //-V522
+                dynamic_cast<cBus *>(pmpObjects["bus"])->GetDoorPosition()); //-V522
     if (paKeys[GLFW_KEY_E])
     {
         for (auto &entity : *entityGroup.GetEntities())
@@ -104,7 +105,7 @@ void cBusWorldScene::Update()
         }
     }
     if (paKeys[GLFW_KEY_T])
-        dynamic_cast<cEntity *>(pmpObjects["entity"])->SetPosition(glm::vec3(5, 5, 5));
+        dynamic_cast<cEntity *>(pmpObjects["entity"])->SetPosition(glm::vec3(5, 5, 5)); //-V522
     if (paKeys[GLFW_KEY_W])
         BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Accelerate() : poCamera->Forward();
     if (paKeys[GLFW_KEY_S])
@@ -720,7 +721,7 @@ void cBusWorldScene::LoadObjects()
         string key = "multiplayer_bus_" + std::to_string(i);
         pmpObjects[key] = new cBus(pmpMeshes["bus"]);
         pmpObjects[key]->SetScale(glm::vec3(0));
-        dynamic_cast<cBus *>(pmpObjects[key])->piBusId = i;
+        dynamic_cast<cBus *>(pmpObjects[key])->piBusId = i; //-V522
     }
 
     // Init behaviour handler
@@ -751,5 +752,5 @@ void cBusWorldScene::LoadOverlay(cLogicalDevice* pLogicalDevice)
 
     pmpOverlay["test2"] = new cTextElement({100, 100}, nullptr, pLogicalDevice);
     pmpOverlay["test2"]->SetPosition(glm::vec2(500, 500));
-    dynamic_cast<cTextElement*>(pmpOverlay["test2"])->SetFont(20, cOverlayRenderModule::FONT, glm::vec3(1, 1, 0));
+    dynamic_cast<cTextElement*>(pmpOverlay["test2"])->SetFont(20, cOverlayRenderModule::FONT, glm::vec3(1, 1, 0)); //-V522
 }
