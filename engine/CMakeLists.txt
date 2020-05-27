@@ -34,17 +34,25 @@ find_package(Vulkan REQUIRED)
 
 get_target_property(GLFW_INCLUDE_DIR glfw INTERFACE_INCLUDE_DIRECTORIES)
 IF (WIN32)
+    add_library(fmod STATIC IMPORTED)
+    link_directories(${PROJECT_SOURCE_DIR}/vendor/fmod/windows/api/core/lib)
+
     find_package(glm REQUIRED)
     find_package(duktape REQUIRED)
     get_target_property(GLM_INCLUDE_DIR glm INTERFACE_INCLUDE_DIRECTORIES)
     get_target_property(GLFW_LIBRARIES glfw IMPORTED_IMPLIB_RELEASE)
-    set(_ENGINE_LIBRARIES ${GLEW_LIBRARIES} ${GLFW_LIBRARIES} ${DUKTAPE_LIBRARY} ${Vulkan_LIBRARIES} ${OPENSSL_SSL_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARIES} ${ODBC_LIBRARY})
-ELSE()
-    get_target_property(GLFW_LIBRARIES glfw IMPORTED_LOCATION_NOCONFIG)
-    set(_ENGINE_LIBRARIES ${GLEW_LIBRARIES} ${GLFW_LIBRARIES} /usr/lib/libduktape.so ${Vulkan_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${ODBC_LIBRARY})
-ENDIF()
 
-set(_ENGINE_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src ${Vulkan_INCLUDE_DIRS} ${GLM_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS} ${GLFW_INCLUDE_DIR} ${DUKTAPE_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR} /usr/lib/libuuid.a)
+    set(_ENGINE_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/vendor/fmod/windows/api/core/inc)
+    set(_ENGINE_LIBRARIES ${PROJECT_SOURCE_DIR}/vendor/fmod/windows/api/core/lib/x64/fmod_vc.lib ${GLEW_LIBRARIES} ${GLFW_LIBRARIES} ${DUKTAPE_LIBRARY} ${Vulkan_LIBRARIES} ${OPENSSL_SSL_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARIES} ${ODBC_LIBRARY})
+ELSE()
+    add_library(fmod SHARED IMPORTED)
+    link_directories(/usr/lib/fmod/)
+
+    get_target_property(GLFW_LIBRARIES glfw IMPORTED_LOCATION_NOCONFIG)
+    set(_ENGINE_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/vendor/fmod/linux/api/core/inc)
+    set(_ENGINE_LIBRARIES /usr/lib/fmod/libfmod.so ${GLEW_LIBRARIES} ${GLFW_LIBRARIES} /usr/lib/libduktape.so ${Vulkan_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${ODBC_LIBRARY})
+ENDIF()
+list(APPEND _ENGINE_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src ${Vulkan_INCLUDE_DIRS} ${GLM_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS} ${GLFW_INCLUDE_DIR} ${DUKTAPE_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR} /usr/lib/libuuid.a)
 set(ENGINE_INCLUDE_DIRS ${_ENGINE_INCLUDE_DIRS} PARENT_SCOPE)
 set(ENGINE_LIBRARIES ${_ENGINE_LIBRARIES} PARENT_SCOPE)
 
@@ -131,26 +139,6 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/TextElement.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/AudioHandler.hpp)
 
-
-IF (NOT WIN32)
-    add_library(fmod SHARED IMPORTED)
-    set_target_properties(fmod PROPERTIES
-            IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/vendor/fmod/linux/api/core/lib/x86_64/libfmod.so
-            INTERFACE_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/vendor/fmod/linux/api/core/inc/
-            )
-    include_directories(${PROJECT_SOURCE_DIR}/vendor/fmod/linux/api/core/inc)
-    link_directories(${PROJECT_SOURCE_DIR}/vendor/fmod/linux/api/core/lib)
-ELSE ()
-    add_library(fmod STATIC IMPORTED)
-    set_target_properties(fmod PROPERTIES
-            IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/vendor/fmod/windows/api/core/lib/x64/fmod_vc.lib
-            INTERFACE_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR}/vendor/fmod/windows/api/core/inc/
-            )
-    include_directories(${PROJECT_SOURCE_DIR}/vendor/fmod/windows/api/core/inc)
-    link_directories(${PROJECT_SOURCE_DIR}/vendor/fmod/windows/api/core/lib)
-    link_directories(${PROJECT_SOURCE_DIR}/vendor/fmod/windows/bin)
-ENDIF ()
-
 include_directories(${_ENGINE_INCLUDE_DIRS})
 add_library(${This} STATIC ${PROJECT_SOURCE_DIR}/src/main.cpp ${Headers})
 add_executable(${This}-Test ${PROJECT_SOURCE_DIR}/test/main.cpp ${Headers})
@@ -158,11 +146,11 @@ target_include_directories(${This} INTERFACE ${_ENGINE_INCLUDE_DIRS})
 target_include_directories(${This}-Test INTERFACE ${_ENGINE_INCLUDE_DIRS})
 
 IF (WIN32)
-    target_link_libraries(${This} PUBLIC ${_ENGINE_LIBRARIES} glm fmod)
-    target_link_libraries(${This}-Test PUBLIC ${_ENGINE_LIBRARIES} glm fmod GTest::gtest)
+    target_link_libraries(${This} PUBLIC ${_ENGINE_LIBRARIES} glm)
+    target_link_libraries(${This}-Test PUBLIC ${_ENGINE_LIBRARIES} glm GTest::gtest)
 ELSE()
-    target_link_libraries(${This} PUBLIC ${_ENGINE_LIBRARIES} fmod)
-    target_link_libraries(${This}-Test PUBLIC ${_ENGINE_LIBRARIES} fmod gtest)
+    target_link_libraries(${This} PUBLIC ${_ENGINE_LIBRARIES})
+    target_link_libraries(${This}-Test PUBLIC ${_ENGINE_LIBRARIES} gtest)
 ENDIF()
 
 add_test(
