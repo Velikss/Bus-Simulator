@@ -75,28 +75,26 @@ bool cGameLogicHandler::LoadMission()
                     if(oBusStopRotation.y == 0.0f)
                     {
                         mpObjects[key]->SetPosition(oRoute[i]->GetPosition() + glm::vec3(iKeyNum * 0.1f, 0.0f, 0.5f));
-                        mpObjects[key]->SetRotation(glm::vec3(0.0f));
                     }
                     else if(oBusStopRotation.y == 90.0f)
                     {
                         mpObjects[key]->SetPosition(oRoute[i]->GetPosition() + glm::vec3(0.5f, 0.0f, iKeyNum * -0.1f));
-                        mpObjects[key]->SetRotation(glm::vec3(0.0f, 90.0f, 0.0f));
                     }
                     else if(oBusStopRotation.y == 180.0f)
                     {
                         mpObjects[key]->SetPosition(oRoute[i]->GetPosition() + glm::vec3(iKeyNum * -0.1f, 0.0f, -0.5f));
-                        mpObjects[key]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
                     }
                     else if(oBusStopRotation.y == 270.0f)
                     {
                         mpObjects[key]->SetPosition(oRoute[i]->GetPosition() + glm::vec3(-0.5f, 0.0f, iKeyNum * 0.1f));
-                        mpObjects[key]->SetRotation(glm::vec3(0.0f, 270.0f, 0.0f));
                     }
                     else{
                         // If rotation is not one of the 4 default rotations
-                        // then it will not change the rotation of the passenger and will move them on the X-axis
+                        // then it will move them on the X-axis
                         mpObjects[key]->SetPosition(oRoute[i]->GetPosition() + glm::vec3(iKeyNum * 0.1f, 0.0f, 0.0f));
                     }
+                    // set rotation the same as the bus stop
+                    mpObjects[key]->SetRotation(glm::vec3(0.0f, oBusStopRotation.y, 0.0f));
                     // pop used passenger form the available passengers queue
                     oPassengersQueue.pop();
                 }
