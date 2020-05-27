@@ -27,6 +27,10 @@ public:
     void UpdateEntities();
 
     void GetEntityList(std::vector<IEntity *> **entities) override;
+
+    bool BehaviourExists(cBehaviourHandler* cbBehaviour);
+
+    void ClearEntities();
 };
 
 void cEntityGroup::AddEntity(cEntity *pEntity)
@@ -59,6 +63,20 @@ void cEntityGroup::RemoveBehaviour(cBehaviourHandler *poBehaviour)
     paBehaviourHandlers.erase(std::remove(paBehaviourHandlers.begin(), paBehaviourHandlers.end(), poBehaviour));
 }
 
+bool cEntityGroup::BehaviourExists(cBehaviourHandler* cbBehaviour)
+{
+    std::vector<cBehaviourHandler *>::iterator it;
+    it = find (paBehaviourHandlers.begin(), paBehaviourHandlers.end(), cbBehaviour);
+    if (it != paBehaviourHandlers.end())
+        return true;
+    else
+        return false;
+}
+
+void cEntityGroup::ClearEntities()
+{
+    poEntities.clear();
+}
 
 void cEntityGroup::UpdateEntities()
 {

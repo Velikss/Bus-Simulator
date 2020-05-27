@@ -8,10 +8,11 @@
 class cBusStop : public cBaseObject, public IPassengerHolder
 {
 public:
-    cEntityGroup* entityGroup;
+    cEntityGroup* poEntityGroup;
 
     cBusStop(cMesh *mesh) : cBaseObject(mesh, cCollider::RectangleCollider(-0.8f, -0.8f, 2.8f, 0.8f))
     {
+        poEntityGroup = new cEntityGroup;
     }
 
     bool AddPassenger(IPassenger *passenger) override;
@@ -23,10 +24,12 @@ public:
 
 bool cBusStop::AddPassenger(IPassenger *passenger)
 {
-    return false;
+    poEntityGroup->AddEntity(passenger);
+    return true;
 }
 
 bool cBusStop::RemovePassenger(IPassenger *passenger)
 {
-    return false;
+    poEntityGroup->RemoveEntity(passenger);
+    return true;
 }

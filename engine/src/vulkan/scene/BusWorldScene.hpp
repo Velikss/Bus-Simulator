@@ -9,6 +9,8 @@
 #include <vulkan/entities/cBusStop.hpp>
 #include <vulkan/entities/cEntity.hpp>
 #include <vulkan/entities/cEntityGroup.hpp>
+#include <vulkan/gamelogic/cGameLogicHandler.hpp>
+#include <vulkan/entities/cPassenger.hpp>
 
 class cBusWorldScene : public cScene
 {
@@ -16,6 +18,8 @@ public:
     void Update() override;
 
     void HandleScroll(double dOffsetX, double dOffsetY) override;
+
+    void HandleKey(uint uiKeyCode, uint uiAction) override;
 
 protected:
     void Load(cTextureHandler *pTextureHandler, cLogicalDevice *pLogicalDevice) override;
@@ -37,13 +41,19 @@ private:
 
     void LoadObjects();
 
+    void LoadMissions();
+
     bool BusCentered = false;
 
     cEntityGroup entityGroup;
     cEntityGroup entityGroup2;
 
-    BusCamera *pBusCamera = new BusCamera;
-    FirstPersonFlyCamera *pFirstPersonFlyCamera = new FirstPersonFlyCamera;
+    BusCamera* pBusCamera = new BusCamera;
+    FirstPersonFlyCamera* pFirstPersonFlyCamera = new FirstPersonFlyCamera;
+
+    cGameLogicHandler* pGameLogicHandler;
+    cMissionHandler* pMissionHandler1;
+    cMissionHandler* pMissionHandler2;
 };
 
 void cBusWorldScene::Load(cTextureHandler *pTextureHandler, cLogicalDevice *pLogicalDevice)
@@ -52,6 +62,7 @@ void cBusWorldScene::Load(cTextureHandler *pTextureHandler, cLogicalDevice *pLog
     LoadGeometries(pLogicalDevice);
     LoadMeshes();
     LoadObjects();
+    LoadMissions();
 
     // Connect to multiplayer instance if possbile.
     tConnectNetworkSettings.sAddress = "51.68.34.201";
@@ -74,6 +85,7 @@ void cBusWorldScene::Load(cTextureHandler *pTextureHandler, cLogicalDevice *pLog
 
 void cBusWorldScene::Update()
 {
+    pGameLogicHandler->Update();
     entityGroup.UpdateEntities();
 
     if (paKeys[GLFW_KEY_Q])
@@ -131,12 +143,42 @@ void cBusWorldScene::Update()
     if (poMultiplayerHandler) poMultiplayerHandler->PushData();
 }
 
+void cBusWorldScene::HandleKey(uint uiKeyCode, uint uiAction)
+{
+    cScene::HandleKey(uiKeyCode, uiAction);
+
+    // Temporary gameLogic keys
+    if(uiAction == GLFW_PRESS && uiKeyCode == GLFW_KEY_L)
+    {
+        pGameLogicHandler->SetMissionHandler(pMissionHandler1);
+        pGameLogicHandler->LoadMission();
+    }
+    if(uiAction == GLFW_PRESS && uiKeyCode == GLFW_KEY_O)
+    {
+        pGameLogicHandler->SetMissionHandler(pMissionHandler2);
+        pGameLogicHandler->LoadMission();
+    }
+}
+
 void cBusWorldScene::HandleScroll(double dOffsetX, double dOffsetY)
 {
     poCamera->LookMouseWheelDiff((float) dOffsetX, (float) dOffsetY);
 }
 
-void cBusWorldScene::LoadTextures(cTextureHandler *pTextureHandler)
+void cBusWorldScene::LoadMissions()
+{
+    pMissionHandler1 = new cMissionHandler(dynamic_cast<cBusStop*>(pmpObjects["busStation1"]));
+    pMissionHandler1->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation2"]));
+    pMissionHandler1->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation3"]));
+    pMissionHandler1->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation4"]));
+    pMissionHandler1->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation5"]));
+    pMissionHandler2 = new cMissionHandler(dynamic_cast<cBusStop*>(pmpObjects["busStation1"]));
+    pMissionHandler2->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation3"]));
+
+    pGameLogicHandler = new cGameLogicHandler(this, dynamic_cast<cBus*>(pmpObjects["bus"]), pMissionHandler1);
+}
+
+void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
 {
     pmpTextures["roof"] = pTextureHandler->LoadTextureFromFile("resources/textures/roof.jpg");
     pmpTextures["stoneHouse"] = pTextureHandler->LoadTextureFromFile("resources/textures/stone.jpg");
@@ -636,23 +678,35 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["blockBuilding4_1"] = new cBaseObject(pmpMeshes["blockBuilding4"], cCollider::RectangleCollider(16, 84));
     pmpObjects["blockBuilding4_1"]->SetPosition(glm::vec3(32.0f, 0.0f, -63.0f));
 
+    // grass
+    pmpObjects["grassField1_1"] = new cEntity(pmpMeshes["grassField1"]);
+    pmpObjects["grassField1_1"]->SetPosition(glm::vec3(-152.0f, 0.0f, -13.0f));
+
+    // bus
     pmpObjects["bus"] = new cBus(pmpMeshes["bus"]);
     pmpObjects["bus"]->SetPosition(glm::vec3(12.5f, 0, -7.5f));
     pmpObjects["bus"]->SetRotation(glm::vec3(0.0f, 90.0, 0.0f));
     pmpObjects["bus"]->SetScale(glm::vec3(0.8, 0.8, 0.8));
 
     // Entities
-    pmpObjects["entity"] = new cEntity(pmpMeshes["passenger"]);
+    pmpObjects["entity"] = new IPassenger(pmpMeshes["passenger"]);
     pmpObjects["entity"]->SetPosition(glm::vec3(10.0f, 0.15f, -11.0f));
 
-    pmpObjects["entity2"] = new cEntity(pmpMeshes["passenger"]);
+    pmpObjects["entity2"] = new IPassenger(pmpMeshes["passenger"]);
     pmpObjects["entity2"]->SetPosition(glm::vec3(11.0f, 0.15f, -10.5f));
 
-    pmpObjects["entity3"] = new cEntity(pmpMeshes["passenger"]);
+    pmpObjects["entity3"] = new IPassenger(pmpMeshes["passenger"]);
     pmpObjects["entity3"]->SetPosition(glm::vec3(14.0f, 0.15f, -11.0f));
 
-    pmpObjects["entity4"] = new cEntity(pmpMeshes["passenger"]);
+    pmpObjects["entity4"] = new IPassenger(pmpMeshes["passenger"]);
     pmpObjects["entity4"]->SetPosition(glm::vec3(13.0f, 0.15f, -10.5f));
+
+    for(uint i = 0; i < 11; i ++)
+    {
+        string key = "passenger" + std::to_string(i);
+        pmpObjects[key] = new IPassenger(pmpMeshes["passenger"]);
+        pmpObjects[key]->SetPosition(glm::vec3(200.0f, 0.15f, -200.0f));
+    }
 
     for (uint i = 0; i < 10; i++)
     {
@@ -662,26 +716,21 @@ void cBusWorldScene::LoadObjects()
         dynamic_cast<cBus *>(pmpObjects[key])->piBusId = i;
     }
 
-    // grass
-    pmpObjects["grassField1_1"] = new cEntity(pmpMeshes["grassField1"]);
-    pmpObjects["grassField1_1"]->SetPosition(glm::vec3(-152.0f, 0.0f, -13.0f));
-
     // Init behaviour handler
     cBehaviourHandler::Init();
     cBehaviourHandler::AddBehavioursFromDirectory("resources/scripting");
-
 
     cBehaviourHandler *cbSeperation = new cBehaviourHandler("seperation");
     cBehaviourHandler *cbCohesion = new cBehaviourHandler("cohesion");
     cBehaviourHandler *cbSeeking = new cBehaviourHandler("seeking");
 
-    entityGroup.AddEntity(dynamic_cast<cEntity *>(pmpObjects["entity"]));
-    entityGroup.AddEntity(dynamic_cast<cEntity *>(pmpObjects["entity2"]));
-    entityGroup.AddEntity(dynamic_cast<cEntity *>(pmpObjects["entity3"]));
-    entityGroup.AddEntity(dynamic_cast<cEntity *>(pmpObjects["entity4"]));
+    entityGroup.AddEntity(dynamic_cast<cEntity*>(pmpObjects["entity"]));
+    entityGroup.AddEntity(dynamic_cast<cEntity*>(pmpObjects["entity2"]));
+    entityGroup.AddEntity(dynamic_cast<cEntity*>(pmpObjects["entity3"]));
+    entityGroup.AddEntity(dynamic_cast<cEntity*>(pmpObjects["entity4"]));
 
     entityGroup2 = entityGroup;
-    entityGroup.AddBehaviour(cbSeeking);
-    entityGroup.AddBehaviour(cbCohesion);
     entityGroup.AddBehaviour(cbSeperation);
+    entityGroup.AddBehaviour(cbCohesion);
+    entityGroup.AddBehaviour(cbSeeking);
 }
