@@ -31,9 +31,11 @@
 #include <thread>
 #include <chrono>
 
-class Engine
+class cEngine
 {
 private:
+    const string psAppName;
+
     cWindow* ppWindow;
     cVulkanInstance* ppVulkanInstance;
 
@@ -56,9 +58,19 @@ private:
 
 protected:
     cScene* ppScene = nullptr;
+
 public:
+    cEngine(const string& sAppName);
+
     // Initializes and starts the engine and all of it's sub-components
     void Run(void);
+
+protected:
+    virtual void LoadMRTShaders(std::vector<string>& shaders) = 0;
+    virtual void LoadLightingShaders(std::vector<string>& shaders) = 0;
+    virtual void LoadOverlayShaders(std::vector<string>& shaders) = 0;
+
+    virtual void LoadScene(cScene** pScene) = 0;
 
 private:
     void CreateGLWindow(void);
@@ -67,7 +79,11 @@ private:
     void Cleanup(void);
 };
 
-void Engine::Run()
+cEngine::cEngine(const string& sAppName) : psAppName(sAppName)
+{
+}
+
+void cEngine::Run()
 {
     CreateGLWindow();
     InitVulkan();
@@ -75,13 +91,13 @@ void Engine::Run()
     Cleanup();
 }
 
-void Engine::CreateGLWindow(void)
+void cEngine::CreateGLWindow(void)
 {
-    ppWindow = new cWindow();
+    ppWindow = new cWindow(psAppName);
     ppWindow->CreateGLWindow();
 }
 
-void Engine::InitVulkan(void)
+void cEngine::InitVulkan(void)
 {
     ENGINE_LOG("Initializing engine...");
 
@@ -107,9 +123,17 @@ void Engine::InitVulkan(void)
     // Create and setup the depth resources
     ppSwapChain->CreateResources();
 
-    ppLightsRenderModule = new cLightingRenderModule(ppLogicalDevice, ppSwapChain);
-    ppMRTRenderModule = new cMRTRenderModule(ppLogicalDevice, ppSwapChain);
-    ppOverlayRenderModule = new cOverlayRenderModule(ppLogicalDevice, ppSwapChain, ppWindow);
+    std::vector<string> aMRTShaders;
+    LoadMRTShaders(aMRTShaders);
+    ppMRTRenderModule = new cMRTRenderModule(ppLogicalDevice, ppSwapChain, aMRTShaders);
+
+    std::vector<string> aLightingShaders;
+    LoadLightingShaders(aLightingShaders);
+    ppLightsRenderModule = new cLightingRenderModule(ppLogicalDevice, ppSwapChain, aLightingShaders);
+
+    std::vector<string> aOverlayShaders;
+    LoadOverlayShaders(aOverlayShaders);
+    ppOverlayRenderModule = new cOverlayRenderModule(ppLogicalDevice, ppSwapChain, ppWindow, aOverlayShaders);
 
     // Create the framebuffers for the swap chain
     ppSwapChain->CreateFramebuffers(ppLightsRenderModule->GetRenderPass()->GetRenderPass(),
@@ -148,7 +172,7 @@ void Engine::InitVulkan(void)
     ENGINE_LOG("Engine initialized");
 }
 
-void Engine::MainLoop(void)
+void cEngine::MainLoop(void)
 {
     ENGINE_LOG("Engine running");
 
@@ -178,6 +202,9 @@ void Engine::MainLoop(void)
         if (ppScene == nullptr)
         {
             ENGINE_LOG("Loading scene...");
+
+            // Ask the application for the scene
+            LoadScene(&ppScene);
 
             // Create and load the scene
             ppScene->Load(ppTextureHandler, ppLogicalDevice);
@@ -216,7 +243,7 @@ void Engine::MainLoop(void)
     ppLogicalDevice->WaitUntilIdle();
 }
 
-void Engine::Cleanup(void)
+void cEngine::Cleanup(void)
 {
     ENGINE_LOG("Cleaning up engine...");
 

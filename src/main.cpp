@@ -3,12 +3,35 @@
 #include <Engine.hpp>
 #include <scenes/BusWorldScene.hpp>
 
-class cApplication : public Engine
+class cApplication : public cEngine
 {
 public:
-    cApplication()
+    cApplication() : cEngine("Bus Simulator")
     {
-        ppScene = new cBusWorldScene();
+    }
+
+protected:
+    void LoadMRTShaders(std::vector<string>& shaders) override
+    {
+        shaders.push_back("resources/shaders/compiled/mrt.vert.spv");
+        shaders.push_back("resources/shaders/compiled/mrt.frag.spv");
+    }
+
+    void LoadLightingShaders(std::vector<string>& shaders) override
+    {
+        shaders.push_back("resources/shaders/compiled/lighting.vert.spv");
+        shaders.push_back("resources/shaders/compiled/lighting.frag.spv");
+    }
+
+    void LoadOverlayShaders(std::vector<string>& shaders) override
+    {
+        shaders.push_back("resources/shaders/compiled/text.vert.spv");
+        shaders.push_back("resources/shaders/compiled/text.frag.spv");
+    }
+
+    void LoadScene(cScene** pScene) override
+    {
+        *pScene = new cBusWorldScene();
     }
 };
 

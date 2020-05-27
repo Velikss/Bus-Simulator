@@ -23,7 +23,10 @@ private:
     iCommandBufferRecorder* ppCommandRecorder;
 
 public:
-    cOverlayRenderModule(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain, cWindow* pWindow);
+    cOverlayRenderModule(cLogicalDevice* pLogicalDevice,
+                         cSwapChain* pSwapChain,
+                         cWindow* pWindow,
+                         std::vector<string>& aShaders);
     virtual ~cOverlayRenderModule();
 
     void UpdateText(string sText);
@@ -33,7 +36,7 @@ public:
 protected:
     void CreateUniformHandler() override;
     void CreateRenderPass() override;
-    void CreatePipeline() override;
+    void CreatePipeline(std::vector<string>& aShaders) override;
 
 private:
     void LoadFont();
@@ -41,8 +44,11 @@ private:
     void CreateCommandRecorder();
 };
 
-cOverlayRenderModule::cOverlayRenderModule(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain, cWindow* pWindow)
-        : cRenderModule(pLogicalDevice, pSwapChain)
+cOverlayRenderModule::cOverlayRenderModule(cLogicalDevice* pLogicalDevice,
+                                           cSwapChain* pSwapChain,
+                                           cWindow* pWindow,
+                                           std::vector<string>& aShaders)
+        : cRenderModule(pLogicalDevice, pSwapChain, aShaders)
 {
     assert(pWindow != nullptr);
 
@@ -76,9 +82,9 @@ void cOverlayRenderModule::CreateRenderPass()
     ppRenderPass = new cOverlayRenderPass(ppLogicalDevice, ppSwapChain);
 }
 
-void cOverlayRenderModule::CreatePipeline()
+void cOverlayRenderModule::CreatePipeline(std::vector<string>& aShaders)
 {
-    ppRenderPipeline = new cOverlayPipeline(ppSwapChain, ppLogicalDevice, ppRenderPass, ppUniformHandler);
+    ppRenderPipeline = new cOverlayPipeline(ppSwapChain, ppLogicalDevice, ppRenderPass, ppUniformHandler, aShaders);
 }
 
 void cOverlayRenderModule::CreateCommandRecorder()
