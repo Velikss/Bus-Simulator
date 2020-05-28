@@ -3,65 +3,95 @@
 #include <pch.hpp>
 #include <vulkan/entities/cEntity.hpp>
 
-class cEntityGroup : public cEntityGroupInterface
+class cEntityGroup : public IEntityGroup
 {
+private:
     std::vector<cEntity *> poEntities;
     std::vector<cBehaviourHandler *> paBehaviourHandlers;
 public:
-    cEntityGroup() : cEntityGroupInterface()
+    cEntityGroup() : IEntityGroup()
     {
 
     }
 
-    void AddEntity(cEntity *pEntity)
-    {
-        poEntities.push_back(pEntity);
-    }
+    void AddEntity(cEntity *pEntity);
 
-    void RemoveEntity(cEntity *pEntity)
-    {
-        poEntities.erase(std::remove(poEntities.begin(), poEntities.end(), pEntity));
-    }
+    void RemoveEntity(cEntity *pEntity);
 
-    void AddBehaviour(cBehaviourHandler *&poBehaviour)
-    {
-        paBehaviourHandlers.push_back(poBehaviour);
-    }
+    std::vector<IBaseEntity *>* GetEntities();
 
-    void RemoveBehaviour(cBehaviourHandler *poBehaviour)
-    {
-        paBehaviourHandlers.erase(std::remove(paBehaviourHandlers.begin(), paBehaviourHandlers.end(), poBehaviour));
-    }
+    void AddBehaviour(cBehaviourHandler *&poBehaviour);
 
-    void ReturnEntities(std::vector<cEntityInterface *> **entities) override
-    {
-        *entities = reinterpret_cast<std::vector<cEntityInterface *> *>(&poEntities);
-    }
+    void RemoveBehaviour(cBehaviourHandler *poBehaviour);
 
+    void UpdateEntities();
 
-    void UpdateEntities()
+    void GetEntityList(std::vector<IEntity *> **entities) override;
+
+    bool BehaviourExists(cBehaviourHandler* cbBehaviour);
+
+    void ClearEntities();
+};
+
+void cEntityGroup::AddEntity(cEntity *pEntity)
+{
+    poEntities.push_back(pEntity);
+}
+
+void cEntityGroup::RemoveEntity(cEntity *pEntity)
+{
+    poEntities.erase(std::remove(poEntities.begin(), poEntities.end(), pEntity));
+}
+
+std::vector<IBaseEntity *>* cEntityGroup::GetEntities()
+{
+    return reinterpret_cast<std::vector<IBaseEntity *> *>(&poEntities);
+}
+
+void cEntityGroup::GetEntityList(std::vector<IEntity *> **entities)
+{
+    *entities = reinterpret_cast<std::vector<IEntity *> *>(&poEntities);
+}
+
+void cEntityGroup::AddBehaviour(cBehaviourHandler *&poBehaviour)
+{
+    paBehaviourHandlers.push_back(poBehaviour);
+}
+
+void cEntityGroup::RemoveBehaviour(cBehaviourHandler *poBehaviour)
+{
+    paBehaviourHandlers.erase(std::remove(paBehaviourHandlers.begin(), paBehaviourHandlers.end(), poBehaviour));
+}
+
+bool cEntityGroup::BehaviourExists(cBehaviourHandler* cbBehaviour)
+{
+    std::vector<cBehaviourHandler *>::iterator it;
+    it = find (paBehaviourHandlers.begin(), paBehaviourHandlers.end(), cbBehaviour);
+    if (it != paBehaviourHandlers.end())
+        return true;
+    else
+        return false;
+}
+
+void cEntityGroup::ClearEntities()
+{
+    poEntities.clear();
+}
+
+void cEntityGroup::UpdateEntities()
+{
+    if(!paBehaviourHandlers.empty())
     {
         for (auto &entity : poEntities)
         {
-            entity->poSteeringForce = glm::vec2(0, 0);
+            entity->SetSteeringForce(glm::vec2(0, 0));
             for (auto &cBehaviourHandler : paBehaviourHandlers)
             {
                 cBehaviourHandler->Update(entity, this);
             }
-
-            glm::vec2 acceleration = entity->poSteeringForce / entity->pfMaxSpeed;
-            entity->poVelocity += acceleration;
-            if(entity->poVelocity.length() > entity->pfMaxSpeed)
-            {
-                entity->poVelocity = glm::normalize(entity->poVelocity);
-                entity->poVelocity = entity->poVelocity * entity->pfMaxSpeed;
-            }
-
-            entity->poPosition.x += entity->poVelocity.x;
-            entity->poPosition.z += entity->poVelocity.y;
-
-            entity->poVelocity *= 0.9;
+            entity->UpdatePosition();
         }
     }
-};
+}
+
 

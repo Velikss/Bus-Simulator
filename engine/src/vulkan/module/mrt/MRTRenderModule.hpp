@@ -9,16 +9,20 @@
 class cMRTRenderModule : public cRenderModule
 {
 public:
-    cMRTRenderModule(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
+    cMRTRenderModule(cLogicalDevice* pLogicalDevice,
+                     cSwapChain* pSwapChain,
+                     std::vector<string>& aShaders);
 
 protected:
     void CreateUniformHandler() override;
     void CreateRenderPass() override;
-    void CreatePipeline() override;
+    void CreatePipeline(std::vector<string>& aShaders) override;
 };
 
-cMRTRenderModule::cMRTRenderModule(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain)
-        : cRenderModule(pLogicalDevice, pSwapChain)
+cMRTRenderModule::cMRTRenderModule(cLogicalDevice* pLogicalDevice,
+                                   cSwapChain* pSwapChain,
+                                   std::vector<string>& aShaders)
+        : cRenderModule(pLogicalDevice, pSwapChain, aShaders)
 {
     Init();
 }
@@ -36,8 +40,8 @@ void cMRTRenderModule::CreateRenderPass()
     ppRenderPass = new cMRTRenderPass(ppLogicalDevice, ppSwapChain);
 }
 
-void cMRTRenderModule::CreatePipeline()
+void cMRTRenderModule::CreatePipeline(std::vector<string>& aShaders)
 {
     // Create the graphics pipeline. Handles the shaders and fixed-function operations for the graphics pipeline.
-    ppRenderPipeline = new cMRTPipeline(ppSwapChain, ppLogicalDevice, ppRenderPass, ppUniformHandler);
+    ppRenderPipeline = new cMRTPipeline(ppSwapChain, ppLogicalDevice, ppRenderPass, ppUniformHandler, aShaders);
 }

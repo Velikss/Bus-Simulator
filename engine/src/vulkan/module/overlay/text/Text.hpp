@@ -55,8 +55,8 @@ cText::~cText()
 
 void cText::UpdateText(string sText, float fFontSize, stb_fontchar* stbFontData, uint iPosX, uint iPosY)
 {
-    const uint uiScreenWidth = ppWindow->WIDTH;
-    const uint uiScreenHeight = ppWindow->HEIGHT;
+    const uint uiScreenWidth = WIDTH;
+    const uint uiScreenHeight = HEIGHT;
 
     assert(sText.size() <= MAX_CHARACTER_COUNT);
     assert(fFontSize > 0);          // font size can't be 0

@@ -1,6 +1,8 @@
-build/
-googletest/
+.vscode/
 .idea/
 cmake-build-debug/
-*.spv
+build-alpine/
 build-vs/
+build/
+googletest/
+*.spv

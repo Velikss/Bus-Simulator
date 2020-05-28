@@ -3,7 +3,7 @@
 #include <pch.hpp>
 #include <multiplayer/cNetworkClient.hpp>
 #include "StdUuid.hpp"
-#include <vulkan/entities/cBus.hpp>
+#include <entities/cBus.hpp>
 
 struct tFixedVec3
 {
@@ -12,12 +12,12 @@ struct tFixedVec3
     float z;
 };
 
-static tFixedVec3 ToFixedVec(glm::vec3* pVec)
+static tFixedVec3 ToFixedVec(glm::vec3 pVec)
 {
     return {
-            pVec->x,
-            pVec->y,
-            pVec->z
+            pVec.x,
+            pVec.y,
+            pVec.z
     };
 }
 
@@ -65,7 +65,7 @@ protected:
     string psGameServerUuid;
     byte* pBuffer = new byte[36 + (sizeof(glm::vec3) * 2)];
     std::map<std::string, std::string> pmsBusIds;
-    uint puiAvailableBusId = 0;
+    std::stack<uint> paAvailableBusses;
 public:
     cMultiplayerHandler(tNetworkInitializationSettings* pSettings, cScene* pScene) : cNetworkClient(pSettings)
     {
@@ -82,6 +82,8 @@ public:
         SetOnConnectEvent(_OnConnect);
         SetOnRecieveEvent(_OnRecieve);
         SetOnDisconnectEvent(_OnDisconnect);
+
+        for (uint i = 0; i < 10; i++) paAvailableBusses.push(i);
     }
 
     ~cMultiplayerHandler() override
@@ -103,8 +105,8 @@ public:
         static const int msg_size = 36 + (sizeof(tFixedVec3) * 2);
 
         cBus* oBus = (cBus*) ppScene->GetObjects()["bus"];
-        glm::vec3* oPos = oBus->getPosition();
-        glm::vec3* oRot = oBus->getRotation();
+        glm::vec3 oPos = oBus->GetPosition();
+        glm::vec3 oRot = oBus->GetRotation();
         tFixedVec3 fixedPos = ToFixedVec(oPos);
         tFixedVec3 fixedRot = ToFixedVec(oRot);
         memcpy(pBuffer + pos_pos, &fixedPos, sizeof(tFixedVec3));
@@ -136,26 +138,41 @@ bool cMultiplayerHandler::OnRecieve(cNetworkConnection* pConnection)
         return false;
 
     std::string sId((char*) buffer, 36);
+
     auto& aObjects = ppScene->GetObjects();
 
     if (pmsBusIds.count(sId) == 0)
     {
-        pmsBusIds[sId] = "multiplayer_bus_" + std::to_string(puiAvailableBusId++);
-        aObjects[pmsBusIds[sId]]->setScale(glm::vec3(0.8, 0.8, 0.8));
+        pmsBusIds[sId] = "multiplayer_bus_" + std::to_string(paAvailableBusses.top());
+        paAvailableBusses.pop();
+        aObjects[pmsBusIds[sId]]->SetScale(glm::vec3(0.8, 0.8, 0.8));
     }
 
     tFixedVec3* pFixedPos = (tFixedVec3*) &buffer[36];
     tFixedVec3* pFixedRot = (tFixedVec3*) &buffer[36 + sizeof(tFixedVec3)];
 
-    /*std::cout << sId << ", x: " << pFixedPos->x << ", y: " << pFixedPos->y << ", z: " << pFixedPos->z <<
-              "rot-x: " << pFixedRot->x << ", rot-y: " << pFixedRot->y << ", rot-z: " << pFixedRot->z << std::endl;*/
+    std::cout << sId << ", x: " << pFixedPos->x << ", y: " << pFixedPos->y << ", z: " << pFixedPos->z <<
+              "rot-x: " << pFixedRot->x << ", rot-y: " << pFixedRot->y << ", rot-z: " << pFixedRot->z << std::endl;
 
     glm::vec3 oPos = ToGLMVec(pFixedPos);
     glm::vec3 oRot = ToGLMVec(pFixedRot);
 
     auto& oObject = aObjects[pmsBusIds[sId]];
-    oObject->setPosition(oPos);
-    oObject->setRotation(oRot);
+    oObject->SetPosition(oPos);
+    oObject->SetRotation(oRot);
+    dynamic_cast<cBus*>(oObject)->piPingTimeout = 0;
+
+    for (auto& object : pmsBusIds)
+    {
+        auto bus = dynamic_cast<cBus*>(aObjects[object.second]);
+        bus->piPingTimeout++;
+        if (bus->piPingTimeout > 50)
+        {
+            paAvailableBusses.push(bus->piBusId);
+            bus->SetScale(glm::vec3(0));
+        }
+    }
+
     return true;
 }
 

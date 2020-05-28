@@ -5,11 +5,15 @@ Setup on Windows:
 - `cd vcpkg`
 - `.\bootstrap-vcpkg.bat`
 
-Then get in to an administrator powershell and execute the following:
-- `.\vcpkg integrate install`
+Then add the printed path to clion->settings->cmake->cmake_options 
 
-Then add the printed path to clion->settings->cmake->cmake_options e.g. -DCMAKE_TOOLCHAIN_FILE=C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake
-`.\vcpkg install freeglut glew glm gtest duktape` for the 32-bit
-`.\vcpkg install --triplet x64-windows freeglut glew glm gtest duktape` to also enable the 64 bit
-Installing both is suggested.
+`-DCMAKE_TOOLCHAIN_FILE=%vcpkgdir%/scripts/buildsystems/vcpkg.cmake`
 
+Then install all packages:
+`vcpkgdir%\vcpkg install glew:x64-windows glew:x86-windows glm:x64-windows glm:x86-windows gtest:x64-windows gtest:x86-windows openssl:x64-windows openssl:x64-windows-static openssl:x86-windows openssl:x86-windows-static duktape:x64-windows duktape:x86-windows`
+
+Download the VulkanSDK, and set the following environment variables:
+`VULKAN_SDK: %VULKANDIR/VERSION%`
+`VK_SDK_PATH: %VULKANDIR/VERSION%`
+`VULKAN_INCLUDE_DIR: %VULKANDIR/VERSION%/Include`
+`VULKAN_LIBRARY: %VULKANDIR/VERSION%/Lib\vulkan-1.lib`

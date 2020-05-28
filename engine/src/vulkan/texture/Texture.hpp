@@ -36,7 +36,7 @@ public:
     // Returns the information about this texture
     tTextureInfo GetTextureInfo();
     // Returns the image view for this texture
-    VkImageView GetView();
+    VkImageView& GetView();
 
     VkSampler& GetSampler();
 };
@@ -90,7 +90,7 @@ tTextureInfo cTexture::GetTextureInfo()
     return ptTextureInfo;
 }
 
-VkImageView cTexture::GetView()
+VkImageView& cTexture::GetView()
 {
     assert(poTextureImageView != VK_NULL_HANDLE);
 

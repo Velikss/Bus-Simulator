@@ -2,68 +2,127 @@
 
 #include <pch.hpp>
 #include <vulkan/entities/cBehaviourHandler.hpp>
-#include <vulkan/entities/cEntityInterface.hpp>
+#include <vulkan/entities/IEntity.hpp>
 
-class cEntity : public cEntityInterface
+class cEntity : public IEntity
 {
-public:
+private:
     std::vector<cBehaviourHandler *> paBehaviourHandlers;
+    glm::vec3 poTarget;
     glm::vec2 poVelocity;
-    glm::vec2 poHeading;
     glm::vec2 poSteeringForce;
-    float pfMass;
     float pfMaxSpeed;
-
-    cEntity(cMesh *mesh) : cEntityInterface(mesh)
+public:
+    cEntity(cMesh *mesh) : IEntity(mesh)
     {
         poVelocity = glm::vec2(0, 0);
-        poHeading = glm::vec2(0, 0);
         poSteeringForce = glm::vec2(0, 0);
-        pfMass = 1;
-        pfMaxSpeed = 5;
+        pfMaxSpeed = 0.1;
     }
 
-    void AddBehaviour(cBehaviourHandler *&poBehaviour)
+    void AddBehaviour(cBehaviourHandler *&poBehaviour);
+
+    void SetMaxSpeed(float fSpeed) override;
+
+    float GetMaxSpeed() override;
+
+    void SetVelocity(glm::vec2 oVelocity) override;
+
+    glm::vec2 GetVelocity() override;
+
+    void SetTarget(glm::vec3 oTarget) override;
+
+    glm::vec3 GetTarget() override;
+
+    glm::vec2 GetSteeringForce() override;
+
+    void SetSteeringForce(glm::vec2 oSteeringForce) override;
+
+    void AppendSteeringForce(glm::vec2 oSteeringForce) override;
+
+    void Update();
+
+    void UpdatePosition();
+};
+
+void cEntity::AddBehaviour(cBehaviourHandler *&poBehaviour)
+{
+    paBehaviourHandlers.push_back(poBehaviour);
+}
+
+void cEntity::SetMaxSpeed(float fSpeed)
+{
+    pfMaxSpeed = fSpeed;
+}
+
+float cEntity::GetMaxSpeed()
+{
+    return pfMaxSpeed;
+}
+
+void cEntity::SetVelocity(glm::vec2 oVelocity)
+{
+    poVelocity = oVelocity;
+}
+
+glm::vec2 cEntity::GetVelocity()
+{
+    return poVelocity;
+}
+
+void cEntity::SetTarget(glm::vec3 oTarget)
+{
+    poTarget = oTarget;
+}
+
+glm::vec3 cEntity::GetTarget()
+{
+    return poTarget;
+}
+
+void cEntity::SetSteeringForce(glm::vec2 oSteeringForce)
+{
+    poSteeringForce = oSteeringForce;
+}
+
+glm::vec2 cEntity::GetSteeringForce()
+{
+    return poSteeringForce;
+}
+
+void cEntity::AppendSteeringForce(glm::vec2 oSteeringForce)
+{
+    poSteeringForce += oSteeringForce;
+}
+
+void cEntity::UpdatePosition()
+{
+     if(poSteeringForce != glm::vec2(0,0))
+     {
+        glm::vec2 acceleration = poSteeringForce / pfMaxSpeed;
+        poVelocity += acceleration;
+
+        if (poVelocity.length() > pfMaxSpeed)
+        {
+            poVelocity = glm::normalize(poVelocity);
+            poVelocity = poVelocity * pfMaxSpeed;
+        }
+
+        glm::vec3 pos = GetPosition();
+        pos.x += poVelocity.x;
+        pos.z += poVelocity.y;
+        SetPosition(pos);
+     }
+
+    if (poVelocity.x > 0.001 && poVelocity.y > 0.001)
     {
-        paBehaviourHandlers.push_back(poBehaviour);
+        poVelocity *= 0.9;
     }
+}
 
-    void ReturnMass(float *mass) override
-    {
-        *mass = pfMass;
-    }
-
-    void ReturnMaxSpeed(float *speed) override
-    {
-        *speed = pfMaxSpeed;
-    }
-
-    void ReturnHeading(glm::vec2 *heading) override
-    {
-        *heading = poHeading;
-    }
-
-    void ReturnVelocity(glm::vec2 *velocity) override
-    {
-        *velocity = poVelocity;
-    }
-
-    void SetVelocity(glm::vec2 *velocity)
-    {
-        poVelocity = *velocity;
-    }
-
-    void SetHeading(glm::vec2 *heading)
-    {
-        poHeading = *heading;
-    }
-
-    void AppendSteeringForce(glm::vec2 *SteeringForce)
-    {
-        poSteeringForce += *SteeringForce;
-    }
-
-    virtual void Update()
+void cEntity::Update()
+{
+    if(!paBehaviourHandlers.empty())
     {
         poSteeringForce = glm::vec2(0, 0);
         for (auto &cBehaviourHandler : paBehaviourHandlers)
@@ -72,16 +131,7 @@ public:
             cBehaviourHandler->Update(this);
         }
 
-        glm::vec2 acceleration = poSteeringForce / pfMaxSpeed;
-        poVelocity += acceleration;
-        if(poVelocity.length() > pfMaxSpeed)
-        {
-            poVelocity = glm::normalize(poVelocity);
-            poVelocity = poVelocity * pfMaxSpeed;
-        }
-        poPosition.x += poVelocity.x;
-        poPosition.z += poVelocity.y;
-        poVelocity *= 0.9;
+        UpdatePosition();
     }
-};
+}
 

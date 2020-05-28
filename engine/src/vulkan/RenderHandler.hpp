@@ -10,7 +10,7 @@
 class cRenderHandler
 {
 private:
-    const uint uiMAX_FRAMES_IN_FLIGHT = 2;
+    const uint uiMAX_FRAMES_IN_FLIGHT = 1;
 
     cLogicalDevice* ppLogicalDevice;
     cSwapChain* ppSwapChain;
@@ -110,14 +110,12 @@ void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandle
     if (time >= 1)
     {
         ENGINE_LOG(frameCount << " fps");
-#ifdef ENABLE_OVERLAY
         assert(pTextHandler != nullptr);
 
-        pTextHandler->UpdateText(cFormatter() << frameCount << " fps");
+        //pTextHandler->UpdateText(cFormatter() << frameCount << " fps");
 
-        ppLogicalDevice->WaitUntilIdle();
-        pCommandBuffer->RecordBuffers(pTextHandler->GetCommandRecorder());
-#endif
+        /*ppLogicalDevice->WaitUntilIdle(); // TODO: This should be optimized, use two command buffers and swap them
+        pCommandBuffer->RecordBuffers(pTextHandler->GetCommandRecorder());*/
         startTime = currentTime;
         frameCount = 0;
     }
@@ -132,9 +130,12 @@ void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandle
     VkFence oAqcuireFence = VK_NULL_HANDLE;
     ppSwapChain->AcquireNextImage(UINT64_MAX, aoImageAvailableSemaphores[uiCurrentFrame], oAqcuireFence, &uiImageIndex);
 
-    for (uint i = 0; i < puiUniformHandlerCount; i++)
+    if (pScene != nullptr)
     {
-        ppUniformHandlers[i]->UpdateUniformBuffers(pScene);
+        for (uint i = 0; i < puiUniformHandlerCount; i++)
+        {
+            ppUniformHandlers[i]->UpdateUniformBuffers(pScene);
+        }
     }
 
     // Struct with information about the command buffer we want to submit to the queue
@@ -150,16 +151,10 @@ void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandle
     // Specify which command buffers to submit
     VkCommandBuffer aoBuffers[2] = {
             ppCommandBuffers[0]->GetBuffer(uiImageIndex),
-#ifdef ENABLE_OVERLAY
             ppCommandBuffers[2]->GetBuffer(uiImageIndex)
-#endif
     };
 
-#ifdef ENABLE_OVERLAY
     tSubmitInfo.commandBufferCount = 2;
-#else
-    tSubmitInfo.commandBufferCount = 1;
-#endif
     tSubmitInfo.pCommandBuffers = aoBuffers;
 
     // Specify which semaphores to signal once the command buffer(s) finish

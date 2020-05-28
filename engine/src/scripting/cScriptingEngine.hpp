@@ -61,7 +61,7 @@ bool cScriptingEngine::CompileJavaScriptFile(const char *psFilename)
     std::ifstream oFileStream(psFilename);
     if (!oFileStream.is_open())
     {
-        std::cout << psFilename << " could not be found." << std::endl;
+        ENGINE_WARN(psFilename << " could not be found.");
         return bSucces;
     }
     std::string strFileContent((std::istreambuf_iterator<char>(oFileStream)),
@@ -71,7 +71,7 @@ bool cScriptingEngine::CompileJavaScriptFile(const char *psFilename)
     if (duk_pcompile_string(ppoContext, 0, strFileContent.c_str()) != 0)
     {
         // Error during compiling
-        std::cout << "JS compile failed" << std::endl;
+        ENGINE_WARN("Scripting compile failed (" << psFilename << ")");
         std::cout << duk_safe_to_string(ppoContext, -1);
     }
     else
@@ -103,7 +103,7 @@ bool cScriptingEngine::RunJavaScriptFunction(const char *psFunctionName, void *p
         {
             // An error occurred - display a stack trace
             duk_get_prop_string(ppoContext, -1, "stack");
-            printf(duk_safe_to_string(ppoContext, -1));
+            std::cout << duk_safe_to_string(ppoContext, -1) << std::endl;
         }
         else
         {
@@ -113,7 +113,7 @@ bool cScriptingEngine::RunJavaScriptFunction(const char *psFunctionName, void *p
     }
     else
     {
-        printf("JS function not found!\n");
+        ENGINE_WARN("Scripting function called but not found! (" << psFunctionName << ")");
         bReturnVal = false;
     }
 

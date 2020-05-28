@@ -10,13 +10,14 @@ private:
     float pfRadius;
 
 public:
-    cLightObject(cMesh* pMesh, glm::vec3 tColor, float fRadius);
+    cLightObject(cMesh* pMesh, glm::vec3 tColor, float fRadius, cCollider* pCollider = nullptr);
 
     glm::vec3 GetColor();
     float GetRadius();
 };
 
-cLightObject::cLightObject(cMesh* pMesh, glm::vec3 tColor, float fRadius) : cBaseObject(pMesh)
+cLightObject::cLightObject(cMesh* pMesh, glm::vec3 tColor, float fRadius, cCollider* pCollider)
+        : cBaseObject(pMesh, pCollider)
 {
     assert(fRadius > 0);
 

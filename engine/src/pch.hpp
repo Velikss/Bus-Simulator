@@ -1,5 +1,5 @@
 #pragma once
-#include <cassert>
+#include <assert.h>
 #include <array>
 #include <string>
 #include <vector>
@@ -58,7 +58,7 @@ bool Is64Bit()
 #endif
 }
 
-void sleep(int sleepMs)
+void fSleep(int sleepMs)
 {
 #if defined(LINUX)
     usleep(sleepMs * 1000);   // usleep takes sleep time in us (1 millionth of a second)
@@ -73,6 +73,8 @@ void sleep(int sleepMs)
 #define GLM_FORCE_RADIANS                   // Force GLM to use radians everywhere
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES  // Force GLM to use aligned types by default
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE         // Vulkan uses a depth range from 0 to 1, so we need GLM to do the same
+
+#include <vulkan/util/EngineLog.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 #define TINYOBJLOADER_IMPLEMENTATION

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <pch.hpp>
+#include <optional>
 #include <vulkan/vulkan.h>
 #include <vulkan/VulkanInstance.hpp>
 #include "Window.hpp"
