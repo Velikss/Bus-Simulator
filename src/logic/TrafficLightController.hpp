@@ -25,8 +25,8 @@ public:
         paLights.reserve(C_MAX_TRAFFICLIGHTS_COUNT);
         for (uint i = 0; i < C_MAX_TRAFFICLIGHTS_COUNT; i++)
         {
-            cLightObject* poLight = new cLightObject(pMesh, C_RED_LIGHT, 2.0f, nullptr, false);
-            poLight->SetPosition({0.0f, 2.0f + (float)i, 0.0f});
+            cLightObject* poLight = new cLightObject(pMesh, C_GREEN_LIGHT, 100, nullptr, false);
+            poLight->SetPosition({0.0f, 1.0f, 0.0f});
             poLight->pbVisible = true;
 
             paLights.push_back(poLight);
@@ -68,7 +68,8 @@ void cTrafficLightController::Update(const glm::vec3& oPosition)
     {
         if(i < aGroup.size())
         {
-            paLights[i]->SetPosition(aGroup[i]->GetPosition());
+            glm::vec3 oPosition = aGroup[i]->GetPosition();
+            paLights[i]->SetPosition(oPosition.x, oPosition.z);
             paLights[i]->SetRadius(1.0f);
             if (i == pusSwitchState)
                 paLights[i]->SetColor(C_GREEN_LIGHT);
