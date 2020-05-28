@@ -14,7 +14,6 @@ private:
     cScene* ppScene;
     cMissionHandler* ppMission;
     cBus* ppBus;
-    cBehaviourHandler* pcbSeperation = nullptr;
 public:
     cGameLogicHandler(cScene* pScene, cBus* pBus, cMissionHandler* pMission = nullptr)
     {
@@ -38,72 +37,88 @@ bool cGameLogicHandler::LoadMission()
 {
     if(ppMission == nullptr)
         return false;
-    // TODO at the moment this has to happen after the behaviours have been loaded in the LoadObject of the scene.
-    if(pcbSeperation == nullptr)
-        pcbSeperation = new cBehaviourHandler("seperation");
 
     std::deque<cBusStop*> oRoute = ppMission->GetRouteQueue();
     std::map<string, cBaseObject*> mpObjects = ppScene->GetObjects();
 
     // TODO probably need to make a global stack
-    // stack for all the passengers currently available
+    // Stack for all the passengers currently available
     std::stack<int> oPassengersQueue;
     for (auto& num : {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}) {
         oPassengersQueue.push(num);
     }
 
-    // loop through all busStops on the route
+    // Loop through all busStops on the route
     for(uint i = 0; i < oRoute.size(); i++)
     {
+        // Todo how do we want to add behaviours to the missions, always the same behaviours?
+        // Check if busStops already have this behaviour
+        if(!oRoute[i]->poEntityGroup->BehaviourExists(ppScene->pcbSeperation))
+            oRoute[i]->poEntityGroup->AddBehaviour(ppScene->pcbSeperation);
+        if(!oRoute[i]->poEntityGroup->BehaviourExists(ppScene->pcbSeeking))
+            oRoute[i]->poEntityGroup->AddBehaviour(ppScene->pcbSeeking);
+
+        // The last buStop can not have any passengers
+        if(i == oRoute.size() - 1)
+            break;
+
         // get random amount of passengers to spawn next to the busStop
         int iPassengerAmount = rand() % (iMaxBusStopPassengers + 1); // rand between 0 and iMaxBusStopPassengers
         // create the random amount of passengers
         for (int j = 0; j < iPassengerAmount; ++j)
         {
-            // check if there are still passengers available to spawn
+            // Check if there are still passengers available to spawn
             if(!oPassengersQueue.empty())
             {
+                // create random destination
+                int iRandDestIndex = rand() % (oRoute.size() - (i + 1))+ (i + 1);
+
+                // Create key for the passenger
                 int iKeyNum = oPassengersQueue.top();
                 string key = "passenger" + std::to_string(iKeyNum);
-                // check if addPassenger was successful
-                if(oRoute[i]->AddPassenger(dynamic_cast<IPassenger*>(mpObjects[key])))
+
+                // Check if addPassenger was successful
+                if(oRoute[i]->AddPassenger(dynamic_cast<cPassenger*>(mpObjects[key])))
                 {
+                    cPassenger* oCurrentPassenger = dynamic_cast<cPassenger*>(mpObjects[key]);
                     glm::vec3 oBusStopRotation =  oRoute[i]->GetRotation();
+
                     // Check the rotation of the bus stop and place the passengers accordingly.
                     // The passengers can't be placed on the same position otherwise the behaviours break.
-                    // this is why one of the values is multiplied by iKeyNum
+                    // This is why one of the values is multiplied by iKeyNum
                     if(oBusStopRotation.y == 0.0f)
                     {
-                        mpObjects[key]->SetPosition(oRoute[i]->GetPosition() + glm::vec3(iKeyNum * 0.1f, 0.0f, 0.5f));
+                        oCurrentPassenger->SetPosition(oRoute[i]->GetPosition() + glm::vec3(iKeyNum * 0.1f, 0.0f, 0.5f));
                     }
                     else if(oBusStopRotation.y == 90.0f)
                     {
-                        mpObjects[key]->SetPosition(oRoute[i]->GetPosition() + glm::vec3(0.5f, 0.0f, iKeyNum * -0.1f));
+                        oCurrentPassenger->SetPosition(oRoute[i]->GetPosition() + glm::vec3(0.5f, 0.0f, iKeyNum * -0.1f));
                     }
                     else if(oBusStopRotation.y == 180.0f)
                     {
-                        mpObjects[key]->SetPosition(oRoute[i]->GetPosition() + glm::vec3(iKeyNum * -0.1f, 0.0f, -0.5f));
+                        oCurrentPassenger->SetPosition(oRoute[i]->GetPosition() + glm::vec3(iKeyNum * -0.1f, 0.0f, -0.5f));
                     }
                     else if(oBusStopRotation.y == 270.0f)
                     {
-                        mpObjects[key]->SetPosition(oRoute[i]->GetPosition() + glm::vec3(-0.5f, 0.0f, iKeyNum * 0.1f));
+                        oCurrentPassenger->SetPosition(oRoute[i]->GetPosition() + glm::vec3(-0.5f, 0.0f, iKeyNum * 0.1f));
                     }
-                    else{
-                        // If rotation is not one of the 4 default rotations
-                        // then it will move them on the X-axis
-                        mpObjects[key]->SetPosition(oRoute[i]->GetPosition() + glm::vec3(iKeyNum * 0.1f, 0.0f, 0.0f));
+                    else
+                    {
+                        // If rotation is not one of the 4 default rotations, then it will move them on the X-axis
+                        oCurrentPassenger->SetPosition(oRoute[i]->GetPosition() + glm::vec3(iKeyNum * 0.1f, 0.0f, 0.0f));
                     }
-                    // set rotation the same as the bus stop
-                    mpObjects[key]->SetRotation(glm::vec3(0.0f, oBusStopRotation.y, 0.0f));
+
+                    // Set rotation the same as the bus stop
+                    oCurrentPassenger->SetRotation(glm::vec3(0.0f, oBusStopRotation.y, 0.0f));
+                    oCurrentPassenger->SetTarget(oRoute[i]->GetPosition()); // set target to bus stop
+                    oCurrentPassenger->SetDestination(oRoute[iRandDestIndex]); // set destination to random bus stop
+                    oCurrentPassenger->pbVisible = true;
+
                     // pop used passenger form the available passengers queue
                     oPassengersQueue.pop();
                 }
             }
         }
-        // Todo how do we want to add behaviours to the missions, always the same behaviours? (Currently always seperation)
-        // Check if busStops already have this behaviour
-        if(!oRoute[i]->poEntityGroup->BehaviourExists(pcbSeperation))
-            oRoute[i]->poEntityGroup->AddBehaviour(pcbSeperation);
     }
 
     return true;

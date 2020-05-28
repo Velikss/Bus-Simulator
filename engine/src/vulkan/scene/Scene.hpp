@@ -12,6 +12,7 @@
 #include <vulkan/geometry/ViewportQuadGeometry.hpp>
 #include <vulkan/module/overlay/element/StaticElement.hpp>
 #include <vulkan/AudioHandler.hpp>
+#include <vulkan/entities/cBehaviourHandler.hpp>
 
 class cScene : public iInputHandler, public iTickTask
 {
@@ -42,6 +43,10 @@ private:
 public:
     glm::vec3 textColor = glm::vec3(0, 1, 0);
     float pfAmbientLight = 0.2;
+
+    cBehaviourHandler* pcbSeperation = nullptr;
+    cBehaviourHandler* pcbCohesion = nullptr;
+    cBehaviourHandler* pcbSeeking = nullptr;
 
     cScene();
     virtual ~cScene();
