@@ -11,12 +11,13 @@ const uint C_MAX_TRAFFICLIGHTS_COUNT = 4;
 class cTrafficLightController
 {
     const glm::vec3 C_RED_LIGHT = {1.0f, 0.0f, 0.0f};
-    const glm::vec3 C_ORANGE_LIGHT = {255.0f, 179.0f, 0.0f};
     const glm::vec3 C_GREEN_LIGHT = {42.0f, 189.0f, 88.0f};
+    const float pfLightREDIntensity = 10.0f;
+    const float pfLightGREENIntensity = 6.0f;
 
     std::vector<tTrafficLightGroup> paTrafficGroups;
     std::vector<cLightObject*> paLights;
-    ushort pusSwitchTick = 2;
+    ushort pusSwitchTick = 5;
     ushort pusSwitchState = 0;
     ushort pusSwitchStateMax = 0;
 public:
@@ -25,9 +26,9 @@ public:
         paLights.reserve(C_MAX_TRAFFICLIGHTS_COUNT);
         for (uint i = 0; i < C_MAX_TRAFFICLIGHTS_COUNT; i++)
         {
-            cLightObject* poLight = new cLightObject(pMesh, C_GREEN_LIGHT, 100, nullptr, false);
-            poLight->SetPosition({0.0f, 1.0f, 0.0f});
-            poLight->pbVisible = true;
+            cLightObject* poLight = new cLightObject(pMesh, C_GREEN_LIGHT, pfLightREDIntensity, nullptr, false);
+            poLight->SetPosition({0.0f, 5.8f, 0.0f});
+            poLight->pbVisible = false;
 
             paLights.push_back(poLight);
             aObjects.insert({sControllerName + "_light_" + std::to_string(i), poLight});
@@ -69,12 +70,27 @@ void cTrafficLightController::Update(const glm::vec3& oPosition)
         if(i < aGroup.size())
         {
             glm::vec3 oPosition = aGroup[i]->GetPosition();
-            paLights[i]->SetPosition(oPosition.x, oPosition.z);
-            paLights[i]->SetRadius(1.0f);
-            if (i == pusSwitchState)
-                paLights[i]->SetColor(C_GREEN_LIGHT);
+            glm::vec3 oRotation = aGroup[i]->GetRotation();
+
+            if (oRotation.y == 0)
+                paLights[i]->SetPosition(oPosition.x - 0.2f, oPosition.z - 4.8f);
+            else if (oRotation.y == 180)
+                paLights[i]->SetPosition(oPosition.x + 0.2f, oPosition.z + 4.8f);
+            else if (oRotation.y == 90)
+                paLights[i]->SetPosition(oPosition.x - 4.8f, oPosition.z - 0.2f);
             else
+                paLights[i]->SetPosition(oPosition.x + 4.8f, oPosition.z + 0.2f);
+
+            if (i == pusSwitchState)
+            {
+                paLights[i]->SetColor(C_GREEN_LIGHT);
+                paLights[i]->SetRadius(pfLightGREENIntensity);
+            }
+            else
+            {
                 paLights[i]->SetColor(C_RED_LIGHT);
+                paLights[i]->SetRadius(pfLightREDIntensity);
+            }
         }
         else
             paLights[i]->SetRadius(0.0f);

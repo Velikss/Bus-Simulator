@@ -18,6 +18,7 @@
 class cBusWorldScene : public cScene
 {
     cTrafficLightController* ppTrafficController = nullptr;
+    const float C_ACTIVATION_FRONT_BUS = 7.0f;
 public:
     void Update() override;
 
@@ -96,7 +97,16 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
 void cBusWorldScene::Update()
 {
     pGameLogicHandler->Update();
-    ppTrafficController->Update(poCamera->GetPosition());
+    if (instanceof<FirstPersonFlyCamera>(poCamera))
+        ppTrafficController->Update(poCamera->GetPosition());
+    else
+    {
+        glm::vec3 oPos = pmpObjects["bus"]->GetPosition();
+        glm::vec3 direction(sin(glm::radians(pmpObjects["bus"]->GetRotation().y)), 0, cos(glm::radians(
+                pmpObjects["bus"]->GetRotation().y)));
+        oPos -= (direction * C_ACTIVATION_FRONT_BUS);
+        ppTrafficController->Update(oPos);
+    }
     entityGroup.UpdateEntities();
 
     if (paKeys[GLFW_KEY_Q])
@@ -642,7 +652,7 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["busStation5"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
 
     // Traffic lights
-    ppTrafficController = new cTrafficLightController("TrafficController1", pmpObjects, pmpMeshes["trafficLight"]);
+    ppTrafficController = new cTrafficLightController("TrafficController1", pmpObjects, pmpMeshes["skybox"]);
     pmpObjects["trafficLight1"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4f));
     pmpObjects["trafficLight1"]->SetPosition(glm::vec3(34.0f, 0.15f, 2.0f));
 
