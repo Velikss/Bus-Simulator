@@ -12,16 +12,16 @@ class cRenderHandler
 private:
     const uint uiMAX_FRAMES_IN_FLIGHT = 1;
 
-    cLogicalDevice* ppLogicalDevice;
-    cSwapChain* ppSwapChain;
-    cCommandBuffer** ppCommandBuffers;
-    uint puiCommandBufferCount;
+    cLogicalDevice* ppLogicalDevice = nullptr;
+    cSwapChain* ppSwapChain = nullptr;
+    cCommandBuffer** ppCommandBuffers = nullptr;
     iUniformHandler** ppUniformHandlers = nullptr;
-    uint puiUniformHandlerCount;
 
+    uint puiUniformHandlerCount;
     std::vector<VkSemaphore> aoImageAvailableSemaphores;
     std::vector<VkSemaphore> aoMRTFinishedSemaphores;
     std::vector<VkSemaphore> aoRenderFinishedSemaphores;
+
     std::vector<VkFence> aoInFlightFences;
 
     uint uiCurrentFrame = 0;
@@ -29,8 +29,7 @@ private:
 public:
     cRenderHandler(cLogicalDevice* pLogicalDevice,
                    cSwapChain* pSwapChain,
-                   cCommandBuffer** pCommandBuffers,
-                   uint uiCommandBufferCount);
+                   cCommandBuffer** pCommandBuffers);
     ~cRenderHandler(void);
 
     void CreateSemaphores(void);
@@ -42,13 +41,15 @@ public:
 
 cRenderHandler::cRenderHandler(cLogicalDevice* pLogicalDevice, //-V730
                                cSwapChain* pSwapChain,
-                               cCommandBuffer** pCommandBuffers,
-                               uint uiCommandBufferCount)
+                               cCommandBuffer** pCommandBuffers)
 {
+    assert(pLogicalDevice != nullptr);
+    assert(pSwapChain != nullptr);
+    assert(pCommandBuffers != nullptr);
+
     ppLogicalDevice = pLogicalDevice;
     ppSwapChain = pSwapChain;
     ppCommandBuffers = pCommandBuffers;
-    puiCommandBufferCount = uiCommandBufferCount;
 
     CreateSemaphores();
 }
@@ -87,9 +88,9 @@ void cRenderHandler::CreateSemaphores()
     for (uint i = 0; i < uiMAX_FRAMES_IN_FLIGHT; i++)
     {
         // For every frame, create the two semaphores and the fence
-        if (vkCreateSemaphore(oDevice, &tSemaphoreInfo, nullptr, &aoImageAvailableSemaphores[i]) != VK_SUCCESS || //-V108
+        if (vkCreateSemaphore(oDevice, &tSemaphoreInfo, nullptr, &aoImageAvailableSemaphores[i]) != VK_SUCCESS ||//-V108
             vkCreateSemaphore(oDevice, &tSemaphoreInfo, nullptr, &aoMRTFinishedSemaphores[i]) != VK_SUCCESS || //-V108
-            vkCreateSemaphore(oDevice, &tSemaphoreInfo, nullptr, &aoRenderFinishedSemaphores[i]) != VK_SUCCESS || //-V108
+            vkCreateSemaphore(oDevice, &tSemaphoreInfo, nullptr, &aoRenderFinishedSemaphores[i]) != VK_SUCCESS ||//-V108
             vkCreateFence(oDevice, &tFenceInfo, nullptr, &aoInFlightFences[i]) != VK_SUCCESS) //-V108
         {
             throw std::runtime_error("failed to create semaphores for a frame!");
@@ -114,12 +115,14 @@ void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandle
 
         //pTextHandler->UpdateText(cFormatter() << frameCount << " fps");
 
-        /*ppLogicalDevice->WaitUntilIdle(); // TODO: This should be optimized, use two command buffers and swap them
+        /*ppLogicalDevice->WaitUntilIdle();
         pCommandBuffer->RecordBuffers(pTextHandler->GetCommandRecorder());*/
         startTime = currentTime;
         frameCount = 0;
     }
 #endif
+
+    static VkFence oNullFence = VK_NULL_HANDLE;
 
     // Wait for the fence of the current frame and reset it to the unsignalled state
     ppLogicalDevice->WaitForFences(1, &aoInFlightFences[uiCurrentFrame], VK_TRUE, UINT64_MAX); //-V108
@@ -127,9 +130,10 @@ void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandle
 
     // Acquire the next image from the swap chain
     uint uiImageIndex;
-    VkFence oAqcuireFence = VK_NULL_HANDLE;
-    ppSwapChain->AcquireNextImage(UINT64_MAX, aoImageAvailableSemaphores[uiCurrentFrame], oAqcuireFence, &uiImageIndex); //-V108
+    ppSwapChain->AcquireNextImage(UINT64_MAX, aoImageAvailableSemaphores[uiCurrentFrame],
+                                  oNullFence, &uiImageIndex); //-V108
 
+    // If we have a loaded scene, update all the uniform handlers
     if (pScene != nullptr)
     {
         for (uint i = 0; i < puiUniformHandlerCount; i++)
@@ -162,8 +166,7 @@ void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandle
     tSubmitInfo.pSignalSemaphores = &aoMRTFinishedSemaphores[uiCurrentFrame]; //-V108
 
     // Submit the command buffer to the queue
-    VkFence oFence = VK_NULL_HANDLE;
-    if (!ppLogicalDevice->GraphicsQueueSubmit(1, &tSubmitInfo, oFence))
+    if (!ppLogicalDevice->GraphicsQueueSubmit(1, &tSubmitInfo, oNullFence))
     {
         throw std::runtime_error("failed to submit draw command buffer!");
     }

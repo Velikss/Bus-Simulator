@@ -39,28 +39,27 @@ class cEngine : public iOverlayProvider, public iInputHandler
 private:
     const string psAppName;
 
-    cWindow* ppWindow;
-    cVulkanInstance* ppVulkanInstance;
+    cWindow* ppWindow = nullptr;
+    cVulkanInstance* ppVulkanInstance = nullptr;
 
-    cLogicalDevice* ppLogicalDevice;
-    cSwapChain* ppSwapChain;
+    cLogicalDevice* ppLogicalDevice = nullptr;
+    cSwapChain* ppSwapChain = nullptr;
+    cTextureHandler* ppTextureHandler = nullptr;
 
-    cRenderModule* ppLightsRenderModule;
+    cRenderHandler* ppRenderHandler = nullptr;
+
+    cMRTRenderModule* ppMRTRenderModule = nullptr;
+    cOverlayRenderModule* ppOverlayRenderModule = nullptr;
+    cRenderModule* ppLightsRenderModule = nullptr;
 
     cCommandBuffer* papCommandBuffers[3];
     iUniformHandler* papUniformHandlers[3];
 
-    cTextureHandler* ppTextureHandler;
-    cRenderHandler* ppRenderHandler;
-
-    cOverlayRenderModule* ppOverlayRenderModule = nullptr;
-    cMRTRenderModule* ppMRTRenderModule;
-
-    cGameLoop* ppGameLoop;
-    std::thread* ppGameThread;
+    cGameLoop* ppGameLoop = nullptr;
+    std::thread* ppGameThread = nullptr;
 
     cScene* ppScene = nullptr;
-    cAudioHandler* ppAudioHandler;
+    cAudioHandler* ppAudioHandler = nullptr;
 
     std::map<string, cOverlayWindow*> pmOverlayWindows;
     cOverlayWindow* ppActiveOverlayWindow = nullptr;
@@ -77,18 +76,19 @@ public:
 
     cOverlayWindow* GetActiveOverlayWindow() override;
     void ActivateOverlayWindow(const string& sName) override;
+    void DeactivateOverlayWindow() override;
+
     void HandleMouse(uint uiDeltaX, uint uiDeltaY) override;
     void HandleKey(uint uiKeyCode, uint uiAction) override;
     void HandleScroll(double dOffsetX, double dOffsetY) override;
     void HandleCharacter(char cCharacter) override;
-    void DeactivateOverlayWindow() override;
 
 protected:
     virtual void LoadMRTShaders(std::vector<string>& shaders) = 0;
     virtual void LoadLightingShaders(std::vector<string>& shaders) = 0;
     virtual void LoadOverlayShaders(std::vector<string>& shaders) = 0;
-    virtual void LoadOverlayWindows(std::map<string, cOverlayWindow*>& mOverlayWindows) = 0;
 
+    virtual void LoadOverlayWindows(std::map<string, cOverlayWindow*>& mOverlayWindows) = 0;
     virtual void LoadScene(cScene** pScene) = 0;
 
 private:
@@ -154,6 +154,7 @@ void cEngine::InitVulkan(void)
 
     ENGINE_LOG("Creating render pipeline...");
 
+    // Setup the render modules
     std::vector<string> aMRTShaders;
     LoadMRTShaders(aMRTShaders);
     ppMRTRenderModule = new cMRTRenderModule(ppLogicalDevice, ppSwapChain, aMRTShaders);
@@ -184,7 +185,7 @@ void cEngine::InitVulkan(void)
 
     // Create the rendering handler. Acquires the frames from the swapChain, submits them to the graphics queue
     // to execute the commands, then submits them to the presentation queue to show them on the screen
-    ppRenderHandler = new cRenderHandler(ppLogicalDevice, ppSwapChain, papCommandBuffers, 3);
+    ppRenderHandler = new cRenderHandler(ppLogicalDevice, ppSwapChain, papCommandBuffers);
     ppRenderHandler->SetUniformHandlers(papUniformHandlers, 3);
 
     // Create the texture handler. This deals with loading, binding and sampling the textures
@@ -238,28 +239,24 @@ void cEngine::MainLoop(void)
         // Let the window do it's thing
         ppWindow->HandleEvents();
 
-        if (ppScene != nullptr)
+        // If the scene is signalling it wants to
+        // quit, pass it on to the window
+        if (ppScene != nullptr && ppScene->ShouldQuit())
         {
-            // If the scene is signalling it wants to
-            // quit, pass it on to the window
-            if (ppScene->ShouldQuit())
-            {
-                ENGINE_LOG("Scene is asking for application quit");
-                ppWindow->Close();
-            }
-
-            // Update the audio handler
-            ppAudioHandler->Update();
+            ENGINE_LOG("Scene is asking for application quit");
+            ppWindow->Close();
         }
 
-        if (ppActiveOverlayWindow != nullptr)
+        // If the active overlay is asking for the application
+        // to quit, pass it on to the window
+        if (ppActiveOverlayWindow != nullptr && ppActiveOverlayWindow->ShouldQuit())
         {
-            if (ppActiveOverlayWindow->ShouldQuit())
-            {
-                ENGINE_LOG("Overlay is asking for application quit");
-                ppWindow->Close();
-            }
+            ENGINE_LOG("Overlay is asking for application quit");
+            ppWindow->Close();
         }
+
+        // Update the audio handler
+        ppAudioHandler->Update();
 
         // Draw a frame
         ppRenderHandler->DrawFrame(ppScene, ppOverlayRenderModule, papCommandBuffers[2]);
@@ -271,12 +268,14 @@ void cEngine::MainLoop(void)
         {
             ENGINE_LOG("Loading overlay windows...");
 
+            // Load the overlay windows
             LoadOverlayWindows(pmOverlayWindows);
             for (auto oOverlayWindow : pmOverlayWindows)
             {
                 oOverlayWindow.second->Construct(ppTextureHandler, ppLogicalDevice);
             }
             ENGINE_LOG("Loaded " << pmOverlayWindows.size() << " overlay windows");
+
 
             ENGINE_LOG("Loading scene...");
 
@@ -308,14 +307,16 @@ void cEngine::MainLoop(void)
             ppOverlayRenderModule->CreateCommandRecorder();
             papCommandBuffers[2]->RecordBuffers(ppOverlayRenderModule->GetCommandRecorder());
 
+            ppAudioHandler->SetCamera(ppScene->GetCameraRef());
+
             ENGINE_LOG("Scene loaded, adding tick task...");
             ppGameLoop->AddTask(ppScene);
-
-            ppAudioHandler->SetCamera(ppScene->GetCameraRef());
 
             pbInitialized = true;
         }
 
+        // If the overlay text should be updated, re-record
+        // the command buffers
         if (cTextElement::Invalidated())
         {
             ENGINE_LOG("Updating overlay text...");

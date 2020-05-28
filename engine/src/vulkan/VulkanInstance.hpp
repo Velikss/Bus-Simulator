@@ -21,7 +21,7 @@ private:
     const bool pbENABLE_VALIDATION_LAYERS = true;
 #endif
 
-    VkInstance poInstance;
+    VkInstance poInstance = VK_NULL_HANDLE;
 
 public:
     cVulkanInstance(void);
