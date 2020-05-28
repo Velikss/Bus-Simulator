@@ -8,8 +8,21 @@
 class cPassenger : public IPassenger
 {
 private:
-    cBusStop* ppoDestination;
+    cBusStop* ppoDestination = nullptr;
 
 public:
     cPassenger(cMesh *mesh) : IPassenger(mesh){}
+
+    void SetDestination(cBusStop* oBusStop);
+    cBusStop GetDestination();
 };
+
+void cPassenger::SetDestination(cBusStop *oBusStop)
+{
+    ppoDestination = oBusStop;
+}
+
+cBusStop cPassenger::GetDestination()
+{
+    return *ppoDestination;
+}

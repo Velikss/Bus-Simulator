@@ -67,7 +67,7 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
     LoadGeometries(pLogicalDevice);
     LoadMeshes();
     LoadObjects();
-    LoadOverlay(pLogicalDevice);
+//    LoadOverlay(pLogicalDevice);
     LoadMissions();
 
     // Connect to multiplayer instance if possbile.
@@ -711,8 +711,9 @@ void cBusWorldScene::LoadObjects()
     for(uint i = 0; i < 11; i ++)
     {
         string key = "passenger" + std::to_string(i);
-        pmpObjects[key] = new IPassenger(pmpMeshes["passenger"]);
+        pmpObjects[key] = new cPassenger(pmpMeshes["passenger"]);
         pmpObjects[key]->SetPosition(glm::vec3(200.0f, 0.15f, -200.0f));
+        pmpObjects[key]->pbVisible = false;
     }
 
     for (uint i = 0; i < 10; i++)
@@ -738,7 +739,7 @@ void cBusWorldScene::LoadObjects()
 
     entityGroup2 = entityGroup;
     entityGroup.AddBehaviour(cbSeperation);
-    entityGroup.AddBehaviour(cbCohesion);
+//    entityGroup.AddBehaviour(cbCohesion);
     entityGroup.AddBehaviour(cbSeeking);
 }
 
