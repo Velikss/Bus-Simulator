@@ -8,17 +8,21 @@
 class cLightingRenderModule : public cRenderModule
 {
 public:
-    cLightingRenderModule(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain);
+    cLightingRenderModule(cLogicalDevice* pLogicalDevice,
+                          cSwapChain* pSwapChain,
+                          std::vector<string>& aShaders);
     ~cLightingRenderModule() override;
 
 protected:
     void CreateUniformHandler() override;
     void CreateRenderPass() override;
-    void CreatePipeline() override;
+    void CreatePipeline(std::vector<string>& aShaders) override;
 };
 
-cLightingRenderModule::cLightingRenderModule(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain)
-        : cRenderModule(pLogicalDevice, pSwapChain)
+cLightingRenderModule::cLightingRenderModule(cLogicalDevice* pLogicalDevice,
+                                             cSwapChain* pSwapChain,
+                                             std::vector<string>& aShaders)
+        : cRenderModule(pLogicalDevice, pSwapChain, aShaders)
 {
     Init();
 
@@ -43,8 +47,8 @@ void cLightingRenderModule::CreateRenderPass()
     ppRenderPass = new cLightingRenderPass(ppLogicalDevice, ppSwapChain);
 }
 
-void cLightingRenderModule::CreatePipeline()
+void cLightingRenderModule::CreatePipeline(std::vector<string>& aShaders)
 {
     // Create the graphics pipeline. Handles the shaders and fixed-function operations for the graphics pipeline.
-    ppRenderPipeline = new cLightingPipeline(ppSwapChain, ppLogicalDevice, ppRenderPass, ppUniformHandler);
+    ppRenderPipeline = new cLightingPipeline(ppSwapChain, ppLogicalDevice, ppRenderPass, ppUniformHandler, aShaders);
 }

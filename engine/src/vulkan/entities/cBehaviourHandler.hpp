@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <scripting/cScriptingEngine.hpp>
 #include <scripting/functions/JavaScriptEntityFunctions.hpp>
-#include "../../../../server/src/DirectoryWatcher.hpp"
+#include <vulkan/util/DirectoryWatcher.hpp>
 
 class cBehaviourHandler
 {

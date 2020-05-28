@@ -112,10 +112,10 @@ void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandle
         ENGINE_LOG(frameCount << " fps");
         assert(pTextHandler != nullptr);
 
-        pTextHandler->UpdateText(cFormatter() << frameCount << " fps");
+        //pTextHandler->UpdateText(cFormatter() << frameCount << " fps");
 
-        ppLogicalDevice->WaitUntilIdle(); // TODO: This should be optimized, use two command buffers and swap them
-        pCommandBuffer->RecordBuffers(pTextHandler->GetCommandRecorder());
+        /*ppLogicalDevice->WaitUntilIdle(); // TODO: This should be optimized, use two command buffers and swap them
+        pCommandBuffer->RecordBuffers(pTextHandler->GetCommandRecorder());*/
         startTime = currentTime;
         frameCount = 0;
     }
@@ -130,9 +130,12 @@ void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandle
     VkFence oAqcuireFence = VK_NULL_HANDLE;
     ppSwapChain->AcquireNextImage(UINT64_MAX, aoImageAvailableSemaphores[uiCurrentFrame], oAqcuireFence, &uiImageIndex);
 
-    for (uint i = 0; i < puiUniformHandlerCount; i++)
+    if (pScene != nullptr)
     {
-        ppUniformHandlers[i]->UpdateUniformBuffers(pScene);
+        for (uint i = 0; i < puiUniformHandlerCount; i++)
+        {
+            ppUniformHandlers[i]->UpdateUniformBuffers(pScene);
+        }
     }
 
     // Struct with information about the command buffer we want to submit to the queue

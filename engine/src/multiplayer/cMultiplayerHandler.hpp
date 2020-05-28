@@ -3,7 +3,7 @@
 #include <pch.hpp>
 #include <multiplayer/cNetworkClient.hpp>
 #include "StdUuid.hpp"
-#include <vulkan/entities/cBus.hpp>
+#include <entities/cBus.hpp>
 
 struct tFixedVec3
 {

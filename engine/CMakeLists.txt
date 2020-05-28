@@ -18,21 +18,41 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -luuid")
+
+find_package(GTest CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(PkgConfig)
 set(OPENSSL_USE_STATIC_LIBS TRUE)
 find_package(OpenSSL REQUIRED)
 find_package(glfw3 REQUIRED)
+find_package(Vulkan REQUIRED)
 
-#IF(NOT WIN32)
-    find_package(Vulkan REQUIRED)
-#ENDIF()
+get_target_property(GLFW_INCLUDE_DIR glfw INTERFACE_INCLUDE_DIRECTORIES)
+IF (WIN32)
+    add_library(fmod STATIC IMPORTED)
 
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -luuid")
+    find_package(glm REQUIRED)
+    find_package(duktape REQUIRED)
+    get_target_property(GLM_INCLUDE_DIR glm INTERFACE_INCLUDE_DIRECTORIES)
+    get_target_property(GLFW_LIBRARIES glfw IMPORTED_IMPLIB_RELEASE)
+
+    set(_ENGINE_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/vendor/fmod/windows/api/core/inc)
+    set(_ENGINE_LIBRARIES ${PROJECT_SOURCE_DIR}/vendor/fmod/windows/api/core/lib/x64/fmod_vc.lib ${GLEW_LIBRARIES} ${GLFW_LIBRARIES} ${DUKTAPE_LIBRARY} ${Vulkan_LIBRARIES} ${OPENSSL_SSL_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARIES} ${ODBC_LIBRARY})
+ELSE()
+    add_library(fmod SHARED IMPORTED)
+
+    get_target_property(GLFW_LIBRARIES glfw IMPORTED_LOCATION_NOCONFIG)
+    set(_ENGINE_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/vendor/fmod/linux/api/core/inc)
+    set(_ENGINE_LIBRARIES /usr/lib/fmod/libfmod.so ${GLEW_LIBRARIES} ${GLFW_LIBRARIES} /usr/lib/libduktape.so ${Vulkan_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${ODBC_LIBRARY})
+ENDIF()
+list(APPEND _ENGINE_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src ${Vulkan_INCLUDE_DIRS} ${GLM_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS} ${GLFW_INCLUDE_DIR} ${DUKTAPE_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR} /usr/lib/libuuid.a)
+set(ENGINE_INCLUDE_DIRS ${_ENGINE_INCLUDE_DIRS} PARENT_SCOPE)
+set(ENGINE_LIBRARIES ${_ENGINE_LIBRARIES} PARENT_SCOPE)
 
 set(Headers
         ${PROJECT_SOURCE_DIR}/src/pch.hpp
@@ -60,8 +80,8 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/CommandBuffer.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/CommandBufferRecorder.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/command/ClearScreenRecorder.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/Scene.hpp src/vulkan/scene/BaseObject.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/TestScene.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/Scene.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/BaseObject.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/InputHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/PipelineHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/uniform/UniformHandler.hpp
@@ -71,7 +91,6 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/RenderPipeline.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/swapchain/SwapChainHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/swapchain/SwapChain.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/pipeline/Shaders.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/mrt/MRTPipeline.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/mrt/MRTRenderModule.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/mrt/MRTRenderPass.hpp
@@ -95,9 +114,6 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/LightObject.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/util/EngineLog.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/ViewportQuadGeometry.hpp src/vulkan/texture/TextureSampler.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/BusCamera.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/scene/BusWorldScene.hpp
-        ${PROJECT_SOURCE_DIR}/src/pch.hpp
         ${PROJECT_SOURCE_DIR}/src/vendor/tiny_obj_loader.h
         ${PROJECT_SOURCE_DIR}/src/loaders/fileloader.hpp
         ${PROJECT_SOURCE_DIR}/src/loaders/objectloader.hpp
@@ -114,32 +130,29 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkConnection.hpp
         ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkClient.hpp
         ${PROJECT_SOURCE_DIR}/src/multiplayer/cMultiplayerHandler.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBus.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBusStop.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/IPassengerHolder.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cPassenger.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/gamelogic/cGameLogicHandler.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/gamelogic/cMissionHandler.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/IPassenger.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/collision/Collider.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/collision/CollisionHelper.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/collision/ColliderSet.hpp)
-set(Sources
-        ${PROJECT_SOURCE_DIR}/src/main.cpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/collision/ColliderSet.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/StaticElement.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/TextElement.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/AudioHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/util/DirectoryWatcher.hpp)
 
-include_directories(${PROJECT_SOURCE_DIR}/src ${GLEW_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS} ${DUKTAPE_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR})
-add_library(${This} STATIC ${Sources} ${Headers})
-add_executable(${This}-bin ${Sources} ${Headers})
-
-IF (NOT WIN32)
-    target_link_libraries(${This} PUBLIC /usr/lib/libuuid.a)
-    add_custom_command(TARGET ${This}-bin PRE_BUILD COMMAND cd ${PROJECT_SOURCE_DIR}/shaders && ./compile.sh)
-ENDIF ()
+include_directories(${_ENGINE_INCLUDE_DIRS})
+add_library(${This} STATIC ${PROJECT_SOURCE_DIR}/src/main.cpp ${Headers})
+add_executable(${This}-Test ${PROJECT_SOURCE_DIR}/test/main.cpp ${Headers})
+target_include_directories(${This} INTERFACE ${_ENGINE_INCLUDE_DIRS})
+target_include_directories(${This}-Test INTERFACE ${_ENGINE_INCLUDE_DIRS})
 
 IF (WIN32)
-    find_package(glm REQUIRED)
-    find_package(duktape REQUIRED)
-    target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw glm ${OPENGL_INCLUDE_DIRS} ${DUKTAPE_LIBRARY} ${Vulkan_LIBRARIES} OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY})
+    target_link_libraries(${This} PUBLIC ${_ENGINE_LIBRARIES} glm)
+    target_link_libraries(${This}-Test PUBLIC ${_ENGINE_LIBRARIES} glm GTest::gtest)
 ELSE()
-    target_link_libraries(${This}-bin ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw /usr/lib/libduktape.so ${Vulkan_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${ODBC_LIBRARY})
+    target_link_libraries(${This} PUBLIC ${_ENGINE_LIBRARIES})
+    target_link_libraries(${This}-Test PUBLIC ${_ENGINE_LIBRARIES} gtest)
 ENDIF()
+
+add_test(
+        NAME ${This}-Test
+        COMMAND ${This}-Test
+)

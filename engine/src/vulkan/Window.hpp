@@ -7,11 +7,22 @@
 #include <vulkan/VulkanInstance.hpp>
 #include <vulkan/scene/InputHandler.hpp>
 
+// Window size
+#ifdef QUAD_HD_RESOLUTION
+const uint WIDTH = 1920;
+const uint HEIGHT = 1080;
+#else
+static const uint WIDTH = 1920;
+const uint HEIGHT = 1080;
+#endif
+
 // Class representing the window which can be used for rendering
 class cWindow
 {
 private:
     static cWindow* poInstance;
+
+    const string& psWindowName;
 
     cVulkanInstance* ppVulkanInstance;
 
@@ -22,18 +33,10 @@ public:
     // Pointer to the GLFW window instance
     GLFWwindow* ppWindow = nullptr;
 
-    // Window size
-#ifdef QUAD_HD_RESOLUTION
-    static const uint WIDTH = 1920;
-    static const uint HEIGHT = 1080;
-#else
-    static const uint WIDTH = 1920;
-    static const uint HEIGHT = 1080;
-#endif
 
     iInputHandler* ppInputHandler = nullptr;
 
-    cWindow();
+    cWindow(const string& sWindowName);
     ~cWindow();
 
     // Create and initialize the window
@@ -64,11 +67,12 @@ private:
     static void mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY);
     static void keyCallback(GLFWwindow* pWindow, int iKey, int iScanCode, int iAction, int iMods);
     static void scrollCallback(GLFWwindow* pWindow, double dOffsetX, double dOffsetY);
+    static void characterCallback(GLFWwindow* pWindow, uint uiCharacter);
 };
 
 cWindow* cWindow::poInstance = nullptr;
 
-cWindow::cWindow()
+cWindow::cWindow(const string& sWindowName) : psWindowName(sWindowName)
 {
     glfwInit();
 
@@ -98,12 +102,13 @@ void cWindow::CreateGLWindow()
 {
     assert(ppWindow == nullptr); // don't create a window if it has already been created
 
-    ppWindow = glfwCreateWindow(WIDTH, HEIGHT, "BUS", nullptr, nullptr);
+    ppWindow = glfwCreateWindow(WIDTH, HEIGHT, psWindowName.c_str(), nullptr, nullptr);
 
     glfwSetCursorPosCallback(ppWindow, mouseCallback);
     //glfwSetInputMode(ppWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetKeyCallback(ppWindow, keyCallback);
     glfwSetScrollCallback(ppWindow, scrollCallback);
+    glfwSetCharCallback(ppWindow, characterCallback);
 }
 
 bool cWindow::CreateWindowSurface(cVulkanInstance* pVulkanInstance)
@@ -255,4 +260,11 @@ void cWindow::scrollCallback(GLFWwindow* pWindow, double dOffsetX, double dOffse
     if (poInstance == nullptr || poInstance->ppInputHandler == nullptr) return;
 
     poInstance->ppInputHandler->HandleScroll(dOffsetX, dOffsetY);
+}
+
+void cWindow::characterCallback(GLFWwindow* pWindow, uint uiCharacter)
+{
+    if (poInstance == nullptr || poInstance->ppInputHandler == nullptr) return;
+
+    poInstance->ppInputHandler->HandleCharacter((char) uiCharacter);
 }

@@ -10,7 +10,6 @@
 #include <vulkan/pipeline/PipelineHelper.hpp>
 #include <vulkan/pipeline/RenderPipeline.hpp>
 #include <vulkan/module/overlay/text/Vertex2D.hpp>
-#include <vulkan/pipeline/Shaders.hpp>
 
 class cMRTPipeline : public cRenderPipeline
 {
@@ -18,7 +17,8 @@ public:
     cMRTPipeline(cSwapChain* pSwapChain,
                  cLogicalDevice* pLogicalDevice,
                  cRenderPass* pRenderPass,
-                 iUniformHandler* pUniformHandler);
+                 iUniformHandler* pUniformHandler,
+                 std::vector<string>& aShaders);
 
 protected:
     void CreatePipelineLayout(cSwapChain* pSwapChain,
@@ -28,15 +28,17 @@ protected:
     void CreatePipeline(cSwapChain* pSwapChain,
                         cLogicalDevice* pLogicalDevice,
                         cRenderPass* pRenderPass,
-                        iUniformHandler* pUniformHandler) override;
+                        iUniformHandler* pUniformHandler,
+                        std::vector<string>& aShaders) override;
 };
 
 cMRTPipeline::cMRTPipeline(cSwapChain* pSwapChain,
                            cLogicalDevice* pLogicalDevice,
                            cRenderPass* pRenderPass,
-                           iUniformHandler* pUniformHandler)
+                           iUniformHandler* pUniformHandler,
+                           std::vector<string>& aShaders)
 {
-    Init(pSwapChain, pLogicalDevice, pRenderPass, pUniformHandler);
+    Init(pSwapChain, pLogicalDevice, pRenderPass, pUniformHandler, aShaders);
 }
 
 void cMRTPipeline::CreatePipelineLayout(cSwapChain* pSwapChain,
@@ -62,11 +64,12 @@ void cMRTPipeline::CreatePipelineLayout(cSwapChain* pSwapChain,
 void cMRTPipeline::CreatePipeline(cSwapChain* pSwapChain,
                                   cLogicalDevice* pLogicalDevice,
                                   cRenderPass* pRenderPass,
-                                  iUniformHandler* pUniformHandler)
+                                  iUniformHandler* pUniformHandler,
+                                  std::vector<string>& aShaders)
 {
     // Read the shader files
-    std::vector<char> acVertShaderCode = cPipelineHelper::ReadFile(MRT_VERT_SHADER);
-    std::vector<char> acFragShaderCode = cPipelineHelper::ReadFile(MRT_FRAG_SHADER);
+    std::vector<char> acVertShaderCode = cPipelineHelper::ReadFile(aShaders[0]);
+    std::vector<char> acFragShaderCode = cPipelineHelper::ReadFile(aShaders[1]);
 
     // Load the shader code into modules
     VkShaderModule oVertShaderModule = cPipelineHelper::CreateShaderModule(acVertShaderCode, pLogicalDevice);
