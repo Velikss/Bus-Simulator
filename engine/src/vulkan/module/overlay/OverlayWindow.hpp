@@ -52,7 +52,8 @@ void cOverlayWindow::Construct(cTextureHandler* pTextureHandler, cLogicalDevice*
     for (auto oElement : pmpOverlay)
     {
         assert(oElement.second != nullptr);
-        oElement.second->LoadVertices();
+        oElement.second->OnLoadVertices();
+        oElement.second->CopyToDevice();
     }
 
     for (auto oTexture : pmpTextures)

@@ -2,6 +2,7 @@
 
 #ifndef NDEBUG
 
+#include <pch.hpp>
 #include <chrono>
 #include <iostream>
 
@@ -22,8 +23,8 @@ steady_clock::time_point tEngineStartTime = steady_clock::now();
 
 std::string GetCurrentFileName(std::string sPath)
 {
-    uint uiIndex;
-    for (uiIndex = (uint) sPath.size(); uiIndex > 0; uiIndex--)
+    uint32_t uiIndex;
+    for (uiIndex = (uint32_t) sPath.size(); uiIndex > 0; uiIndex--)
     {
         if (sPath[uiIndex - 1] == '\\' || sPath[uiIndex - 1] == '/') break;
     }

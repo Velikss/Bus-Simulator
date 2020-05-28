@@ -15,16 +15,14 @@ struct tElementInfo
 class cStaticElement
 {
 protected:
-    tVertex2D patVertices[6];
-    cTexture* ppTexture;
-
     cLogicalDevice* ppLogicalDevice;
-
     VkBuffer poVertexBuffer;
     VkDeviceMemory poVertexBufferMemory;
 
+    // Elemental
+    std::vector<tVertex2D> patVertices;
+    cTexture* ppTexture;
     tElementInfo ptInfo;
-
     glm::vec2 ptRotation = glm::vec2(0.0f, 0.0f);
     glm::vec2 ptPosition = glm::vec2(0.0f, 0.0f);
     glm::vec2 ptScale = glm::vec2(1.0f, 1.0f);
@@ -33,7 +31,7 @@ public:
     cStaticElement(tElementInfo tInfo, cTexture* pTexture, cLogicalDevice* pLogicalDevice);
     ~cStaticElement();
 
-    virtual void LoadVertices();
+    virtual void OnLoadVertices();
 
     virtual VkImageView& GetImageView();
     virtual VkSampler& GetImageSampler();
@@ -49,7 +47,6 @@ public:
 
     glm::mat4 GetMatrix(cWindow* pWindow);
 
-protected:
     virtual void CopyToDevice();
 };
 
@@ -68,30 +65,22 @@ cStaticElement::~cStaticElement()
     ppLogicalDevice->FreeMemory(poVertexBufferMemory, nullptr);
 }
 
-void cStaticElement::LoadVertices()
+void cStaticElement::OnLoadVertices()
 {
-    patVertices[0] = {{0, 0},
-                      {0, 0}};
-    patVertices[1] = {{ptInfo.uiWidth, ptInfo.uiHeight},
-                      {1,              1}};
-    patVertices[2] = {{ptInfo.uiWidth, 0},
-                      {1,              0}};
-    patVertices[3] = {{0, 0},
-                      {0, 0}};
-    patVertices[4] = {{0, ptInfo.uiHeight},
-                      {0, 1}};
-    patVertices[5] = {{ptInfo.uiWidth, ptInfo.uiHeight},
-                      {1,              1}};
-
-    CopyToDevice();
+    patVertices.push_back({{0, 0}, {0, 0}});
+    patVertices.push_back({{ptInfo.uiWidth, ptInfo.uiHeight}, {1, 1}});
+    patVertices.push_back({{ptInfo.uiWidth, 0}, {1, 0}});
+    patVertices.push_back({{0, 0}, {0, 0}});
+    patVertices.push_back({{0, ptInfo.uiHeight}, {0, 1}});
+    patVertices.push_back({{ptInfo.uiWidth, ptInfo.uiHeight}, {1, 1}});
 }
 
 void cStaticElement::CopyToDevice()
 {
-    VkDeviceSize ulVertexBufferSize = sizeof(patVertices[0]) * 6;
+    VkDeviceSize ulVertexBufferSize = sizeof(tVertex2D) * patVertices.size();
     cBufferHelper::CopyToNewBuffer(ppLogicalDevice,
                                    VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                                   patVertices, ulVertexBufferSize,
+                                   patVertices.data(), ulVertexBufferSize,
                                    poVertexBuffer, poVertexBufferMemory);
 }
 
@@ -174,5 +163,5 @@ VkSampler& cStaticElement::GetImageSampler()
 
 uint cStaticElement::GetVertexCount()
 {
-    return 6;
+    return (uint) patVertices.size();
 }

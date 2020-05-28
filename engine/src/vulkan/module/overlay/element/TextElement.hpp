@@ -21,7 +21,7 @@ private:
     static bool pbInValidated;
 public:
     cTextElement(cLogicalDevice* pLogicalDevice);
-    void LoadVertices() override;
+    void OnLoadVertices() override;
 
     void SetFont(float fFontSize, cFont* pFont, glm::vec3 tColor);
     void UpdateText(const string& sText);
@@ -33,8 +33,7 @@ public:
     static void Validate();
     static void Invalidate();
 private:
-    void CopyToDevice() override;
-
+    void CopyToDevice() override {};
 };
 
 bool cTextElement::pbInValidated = true;
@@ -51,13 +50,9 @@ cTextElement::cTextElement(cLogicalDevice* pLogicalDevice)
                                 poVertexBuffer, poVertexBufferMemory);
 }
 
-void cTextElement::LoadVertices()
+void cTextElement::OnLoadVertices()
 {
     UpdateText(psText);
-}
-
-void cTextElement::CopyToDevice()
-{
 }
 
 void cTextElement::SetFont(float fFontSize, cFont* pFont, glm::vec3 tColor)
