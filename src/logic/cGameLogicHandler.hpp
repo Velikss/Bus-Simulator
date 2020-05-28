@@ -14,8 +14,6 @@ private:
     cScene* ppScene;
     cMissionHandler* ppMission;
     cBus* ppBus;
-    cBehaviourHandler* pcbSeperation = nullptr;
-    cBehaviourHandler* pcbSeeking = nullptr;
 public:
     cGameLogicHandler(cScene* pScene, cBus* pBus, cMissionHandler* pMission = nullptr)
     {
@@ -39,11 +37,6 @@ bool cGameLogicHandler::LoadMission()
 {
     if(ppMission == nullptr)
         return false;
-    // TODO at the moment this has to happen after the behaviours have been loaded in the LoadObject of the scene.
-    if(pcbSeperation == nullptr)
-        pcbSeperation = new cBehaviourHandler("seperation");
-    if(pcbSeeking == nullptr)
-        pcbSeeking = new cBehaviourHandler("seeking");
 
     std::deque<cBusStop*> oRoute = ppMission->GetRouteQueue();
     std::map<string, cBaseObject*> mpObjects = ppScene->GetObjects();
@@ -58,12 +51,12 @@ bool cGameLogicHandler::LoadMission()
     // Loop through all busStops on the route
     for(uint i = 0; i < oRoute.size(); i++)
     {
-        // Todo how do we want to add behaviours to the missions, always the same behaviours? (Currently always seperation)
+        // Todo how do we want to add behaviours to the missions, always the same behaviours?
         // Check if busStops already have this behaviour
-        if(!oRoute[i]->poEntityGroup->BehaviourExists(pcbSeperation))
-            oRoute[i]->poEntityGroup->AddBehaviour(pcbSeperation);
-        if(!oRoute[i]->poEntityGroup->BehaviourExists(pcbSeeking))
-            oRoute[i]->poEntityGroup->AddBehaviour(pcbSeeking);
+        if(!oRoute[i]->poEntityGroup->BehaviourExists(ppScene->pcbSeperation))
+            oRoute[i]->poEntityGroup->AddBehaviour(ppScene->pcbSeperation);
+        if(!oRoute[i]->poEntityGroup->BehaviourExists(ppScene->pcbSeeking))
+            oRoute[i]->poEntityGroup->AddBehaviour(ppScene->pcbSeeking);
 
         // The last buStop can not have any passengers
         if(i == oRoute.size() - 1)
@@ -120,8 +113,6 @@ bool cGameLogicHandler::LoadMission()
                     oCurrentPassenger->SetTarget(oRoute[i]->GetPosition()); // set target to bus stop
                     oCurrentPassenger->SetDestination(oRoute[iRandDestIndex]); // set destination to random bus stop
                     oCurrentPassenger->pbVisible = true;
-
-                    std::cout << "BusStop" << i << ", "<< key << ", dest = " << iRandDestIndex << std::endl;
 
                     // pop used passenger form the available passengers queue
                     oPassengersQueue.pop();

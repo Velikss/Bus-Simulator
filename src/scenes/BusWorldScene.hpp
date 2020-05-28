@@ -48,6 +48,8 @@ public:
 
     void LoadMissions();
 
+    void LoadBehaviours();
+
     bool BusCentered = false;
 
     cEntityGroup entityGroup;
@@ -67,6 +69,7 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
     LoadGeometries(pLogicalDevice);
     LoadMeshes();
     LoadObjects();
+    LoadBehaviours();
 //    LoadOverlay(pLogicalDevice);
     LoadMissions();
 
@@ -183,6 +186,27 @@ void cBusWorldScene::LoadMissions()
     pMissionHandler2->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation3"]));
 
     pGameLogicHandler = new cGameLogicHandler(this, dynamic_cast<cBus*>(pmpObjects["bus"]), pMissionHandler1);
+}
+
+void cBusWorldScene::LoadBehaviours()
+{
+    // Init behaviour handler
+    cBehaviourHandler::Init();
+    cBehaviourHandler::AddBehavioursFromDirectory("resources/scripting");
+
+    pcbSeperation = new cBehaviourHandler("seperation");
+    pcbCohesion = new cBehaviourHandler("cohesion");
+    pcbSeeking = new cBehaviourHandler("seeking");
+
+    entityGroup.AddEntity(dynamic_cast<cEntity*>(pmpObjects["entity"]));
+    entityGroup.AddEntity(dynamic_cast<cEntity*>(pmpObjects["entity2"]));
+    entityGroup.AddEntity(dynamic_cast<cEntity*>(pmpObjects["entity3"]));
+    entityGroup.AddEntity(dynamic_cast<cEntity*>(pmpObjects["entity4"]));
+
+    entityGroup2 = entityGroup;
+    entityGroup.AddBehaviour(pcbSeperation);
+//    entityGroup.AddBehaviour(cbCohesion);
+    entityGroup.AddBehaviour(pcbSeeking);
 }
 
 void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
@@ -723,24 +747,6 @@ void cBusWorldScene::LoadObjects()
         pmpObjects[key]->SetScale(glm::vec3(0));
         dynamic_cast<cBus *>(pmpObjects[key])->piBusId = i;
     }
-
-    // Init behaviour handler
-    cBehaviourHandler::Init();
-    cBehaviourHandler::AddBehavioursFromDirectory("resources/scripting");
-
-    cBehaviourHandler *cbSeperation = new cBehaviourHandler("seperation");
-    cBehaviourHandler *cbCohesion = new cBehaviourHandler("cohesion");
-    cBehaviourHandler *cbSeeking = new cBehaviourHandler("seeking");
-
-    entityGroup.AddEntity(dynamic_cast<cEntity*>(pmpObjects["entity"]));
-    entityGroup.AddEntity(dynamic_cast<cEntity*>(pmpObjects["entity2"]));
-    entityGroup.AddEntity(dynamic_cast<cEntity*>(pmpObjects["entity3"]));
-    entityGroup.AddEntity(dynamic_cast<cEntity*>(pmpObjects["entity4"]));
-
-    entityGroup2 = entityGroup;
-    entityGroup.AddBehaviour(cbSeperation);
-//    entityGroup.AddBehaviour(cbCohesion);
-    entityGroup.AddBehaviour(cbSeeking);
 }
 
 void cBusWorldScene::LoadOverlay(cLogicalDevice* pLogicalDevice)
