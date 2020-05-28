@@ -18,7 +18,7 @@
 class cBusWorldScene : public cScene
 {
     cTrafficLightController* ppTrafficController = nullptr;
-    const float C_ACTIVATION_FRONT_BUS = 7.0f;
+    const float C_ACTIVATION_FRONT_BUS = 20.0f;
 public:
     void Update() override;
 

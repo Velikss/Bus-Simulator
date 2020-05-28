@@ -16,21 +16,31 @@ class cTrafficLightController
     const float pfLightGREENIntensity = 6.0f;
 
     std::vector<tTrafficLightGroup> paTrafficGroups;
-    std::vector<cLightObject*> paLights;
+    std::vector<cLightObject*> paLightsSet1;
+    std::vector<cLightObject*> paLightsSet2;
+    bool pbUseSet1 = true;
+    uint puiLastIndex = 0;
+
     ushort pusSwitchTick = 5;
     ushort pusSwitchState = 0;
     ushort pusSwitchStateMax = 0;
 public:
     cTrafficLightController(const string& sControllerName, std::map<string, cBaseObject*> & aObjects, cMesh* pMesh)
     {
-        paLights.reserve(C_MAX_TRAFFICLIGHTS_COUNT);
-        for (uint i = 0; i < C_MAX_TRAFFICLIGHTS_COUNT; i++)
+        paLightsSet1.reserve(C_MAX_TRAFFICLIGHTS_COUNT);
+        paLightsSet2.reserve(C_MAX_TRAFFICLIGHTS_COUNT);
+        for (uint i = 0; i < C_MAX_TRAFFICLIGHTS_COUNT * 2; i++)
         {
             cLightObject* poLight = new cLightObject(pMesh, C_GREEN_LIGHT, pfLightREDIntensity, nullptr, false);
             poLight->SetPosition({0.0f, 5.8f, 0.0f});
             poLight->pbVisible = false;
 
-            paLights.push_back(poLight);
+            if (pbUseSet1)
+                paLightsSet1.push_back(poLight);
+            else
+                paLightsSet2.push_back(poLight);
+            pbUseSet1 = !pbUseSet1;
+
             aObjects.insert({sControllerName + "_light_" + std::to_string(i), poLight});
         }
     }
@@ -64,6 +74,14 @@ void cTrafficLightController::Update(const glm::vec3& oPosition)
 
     auto& aGroup = paTrafficGroups[uiIndex].second;
     pusSwitchState = ((uiTime / pusSwitchTick) % aGroup.size());
+
+    if (puiLastIndex != uiIndex)
+    {
+        pbUseSet1 = !pbUseSet1;
+        puiLastIndex = uiIndex;
+    }
+
+    auto& paLights = pbUseSet1 ? paLightsSet1 : paLightsSet2;
 
     for(uint i = 0; i < paLights.size(); i++)
     {
