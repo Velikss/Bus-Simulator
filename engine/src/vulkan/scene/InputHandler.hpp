@@ -9,4 +9,5 @@ public:
     virtual void HandleKey(uint uiKeyCode, uint uiAction) = 0;
     virtual void HandleScroll(double dOffsetX, double dOffsetY) = 0;
     virtual void HandleCharacter(char cCharacter) = 0;
+    virtual void HandleMouseButton(uint uiButton, double dXPos, double dYPos) = 0;
 };

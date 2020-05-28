@@ -191,8 +191,9 @@ void cOverlayUniformHandler::CreateUniformBuffers()
     cOverlayWindow* pOverlayWindow = ppOverlayProvider->GetActiveOverlayWindow();
     if (pOverlayWindow != nullptr)
     {
+        cUIManager* pUIManager = pOverlayWindow->GetUIManager();
         VkDeviceSize bufferSize = sizeof(tOverlayElementObject);
-        uint uiCount = (uint) pOverlayWindow->GetElements().size();
+        uint uiCount = (uint) pUIManager->patElements.size();
 
         paoElementUniformBuffers.resize(uiCount);
         paoElementUniformBuffersMemory.resize(uiCount);
@@ -294,8 +295,9 @@ void cOverlayUniformHandler::CreateDescriptorSet()
     cOverlayWindow* pOverlayWindow = ppOverlayProvider->GetActiveOverlayWindow();
     if (pOverlayWindow != nullptr)
     {
+        cUIManager* pUIManager = pOverlayWindow->GetUIManager();
         uint uiIndex = 0;
-        for (auto oObject : pOverlayWindow->GetElements())
+        for (auto oObject : pUIManager->patElements)
         {
             VkDescriptorBufferInfo tElementBufferInfo = {};
             tElementBufferInfo.buffer = paoElementUniformBuffers[uiIndex];
@@ -304,8 +306,8 @@ void cOverlayUniformHandler::CreateDescriptorSet()
 
             VkDescriptorImageInfo tElementImageInfo = {};
             tElementImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            tElementImageInfo.imageView = oObject.second->GetImageView();
-            tElementImageInfo.sampler = oObject.second->GetImageSampler();
+            tElementImageInfo.imageView = oObject.ppElement->GetImageView();
+            tElementImageInfo.sampler = oObject.ppElement->GetImageSampler();
 
             std::array<VkWriteDescriptorSet, 2> atElementDescriptorWrites = {};
 
@@ -351,13 +353,14 @@ void cOverlayUniformHandler::UpdateUniformBuffers(cScene* pScene)
         }
         ppLogicalDevice->UnmapMemory(poBufferMemory);
 
+        cUIManager* pUIManager = pOverlayWindow->GetUIManager();
         uint uiIndex = 0;
-        for (auto oElement : pOverlayWindow->GetElements())
+        for (auto& tElement : pUIManager->patElements)
         {
             tOverlayElementObject tData = {};
-            tData.tMatrix = oElement.second->GetMatrix(ppWindow);
+            tData.tMatrix = tElement.ppElement->GetMatrix(ppWindow);
 
-            cTextElement* pText = dynamic_cast<cTextElement*>(oElement.second);
+            cTextElement* pText = dynamic_cast<cTextElement*>(tElement.ppElement);
             if (pText != nullptr)
             {
                 tData.tColor = glm::vec4(pText->GetColor(), 1);

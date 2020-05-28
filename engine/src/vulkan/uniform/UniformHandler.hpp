@@ -10,7 +10,7 @@ public:
     virtual ~iUniformHandler();
 
     virtual void SetupUniformBuffers(cTextureHandler* pTextureHandler, cScene* pScene) = 0;
-    virtual void UpdateUniformBuffers(cScene* pScene) = 0;
+    virtual void UpdateUniformBuffers(cScene* pScene);
 
     virtual uint GetDescriptorSetLayoutCount(void) = 0;
     virtual VkDescriptorSetLayout* GetDescriptorSetLayouts(void) = 0;
@@ -23,4 +23,9 @@ public:
 iUniformHandler::~iUniformHandler()
 {
 
+}
+
+void iUniformHandler::UpdateUniformBuffers(cScene* pScene)
+{
+    ENGINE_WARN("Aaaaaaaaaaaah");
 }

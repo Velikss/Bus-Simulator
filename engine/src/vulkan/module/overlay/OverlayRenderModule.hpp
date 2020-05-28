@@ -1,14 +1,13 @@
 #pragma once
 
 #include <pch.hpp>
-#include <vulkan/module/overlay/text/Text.hpp>
 #include <vulkan/module/RenderModule.hpp>
 #include <vulkan/module/overlay/OverlayUniformHandler.hpp>
 #include <vulkan/module/overlay/OverlayRenderPass.hpp>
 #include <vulkan/module/overlay/OverlayPipeline.hpp>
 #include <vulkan/module/overlay/OverlayCommandBufferRecorder.hpp>
 
-class cOverlayRenderModule : public cRenderModule
+class cOverlayRenderModule : public cRenderModule, public iCommandRecorderProvider
 {
 public:
     static cFont* FONT;
@@ -20,7 +19,6 @@ private:
     stb_fontchar stbFontData[STB_FONT_arial_50_usascii_NUM_CHARS];
     byte font24pixels[fontHeight][fontWidth];
 
-    cText* ppText;
     cWindow* ppWindow;
     iOverlayProvider* ppOverlayProvider;
 
@@ -34,7 +32,7 @@ public:
     virtual ~cOverlayRenderModule();
 
     void CreateCommandRecorder();
-    iCommandBufferRecorder* GetCommandRecorder();
+    iCommandBufferRecorder* GetCommandRecorder() override;
 
 protected:
     void CreateUniformHandler() override;
@@ -87,7 +85,7 @@ void cOverlayRenderModule::CreatePipeline(std::vector<string>& aShaders)
 void cOverlayRenderModule::CreateCommandRecorder()
 {
     ppCommandRecorder = new cOverlayCommandBufferRecorder(ppRenderPass, ppSwapChain, ppRenderPipeline,
-                                                          ppUniformHandler, ppText, ppOverlayProvider);
+                                                          ppUniformHandler, ppOverlayProvider);
 }
 
 iCommandBufferRecorder* cOverlayRenderModule::GetCommandRecorder()
@@ -98,5 +96,4 @@ iCommandBufferRecorder* cOverlayRenderModule::GetCommandRecorder()
 cOverlayRenderModule::~cOverlayRenderModule()
 {
     delete FONT;
-    delete ppText;
 }

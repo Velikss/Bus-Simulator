@@ -35,6 +35,7 @@ public:
 
     // Add a task to run every tick
     void AddTask(iTickTask* pTask);
+    void RemoveTask(iTickTask* pTask);
 
     // Stop this GameLoop
     void Stop();
@@ -64,12 +65,21 @@ void cGameLoop::operator()()
 
 void cGameLoop::AddTask(iTickTask* pTask)
 {
-    // Lock the mutex before adding the task
-    poTasksMutex.lock();
     papTasks.push_back(pTask);
-    poTasksMutex.unlock();
 
     ENGINE_LOG("Added new task to game loop");
+}
+
+void cGameLoop::RemoveTask(iTickTask* pTask)
+{
+    for (auto it = papTasks.begin(); it < papTasks.end(); it++)
+    {
+        if (*it.base() == pTask)
+        {
+            papTasks.erase(it);
+            break;
+        }
+    }
 }
 
 void cGameLoop::Stop()

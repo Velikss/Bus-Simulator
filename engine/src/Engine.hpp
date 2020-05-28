@@ -33,8 +33,9 @@
 #include <chrono>
 #include <vulkan/module/overlay/OverlayWindow.hpp>
 #include <vulkan/module/overlay/OverlayProvider.hpp>
+#include <vulkan/util/CommandBufferHolder.hpp>
 
-class cEngine : public iOverlayProvider, public iInputHandler
+class cEngine : public iOverlayProvider, public iInputHandler, public iCommandBufferHolder
 {
 private:
     const string psAppName;
@@ -82,6 +83,8 @@ public:
     void HandleKey(uint uiKeyCode, uint uiAction) override;
     void HandleScroll(double dOffsetX, double dOffsetY) override;
     void HandleCharacter(char cCharacter) override;
+    cCommandBuffer** GetCommandBuffers() override;
+    void HandleMouseButton(uint uiButton, double dXPos, double dYPos) override;
 
 protected:
     virtual void LoadMRTShaders(std::vector<string>& shaders) = 0;
@@ -214,12 +217,22 @@ void cEngine::ActivateOverlayWindow(const string& sName)
         throw std::runtime_error("Cannot find overlay window " + sName);
     }
 
+    if (ppActiveOverlayWindow != nullptr)
+    {
+        ppGameLoop->RemoveTask(ppActiveOverlayWindow);
+    }
+    ppGameLoop->AddTask(tResult->second);
+
     ppRequestedOverlayWindow = tResult->second;
     pbUpdateOverlayWindow = true;
 }
 
 void cEngine::DeactivateOverlayWindow()
 {
+    if (ppActiveOverlayWindow != nullptr)
+    {
+        ppGameLoop->RemoveTask(ppActiveOverlayWindow);
+    }
     ppRequestedOverlayWindow = nullptr;
     pbUpdateOverlayWindow = true;
 }
@@ -272,7 +285,8 @@ void cEngine::MainLoop(void)
             LoadOverlayWindows(pmOverlayWindows);
             for (auto oOverlayWindow : pmOverlayWindows)
             {
-                oOverlayWindow.second->Construct(ppTextureHandler, ppLogicalDevice);
+                oOverlayWindow.second->Construct(ppTextureHandler, ppLogicalDevice,
+                                                 this, ppOverlayRenderModule);
             }
             ENGINE_LOG("Loaded " << pmOverlayWindows.size() << " overlay windows");
 
@@ -314,46 +328,42 @@ void cEngine::MainLoop(void)
 
             pbInitialized = true;
         }
-
-        // If the overlay text should be updated, re-record
-        // the command buffers
-        if (cTextElement::Invalidated())
+        else
         {
-            ENGINE_LOG("Updating overlay text...");
-
-            ppLogicalDevice->WaitUntilIdle();
-            papCommandBuffers[2]->RecordBuffers(ppOverlayRenderModule->GetCommandRecorder());
-            cTextElement::Validate();
-        }
-
-        if (pbUpdateOverlayWindow)
-        {
-            ENGINE_LOG("Switching overlay window...");
-
-            // Wait until the GPU is idle
-            ppLogicalDevice->WaitUntilIdle();
-
-            // Pause the game loop and optionally tell the scene to disable input
-            ppGameLoop->SetPaused(true);
-            if (ppRequestedOverlayWindow != nullptr && ppRequestedOverlayWindow->ShouldHandleInput())
+            for (auto&[sName, pWindow] : pmOverlayWindows)
             {
-                ppScene->OnInputDisable();
+                pWindow->GetUIManager()->Update();
             }
 
-            // Set the active window to the new one
-            ppActiveOverlayWindow = ppRequestedOverlayWindow;
+            if (pbUpdateOverlayWindow)
+            {
+                ENGINE_LOG("Switching overlay window...");
 
-            // Setup the new uniform buffers
-            ppOverlayRenderModule->GetUniformHandler()->SetupUniformBuffers(ppTextureHandler, ppScene);
-            // Re-record the command buffers
-            papCommandBuffers[2]->RecordBuffers(ppOverlayRenderModule->GetCommandRecorder());
+                // Wait until the GPU is idle
+                ppLogicalDevice->WaitUntilIdle();
 
-            // Unpause the game loop
-            ppGameLoop->SetPaused(false);
+                // Pause the game loop and optionally tell the scene to disable input
+                ppGameLoop->SetPaused(true);
+                if (ppRequestedOverlayWindow != nullptr && ppRequestedOverlayWindow->ShouldHandleInput())
+                {
+                    ppScene->OnInputDisable();
+                }
 
-            // Clear the request variables
-            ppRequestedOverlayWindow = nullptr;
-            pbUpdateOverlayWindow = false;
+                // Set the active window to the new one
+                ppActiveOverlayWindow = ppRequestedOverlayWindow;
+
+                // Setup the new uniform buffers
+                ppOverlayRenderModule->GetUniformHandler()->SetupUniformBuffers(ppTextureHandler, ppScene);
+                // Re-record the command buffers
+                papCommandBuffers[2]->RecordBuffers(ppOverlayRenderModule->GetCommandRecorder());
+
+                // Unpause the game loop
+                ppGameLoop->SetPaused(false);
+
+                // Clear the request variables
+                ppRequestedOverlayWindow = nullptr;
+                pbUpdateOverlayWindow = false;
+            }
         }
     }
 
@@ -448,4 +458,21 @@ void cEngine::HandleCharacter(char cCharacter)
     {
         ppScene->HandleCharacter(cCharacter);
     }
+}
+
+void cEngine::HandleMouseButton(uint uiButton, double dXPos, double dYPos)
+{
+    if (ppActiveOverlayWindow != nullptr && ppActiveOverlayWindow->ShouldHandleInput())
+    {
+        ppActiveOverlayWindow->HandleMouseButton(uiButton, dXPos, dYPos);
+    }
+    else if (ppScene != nullptr)
+    {
+        ppScene->HandleMouseButton(uiButton, dXPos, dYPos);
+    }
+}
+
+cCommandBuffer** cEngine::GetCommandBuffers()
+{
+    return papCommandBuffers;
 }

@@ -38,7 +38,7 @@ private:
     std::vector<cLightObject*> papLightObjects;
 
 public:
-    float pfAmbientLight = 0.2f;
+    float pfAmbientLight = 0.0f;
 
     cScene();
     virtual ~cScene();
@@ -66,6 +66,7 @@ public:
     void HandleCharacter(char cCharacter) override;
 
     virtual void OnInputDisable();
+    void HandleMouseButton(uint uiButton, double dXPos, double dYPos) override;
 
 protected:
     void Quit();
@@ -220,6 +221,11 @@ void cScene::HandleScroll(double dOffsetX, double dOffsetY)
 }
 
 void cScene::HandleCharacter(char cCharacter)
+{
+
+}
+
+void cScene::HandleMouseButton(uint uiButton, double dXPos, double dYPos)
 {
 
 }

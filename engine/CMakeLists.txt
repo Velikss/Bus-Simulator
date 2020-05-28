@@ -96,7 +96,6 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/OverlayUniformHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/OverlayCommandBufferRecorder.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/text/Vertex2D.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/text/Text.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/text/Font.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/loop/GameLoop.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/loop/TickTask.hpp
@@ -125,7 +124,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/StaticElement.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/TextElement.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/AudioHandler.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/util/DirectoryWatcher.hpp src/vulkan/module/overlay/OverlayWindow.hpp src/vulkan/module/overlay/OverlayProvider.hpp src/vulkan/module/overlay/element/ClickableElement.hpp src/vulkan/module/overlay/UIManager.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/util/DirectoryWatcher.hpp src/vulkan/module/overlay/OverlayWindow.hpp src/vulkan/module/overlay/OverlayProvider.hpp src/vulkan/module/overlay/element/elements/ClickableElement.hpp src/vulkan/module/overlay/UIManager.hpp src/vulkan/module/overlay/element/UIElement.hpp src/vulkan/util/Invalidatable.hpp src/vulkan/util/CommandBufferHolder.hpp src/vulkan/util/CommandRecorderProvider.hpp src/vulkan/util/DynamicUniformHandler.hpp src/vulkan/module/overlay/element/elements/SimpleButton.hpp)
 
 include_directories(${_ENGINE_INCLUDE_DIRS})
 add_library(${This} STATIC ${PROJECT_SOURCE_DIR}/src/main.cpp ${Headers})

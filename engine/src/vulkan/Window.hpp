@@ -68,6 +68,7 @@ private:
     static void keyCallback(GLFWwindow* pWindow, int iKey, int iScanCode, int iAction, int iMods);
     static void scrollCallback(GLFWwindow* pWindow, double dOffsetX, double dOffsetY);
     static void characterCallback(GLFWwindow* pWindow, uint uiCharacter);
+    static void mouseButtonCallback(GLFWwindow* pWindow, int iButton, int iAction, int iMods);
 };
 
 cWindow* cWindow::poInstance = nullptr;
@@ -109,6 +110,7 @@ void cWindow::CreateGLWindow()
     glfwSetKeyCallback(ppWindow, keyCallback);
     glfwSetScrollCallback(ppWindow, scrollCallback);
     glfwSetCharCallback(ppWindow, characterCallback);
+    glfwSetMouseButtonCallback(ppWindow, mouseButtonCallback);
 }
 
 bool cWindow::CreateWindowSurface(cVulkanInstance* pVulkanInstance)
@@ -267,4 +269,14 @@ void cWindow::characterCallback(GLFWwindow* pWindow, uint uiCharacter)
     if (poInstance == nullptr || poInstance->ppInputHandler == nullptr) return;
 
     poInstance->ppInputHandler->HandleCharacter((char) uiCharacter);
+}
+
+void cWindow::mouseButtonCallback(GLFWwindow* pWindow, int iButton, int iAction, int iMods)
+{
+    if (poInstance == nullptr || poInstance->ppInputHandler == nullptr) return;
+
+    double dXPos, dYPos;
+    glfwGetCursorPos(pWindow, &dXPos, &dYPos);
+
+    poInstance->ppInputHandler->HandleMouseButton((uint) iButton, dXPos, dYPos);
 }

@@ -6,7 +6,6 @@
 #include <vulkan/module/mrt/MRTUniformHandler.hpp>
 #include "OverlayRenderPass.hpp"
 #include "OverlayPipeline.hpp"
-#include "vulkan/module/overlay/text/Text.hpp"
 
 class cOverlayCommandBufferRecorder : public iCommandBufferRecorder
 {
@@ -19,7 +18,6 @@ private:
     VkRenderPassBeginInfo ptRenderPassInfo = {};
     std::array<VkClearValue, 1> paoClearValues = {};
 
-    cText* ppText;
     iOverlayProvider* ppOverlayProvider;
 
 public:
@@ -27,7 +25,7 @@ public:
                                   cSwapChain* pSwapChain,
                                   cRenderPipeline* pGraphicsPipeline,
                                   iUniformHandler* pUniformHandler,
-                                  cText* pText, iOverlayProvider* pOverlayProvider);
+                                  iOverlayProvider* pOverlayProvider);
 
     void Setup(uint uiIndex) override;
     void RecordCommands(VkCommandBuffer& oCommandBuffer, uint uiIndex) override;
@@ -37,13 +35,12 @@ cOverlayCommandBufferRecorder::cOverlayCommandBufferRecorder(cRenderPass* pRende
                                                              cSwapChain* pSwapChain,
                                                              cRenderPipeline* pGraphicsPipeline,
                                                              iUniformHandler* pUniformHandler,
-                                                             cText* pText, iOverlayProvider* pOverlayProvider)
+                                                             iOverlayProvider* pOverlayProvider)
 {
     ppRenderPass = pRenderPass;
     ppSwapChain = pSwapChain;
     ppPipeline = pGraphicsPipeline;
     ppUniformHandler = pUniformHandler;
-    ppText = pText;
     ppOverlayProvider = pOverlayProvider;
 }
 
@@ -78,16 +75,16 @@ void cOverlayCommandBufferRecorder::RecordCommands(VkCommandBuffer& oCommandBuff
     cOverlayWindow* pOverlayWindow = ppOverlayProvider->GetActiveOverlayWindow();
     if (pOverlayWindow != nullptr)
     {
+        cUIManager* pUIManager = pOverlayWindow->GetUIManager();
         uint uiGeometryIndex = 0;
-        for (auto oElement : pOverlayWindow->GetElements())
+        for (auto& tElement : pUIManager->patElements)
         {
-            cStaticElement* pElement = oElement.second;
-
-            pElement->CmdBindVertexBuffer(oCommandBuffer);
+            pUIManager->CmdBindVertexBuffer(oCommandBuffer, &tElement);
 
             ppUniformHandler->CmdBindDescriptorSets(oCommandBuffer, ppPipeline->GetLayout(), uiGeometryIndex++);
 
-            vkCmdDraw(oCommandBuffer, pElement->GetVertexCount(), 1, 0, 0);
+            uint uiVertexCount = tElement.ppElement->GetVertexCount();
+            vkCmdDraw(oCommandBuffer, uiVertexCount, 1, 0, 0);
         }
     }
 

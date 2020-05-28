@@ -2,25 +2,32 @@
 
 #include <pch.hpp>
 #include <vulkan/scene/BaseObject.hpp>
+#include <vulkan/module/overlay/UIManager.hpp>
 
-class cOverlayWindow : public iInputHandler
+class cOverlayWindow : public iInputHandler, public iTickTask
 {
 private:
     bool pbQuit = false;
 
 protected:
     std::map<string, cTexture*> pmpTextures;
-    std::map<string, cStaticElement*> pmpOverlay;
+
+    cUIManager* ppUIManager = nullptr;
 
 public:
+    std::map<string, cUIElement*> pmpOverlay;
+
     virtual ~cOverlayWindow();
 
 public:
-    void Construct(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice);
-
-    std::map<string, cStaticElement*>& GetElements();
+    void Construct(cTextureHandler* pTextureHandler,
+                   cLogicalDevice* pLogicalDevice,
+                   iCommandBufferHolder* pCommandBufferHolder,
+                   iCommandRecorderProvider* pCommandRecorder);
 
     virtual bool ShouldHandleInput() = 0;
+
+    cUIManager* GetUIManager();
 
     bool ShouldQuit();
 
@@ -28,15 +35,12 @@ protected:
     void Quit();
 
     virtual void LoadTextures(cTextureHandler* pTextureHandler) = 0;
-    virtual void ConstructElements(cLogicalDevice* pLogicalDevice) = 0;
+    virtual void ConstructElements() = 0;
 };
 
 cOverlayWindow::~cOverlayWindow()
 {
-    for (auto oElement : pmpOverlay)
-    {
-        delete oElement.second;
-    }
+    delete ppUIManager;
 
     for (auto oTexture : pmpTextures)
     {
@@ -44,27 +48,28 @@ cOverlayWindow::~cOverlayWindow()
     }
 }
 
-void cOverlayWindow::Construct(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice)
+void cOverlayWindow::Construct(cTextureHandler* pTextureHandler,
+                               cLogicalDevice* pLogicalDevice,
+                               iCommandBufferHolder* pCommandBufferHolder,
+                               iCommandRecorderProvider* pCommandRecorder)
 {
-    LoadTextures(pTextureHandler);
-    ConstructElements(pLogicalDevice);
+    ppUIManager = new cUIManager(pLogicalDevice, pCommandBufferHolder, pCommandRecorder);
 
-    for (auto oElement : pmpOverlay)
+    LoadTextures(pTextureHandler);
+    ConstructElements();
+
+    for (auto&[sName, pElement] : pmpOverlay)
     {
-        assert(oElement.second != nullptr);
-        oElement.second->OnLoadVertices();
-        oElement.second->CopyToDevice();
+        pElement->SetParent(ppUIManager);
+        ppUIManager->patElements.emplace_back(pElement);
     }
+
+    ppUIManager->AllocateElementsMemory();
 
     for (auto oTexture : pmpTextures)
     {
         assert(oTexture.second != nullptr);
     }
-}
-
-std::map<string, cStaticElement*>& cOverlayWindow::GetElements()
-{
-    return pmpOverlay;
 }
 
 void cOverlayWindow::Quit()
@@ -75,4 +80,9 @@ void cOverlayWindow::Quit()
 bool cOverlayWindow::ShouldQuit()
 {
     return pbQuit;
+}
+
+cUIManager* cOverlayWindow::GetUIManager()
+{
+    return ppUIManager;
 }
