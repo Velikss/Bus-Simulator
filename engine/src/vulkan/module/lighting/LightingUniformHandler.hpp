@@ -204,7 +204,8 @@ void cLightingUniformHandler::UpdateUniformBuffers(cScene* pScene)
                                0, reinterpret_cast<void**>(&pMappedMemory));
     {
         memcpy(pMappedMemory, &tLightsInfo, sizeof(tLightsInfo));
-        memcpy(pMappedMemory + 32, &atLights[0], puiLightsMemorySize - 32);
+
+        if (atLights.size() > 0) memcpy(pMappedMemory + 32, &atLights[0], puiLightsMemorySize - 32);
     }
     ppLogicalDevice->UnmapMemory(poUniformBufferMemory);
 

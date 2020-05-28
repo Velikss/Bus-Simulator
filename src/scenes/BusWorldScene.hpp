@@ -1,21 +1,23 @@
 #pragma once
 
 #include <pch.hpp>
-#include <vulkan/scene/Scene.hpp>
 #include <cameras/BusCamera.hpp>
-#include <multiplayer/cMultiplayerHandler.hpp>
-#include <entities/cBus.hpp>
-#include <objects//cBusStop.hpp>
-#include <entities/IPassengerHolder.hpp>
+#include <vulkan/scene/Scene.hpp>
 #include <vulkan/entities/cEntity.hpp>
 #include <vulkan/entities/cEntityGroup.hpp>
 #include <vulkan/module/overlay/element/TextElement.hpp>
 #include <vulkan/AudioHandler.hpp>
 #include <logic/cGameLogicHandler.hpp>
+#include <logic/TrafficLightController.hpp>
+#include <entities/cBus.hpp>
 #include <entities/cPassenger.hpp>
+#include <entities/IPassengerHolder.hpp>
+#include <objects//cBusStop.hpp>
+#include <multiplayer/cMultiplayerHandler.hpp>
 
 class cBusWorldScene : public cScene
 {
+    cTrafficLightController* ppTrafficController = nullptr;
 public:
     void Update() override;
 
@@ -91,6 +93,7 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
 void cBusWorldScene::Update()
 {
     pGameLogicHandler->Update();
+    ppTrafficController->Update(poCamera->GetPosition());
     entityGroup.UpdateEntities();
 
     if (paKeys[GLFW_KEY_Q])
@@ -615,19 +618,18 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["busStation5"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
 
     // Traffic lights
-    pmpObjects["trafficLight1"] = new cLightObject(pmpMeshes["trafficLight"], glm::vec3(1, 0, 0), 50,
-                                                   cCollider::UnitCollider(0.4f));
+    ppTrafficController = new cTrafficLightController("TrafficController1", pmpObjects, pmpMeshes["trafficLight"]);
+    pmpObjects["trafficLight1"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4f));
     pmpObjects["trafficLight1"]->SetPosition(glm::vec3(34.0f, 0.15f, 2.0f));
 
-    pmpObjects["trafficLight2"] = new cLightObject(pmpMeshes["trafficLight"], glm::vec3(1, 0, 0), 50,
-                                                   cCollider::UnitCollider(0.4f));
+    pmpObjects["trafficLight2"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4f));
     pmpObjects["trafficLight2"]->SetRotation(glm::vec3(0.0f, 270.0f, 0.0f));
     pmpObjects["trafficLight2"]->SetPosition(glm::vec3(33.0f, 0.15f, -11.0f));
 
-    pmpObjects["trafficLight3"] = new cLightObject(pmpMeshes["trafficLight"], glm::vec3(1, 0, 0), 50,
-                                                   cCollider::UnitCollider(0.4f));
+    pmpObjects["trafficLight3"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4f));
     pmpObjects["trafficLight3"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
     pmpObjects["trafficLight3"]->SetPosition(glm::vec3(46.0f, 0.15f, -12.0f));
+    ppTrafficController->AddGroup({pmpObjects["trafficLight1"], pmpObjects["trafficLight2"], pmpObjects["trafficLight3"]});
 
     pmpObjects["trafficLight4"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4f));
     pmpObjects["trafficLight4"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
@@ -639,6 +641,7 @@ void cBusWorldScene::LoadObjects()
 
     pmpObjects["trafficLight6"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4f));
     pmpObjects["trafficLight6"]->SetPosition(glm::vec3(-16.0f, 0.15f, 2.0f));
+    ppTrafficController->AddGroup({pmpObjects["trafficLight4"], pmpObjects["trafficLight5"], pmpObjects["trafficLight6"]});
 
     pmpObjects["trafficLight7"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4f));
     pmpObjects["trafficLight7"]->SetRotation(glm::vec3(0.0f, 270.0f, 0.0f));
@@ -651,6 +654,7 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["trafficLight9"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4f));
     pmpObjects["trafficLight9"]->SetRotation(glm::vec3(0.0f, 90.0f, 0.0f));
     pmpObjects["trafficLight9"]->SetPosition(glm::vec3(-3.0f, 0.15f, -49.0f));
+    ppTrafficController->AddGroup({pmpObjects["trafficLight7"], pmpObjects["trafficLight8"], pmpObjects["trafficLight9"]});
 
     pmpObjects["trafficLight10"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4f));
     pmpObjects["trafficLight10"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
@@ -662,6 +666,7 @@ void cBusWorldScene::LoadObjects()
 
     pmpObjects["trafficLight12"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4f));
     pmpObjects["trafficLight12"]->SetPosition(glm::vec3(34.0f, 0.15f, -48.0f));
+    ppTrafficController->AddGroup({pmpObjects["trafficLight10"], pmpObjects["trafficLight11"], pmpObjects["trafficLight12"]});
 
     // Buildings
     pmpObjects["building"] = new cBaseObject(pmpMeshes["building"], cCollider::UnitCollider(34));

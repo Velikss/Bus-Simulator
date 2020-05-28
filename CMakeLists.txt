@@ -15,7 +15,7 @@ add_subdirectory(engine)
 
 set(Headers
     ${PROJECT_SOURCE_DIR}/src/pch.hpp
-)
+        src/logic/TrafficLightController.hpp)
 set(Sources
     ${PROJECT_SOURCE_DIR}/src/main.cpp
 )

@@ -20,10 +20,10 @@ private:
     stb_fontchar stbFontData[STB_FONT_arial_50_usascii_NUM_CHARS];
     byte font24pixels[fontHeight][fontWidth];
 
-    cText* ppText;
-    cWindow* ppWindow;
+    cText* ppText = nullptr;
+    cWindow* ppWindow = nullptr;
 
-    iCommandBufferRecorder* ppCommandRecorder;
+    iCommandBufferRecorder* ppCommandRecorder = nullptr;
 
 public:
     cOverlayRenderModule(cLogicalDevice* pLogicalDevice, cSwapChain* pSwapChain, cWindow* pWindow, std::vector<string> & aShaders);
