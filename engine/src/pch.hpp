@@ -69,6 +69,14 @@ void fSleep(int sleepMs)
 #endif
 }
 
+#ifndef MIN
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#endif
+
+#ifndef MAX
+#define MAX(a,b) (((a)>(b))?(a):(b))
+#endif
+
 #define GLFW_INCLUDE_VULKAN                 // We want to use GLFW with Vulkan
 #define GLM_FORCE_RADIANS                   // Force GLM to use radians everywhere
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES  // Force GLM to use aligned types by default

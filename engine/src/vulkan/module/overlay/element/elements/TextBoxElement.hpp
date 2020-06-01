@@ -7,40 +7,46 @@
 
 class cTextBoxElement : public cCompoundElement, public iInputHandler
 {
-private:
+protected:
     cTextElement* ppTextElement = nullptr;
     cClickableElement* ppClickable = nullptr;
 
     cFont* ppFont = nullptr;
     float pfFontSize = 8.0f;
-    uint puiBoxWidth;
+    uint puiBoxWidth = 0;
 
     string psText = "";
     string psDisplayText = "";
     uint puiStartChar = 0;
 
 public:
-    cTextBoxElement(tElementInfo tSize, cTexture* pTexture, cFont* ppFont, float fFontSize, glm::vec3 tTextColor);
+    cTextBoxElement(tElementInfo tSize, uint uiPadding, cTexture* pTexture,
+                    cFont* ppFont, float fFontSize, glm::vec3 tTextColor);
 
     void HandleMouseButton(uint uiButton, double dXPos, double dYPos) override;
     void HandleCharacter(char cCharacter) override;
     void HandleKey(uint uiKeyCode, uint uiAction) override;
 
-private:
-    void UpdateText();
+protected:
+    virtual void UpdateText();
     uint GetTextWidth(uint uiStartChar);
 };
 
-cTextBoxElement::cTextBoxElement(tElementInfo tSize, cTexture* pTexture,
+cTextBoxElement::cTextBoxElement(tElementInfo tSize, uint uiPadding, cTexture* pTexture,
                                  cFont* pFont, float fFontSize, glm::vec3 tTextColor)
 {
     ppFont = pFont;
     pfFontSize = fFontSize;
     puiBoxWidth = tSize.uiWidth;
 
+    uint uiTextHeight = pFont->GetFontHeight(fFontSize) + (uiPadding * 2);
+    assert(uiTextHeight < tSize.uiHeight);
+    uint uiOffset = (tSize.uiHeight - uiTextHeight) / 2;
+
     ppTextElement = new cTextElement();
     ppTextElement->SetParent(this);
     ppTextElement->SetFont(fFontSize, pFont, tTextColor);
+    ppTextElement->SetPosition(glm::vec2(0, uiOffset));
     ppClickable = new cSimpleButton(tSize, pTexture);
 
     papChildren.push_back(ppClickable);

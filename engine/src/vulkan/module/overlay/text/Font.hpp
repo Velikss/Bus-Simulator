@@ -24,6 +24,8 @@ public:
           byte* abFont24pixels, stb_fontchar* pFontData);
     ~cFont();
 
+    uint GetFontHeight(float fFontSize);
+
 private:
     void CreateFontImage(cLogicalDevice* pLogicalDevice, uint uiFontWidth, uint uiFontHeight, byte* abFont24pixels);
     void CreateTextureSampler(cLogicalDevice* pLogicalDevice);
@@ -116,4 +118,11 @@ void cFont::CreateTextureSampler(cLogicalDevice* pLogicalDevice)
     {
         throw std::runtime_error("failed to create texture sampler!");
     }
+}
+
+uint cFont::GetFontHeight(float fFontSize)
+{
+    const uint firstChar = STB_FONT_arial_50_usascii_FIRST_CHAR;
+    stb_fontchar& pData = ppFontData[(uint) 'o' - firstChar];
+    return pData.y1 * (fFontSize / 10);
 }
