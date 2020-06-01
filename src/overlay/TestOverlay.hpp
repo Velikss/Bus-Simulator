@@ -6,6 +6,7 @@
 #include <vulkan/module/overlay/element/TextElement.hpp>
 #include <vulkan/module/overlay/OverlayRenderModule.hpp>
 #include <vulkan/module/overlay/element/elements/SimpleButton.hpp>
+#include <vulkan/module/overlay/element/elements/TextBoxElement.hpp>
 
 class cTestOverlay : public cOverlayWindow
 {
@@ -26,7 +27,7 @@ protected:
 
     void ConstructElements() override
     {
-        pmpOverlay["test"] = new cStaticElement({300, 300}, pmpTextures["grey"]);
+        /*pmpOverlay["test"] = new cStaticElement({300, 300}, pmpTextures["grey"]);
         pmpOverlay["test"]->SetPosition(glm::vec2(500, 500));
 
         pmpOverlay["test1"] = pButton = new cSimpleButton({200, 200}, pmpTextures["roof"]);
@@ -35,7 +36,17 @@ protected:
         pmpOverlay["test2"] = pText = new cTextElement();
         pText->SetPosition(glm::vec2(500, 500));
         pText->SetFont(20, cOverlayRenderModule::FONT, glm::vec3(1, 1, 0));
-        pText->UpdateText("Wooooo!");
+        pText->UpdateText("Wooooo!");*/
+
+        pmpOverlay["textbox1"] = new cTextBoxElement({300, 80}, pmpTextures["roof"],
+                                                     cOverlayRenderModule::FONT, 13,
+                                                     glm::vec3(1, 1, 0));
+        pmpOverlay["textbox1"]->SetPosition(glm::vec2(0, 500));
+
+        pmpOverlay["textbox2"] = new cTextBoxElement({300, 80}, pmpTextures["roof"],
+                                                     cOverlayRenderModule::FONT, 13,
+                                                     glm::vec3(1, 1, 0));
+        pmpOverlay["textbox2"]->SetPosition(glm::vec2(500, 500));
     }
 
 public:
@@ -57,52 +68,5 @@ public:
     bool ShouldHandleInput() override
     {
         return true;
-    }
-
-    void HandleMouse(uint uiDeltaX, uint uiDeltaY) override
-    {
-    }
-
-    void HandleKey(uint uiKeyCode, uint uiAction) override
-    {
-        if (uiAction == GLFW_PRESS)
-        {
-            switch (uiKeyCode)
-            {
-                case GLFW_KEY_ESCAPE:
-                    ppOverlayProvider->DeactivateOverlayWindow();
-                    break;
-                case GLFW_KEY_Q:
-                    Quit();
-                    break;
-                case GLFW_KEY_E:
-                    pText->UpdateText("TEST");
-                    break;
-                case GLFW_KEY_X:
-                    pmpOverlay["test"]->SetScale(glm::vec2(0));
-                    break;
-                case GLFW_KEY_C:
-                    pmpOverlay["test"]->SetScale(glm::vec2(1));
-                    break;
-            }
-        }
-    }
-
-    void HandleScroll(double dOffsetX, double dOffsetY) override
-    {
-    }
-
-    void HandleCharacter(char cCharacter) override
-    {
-    }
-
-    void HandleMouseButton(uint uiButton, double dXPos, double dYPos) override
-    {
-        glm::vec2 tPos(dXPos, dYPos);
-        if (pButton->DidClick(tPos))
-        {
-            pText->UpdateText("Click!");
-            uiClickTimer = 60;
-        }
     }
 };

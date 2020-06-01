@@ -124,7 +124,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/StaticElement.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/TextElement.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/AudioHandler.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/util/DirectoryWatcher.hpp src/vulkan/module/overlay/OverlayWindow.hpp src/vulkan/module/overlay/OverlayProvider.hpp src/vulkan/module/overlay/element/elements/ClickableElement.hpp src/vulkan/module/overlay/UIManager.hpp src/vulkan/module/overlay/element/UIElement.hpp src/vulkan/util/Invalidatable.hpp src/vulkan/util/CommandBufferHolder.hpp src/vulkan/util/CommandRecorderProvider.hpp src/vulkan/util/DynamicUniformHandler.hpp src/vulkan/module/overlay/element/elements/SimpleButton.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/util/DirectoryWatcher.hpp src/vulkan/module/overlay/OverlayWindow.hpp src/vulkan/module/overlay/OverlayProvider.hpp src/vulkan/module/overlay/element/elements/ClickableElement.hpp src/vulkan/module/overlay/UIManager.hpp src/vulkan/module/overlay/element/UIElement.hpp src/vulkan/util/Invalidatable.hpp src/vulkan/util/CommandBufferHolder.hpp src/vulkan/util/CommandRecorderProvider.hpp src/vulkan/util/DynamicUniformHandler.hpp src/vulkan/module/overlay/element/elements/SimpleButton.hpp src/vulkan/module/overlay/element/elements/CompoundElement.hpp src/vulkan/module/overlay/element/elements/TextBoxElement.hpp src/vulkan/module/overlay/FocusHandler.hpp src/vulkan/module/overlay/element/Focussable.hpp)
 
 include_directories(${_ENGINE_INCLUDE_DIRS})
 add_library(${This} STATIC ${PROJECT_SOURCE_DIR}/src/main.cpp ${Headers})

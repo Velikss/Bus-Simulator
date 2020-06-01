@@ -38,7 +38,7 @@ private:
     std::vector<cLightObject*> papLightObjects;
 
 public:
-    float pfAmbientLight = 0.0f;
+    float pfAmbientLight = 0.2f;
 
     cScene();
     virtual ~cScene();

@@ -79,12 +79,15 @@ void cOverlayCommandBufferRecorder::RecordCommands(VkCommandBuffer& oCommandBuff
         uint uiGeometryIndex = 0;
         for (auto& tElement : pUIManager->patElements)
         {
-            pUIManager->CmdBindVertexBuffer(oCommandBuffer, &tElement);
+            for (uint uiIndex = 0; uiIndex < tElement.ppElement->GetChildCount(); uiIndex++)
+            {
+                pUIManager->CmdBindVertexBuffer(oCommandBuffer, &tElement, uiIndex);
 
-            ppUniformHandler->CmdBindDescriptorSets(oCommandBuffer, ppPipeline->GetLayout(), uiGeometryIndex++);
+                ppUniformHandler->CmdBindDescriptorSets(oCommandBuffer, ppPipeline->GetLayout(), uiGeometryIndex++);
 
-            uint uiVertexCount = tElement.ppElement->GetVertexCount();
-            vkCmdDraw(oCommandBuffer, uiVertexCount, 1, 0, 0);
+                uint uiVertexCount = tElement.ppElement->GetVertexCount(uiIndex);
+                vkCmdDraw(oCommandBuffer, uiVertexCount, 1, 0, 0);
+            }
         }
     }
 

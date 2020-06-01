@@ -2,9 +2,13 @@
 
 #include <pch.hpp>
 #include <vulkan/util/Invalidatable.hpp>
+#include <vulkan/module/overlay/FocusHandler.hpp>
 
-class cUIElement : public cInvalidatable
+class cUIElement : public cInvalidatable, public cFocussable
 {
+protected:
+    iFocusHandler* ppFocusHandler = nullptr;
+
 private:
     cInvalidatable* ppParent = nullptr;
 
@@ -14,14 +18,19 @@ private:
 
 public:
     virtual ~cUIElement();
+    void SetFocusHandler(iFocusHandler* pFocusHandler);
+
+    virtual uint GetChildCount() = 0;
+    virtual bool IsTextElement(uint uiIndex) = 0;
+    virtual glm::vec3 GetColor(uint uiIndex) = 0;
 
     virtual void OnLoadVertices() = 0;
-    virtual VkDeviceSize GetMemorySize() = 0;
-    virtual void FillMemory(void* pMemory) = 0;
-    virtual uint GetVertexCount() = 0;
+    virtual VkDeviceSize GetMemorySize(uint uiIndex) = 0;
+    virtual void FillMemory(void* pMemory, uint uiIndex) = 0;
+    virtual uint GetVertexCount(uint uiIndex) = 0;
 
-    virtual VkImageView& GetImageView() = 0;
-    virtual VkSampler& GetImageSampler() = 0;
+    virtual VkImageView& GetImageView(uint uiIndex) = 0;
+    virtual VkSampler& GetImageSampler(uint uiIndex) = 0;
 
     void SetParent(cInvalidatable* pParent);
     void Invalidate() override;
@@ -32,12 +41,17 @@ public:
     void RotateLeft(float fAngleDiff);
     void RotateRight(float fAngleDiff);
 
-    glm::mat4 GetMatrix(cWindow* pWindow);
-    glm::mat4 GetRawMatrix();
+    virtual glm::mat4 GetMatrix(cWindow* pWindow, uint uiIndex);
+    virtual glm::mat4 GetRawMatrix();
 };
 
 cUIElement::~cUIElement()
 {
+}
+
+void cUIElement::SetFocusHandler(iFocusHandler* pFocusHandler)
+{
+    ppFocusHandler = pFocusHandler;
 }
 
 void cUIElement::SetParent(cInvalidatable* pParent)
@@ -84,7 +98,7 @@ void cUIElement::RotateRight(float fAngleDiff)
     ptRotation.y -= fAngleDiff;
 }
 
-glm::mat4 cUIElement::GetMatrix(cWindow* pWindow)
+glm::mat4 cUIElement::GetMatrix(cWindow* pWindow, uint uiIndex)
 {
     glm::mat4 proj = glm::ortho(0.0f, (float) WIDTH, 0.0f, (float) HEIGHT);
 

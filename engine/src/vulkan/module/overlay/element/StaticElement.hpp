@@ -25,11 +25,14 @@ public:
     cStaticElement(tElementInfo tInfo, cTexture* pTexture);
 
     void OnLoadVertices() override;
-    VkDeviceSize GetMemorySize() override;
-    void FillMemory(void* pMemory) override;
-    uint GetVertexCount() override;
-    VkImageView& GetImageView() override;
-    VkSampler& GetImageSampler() override;
+    VkDeviceSize GetMemorySize(uint uiIndex) override;
+    void FillMemory(void* pMemory, uint uiIndex) override;
+    uint GetVertexCount(uint uiIndex) override;
+    VkImageView& GetImageView(uint uiIndex) override;
+    VkSampler& GetImageSampler(uint uiIndex) override;
+    uint GetChildCount() override;
+    bool IsTextElement(uint uiIndex) override;
+    glm::vec3 GetColor(uint uiIndex) override;
 };
 
 cStaticElement::cStaticElement(tElementInfo tInfo, cTexture* pTexture) //-V730
@@ -56,27 +59,42 @@ void cStaticElement::OnLoadVertices()
                            {1,              1}});
 }
 
-VkDeviceSize cStaticElement::GetMemorySize()
+VkDeviceSize cStaticElement::GetMemorySize(uint uiIndex)
 {
     return patVertices.size() * sizeof(tVertex2D);
 }
 
-void cStaticElement::FillMemory(void* pMemory)
+void cStaticElement::FillMemory(void* pMemory, uint uiIndex)
 {
-    memcpy(pMemory, patVertices.data(), GetMemorySize());
+    memcpy(pMemory, patVertices.data(), GetMemorySize(uiIndex));
 }
 
-uint cStaticElement::GetVertexCount()
+uint cStaticElement::GetVertexCount(uint uiIndex)
 {
     return patVertices.size();
 }
 
-VkImageView& cStaticElement::GetImageView()
+VkImageView& cStaticElement::GetImageView(uint uiIndex)
 {
     return ppTexture->GetView();
 }
 
-VkSampler& cStaticElement::GetImageSampler()
+VkSampler& cStaticElement::GetImageSampler(uint uiIndex)
 {
     return ppTexture->GetSampler();
+}
+
+uint cStaticElement::GetChildCount()
+{
+    return 1;
+}
+
+bool cStaticElement::IsTextElement(uint uiIndex)
+{
+    return false;
+}
+
+glm::vec3 cStaticElement::GetColor(uint uiIndex)
+{
+    return glm::vec3();
 }

@@ -15,30 +15,39 @@ private:
     float pfFontSize = 3.0f;
     cFont* ppFont = nullptr;
     glm::vec3 ptColor;
+    uint puiWidth;
+
 public:
     void OnLoadVertices() override;
-    VkDeviceSize GetMemorySize() override;
-    void FillMemory(void* pMemory) override;
-    uint GetVertexCount() override;
+    VkDeviceSize GetMemorySize(uint uiIndex) override;
+    void FillMemory(void* pMemory, uint uiIndex) override;
+    uint GetVertexCount(uint uiIndex) override;
 
-    VkImageView& GetImageView() override;
-    VkSampler& GetImageSampler() override;
+    VkImageView& GetImageView(uint uiIndex) override;
+    VkSampler& GetImageSampler(uint uiIndex) override;
 
     void SetFont(float fFontSize, cFont* pFont, glm::vec3 tColor);
     void UpdateText(const string& sText);
     glm::vec3 GetColor();
+    uint GetWidth();
+
+    uint GetChildCount() override;
+    bool IsTextElement(uint uiIndex) override;
+    glm::vec3 GetColor(uint uiIndex) override;
+
+    static uint GetTextWidth(string sString, cFont* pFont, float fFontSize);
 };
 
 void cTextElement::OnLoadVertices()
 {
 }
 
-VkDeviceSize cTextElement::GetMemorySize()
+VkDeviceSize cTextElement::GetMemorySize(uint uiIndex)
 {
     return MAX_CHARACTER_COUNT * 4 * sizeof(tVertex2D);
 }
 
-void cTextElement::FillMemory(void* pMemory)
+void cTextElement::FillMemory(void* pMemory, uint uiIndex)
 {
     const uint firstChar = STB_FONT_arial_50_usascii_FIRST_CHAR;
 
@@ -93,20 +102,22 @@ void cTextElement::FillMemory(void* pMemory)
         x += charData->advance * charW;
     }
 
+    puiWidth = ((uint) x) + 1;
+
     puiNumLetters = psText.length();
 }
 
-uint cTextElement::GetVertexCount()
+uint cTextElement::GetVertexCount(uint uiIndex)
 {
     return puiNumLetters * 4;
 }
 
-VkImageView& cTextElement::GetImageView()
+VkImageView& cTextElement::GetImageView(uint uiIndex)
 {
     return ppFont->poFontImageView;
 }
 
-VkSampler& cTextElement::GetImageSampler()
+VkSampler& cTextElement::GetImageSampler(uint uiIndex)
 {
     return ppFont->poFontImageSampler;
 }
@@ -131,4 +142,43 @@ void cTextElement::UpdateText(const string& sText)
 glm::vec3 cTextElement::GetColor()
 {
     return ptColor;
+}
+
+uint cTextElement::GetWidth()
+{
+    return puiWidth;
+}
+
+uint cTextElement::GetChildCount()
+{
+    return 1;
+}
+
+bool cTextElement::IsTextElement(uint uiIndex)
+{
+    return true;
+}
+
+glm::vec3 cTextElement::GetColor(uint uiIndex)
+{
+    return ptColor;
+}
+
+uint cTextElement::GetTextWidth(string sString, cFont* pFont, float fFontSize)
+{
+    const uint firstChar = STB_FONT_arial_50_usascii_FIRST_CHAR;
+
+    // Calculate text size
+    const float charW = fFontSize / 10;
+    const float charH = fFontSize / 10;
+
+    // Calculate text width
+    float fTextWidth = 0;
+    for (auto letter : sString)
+    {
+        stb_fontchar* charData = &pFont->ppFontData[(uint) letter - firstChar]; //-V108
+        fTextWidth += charData->advance * charW;
+    }
+
+    return ((uint) fTextWidth) + 1;
 }

@@ -3,20 +3,23 @@
 #include <pch.hpp>
 #include <vulkan/scene/BaseObject.hpp>
 #include <vulkan/module/overlay/UIManager.hpp>
+#include <vulkan/module/overlay/element/UIElement.hpp>
+#include <vulkan/module/overlay/FocusHandler.hpp>
 
-class cOverlayWindow : public iInputHandler, public iTickTask
+class cOverlayWindow : public iInputHandler, public iTickTask, public iFocusHandler
 {
-private:
-    bool pbQuit = false;
+public:
+    std::map<string, cUIElement*> pmpOverlay;
 
 protected:
     std::map<string, cTexture*> pmpTextures;
 
     cUIManager* ppUIManager = nullptr;
 
-public:
-    std::map<string, cUIElement*> pmpOverlay;
+    bool pbQuit = false;
+    cFocussable* ppFocussedElement = nullptr;
 
+public:
     virtual ~cOverlayWindow();
 
 public:
@@ -30,6 +33,14 @@ public:
     cUIManager* GetUIManager();
 
     bool ShouldQuit();
+    void HandleMouse(uint uiDeltaX, uint uiDeltaY) override;
+    void HandleKey(uint uiKeyCode, uint uiAction) override;
+    void HandleScroll(double dOffsetX, double dOffsetY) override;
+    void HandleCharacter(char cCharacter) override;
+    void HandleMouseButton(uint uiButton, double dXPos, double dYPos) override;
+
+    void SetFocussedElement(cFocussable* pUIElement) override;
+    cFocussable* GetFocussedElement() override;
 
 protected:
     void Quit();
@@ -61,6 +72,7 @@ void cOverlayWindow::Construct(cTextureHandler* pTextureHandler,
     for (auto&[sName, pElement] : pmpOverlay)
     {
         pElement->SetParent(ppUIManager);
+        pElement->SetFocusHandler(this);
         ppUIManager->patElements.emplace_back(pElement);
     }
 
@@ -85,4 +97,74 @@ bool cOverlayWindow::ShouldQuit()
 cUIManager* cOverlayWindow::GetUIManager()
 {
     return ppUIManager;
+}
+
+void cOverlayWindow::SetFocussedElement(cFocussable* pUIElement)
+{
+    ppFocussedElement = pUIElement;
+}
+
+cFocussable* cOverlayWindow::GetFocussedElement()
+{
+    return ppFocussedElement;
+}
+
+void cOverlayWindow::HandleMouse(uint uiDeltaX, uint uiDeltaY)
+{
+    for (auto&[sName, pElement] : pmpOverlay)
+    {
+        iInputHandler* pInputHandler = dynamic_cast<iInputHandler*>(pElement);
+        if (pInputHandler != nullptr)
+        {
+            pInputHandler->HandleMouse(uiDeltaX, uiDeltaY);
+        }
+    }
+}
+
+void cOverlayWindow::HandleKey(uint uiKeyCode, uint uiAction)
+{
+    for (auto&[sName, pElement] : pmpOverlay)
+    {
+        iInputHandler* pInputHandler = dynamic_cast<iInputHandler*>(pElement);
+        if (pInputHandler != nullptr)
+        {
+            pInputHandler->HandleKey(uiKeyCode, uiAction);
+        }
+    }
+}
+
+void cOverlayWindow::HandleScroll(double dOffsetX, double dOffsetY)
+{
+    for (auto&[sName, pElement] : pmpOverlay)
+    {
+        iInputHandler* pInputHandler = dynamic_cast<iInputHandler*>(pElement);
+        if (pInputHandler != nullptr)
+        {
+            pInputHandler->HandleScroll(dOffsetX, dOffsetY);
+        }
+    }
+}
+
+void cOverlayWindow::HandleCharacter(char cCharacter)
+{
+    for (auto&[sName, pElement] : pmpOverlay)
+    {
+        iInputHandler* pInputHandler = dynamic_cast<iInputHandler*>(pElement);
+        if (pInputHandler != nullptr)
+        {
+            pInputHandler->HandleCharacter(cCharacter);
+        }
+    }
+}
+
+void cOverlayWindow::HandleMouseButton(uint uiButton, double dXPos, double dYPos)
+{
+    for (auto&[sName, pElement] : pmpOverlay)
+    {
+        iInputHandler* pInputHandler = dynamic_cast<iInputHandler*>(pElement);
+        if (pInputHandler != nullptr)
+        {
+            pInputHandler->HandleMouseButton(uiButton, dXPos, dYPos);
+        }
+    }
 }

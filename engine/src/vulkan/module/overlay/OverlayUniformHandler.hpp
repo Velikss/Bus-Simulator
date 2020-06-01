@@ -193,7 +193,11 @@ void cOverlayUniformHandler::CreateUniformBuffers()
     {
         cUIManager* pUIManager = pOverlayWindow->GetUIManager();
         VkDeviceSize bufferSize = sizeof(tOverlayElementObject);
-        uint uiCount = (uint) pUIManager->patElements.size();
+        uint uiCount = 0;
+        for (auto& tElement : pUIManager->patElements)
+        {
+            uiCount += tElement.ppElement->GetChildCount();
+        }
 
         paoElementUniformBuffers.resize(uiCount);
         paoElementUniformBuffersMemory.resize(uiCount);
@@ -299,39 +303,44 @@ void cOverlayUniformHandler::CreateDescriptorSet()
         uint uiIndex = 0;
         for (auto oObject : pUIManager->patElements)
         {
-            VkDescriptorBufferInfo tElementBufferInfo = {};
-            tElementBufferInfo.buffer = paoElementUniformBuffers[uiIndex];
-            tElementBufferInfo.offset = 0;
-            tElementBufferInfo.range = sizeof(tOverlayElementObject);
+            cUIElement* pUIElement = oObject.ppElement;
+            for (uint uiChildIndex = 0; uiChildIndex < pUIElement->GetChildCount(); uiChildIndex++)
+            {
+                VkDescriptorBufferInfo tElementBufferInfo = {};
+                tElementBufferInfo.buffer = paoElementUniformBuffers[uiIndex];
+                tElementBufferInfo.offset = 0;
+                tElementBufferInfo.range = sizeof(tOverlayElementObject);
 
-            VkDescriptorImageInfo tElementImageInfo = {};
-            tElementImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            tElementImageInfo.imageView = oObject.ppElement->GetImageView();
-            tElementImageInfo.sampler = oObject.ppElement->GetImageSampler();
+                VkDescriptorImageInfo tElementImageInfo = {};
+                tElementImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                tElementImageInfo.imageView = pUIElement->GetImageView(uiChildIndex);
+                tElementImageInfo.sampler = pUIElement->GetImageSampler(uiChildIndex);
 
-            std::array<VkWriteDescriptorSet, 2> atElementDescriptorWrites = {};
+                std::array<VkWriteDescriptorSet, 2> atElementDescriptorWrites = {};
 
-            atElementDescriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            atElementDescriptorWrites[0].dstSet = paoElementDescriptorSets[uiIndex];
-            atElementDescriptorWrites[0].dstBinding = 0;
-            atElementDescriptorWrites[0].dstArrayElement = 0;
-            atElementDescriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            atElementDescriptorWrites[0].descriptorCount = 1;
-            atElementDescriptorWrites[0].pImageInfo = &tElementImageInfo;
+                atElementDescriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                atElementDescriptorWrites[0].dstSet = paoElementDescriptorSets[uiIndex];
+                atElementDescriptorWrites[0].dstBinding = 0;
+                atElementDescriptorWrites[0].dstArrayElement = 0;
+                atElementDescriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                atElementDescriptorWrites[0].descriptorCount = 1;
+                atElementDescriptorWrites[0].pImageInfo = &tElementImageInfo;
 
-            atElementDescriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            atElementDescriptorWrites[1].dstSet = paoElementDescriptorSets[uiIndex];
-            atElementDescriptorWrites[1].dstBinding = 1;
-            atElementDescriptorWrites[1].dstArrayElement = 0;
-            atElementDescriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            atElementDescriptorWrites[1].descriptorCount = 1;
-            atElementDescriptorWrites[1].pBufferInfo = &tElementBufferInfo;
+                atElementDescriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                atElementDescriptorWrites[1].dstSet = paoElementDescriptorSets[uiIndex];
+                atElementDescriptorWrites[1].dstBinding = 1;
+                atElementDescriptorWrites[1].dstArrayElement = 0;
+                atElementDescriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                atElementDescriptorWrites[1].descriptorCount = 1;
+                atElementDescriptorWrites[1].pBufferInfo = &tElementBufferInfo;
 
-            ppLogicalDevice->UpdateDescriptorSets((uint) atElementDescriptorWrites.size(),
-                                                  atElementDescriptorWrites.data(),
-                                                  0, nullptr);
+                ppLogicalDevice->UpdateDescriptorSets((uint) atElementDescriptorWrites.size(),
+                                                      atElementDescriptorWrites.data(),
+                                                      0, nullptr);
 
-            uiIndex++;
+                uiIndex++;
+            }
+
         }
     }
 }
@@ -357,20 +366,23 @@ void cOverlayUniformHandler::UpdateUniformBuffers(cScene* pScene)
         uint uiIndex = 0;
         for (auto& tElement : pUIManager->patElements)
         {
-            tOverlayElementObject tData = {};
-            tData.tMatrix = tElement.ppElement->GetMatrix(ppWindow);
-
-            cTextElement* pText = dynamic_cast<cTextElement*>(tElement.ppElement);
-            if (pText != nullptr)
+            cUIElement* pUIElement = tElement.ppElement;
+            for (uint uiChildIndex = 0; uiChildIndex < pUIElement->GetChildCount(); uiChildIndex++)
             {
-                tData.tColor = glm::vec4(pText->GetColor(), 1);
-            }
-            else
-            {
-                tData.tColor = glm::vec4(0);
-            }
+                tOverlayElementObject tData = {};
+                tData.tMatrix = pUIElement->GetMatrix(ppWindow, uiChildIndex);
 
-            CopyToDeviceMemory(paoElementUniformBuffersMemory[uiIndex++], &tData, sizeof(tData));
+                if (pUIElement->IsTextElement(uiChildIndex))
+                {
+                    tData.tColor = glm::vec4(pUIElement->GetColor(uiChildIndex), 1);
+                }
+                else
+                {
+                    tData.tColor = glm::vec4(0);
+                }
+
+                CopyToDeviceMemory(paoElementUniformBuffersMemory[uiIndex++], &tData, sizeof(tData));
+            }
         }
     }
 }
