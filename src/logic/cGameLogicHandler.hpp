@@ -40,6 +40,7 @@ bool cGameLogicHandler::LoadMission()
 
     std::deque<cBusStop*> oRoute = ppMission->GetRouteQueue();
     std::map<string, cBaseObject*> mpObjects = ppScene->GetObjects();
+    int iRouteSize = oRoute.size();
 
     // TODO probably need to make a global stack
     // Stack for all the passengers currently available
@@ -49,7 +50,7 @@ bool cGameLogicHandler::LoadMission()
     }
 
     // Loop through all busStops on the route
-    for(uint i = 0; i < oRoute.size(); i++)
+    for(uint i = 0; i < iRouteSize; i++)
     {
         // Todo how do we want to add behaviours to the missions, always the same behaviours?
         // Check if busStops already have this behaviour
@@ -59,7 +60,7 @@ bool cGameLogicHandler::LoadMission()
             oRoute[i]->poEntityGroup->AddBehaviour(ppScene->pcbSeeking);
 
         // The last buStop can not have any passengers
-        if(i == oRoute.size() - 1)
+        if(i == iRouteSize - 1)
             break;
 
         // get random amount of passengers to spawn next to the busStop
@@ -71,7 +72,7 @@ bool cGameLogicHandler::LoadMission()
             if(!oPassengersQueue.empty())
             {
                 // create random destination
-                int iRandDestIndex = rand() % (oRoute.size() - (i + 1))+ (i + 1);
+                int iRandDestIndex = rand() % (iRouteSize - (i + 1))+ (i + 1);
 
                 // Create key for the passenger
                 int iKeyNum = oPassengersQueue.top();
