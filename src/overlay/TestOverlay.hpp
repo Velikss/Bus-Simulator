@@ -10,6 +10,7 @@
 #include <vulkan/module/overlay/element/elements/PasswordTextBox.hpp>
 #include <vulkan/module/overlay/element/elements/TabsElement.hpp>
 #include <vulkan/module/overlay/element/elements/ComboBox.hpp>
+#include <vulkan/module/overlay/element/elements/CheckBox.hpp>
 
 class cTestOverlay : public cOverlayWindow
 {
@@ -45,7 +46,14 @@ protected:
         pComboBox->AddOption("Test 1");
         pComboBox->AddOption("Test 2");
         pComboBox->AddOption("Test 3");
+        pComboBox->SetSelected("Test 2");
         pFirstTab->pmpElements["combobox"] = pComboBox;
+
+        cCheckBox* pCheckBox = new cCheckBox({50, 50},
+                                             pmpTextures["roof"], pmpTextures["grey"]);
+        pCheckBox->SetPosition({500, 500});
+        pCheckBox->SetChecked(true);
+        pFirstTab->pmpElements["checkbox"] = pCheckBox;
 
         cTabElement* pSecondTab = new cTabElement();
         pSecondTab->pmpElements["background"] = new cStaticElement({1920, 1080}, pmpTextures["grey"]);
@@ -56,8 +64,8 @@ protected:
                                                                    glm::vec3(1, 1, 0));
         pSecondTab->pmpElements["textbox2"]->SetPosition(glm::vec2(500, 500));
 
-        cTabsElement * pTabs = new cTabsElement({1000, 100}, pmpTextures["roof"],
-                                                tTabsFont, pmpTextures["grey"], this);
+        cTabsElement* pTabs = new cTabsElement({1000, 100}, pmpTextures["roof"],
+                                               tTabsFont, pmpTextures["grey"], this);
         pTabs->pmpTabs["Tab 1"] = pFirstTab;
         pTabs->pmpTabs["Tab 2"] = pSecondTab;
 
@@ -70,18 +78,22 @@ public:
 
     void Tick() override
     {
-        if (uiClickTimer > 0)
-        {
-            uiClickTimer--;
-            if (uiClickTimer == 0)
-            {
-                pText->UpdateText("");
-            }
-        }
     }
 
     bool ShouldHandleInput() override
     {
         return true;
+    }
+
+    void HandleKey(uint uiKeyCode, uint uiAction) override
+    {
+        if (uiKeyCode == GLFW_KEY_HOME && uiAction == GLFW_PRESS)
+        {
+            ppOverlayProvider->DeactivateOverlayWindow();
+        }
+        else
+        {
+            cOverlayWindow::HandleKey(uiKeyCode, uiAction);
+        }
     }
 };

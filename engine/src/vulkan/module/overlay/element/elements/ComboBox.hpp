@@ -25,6 +25,7 @@ public:
 
     void HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction) override;
     void OnPreLoad() override;
+    void OnLoadVertices() override;
 
 private:
     void LeftButtonClick();
@@ -63,6 +64,12 @@ void cComboBox::AddOption(const string& sOption)
 void cComboBox::OnPreLoad()
 {
     assert(pasOptions.size() != 0);
+}
+
+void cComboBox::OnLoadVertices()
+{
+    cCompoundElement::OnLoadVertices();
+    UpdateCurrentValue();
 }
 
 void cComboBox::SetSelected(const string& sSelected)
