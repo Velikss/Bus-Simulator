@@ -20,6 +20,12 @@ private:
     cClickableElement* pButton;
     cTextElement* pText;
 
+    cComboBox* ppResolutionBox;
+    string resolution = "1920x1080";
+
+    cCheckBox* ppFullscreenBox;
+    bool fullscreen = false;
+
     uint uiClickTimer = 0;
 
 protected:
@@ -40,20 +46,19 @@ protected:
                                                                  glm::vec3(1, 1, 0));
         pFirstTab->pmpElements["textbox1"]->SetPosition(glm::vec2(0, 500));*/
 
-        cComboBox* pComboBox = new cComboBox({200, 50}, tComboFont,
-                                             pmpTextures["roof"], pmpTextures["grey"]);
-        pComboBox->SetPosition({200, 600});
-        pComboBox->AddOption("Test 1");
-        pComboBox->AddOption("Test 2");
-        pComboBox->AddOption("Test 3");
-        pComboBox->SetSelected("Test 2");
-        pFirstTab->pmpElements["combobox"] = pComboBox;
+        ppResolutionBox = new cComboBox({300, 50}, tComboFont,
+                                        pmpTextures["roof"], pmpTextures["grey"]);
+        ppResolutionBox->SetPosition({200, 600});
+        ppResolutionBox->AddOption("1080x720");
+        ppResolutionBox->AddOption("1920x1080");
+        ppResolutionBox->AddOption("2560x1440");
+        ppResolutionBox->SetSelected("1920x1080");
+        pFirstTab->pmpElements["combobox"] = ppResolutionBox;
 
-        cCheckBox* pCheckBox = new cCheckBox({50, 50},
+        ppFullscreenBox = new cCheckBox({50, 50},
                                              pmpTextures["roof"], pmpTextures["grey"]);
-        pCheckBox->SetPosition({500, 500});
-        pCheckBox->SetChecked(true);
-        pFirstTab->pmpElements["checkbox"] = pCheckBox;
+        ppFullscreenBox->SetPosition({500, 500});
+        pFirstTab->pmpElements["checkbox"] = ppFullscreenBox;
 
         cTabElement* pSecondTab = new cTabElement();
         pSecondTab->pmpElements["background"] = new cStaticElement({1920, 1080}, pmpTextures["grey"]);
@@ -78,6 +83,28 @@ public:
 
     void Tick() override
     {
+        if (resolution != ppResolutionBox->GetSelected())
+        {
+            resolution = ppResolutionBox->GetSelected();
+            if (resolution == "1080x720")
+            {
+                cWindow::SetResolution(1080, 720);
+            }
+            else if (resolution == "1920x1080")
+            {
+                cWindow::SetResolution(1920, 1080);
+            }
+            else if (resolution == "2560x1440")
+            {
+                cWindow::SetResolution(2560, 1440);
+            }
+        }
+
+        if (fullscreen != ppFullscreenBox->IsChecked())
+        {
+            fullscreen = ppFullscreenBox->IsChecked();
+            cWindow::SetFullscreen(fullscreen);
+        }
     }
 
     bool ShouldHandleInput() override

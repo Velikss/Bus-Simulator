@@ -60,6 +60,7 @@ public:
     void CmdBindDescriptorSets(VkCommandBuffer& commandBuffer,
                                VkPipelineLayout& oPipelineLayout,
                                uint uiIndex) override;
+    void RebuildUniforms() override;
 
 private:
     void Cleanup();
@@ -146,7 +147,7 @@ cOverlayUniformHandler::~cOverlayUniformHandler()
     ppLogicalDevice->DestroyDescriptorSetLayout(poElementDescriptorSetLayout, nullptr);
     ppLogicalDevice->DestroyDescriptorSetLayout(poDescriptorSetLayout, nullptr);
 
-    Cleanup();
+    if (pbAllocated) Cleanup();
 }
 
 void cOverlayUniformHandler::Cleanup()
@@ -418,4 +419,9 @@ void cOverlayUniformHandler::CmdBindDescriptorSets(VkCommandBuffer& commandBuffe
                             oPipelineLayout, 0,
                             2, paoCurrentDescriptorSets,
                             0, nullptr);
+}
+
+void cOverlayUniformHandler::RebuildUniforms()
+{
+    Cleanup();
 }

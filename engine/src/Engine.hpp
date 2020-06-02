@@ -100,6 +100,7 @@ private:
     void InitVulkan(void);
     void MainLoop(void);
     void Cleanup(void);
+    void RebuildPipeline(void);
 };
 
 cEngine::cEngine(const string& sAppName) : psAppName(sAppName)
@@ -268,6 +269,15 @@ void cEngine::MainLoop(void)
             ppWindow->Close();
         }
 
+        if (ppWindow->ShouldRebuild())
+        {
+            ENGINE_LOG("Window is asking for pipeline rebuild");
+            ppGameLoop->SetPaused(true);
+            ppLogicalDevice->WaitUntilIdle();
+            RebuildPipeline();
+            ppGameLoop->SetPaused(false);
+        }
+
         // Update the audio handler
         ppAudioHandler->Update();
 
@@ -326,6 +336,7 @@ void cEngine::MainLoop(void)
             ENGINE_LOG("Scene loaded, adding tick task...");
             ppScene->AfterLoad();
             ppGameLoop->AddTask(ppScene);
+            ppGameLoop->SetPaused(false);
 
             pbInitialized = true;
         }
@@ -476,4 +487,34 @@ void cEngine::HandleMouseButton(uint uiButton, double dXPos, double dYPos, int i
 cCommandBuffer** cEngine::GetCommandBuffers()
 {
     return papCommandBuffers;
+}
+
+void cEngine::RebuildPipeline(void)
+{
+    ppSwapChain->RebuildSwapChain();
+
+    ppSwapChain->CreateFramebuffers(ppLightsRenderModule->GetRenderPass()->GetRenderPass(),
+                                    ppMRTRenderModule->GetRenderPass()->GetRenderPass(),
+                                    ppOverlayRenderModule->GetRenderPass()->GetRenderPass());
+
+    ppMRTRenderModule->GetRenderPipeline()->RebuildPipeline();
+    ppLightsRenderModule->GetRenderPipeline()->RebuildPipeline();
+    ppOverlayRenderModule->GetRenderPipeline()->RebuildPipeline();
+
+    for (iUniformHandler* pUniformHandler : papUniformHandlers)
+    {
+        pUniformHandler->RebuildUniforms();
+        pUniformHandler->SetupUniformBuffers(ppTextureHandler, ppScene);
+    }
+
+    // Record the commands for rendering to the command buffer.
+    cMRTRenderRecorder mrt(ppMRTRenderModule->GetRenderPass(), ppSwapChain,
+                           ppMRTRenderModule->GetRenderPipeline(),
+                           ppMRTRenderModule->GetUniformHandler(), ppScene);
+    cLightingRenderRecorder light(ppLightsRenderModule->GetRenderPass(), ppSwapChain,
+                                  ppLightsRenderModule->GetRenderPipeline(),
+                                  ppLightsRenderModule->GetUniformHandler(), ppScene);
+    papCommandBuffers[0]->RecordBuffers(&mrt);
+    papCommandBuffers[1]->RecordBuffers(&light);
+    papCommandBuffers[2]->RecordBuffers(ppOverlayRenderModule->GetCommandRecorder());
 }
