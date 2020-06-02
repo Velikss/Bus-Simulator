@@ -50,6 +50,7 @@ public:
     bool SetPosition(const glm::vec3 poPosition);
     bool SetPosition(float x, float z);
     bool SetScale(const glm::vec3 poScale);
+    glm::vec3 GetScale();
     glm::vec3 GetPosition();
     glm::vec3 GetRotation();
     bool RotateLeft(float fAngleDiff);
@@ -132,6 +133,11 @@ bool cBaseObject::SetPosition(const glm::vec3 oPosition)
     if (pbStatic || !pbLoaded || ppCollider == nullptr) poModelMatrix = CalculateModelMatrix(poPosition, poScale, poRotation);
 
     return true;
+}
+
+glm::vec3 cBaseObject::GetScale()
+{
+    return poScale;
 }
 
 bool cBaseObject::SetScale(const glm::vec3 oScale)

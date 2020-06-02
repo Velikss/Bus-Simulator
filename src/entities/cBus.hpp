@@ -39,10 +39,24 @@ public:
     int piBusId = C_UNDEFINED;
 
     cEntityGroup *entityGroup;
+    cAudioHandler *ppAudioHandler;
+    int piEngineChannel;
+    int piIdleChannel;
 
-    cBus(cMesh *mesh) : cBaseObject(mesh, cCollider::RectangleCollider(C_COLL_X1, C_COLL_Z1, C_COLL_X2, C_COLL_Z2),
-                                    false)
+    cBus(cAudioHandler *pAudioHandler, cMesh *mesh) : cBaseObject(mesh,
+                                                                  cCollider::RectangleCollider(C_COLL_X1, C_COLL_Z1,
+                                                                                               C_COLL_X2, C_COLL_Z2),
+                                                                  false)
     {
+        ppAudioHandler = pAudioHandler;
+
+        ppAudioHandler->LoadSound("resources/audio/engine.wav", true, true, false);
+        piEngineChannel = ppAudioHandler->PlaySound("resources/audio/engine.wav", GetPosition(), 1.0f);
+        ppAudioHandler->SetPaused(piEngineChannel, true);
+
+        ppAudioHandler->LoadSound("resources/audio/engine-idle.wav", true, true, false);
+        piIdleChannel = ppAudioHandler->PlaySound("resources/audio/engine-idle.wav", GetPosition(), 1.0f);
+        ppAudioHandler->SetPaused(piIdleChannel, true);
     }
 
     float CalculateAcceleration();
@@ -73,8 +87,9 @@ void cBus::Move()
 {
     glm::vec3 oDirection(sin(glm::radians(GetRotation().y)), 0, cos(glm::radians(GetRotation().y)));
     bool moveCollision = !SetPosition(GetPosition() - (oDirection * (pfCurrentSpeed / 100)));
-
     bool steerCollision = false;
+
+    // If bus is moving, rotate steering wheel and play engine sound. If not play engine idle sound and don't use the steering wheel.
     if (pfCurrentSpeed != 0)
     {
         if (pfSteeringModifier > 0)
@@ -84,6 +99,14 @@ void cBus::Move()
         {
             steerCollision = !this->RotateRight(pfSteeringModifier * -1 / 10);
         }
+        ppAudioHandler->SetPaused(piIdleChannel, true);
+        ppAudioHandler->SetChannelPosition(piEngineChannel, GetPosition());
+        ppAudioHandler->SetPaused(piEngineChannel, false);
+    } else
+    {
+        ppAudioHandler->SetPaused(piEngineChannel, true);
+        ppAudioHandler->SetChannelPosition(piIdleChannel, GetPosition());
+        ppAudioHandler->SetPaused(piIdleChannel, false);
     }
 
     if (steerCollision || moveCollision)

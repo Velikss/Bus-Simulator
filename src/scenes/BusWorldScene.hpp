@@ -45,7 +45,7 @@ public:
 
     void LoadMeshes();
 
-    void LoadObjects();
+    void LoadObjects(cAudioHandler* pAudioHandler);
 
     void LoadOverlay(cLogicalDevice* pLogicalDevice);
 
@@ -71,7 +71,7 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
     LoadTextures(pTextureHandler);
     LoadGeometries(pLogicalDevice);
     LoadMeshes();
-    LoadObjects();
+    LoadObjects(pAudioHandler);
     LoadBehaviours();
 //    LoadOverlay(pLogicalDevice);
     LoadMissions();
@@ -337,7 +337,7 @@ void cBusWorldScene::LoadMeshes()
     pmpMeshes["passenger"] = new cMesh(pmpGeometries["passenger"], pmpTextures["passenger"]);
 }
 
-void cBusWorldScene::LoadObjects()
+void cBusWorldScene::LoadObjects(cAudioHandler *pAudioHandler)
 {
     // skybox
     pmpObjects["skybox"] = new cBaseObject(pmpMeshes["skybox"]);
@@ -905,12 +905,12 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["building5"] = new cBaseObject(pmpMeshes["building"], cCollider::UnitCollider(34));
     pmpObjects["building5"]->SetPosition(glm::vec3(85.0f, 0.0f, -165.0f));
 
-    // grass
+    // Grass
     pmpObjects["grassField1_1"] = new cEntity(pmpMeshes["grassField1"]);
     pmpObjects["grassField1_1"]->SetPosition(glm::vec3(-152.0f, 0.0f, -13.0f));
 
-    // bus
-    pmpObjects["bus"] = new cBus(pmpMeshes["bus"]);
+    // Bus
+    pmpObjects["bus"] = new cBus(pAudioHandler, pmpMeshes["bus"]);
     pmpObjects["bus"]->SetPosition(glm::vec3(12.5f, 0, -7.5f));
     pmpObjects["bus"]->SetRotation(glm::vec3(0.0f, 90.0, 0.0f));
     pmpObjects["bus"]->SetScale(glm::vec3(0.8, 0.8, 0.8));
@@ -939,7 +939,7 @@ void cBusWorldScene::LoadObjects()
     for (uint i = 0; i < 10; i++)
     {
         string key = "multiplayer_bus_" + std::to_string(i);
-        pmpObjects[key] = new cBus(pmpMeshes["bus"]);
+        pmpObjects[key] = new cBus(pAudioHandler, pmpMeshes["bus"]);
         pmpObjects[key]->SetScale(glm::vec3(0));
         dynamic_cast<cBus *>(pmpObjects[key])->piBusId = i;
     }

@@ -113,8 +113,10 @@ void cAudioHandler::Update()
 
         bool bIsPlaying = false;
         pChannel->isPlaying(&bIsPlaying);
+        FMOD_MODE eCurrMode;
+        pChannel->getMode(&eCurrMode);
         // If the channel is no longer playing, add it to the list of stopped channels
-        if (!bIsPlaying)
+        if (!bIsPlaying && !(eCurrMode & FMOD_LOOP_NORMAL))
         {
             aStoppedChannels.push_back(oChannel.first);
         }
