@@ -13,27 +13,26 @@ protected:
     void LoadTextures(cTextureHandler* pTextureHandler)
     {
         cBaseMenu::LoadTextures(pTextureHandler);
-        pmpTextures["roof"] = pTextureHandler->LoadTextureFromFile("resources/textures/roof.jpg");
-        pmpTextures["grey"] = pTextureHandler->LoadTextureFromFile("resources/textures/uvtemplate.bmp");
+        pmpTextures["textbox"] = pTextureHandler->LoadTextureFromFile("resources/textures/textbox.png");
     }
 
     void ConstructElements()
     {
         cBaseMenu::ConstructElements();
 
-        pmpOverlay["oUserName"] = new cTextBoxElement({400, 120}, 2, pmpTextures["roof"],
+        pmpOverlay["oUserName"] = new cTextBoxElement({400, 120}, 2, pmpTextures["textbox"],
                                                      cOverlayRenderModule::FONT, 13,
-                                                     glm::vec3(1, 1, 0));
+                                                      glm::vec3(0,0,0));
         pmpOverlay["oUserName"]->SetPosition(glm::vec2(0, 500));
 
-        pmpOverlay["oPassword"] = new cPasswordTextBox({300, 80}, 2, pmpTextures["roof"],
+        pmpOverlay["oPassword"] = new cPasswordTextBox({300, 80}, 2, pmpTextures["textbox"],
                                                       cOverlayRenderModule::FONT, 13,
-                                                      glm::vec3(1, 1, 0));
+                                                      glm::vec3(0,0,0));
         pmpOverlay["oPassword"]->SetPosition(glm::vec2(500, 500));
 
         cButton* oSubmit = new cButton({250, 75}, 0, pmpTextures["buttonTexture"],
                                        cOverlayRenderModule::FONT, 12,
-                                       glm::vec3(1, 1, 0));
+                                       glm::vec3(0,0,0));
         oSubmit->SetLabel("hallo");
         oSubmit->Center();
         oSubmit->AddY(100);

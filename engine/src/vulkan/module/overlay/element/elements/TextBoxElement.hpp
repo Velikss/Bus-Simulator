@@ -41,12 +41,12 @@ cTextBoxElement::cTextBoxElement(tElementInfo tSize, uint uiPadding, cTexture* p
 
     uint uiTextHeight = pFont->GetFontHeight(fFontSize) + (uiPadding * 2);
     assert(uiTextHeight < tSize.uiHeight);
-    uint uiOffset = (tSize.uiHeight - uiTextHeight) / 2;
+    uint uiOffset = (tSize.uiHeight - uiTextHeight) / 2 - 10;
 
     ppTextElement = new cTextElement();
     ppTextElement->SetParent(this);
     ppTextElement->SetFont(fFontSize, pFont, tTextColor);
-    ppTextElement->SetPosition(glm::vec2(0, uiOffset));
+    ppTextElement->SetPosition(glm::vec2(10, uiOffset));
     ppClickable = new cSimpleButton(tSize, pTexture);
 
     AddChild(ppClickable);
@@ -98,5 +98,5 @@ void cTextBoxElement::UpdateText()
 
 uint cTextBoxElement::GetTextWidth(uint uiStartChar)
 {
-    return cTextElement::GetTextWidth(psText.substr(uiStartChar), ppFont, pfFontSize);
+    return cTextElement::GetTextWidth(psText.substr(uiStartChar), ppFont, pfFontSize) + 5;
 }
