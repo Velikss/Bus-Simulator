@@ -74,7 +74,7 @@ protected:
         pTabs->pmpTabs["Tab 1"] = pFirstTab;
         pTabs->pmpTabs["Tab 2"] = pSecondTab;
 
-        pmpOverlay["tabs"] = pTabs;
+        pmpOverlay.push_back({"tabs", pTabs});
     }
 
 public:

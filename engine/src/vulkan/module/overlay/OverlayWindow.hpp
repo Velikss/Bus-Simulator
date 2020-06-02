@@ -9,7 +9,7 @@
 class cOverlayWindow : public iInputHandler, public iTickTask, public iFocusHandler
 {
 public:
-    std::unordered_map<string, cUIElement*> pmpOverlay;
+    std::vector<std::pair<string, cUIElement*>> pmpOverlay;
 
 protected:
     std::map<string, cTexture*> pmpTextures;
@@ -19,6 +19,7 @@ protected:
     bool pbQuit = false;
     cFocussable* ppFocussedElement = nullptr;
 
+    cUIElement* GetElement(const string& sName);
 public:
     virtual ~cOverlayWindow();
 
@@ -177,4 +178,14 @@ void cOverlayWindow::HandleMouseButton(uint uiButton, double dXPos, double dYPos
             pInputHandler->HandleMouseButton(uiButton, dXPos, dYPos, iAction);
         }
     }
+}
+
+cUIElement* cOverlayWindow::GetElement(const string& sName)
+{
+    auto oElem = std::find_if( pmpOverlay.begin(), pmpOverlay.end(),
+                  [&](const std::pair<string, cUIElement*>& poElem){ return poElem.first == sName;} );
+    if (oElem != pmpOverlay.end())
+        return oElem->second;
+    else
+        return nullptr;
 }

@@ -20,8 +20,9 @@ protected:
 
     void ConstructElements()
     {
-        pmpOverlay["oPanel"] = new cStaticElement({(uint)((double)cWindow::puiWidth * 0.85), (uint)((double)cWindow::puiHeight * 0.85)}, pmpTextures["background"]);
-        ((cStaticElement*)(pmpOverlay["oPanel"]))->Center();
+        cStaticElement* oPanel = new cStaticElement({(uint)((double)cWindow::puiWidth * 0.85), (uint)((double)cWindow::puiHeight * 0.85)}, pmpTextures["background"]);
+        oPanel->Center();
+        pmpOverlay.push_back({"oPanel", oPanel});
 
         cButton* oExit = new cButton({40, 40}, 0, pmpTextures["buttonTexture"],
                                      cOverlayRenderModule::FONT, 5,
@@ -33,7 +34,7 @@ protected:
         oExit->ppaCallbacks.push_back([&] (cButton* poSender) -> void {
             ppOverlayProvider->DeactivateOverlayWindow();
         });
-        pmpOverlay["oExit"] = oExit;
+        pmpOverlay.push_back({"oExit", oExit});
     }
 public:
     cBaseMenu(iOverlayProvider* pOverlayProvider) : ppOverlayProvider(pOverlayProvider)

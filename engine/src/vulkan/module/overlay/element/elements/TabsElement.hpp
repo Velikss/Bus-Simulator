@@ -64,7 +64,7 @@ void cTabsElement::OnPreLoad()
     {
         for (auto&[sChildName, pElement] : pTab->pmpElements)
         {
-            ppParent->pmpOverlay[sName + sChildName] = pElement;
+            ppParent->pmpOverlay.push_back({sName + sChildName, pElement});
             pElement->SetScale(glm::vec2(0));
         }
     }
