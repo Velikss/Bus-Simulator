@@ -43,7 +43,7 @@ public:
                  const tFontInfo& tFont, cTexture* pTabTexture, cOverlayWindow* pParent);
 
     void OnLoadVertices() override;
-    void HandleMouseButton(uint uiButton, double dXPos, double dYPos) override;
+    void HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction) override;
     void OnPreLoad() override;
 };
 
@@ -98,7 +98,7 @@ void cTabsElement::OnLoadVertices()
     cCompoundElement::OnLoadVertices();
 }
 
-void cTabsElement::HandleMouseButton(uint uiButton, double dXPos, double dYPos)
+void cTabsElement::HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction)
 {
     glm::vec2 tClick = glm::inverse(cUIElement::GetRawMatrix()) * glm::vec4(dXPos, dYPos, 0, 1);
     for (auto&[sName, pButton] : pmpTabButtons)
