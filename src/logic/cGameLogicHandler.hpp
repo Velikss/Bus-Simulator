@@ -50,7 +50,10 @@ void cGameLogicHandler::Update()
     {
         if(ppBus->pfCurrentSpeed == 0.0f)
         {
+            // Get bus stop that is within the radius
             cBusStop* oCurrentBusStop = ppMission->BusStopWithinRadius(ppBus->GetDoorPosition());
+
+            // Check if a bus stop was close enough
             if(oCurrentBusStop == nullptr)
             {
                 ppBus->oState = cState::eStill;
@@ -70,11 +73,13 @@ void cGameLogicHandler::Update()
     if(ppBus->oState == cState::eLoading)
     {
         LoadPassengers(poCurrentBusStop);
+        // go to state eStill if bus stop has no more passengers available
         if(!ppMission->PassengersAvailable(poCurrentBusStop))
             ppBus->oState = cState::eStill;
     }
 }
 
+// Load al passengers from the given bus stop onto the bus
 void cGameLogicHandler::LoadPassengers(cBusStop* oBusStop)
 {
     glm::vec3 oBusDoorPos = ppBus->GetDoorPosition();
@@ -109,6 +114,7 @@ void cGameLogicHandler::LoadPassengers(cBusStop* oBusStop)
     }
 }
 
+// Unload all passengers in the bus into the given bus stop
 void cGameLogicHandler::UnloadPassengers(cBusStop *oBusStop)
 {
     glm::vec3 oBusDoorPos = ppBus->GetDoorPosition();
@@ -225,6 +231,20 @@ bool cGameLogicHandler::LoadMission()
     return true;
 }
 
+// Unload all passengers currently in the bus and place them back at de default location
+void cGameLogicHandler::ResetBus()
+{
+    std::vector<IEntity *> *entities;
+    ppBus->poEntityGroup->GetEntityList(&entities);
+    for (int i = 0; i < ppBus->poEntityGroup->GetEntities()->size(); i++)
+    {
+        (*entities)[i]->SetPosition(C_DEFAULT_PASSENGER_LOCATION);
+        (*entities)[i]->pbVisible = false;
+    }
+    ppBus->poEntityGroup->ClearEntities();
+    ppBus->oState = cState::eStill;
+}
+
 cMissionHandler* cGameLogicHandler::GetMissionHandler()
 {
     return ppMission;
@@ -241,18 +261,4 @@ bool cGameLogicHandler::SetMissionHandler(cMissionHandler* pMissionHandler)
 
     ppMission = pMissionHandler;
     return true;
-}
-
-// Unload all passengers currently in the bus and place them back at de default location
-void cGameLogicHandler::ResetBus()
-{
-    std::vector<IEntity *> *entities;
-    ppBus->poEntityGroup->GetEntityList(&entities);
-    for (int i = 0; i < ppBus->poEntityGroup->GetEntities()->size(); i++)
-    {
-        (*entities)[i]->SetPosition(C_DEFAULT_PASSENGER_LOCATION);
-        (*entities)[i]->pbVisible = false;
-    }
-    ppBus->poEntityGroup->ClearEntities();
-    ppBus->oState = cState::eStill;
 }

@@ -37,11 +37,6 @@ void cMissionHandler::Update()
     }
 }
 
-void cMissionHandler::AddStop(cBusStop* pBusStop)
-{
-    poRoute.push_back(pBusStop);
-}
-
 // Resets all the passengers currently on the busStop and removes them from the entityGroup
 void cMissionHandler::UnloadBusStop(cBusStop* oBusStop)
 {
@@ -121,6 +116,11 @@ cBusStop * cMissionHandler::BusStopWithinRadius(glm::vec3 oBusDoorPos)
             return poRoute[i];
     }
     return nullptr;
+}
+
+void cMissionHandler::AddStop(cBusStop* pBusStop)
+{
+    poRoute.push_back(pBusStop);
 }
 
 std::deque<cBusStop *>& cMissionHandler::GetRouteQueue()
