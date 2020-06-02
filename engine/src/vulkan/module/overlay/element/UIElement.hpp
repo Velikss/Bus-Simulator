@@ -116,7 +116,7 @@ void cUIElement::RotateRight(float fAngleDiff)
 
 glm::mat4 cUIElement::GetMatrix(cWindow* pWindow, uint uiIndex)
 {
-    glm::mat4 proj = glm::ortho(0.0f, (float) WIDTH, 0.0f, (float) HEIGHT);
+    glm::mat4 proj = glm::ortho(0.0f, (float) cWindow::puiWidth, 0.0f, (float) cWindow::puiHeight);
 
     return proj * GetRawMatrix();
 }
@@ -175,12 +175,12 @@ void cUIElement::OnPreLoad()
 
 void cUIElement::CenterVertical()
 {
-    SetPosition({ptPosition.x, (((float)HEIGHT - ptInfo.uiHeight) / 2)});
+    SetPosition({ptPosition.x, (((float)cWindow::puiHeight - ptInfo.uiHeight) / 2)});
 }
 
 void cUIElement::CenterHorizontal()
 {
-    SetPosition({(((float)WIDTH - ptInfo.uiWidth) / 2), ptPosition.y});
+    SetPosition({(((float)cWindow::puiWidth - ptInfo.uiWidth) / 2), ptPosition.y});
 }
 
 void cUIElement::Center()

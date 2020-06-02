@@ -20,7 +20,7 @@ protected:
 
     void ConstructElements()
     {
-        pmpOverlay["oPanel"] = new cStaticElement({(uint)((double)WIDTH * 0.85), (uint)((double)HEIGHT * 0.85)}, pmpTextures["background"]);
+        pmpOverlay["oPanel"] = new cStaticElement({(uint)((double)cWindow::puiWidth * 0.85), (uint)((double)cWindow::puiHeight * 0.85)}, pmpTextures["background"]);
         ((cStaticElement*)(pmpOverlay["oPanel"]))->Center();
 
         cButton* oExit = new cButton({40, 40}, 0, pmpTextures["buttonTexture"],

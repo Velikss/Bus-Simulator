@@ -59,11 +59,13 @@ public:
     void CmdBindDescriptorSets(VkCommandBuffer& commandBuffer,
                                VkPipelineLayout& oPipelineLayout,
                                uint uiIndex) override;
+    void RebuildUniforms() override;
 
 private:
     void CreateUniformBuffers(cScene* pScene);
     void CreateDescriptorPool();
     void CreateDescriptorSets(cTextureHandler* pTextureHandler, cScene* pScene);
+    void Cleanup();
 };
 
 cLightingUniformHandler::cLightingUniformHandler(cLogicalDevice* pLogicalDevice, //-V730
@@ -125,10 +127,7 @@ cLightingUniformHandler::~cLightingUniformHandler()
 {
     ppLogicalDevice->DestroyDescriptorSetLayout(poDescriptorSetLayout, nullptr);
 
-    ppLogicalDevice->DestroyBuffer(poUniformBuffer, nullptr);
-    ppLogicalDevice->FreeMemory(poUniformBufferMemory, nullptr);
-
-    ppLogicalDevice->DestroyDescriptorPool(poDescriptorPool, nullptr);
+    Cleanup();
 }
 
 void cLightingUniformHandler::SetupUniformBuffers(cTextureHandler* pTextureHandler,
@@ -352,4 +351,17 @@ void cLightingUniformHandler::CmdBindDescriptorSets(VkCommandBuffer& commandBuff
                             oPipelineLayout, 0,
                             1, &poDescriptorSet,
                             0, nullptr);
+}
+
+void cLightingUniformHandler::RebuildUniforms()
+{
+    Cleanup();
+}
+
+void cLightingUniformHandler::Cleanup()
+{
+    ppLogicalDevice->DestroyBuffer(poUniformBuffer, nullptr);
+    ppLogicalDevice->FreeMemory(poUniformBufferMemory, nullptr);
+
+    ppLogicalDevice->DestroyDescriptorPool(poDescriptorPool, nullptr);
 }

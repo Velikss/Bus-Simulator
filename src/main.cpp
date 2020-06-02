@@ -34,7 +34,7 @@ protected:
 
     void LoadScene(cScene** pScene) override
     {
-        *pScene = new cBusWorldScene(this);
+        *pScene = new cBlankScene(this);
     }
 
     void LoadOverlayWindows(std::map<string, cOverlayWindow*>& mOverlayWindows) override

@@ -61,6 +61,7 @@ public:
     void CmdBindDescriptorSets(VkCommandBuffer& commandBuffer,
                                VkPipelineLayout& oPipelineLayout,
                                uint uiIndex) override;
+    void RebuildUniforms() override;
 
 private:
     void CreateUniformBuffers(cScene* pScene);
@@ -68,6 +69,7 @@ private:
     void CreateDescriptorSets(cTextureHandler* pTextureHandler, cScene* pScene);
 
     void CopyToDeviceMemory(VkDeviceMemory& oDeviceMemory, void* pData, uint uiDataSize);
+    void Cleanup();
 };
 
 cMRTUniformHandler::cMRTUniformHandler(cLogicalDevice* pLogicalDevice, //-V730
@@ -139,15 +141,7 @@ cMRTUniformHandler::~cMRTUniformHandler()
     ppLogicalDevice->DestroyDescriptorSetLayout(poObjectDescriptorSetLayout, nullptr);
     ppLogicalDevice->DestroyDescriptorSetLayout(poCameraDescriptorSetLayout, nullptr);
 
-    for (size_t i = 0; i < paoObjectUniformBuffers.size(); i++)
-    {
-        ppLogicalDevice->DestroyBuffer(paoObjectUniformBuffers[i], nullptr);
-        ppLogicalDevice->FreeMemory(paoObjectUniformBuffersMemory[i], nullptr);
-    }
-    ppLogicalDevice->DestroyBuffer(poCameraUniformBuffer, nullptr);
-    ppLogicalDevice->FreeMemory(poCameraUniformBufferMemory, nullptr);
-
-    ppLogicalDevice->DestroyDescriptorPool(poDescriptorPool, nullptr);
+    Cleanup();
 }
 
 void cMRTUniformHandler::SetupUniformBuffers(cTextureHandler* pTextureHandler,
@@ -241,7 +235,8 @@ void cMRTUniformHandler::UpdateUniformBuffers(cScene* pScene)
         tObjectData.tModel = oObject->GetModelMatrix();
 
         // Copy the data to memory
-        CopyToDeviceMemory(paoObjectUniformBuffersMemory[oObject->puiUniformIndex], &tObjectData, sizeof(tObjectData)); //-V108
+        CopyToDeviceMemory(paoObjectUniformBuffersMemory[oObject->puiUniformIndex], &tObjectData,
+                           sizeof(tObjectData)); //-V108
     }
 
 #ifdef ENGINE_TIMING_DEBUG
@@ -264,17 +259,20 @@ void cMRTUniformHandler::CreateDescriptorPool()
 {
     std::array<VkDescriptorPoolSize, 4> atPoolSizes = {};
     atPoolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    atPoolSizes[0].descriptorCount = (uint) paoObjectUniformBuffers.size();
-    atPoolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    atPoolSizes[1].descriptorCount = (uint) paoObjectUniformBuffers.size();
-    atPoolSizes[2].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    atPoolSizes[2].descriptorCount = 1;
-    atPoolSizes[3].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    atPoolSizes[3].descriptorCount = (uint) paoObjectUniformBuffers.size();
+    atPoolSizes[0].descriptorCount = 1;
+    if (paoObjectUniformBuffers.size() > 0)
+    {
+        atPoolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        atPoolSizes[1].descriptorCount = (uint) paoObjectUniformBuffers.size();
+        atPoolSizes[2].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        atPoolSizes[2].descriptorCount = (uint) paoObjectUniformBuffers.size();
+        atPoolSizes[3].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        atPoolSizes[3].descriptorCount = (uint) paoObjectUniformBuffers.size();
+    }
 
     VkDescriptorPoolCreateInfo tPoolInfo = {};
     tPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    tPoolInfo.poolSizeCount = (uint) atPoolSizes.size();
+    tPoolInfo.poolSizeCount = paoObjectUniformBuffers.size() > 0 ? 4 : 1;
     tPoolInfo.pPoolSizes = atPoolSizes.data();
 
     tPoolInfo.maxSets = (uint) paoObjectUniformBuffers.size() + 1;
@@ -287,19 +285,22 @@ void cMRTUniformHandler::CreateDescriptorPool()
 
 void cMRTUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, cScene* pScene)
 {
-    std::vector<VkDescriptorSetLayout> aoLayouts(paoObjectUniformBuffers.size(), poObjectDescriptorSetLayout);
-
-    VkDescriptorSetAllocateInfo tAllocInfo = {};
-    tAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-
-    tAllocInfo.descriptorPool = poDescriptorPool;
-    tAllocInfo.descriptorSetCount = (uint) paoObjectUniformBuffers.size();
-    tAllocInfo.pSetLayouts = aoLayouts.data();
-
-    poObjectDescriptorSets.resize((uint) paoObjectUniformBuffers.size()); //-V106 //-V220
-    if (!ppLogicalDevice->AllocateDescriptorSets(&tAllocInfo, poObjectDescriptorSets.data()))
+    if (paoObjectUniformBuffers.size() > 0)
     {
-        throw std::runtime_error("failed to allocate descriptor sets!");
+        std::vector<VkDescriptorSetLayout> aoLayouts(paoObjectUniformBuffers.size(), poObjectDescriptorSetLayout);
+
+        VkDescriptorSetAllocateInfo tAllocInfo = {};
+        tAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+
+        tAllocInfo.descriptorPool = poDescriptorPool;
+        tAllocInfo.descriptorSetCount = (uint) paoObjectUniformBuffers.size();
+        tAllocInfo.pSetLayouts = aoLayouts.data();
+
+        poObjectDescriptorSets.resize((uint) paoObjectUniformBuffers.size()); //-V106 //-V220
+        if (!ppLogicalDevice->AllocateDescriptorSets(&tAllocInfo, poObjectDescriptorSets.data()))
+        {
+            throw std::runtime_error("failed to allocate descriptor sets!");
+        }
     }
 
     uint uiIndex = 0;
@@ -405,4 +406,22 @@ void cMRTUniformHandler::CmdBindDescriptorSets(VkCommandBuffer& commandBuffer,
                             oPipelineLayout, 0,
                             2, paoCurrentDescriptorSets,
                             0, nullptr);
+}
+
+void cMRTUniformHandler::RebuildUniforms()
+{
+    Cleanup();
+}
+
+void cMRTUniformHandler::Cleanup()
+{
+    for (size_t i = 0; i < paoObjectUniformBuffers.size(); i++)
+    {
+        ppLogicalDevice->DestroyBuffer(paoObjectUniformBuffers[i], nullptr);
+        ppLogicalDevice->FreeMemory(paoObjectUniformBuffersMemory[i], nullptr);
+    }
+    ppLogicalDevice->DestroyBuffer(poCameraUniformBuffer, nullptr);
+    ppLogicalDevice->FreeMemory(poCameraUniformBufferMemory, nullptr);
+
+    ppLogicalDevice->DestroyDescriptorPool(poDescriptorPool, nullptr);
 }

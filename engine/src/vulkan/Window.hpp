@@ -1,38 +1,37 @@
 #pragma once
 
-#define QUAD_HD_RESOLUTION
-
 #include <pch.hpp>
 #include <GLFW/glfw3.h>
 #include <vulkan/VulkanInstance.hpp>
 #include <vulkan/scene/InputHandler.hpp>
 
-// Window size
-#ifdef QUAD_HD_RESOLUTION
-const uint WIDTH = 1920;
-const uint HEIGHT = 1080;
-#else
-static const uint WIDTH = 1920;
-const uint HEIGHT = 1080;
-#endif
-
 // Class representing the window which can be used for rendering
 class cWindow
 {
+public:
+    static uint puiWidth;
+    static uint puiHeight;
+    static uint puiRefreshRate;
+
 private:
     static cWindow* poInstance;
 
     const string& psWindowName;
 
-    cVulkanInstance* ppVulkanInstance;
-
-
+    cVulkanInstance* ppVulkanInstance = nullptr;
     VkSurfaceKHR poSurface = VK_NULL_HANDLE;
+
+    uint puiWindowWidth;
+    uint puiWindowHeight;
+    int puiWindowX;
+    int puiWindowY;
+
+    bool pbRequestRebuild = false;
+    bool pbFullscreen = false;
 
 public:
     // Pointer to the GLFW window instance
     GLFWwindow* ppWindow = nullptr;
-
 
     iInputHandler* ppInputHandler = nullptr;
 
@@ -52,6 +51,8 @@ public:
     // Returns true if the window should close
     bool ShouldClose(void);
 
+    bool ShouldRebuild(void);
+
     // Handles window events
     void HandleEvents(void);
 
@@ -59,6 +60,10 @@ public:
     void Close(void);
 
     VkSurfaceKHR& GetSurface(void);
+
+    static void SetResolution(uint uiWidth, uint uiHeight);
+    static void SetFullscreen(bool bFullscreen);
+    void RebuildSurface();
 
 private:
     void FindAndHandleGamepad();
@@ -72,6 +77,10 @@ private:
 };
 
 cWindow* cWindow::poInstance = nullptr;
+
+uint cWindow::puiWidth = 1920;
+uint cWindow::puiHeight = 1080;
+uint cWindow::puiRefreshRate = 60;
 
 cWindow::cWindow(const string& sWindowName) : psWindowName(sWindowName)
 {
@@ -103,7 +112,8 @@ void cWindow::CreateGLWindow()
 {
     assert(ppWindow == nullptr); // don't create a window if it has already been created
 
-    ppWindow = glfwCreateWindow(WIDTH, HEIGHT, psWindowName.c_str(), nullptr, nullptr);
+    ppWindow = glfwCreateWindow(cWindow::puiWidth, cWindow::puiHeight,
+                                psWindowName.c_str(), nullptr, nullptr);
 
     glfwSetCursorPosCallback(ppWindow, mouseCallback);
     //glfwSetInputMode(ppWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -134,6 +144,11 @@ bool cWindow::ShouldClose(void)
     assert(ppWindow != nullptr); // window must be created first
 
     return glfwWindowShouldClose(ppWindow);
+}
+
+bool cWindow::ShouldRebuild(void)
+{
+    return pbRequestRebuild;
 }
 
 void cWindow::HandleEvents(void)
@@ -220,7 +235,7 @@ void cWindow::HandleGamepad(uint uiJoystickId)
 void cWindow::mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY)
 {
     static bool bFirstMouse = true;
-    static double uiLastX = WIDTH, uiLastY = HEIGHT;
+    static double uiLastX = puiWidth, uiLastY = puiHeight;
 
     if (poInstance == nullptr || poInstance->ppInputHandler == nullptr) return;
 
@@ -279,4 +294,57 @@ void cWindow::mouseButtonCallback(GLFWwindow* pWindow, int iButton, int iAction,
     glfwGetCursorPos(pWindow, &dXPos, &dYPos);
 
     poInstance->ppInputHandler->HandleMouseButton((uint) iButton, dXPos, dYPos, iAction);
+}
+
+void cWindow::SetResolution(uint uiWidth, uint uiHeight)
+{
+    glfwGetWindowPos(poInstance->ppWindow, &poInstance->puiWindowX, &poInstance->puiWindowY);
+
+    puiWidth = uiWidth;
+    puiHeight = uiHeight;
+    poInstance->pbRequestRebuild = true;
+}
+
+void cWindow::SetFullscreen(bool bFullscreen)
+{
+    if (bFullscreen)
+    {
+        glfwGetWindowPos(poInstance->ppWindow, &poInstance->puiWindowX, &poInstance->puiWindowY);
+
+        poInstance->puiWindowWidth = puiWidth;
+        poInstance->puiWindowHeight = puiHeight;
+
+        GLFWmonitor* pMonitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* pVideoMode = glfwGetVideoMode(pMonitor);
+        puiWidth = pVideoMode->width;
+        puiHeight = pVideoMode->height;
+        puiRefreshRate = pVideoMode->refreshRate;
+        poInstance->pbFullscreen = true;
+        poInstance->pbRequestRebuild = true;
+    }
+    else
+    {
+        puiWidth = poInstance->puiWindowWidth;
+        puiHeight = poInstance->puiWindowHeight;
+        poInstance->pbFullscreen = false;
+        poInstance->pbRequestRebuild = true;
+    }
+}
+
+void cWindow::RebuildSurface()
+{
+    DestroyWindowSurface();
+    sleep(100);
+    if (pbFullscreen)
+    {
+        glfwSetWindowMonitor(ppWindow, glfwGetPrimaryMonitor(), 0, 0, puiWidth, puiHeight, puiRefreshRate);
+    }
+    else
+    {
+        glfwSetWindowMonitor(ppWindow, nullptr, puiWindowX, puiWindowY, puiWidth, puiHeight, puiRefreshRate);
+    }
+    glfwPollEvents();
+    sleep(100);
+    CreateWindowSurface(ppVulkanInstance);
+    pbRequestRebuild = false;
 }

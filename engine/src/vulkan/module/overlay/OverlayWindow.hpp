@@ -96,7 +96,12 @@ void cOverlayWindow::Quit()
 
 bool cOverlayWindow::ShouldQuit()
 {
-    return pbQuit;
+    if (pbQuit)
+    {
+        pbQuit = false;
+        return true;
+    }
+    return false;
 }
 
 cUIManager* cOverlayWindow::GetUIManager()

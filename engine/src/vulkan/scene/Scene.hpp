@@ -59,6 +59,7 @@ public:
     virtual void Load(cTextureHandler* pTextureHandler,
                       cLogicalDevice* pLogicalDevice,
                       cAudioHandler* pAudioHandler = nullptr);
+    void Unload();
 
     void HandleMouse(uint uiDeltaX, uint uiDeltaY) override;
     void HandleKey(uint uiKeyCode, uint uiAction) override;
@@ -68,7 +69,7 @@ public:
     virtual void OnInputDisable();
     void HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction) override;
 
-    void AfterLoad();
+    virtual void AfterLoad();
 protected:
     void Quit();
 };
@@ -82,25 +83,7 @@ cScene::~cScene()
     delete ppColliders;
     delete poCamera;
 
-    for (auto oObject : pmpObjects)
-    {
-        delete oObject.second;
-    }
-
-    for (auto oMesh : pmpMeshes)
-    {
-        delete oMesh.second;
-    }
-
-    for (auto oGeometry : pmpGeometries)
-    {
-        delete oGeometry.second;
-    }
-
-    for (auto oTexture : pmpTextures)
-    {
-        delete oTexture.second;
-    }
+    Unload();
 
     ENGINE_LOG("Cleaned up scene");
 }
@@ -155,6 +138,29 @@ void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevi
     }
     ENGINE_LOG("Loaded " << pmpObjects.size() << " objects, of which " << papMovableObjects.size()
                          << " are movable and " << papLightObjects.size() << " are lights");
+}
+
+void cScene::Unload()
+{
+    for (auto oObject : pmpObjects)
+    {
+        delete oObject.second;
+    }
+
+    for (auto oMesh : pmpMeshes)
+    {
+        delete oMesh.second;
+    }
+
+    for (auto oGeometry : pmpGeometries)
+    {
+        delete oGeometry.second;
+    }
+
+    for (auto oTexture : pmpTextures)
+    {
+        delete oTexture.second;
+    }
 }
 
 void cScene::Tick()
