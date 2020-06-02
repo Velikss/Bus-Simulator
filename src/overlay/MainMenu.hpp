@@ -38,13 +38,17 @@ protected:
                                                       glm::vec3(1, 1, 0));
         pmpOverlay["oPassword"]->SetPosition(glm::vec2(500, 500));
 
-        pmpOverlay["oSubmit"] = new cButton({250,75}, 0, pmpTextures["buttonTexture"], cOverlayRenderModule::FONT, 12,
+        cButton* oSubmit = new cButton({250, 75}, 0, pmpTextures["buttonTexture"],
+                                            cOverlayRenderModule::FONT, 12,
                                             glm::vec3(1, 1, 0));
-        ((cButton*)(pmpOverlay["oSubmit"]))->SetLabel("hallo");
-        pmpOverlay["oSubmit"]->Center();
-        pmpOverlay["oSubmit"]->AddY(100);
+        oSubmit->SetLabel("hallo");
+        oSubmit->Center();
+        oSubmit->AddY(100);
+        oSubmit->ppaCallbacks.push_back([&] (cButton* poSender) -> void {
+            std::cout << "login..." << std::endl;
+        });
+        pmpOverlay["oSubmit"] = oSubmit;
     }
-    
 public:
     cMainMenu(iOverlayProvider* pOverlayProvider) : ppOverlayProvider(pOverlayProvider)
     {
@@ -52,7 +56,6 @@ public:
 
     void HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction)
     {
-        if (((cSimpleButton*)pmpOverlay["oSubmit"])->DidClick({dXPos, dYPos}) && iAction == GLFW_PRESS) HandleOnSubmit();
         cOverlayWindow::HandleMouseButton(uiButton, dXPos, dYPos, iAction);
     }
 

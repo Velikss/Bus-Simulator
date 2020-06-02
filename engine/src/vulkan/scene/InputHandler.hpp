@@ -14,25 +14,20 @@ public:
 
 void iInputHandler::HandleMouse(uint uiDeltaX, uint uiDeltaY)
 {
-
 }
 
 void iInputHandler::HandleKey(uint uiKeyCode, uint uiAction)
 {
-
 }
 
 void iInputHandler::HandleScroll(double dOffsetX, double dOffsetY)
 {
-
 }
 
 void iInputHandler::HandleCharacter(char cCharacter)
 {
-
 }
 
 void iInputHandler::HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction)
 {
-
 }
