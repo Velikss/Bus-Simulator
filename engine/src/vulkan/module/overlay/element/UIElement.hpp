@@ -18,12 +18,13 @@ private:
 
 public:
     virtual ~cUIElement();
-    void SetFocusHandler(iFocusHandler* pFocusHandler);
+    virtual void SetFocusHandler(iFocusHandler* pFocusHandler);
 
     virtual uint GetChildCount() = 0;
     virtual bool IsTextElement(uint uiIndex) = 0;
     virtual glm::vec3 GetColor(uint uiIndex) = 0;
 
+    virtual void OnPreLoad();
     virtual void OnLoadVertices() = 0;
     virtual VkDeviceSize GetMemorySize(uint uiIndex) = 0;
     virtual void InitializeMemory(void* pMemory, uint uiIndex) = 0;
@@ -154,4 +155,9 @@ void cUIElement::AddX(float fAddX)
 void cUIElement::AddY(float fAddY)
 {
     ptScale.y += fAddY;
+}
+
+void cUIElement::OnPreLoad()
+{
+
 }

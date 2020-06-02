@@ -71,6 +71,11 @@ void cOverlayWindow::Construct(cTextureHandler* pTextureHandler,
 
     for (auto&[sName, pElement] : pmpOverlay)
     {
+        pElement->OnPreLoad();
+    }
+
+    for (auto&[sName, pElement] : pmpOverlay)
+    {
         pElement->SetParent(ppUIManager);
         pElement->SetFocusHandler(this);
         ppUIManager->patElements.emplace_back(pElement);

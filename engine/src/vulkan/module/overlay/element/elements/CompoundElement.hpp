@@ -27,6 +27,7 @@ public:
 
     glm::mat4 GetMatrix(cWindow* pWindow, uint uiIndex);
     bool Invalidated() override;
+    void SetFocusHandler(iFocusHandler* pFocusHandler) override;
 };
 
 void cCompoundElement::OnLoadVertices()
@@ -34,6 +35,15 @@ void cCompoundElement::OnLoadVertices()
     for (cUIElement* pElement : papChildren)
     {
         pElement->OnLoadVertices();
+    }
+}
+
+void cCompoundElement::SetFocusHandler(iFocusHandler* pFocusHandler)
+{
+    cUIElement::SetFocusHandler(pFocusHandler);
+    for (cUIElement* pChild : papChildren)
+    {
+        pChild->SetFocusHandler(pFocusHandler);
     }
 }
 
