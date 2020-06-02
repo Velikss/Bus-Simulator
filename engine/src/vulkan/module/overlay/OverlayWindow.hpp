@@ -169,7 +169,7 @@ void cOverlayWindow::HandleMouseButton(uint uiButton, double dXPos, double dYPos
         iInputHandler* pInputHandler = dynamic_cast<iInputHandler*>(pElement);
         if (pInputHandler != nullptr)
         {
-            pInputHandler->HandleMouseButton(uiButton, dXPos, dYPos, 0);
+            pInputHandler->HandleMouseButton(uiButton, dXPos, dYPos, iAction);
         }
     }
 }
