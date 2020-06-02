@@ -32,13 +32,13 @@ IF (WIN32)
 
     set(_ENGINE_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/vendor/fmod/windows/api/core/inc)
     set(_ENGINE_LIBRARIES ${PROJECT_SOURCE_DIR}/vendor/fmod/windows/api/core/lib/x64/fmod_vc.lib ${GLEW_LIBRARIES} ${GLFW_LIBRARIES} ${DUKTAPE_LIBRARY} ${Vulkan_LIBRARIES} ${OPENSSL_SSL_LIBRARIES} ${OPENSSL_CRYPTO_LIBRARIES} ${ODBC_LIBRARY})
-ELSE()
+ELSE ()
     add_library(fmod SHARED IMPORTED)
 
     get_target_property(GLFW_LIBRARIES glfw IMPORTED_LOCATION_NOCONFIG)
     set(_ENGINE_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/vendor/fmod/linux/api/core/inc)
     set(_ENGINE_LIBRARIES /usr/lib/fmod/libfmod.so ${GLEW_LIBRARIES} ${GLFW_LIBRARIES} /usr/lib/libduktape.so ${Vulkan_LIBRARIES} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${ODBC_LIBRARY})
-ENDIF()
+ENDIF ()
 list(APPEND _ENGINE_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src ${Vulkan_INCLUDE_DIRS} ${GLM_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS} ${GLFW_INCLUDE_DIR} ${DUKTAPE_INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR} /usr/lib/libuuid.a)
 set(ENGINE_INCLUDE_DIRS ${_ENGINE_INCLUDE_DIRS} PARENT_SCOPE)
 set(ENGINE_LIBRARIES ${_ENGINE_LIBRARIES} PARENT_SCOPE)
@@ -124,7 +124,24 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/StaticElement.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/TextElement.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/AudioHandler.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/util/DirectoryWatcher.hpp src/vulkan/module/overlay/OverlayWindow.hpp src/vulkan/module/overlay/OverlayProvider.hpp src/vulkan/module/overlay/element/elements/ClickableElement.hpp src/vulkan/module/overlay/UIManager.hpp src/vulkan/module/overlay/element/UIElement.hpp src/vulkan/util/Invalidatable.hpp src/vulkan/util/CommandBufferHolder.hpp src/vulkan/util/CommandRecorderProvider.hpp src/vulkan/util/DynamicUniformHandler.hpp src/vulkan/module/overlay/element/elements/SimpleButton.hpp src/vulkan/module/overlay/element/elements/CompoundElement.hpp src/vulkan/module/overlay/element/elements/TextBoxElement.hpp src/vulkan/module/overlay/FocusHandler.hpp src/vulkan/module/overlay/element/Focussable.hpp src/vulkan/module/overlay/element/elements/PasswordTextBox.hpp src/vulkan/module/overlay/element/elements/TabsElement.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/util/DirectoryWatcher.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/OverlayWindow.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/OverlayProvider.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/ClickableElement.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/UIManager.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/UIElement.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/util/Invalidatable.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/util/CommandBufferHolder.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/util/CommandRecorderProvider.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/util/DynamicUniformHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/SimpleButton.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/CompoundElement.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/TextBoxElement.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/FocusHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/Focussable.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/PasswordTextBox.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/TabsElement.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/ComboBox.hpp src/vulkan/module/overlay/element/elements/CheckBox.hpp)
 
 include_directories(${_ENGINE_INCLUDE_DIRS})
 add_library(${This} STATIC ${PROJECT_SOURCE_DIR}/src/main.cpp ${Headers})
@@ -135,10 +152,10 @@ target_include_directories(${This}-Test INTERFACE ${_ENGINE_INCLUDE_DIRS})
 IF (WIN32)
     target_link_libraries(${This} PUBLIC ${_ENGINE_LIBRARIES} glm)
     target_link_libraries(${This}-Test PUBLIC ${_ENGINE_LIBRARIES} glm GTest::gtest)
-ELSE()
+ELSE ()
     target_link_libraries(${This} PUBLIC ${_ENGINE_LIBRARIES})
     target_link_libraries(${This}-Test PUBLIC ${_ENGINE_LIBRARIES} gtest)
-ENDIF()
+ENDIF ()
 
 add_test(
         NAME ${This}-Test

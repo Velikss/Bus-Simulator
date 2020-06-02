@@ -39,6 +39,7 @@ protected:
     void LoadOverlayWindows(std::map<string, cOverlayWindow*>& mOverlayWindows) override
     {
         mOverlayWindows["MainMenu"] = new cMainMenu(this);
+        mOverlayWindows["Test"] = new cTestOverlay(this);
     }
 };
 

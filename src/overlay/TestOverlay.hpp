@@ -9,6 +9,8 @@
 #include <vulkan/module/overlay/element/elements/TextBoxElement.hpp>
 #include <vulkan/module/overlay/element/elements/PasswordTextBox.hpp>
 #include <vulkan/module/overlay/element/elements/TabsElement.hpp>
+#include <vulkan/module/overlay/element/elements/ComboBox.hpp>
+#include <vulkan/module/overlay/element/elements/CheckBox.hpp>
 
 class cTestOverlay : public cOverlayWindow
 {
@@ -29,27 +31,41 @@ protected:
 
     void ConstructElements() override
     {
+        tFontInfo tTabsFont = {cOverlayRenderModule::FONT, 13, glm::vec3(1, 1, 0)};
+        tFontInfo tComboFont = {cOverlayRenderModule::FONT, 10, glm::vec3(1, 1, 0)};
+
         cTabElement* pFirstTab = new cTabElement();
-        pFirstTab->pmpElements["textbox1"] = new cTextBoxElement({400, 120}, 2, pmpTextures["roof"],
+        /*pFirstTab->pmpElements["textbox1"] = new cTextBoxElement({400, 120}, 2, pmpTextures["roof"],
                                                                  cOverlayRenderModule::FONT, 13,
                                                                  glm::vec3(1, 1, 0));
-        pFirstTab->pmpElements["textbox1"]->SetPosition(glm::vec2(0, 500));
+        pFirstTab->pmpElements["textbox1"]->SetPosition(glm::vec2(0, 500));*/
+
+        cComboBox* pComboBox = new cComboBox({200, 50}, tComboFont,
+                                             pmpTextures["roof"], pmpTextures["grey"]);
+        pComboBox->SetPosition({200, 600});
+        pComboBox->AddOption("Test 1");
+        pComboBox->AddOption("Test 2");
+        pComboBox->AddOption("Test 3");
+        pComboBox->SetSelected("Test 2");
+        pFirstTab->pmpElements["combobox"] = pComboBox;
+
+        cCheckBox* pCheckBox = new cCheckBox({50, 50},
+                                             pmpTextures["roof"], pmpTextures["grey"]);
+        pCheckBox->SetPosition({500, 500});
+        pCheckBox->SetChecked(true);
+        pFirstTab->pmpElements["checkbox"] = pCheckBox;
 
         cTabElement* pSecondTab = new cTabElement();
         pSecondTab->pmpElements["background"] = new cStaticElement({1920, 1080}, pmpTextures["grey"]);
         pSecondTab->pmpElements["background"]->SetPosition({0, 100});
+
         pSecondTab->pmpElements["textbox2"] = new cPasswordTextBox({300, 80}, 2, pmpTextures["roof"],
                                                                    cOverlayRenderModule::FONT, 13,
                                                                    glm::vec3(1, 1, 0));
         pSecondTab->pmpElements["textbox2"]->SetPosition(glm::vec2(500, 500));
 
-        tFontInfo tFontInfo = {};
-        tFontInfo.ppFont = cOverlayRenderModule::FONT;
-        tFontInfo.pfFontSize = 13;
-        tFontInfo.ptFontColor = glm::vec3(1, 1, 0);
-
         cTabsElement* pTabs = new cTabsElement({1000, 100}, pmpTextures["roof"],
-                                               tFontInfo, pmpTextures["grey"], this);
+                                               tTabsFont, pmpTextures["grey"], this);
         pTabs->pmpTabs["Tab 1"] = pFirstTab;
         pTabs->pmpTabs["Tab 2"] = pSecondTab;
 
@@ -62,18 +78,22 @@ public:
 
     void Tick() override
     {
-        if (uiClickTimer > 0)
-        {
-            uiClickTimer--;
-            if (uiClickTimer == 0)
-            {
-                pText->UpdateText("");
-            }
-        }
     }
 
     bool ShouldHandleInput() override
     {
         return true;
+    }
+
+    void HandleKey(uint uiKeyCode, uint uiAction) override
+    {
+        if (uiKeyCode == GLFW_KEY_HOME && uiAction == GLFW_PRESS)
+        {
+            ppOverlayProvider->DeactivateOverlayWindow();
+        }
+        else
+        {
+            cOverlayWindow::HandleKey(uiKeyCode, uiAction);
+        }
     }
 };

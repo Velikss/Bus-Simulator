@@ -146,6 +146,8 @@ void cBusWorldScene::Update()
 
     if (paKeys[GLFW_KEY_ESCAPE])
         ppOverlayProvider->ActivateOverlayWindow("MainMenu");
+    if (paKeys[GLFW_KEY_HOME])
+        ppOverlayProvider->ActivateOverlayWindow("Test");
 
     dynamic_cast<cBus *>(pmpObjects["bus"])->Move();
 
