@@ -179,6 +179,12 @@ void cBusWorldScene::HandleKey(uint uiKeyCode, uint uiAction)
         pGameLogicHandler->SetMissionHandler(pMissionHandler2);
         pGameLogicHandler->LoadMission();
     }
+
+    // Horn
+    if(uiAction == GLFW_PRESS && uiKeyCode == GLFW_KEY_E)
+    {
+        ppAudioHandler->PlaySound("resources/audio/horn1.wav", dynamic_cast<cBus *>(pmpObjects["bus"])->GetPosition(), 1.0f);
+    }
 }
 
 void cBusWorldScene::HandleScroll(double dOffsetX, double dOffsetY)
