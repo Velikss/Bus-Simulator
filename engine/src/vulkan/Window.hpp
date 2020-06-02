@@ -334,7 +334,7 @@ void cWindow::SetFullscreen(bool bFullscreen)
 void cWindow::RebuildSurface()
 {
     DestroyWindowSurface();
-    sleep(100);
+    fSleep(100);
     if (pbFullscreen)
     {
         glfwSetWindowMonitor(ppWindow, glfwGetPrimaryMonitor(), 0, 0, puiWidth, puiHeight, puiRefreshRate);
@@ -344,7 +344,7 @@ void cWindow::RebuildSurface()
         glfwSetWindowMonitor(ppWindow, nullptr, puiWindowX, puiWindowY, puiWidth, puiHeight, puiRefreshRate);
     }
     glfwPollEvents();
-    sleep(100);
+    fSleep(100);
     CreateWindowSurface(ppVulkanInstance);
     pbRequestRebuild = false;
 }
