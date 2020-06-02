@@ -33,6 +33,7 @@ public:
     bool LoadMission();
     void LoadPassengers(cBusStop* oBusStop);
     void UnloadPassengers(cBusStop* oBusStop);
+    void ResetBus();
 };
 
 void cGameLogicHandler::Update()
@@ -233,9 +234,25 @@ bool cGameLogicHandler::SetMissionHandler(cMissionHandler* pMissionHandler)
 {
     // Unload the busStops from current missionHandler
     if(ppMission != nullptr)
+    {
         ppMission->UnloadMissionHandler();
-    // TODO remove any passengers that are still in the bus entityGroup
+        ResetBus();
+    }
 
     ppMission = pMissionHandler;
     return true;
+}
+
+// Unload all passengers currently in the bus and place them back at de default location
+void cGameLogicHandler::ResetBus()
+{
+    std::vector<IEntity *> *entities;
+    ppBus->poEntityGroup->GetEntityList(&entities);
+    for (int i = 0; i < ppBus->poEntityGroup->GetEntities()->size(); i++)
+    {
+        (*entities)[i]->SetPosition(C_DEFAULT_PASSENGER_LOCATION);
+        (*entities)[i]->pbVisible = false;
+    }
+    ppBus->poEntityGroup->ClearEntities();
+    ppBus->oState = cState::eStill;
 }
