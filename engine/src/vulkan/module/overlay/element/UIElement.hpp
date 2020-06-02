@@ -46,7 +46,9 @@ public:
     void SetPosition(const glm::vec2 poPosition);
     void SetScale(const glm::vec2 poScale);
     void AddX(float fAddX);
+    void RemoveX(float fRemX);
     void AddY(float fAddY);
+    void RemoveY(float fRemY);
     void RotateLeft(float fAngleDiff);
     void RotateRight(float fAngleDiff);
     glm::vec2 GetPosition();
@@ -192,4 +194,14 @@ void cUIElement::Center()
 tElementInfo cUIElement::GetSize()
 {
     return ptInfo;
+}
+
+void cUIElement::RemoveX(float fRemX)
+{
+    ptPosition.x -= fRemX;
+}
+
+void cUIElement::RemoveY(float fRemY)
+{
+    ptPosition.y -= fRemY;
 }

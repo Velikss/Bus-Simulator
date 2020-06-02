@@ -22,7 +22,6 @@ protected:
 
     void AfterLoad()
     {
-        std::cout << "afterload"<< std::endl;
         ppOverlayProvider->ActivateOverlayWindow("MainMenu");
     }
 };

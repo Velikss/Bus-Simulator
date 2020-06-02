@@ -20,28 +20,41 @@ protected:
     {
         cBaseMenu::ConstructElements();
 
-        cTextBoxElement* oUserName = new cTextBoxElement({400, 120}, 2, pmpTextures["textbox"],
+        cTextElement* oUserNameLabel = new cTextElement();
+        oUserNameLabel->SetFont(8, cOverlayRenderModule::FONT,
+                                glm::vec3(0,0,0));
+        oUserNameLabel->UpdateText("Username:");
+        oUserNameLabel->Center();
+        oUserNameLabel->RemoveY(150);
+        pmpOverlay.push_back({"oUserNameLabel", oUserNameLabel});
+
+        cTextBoxElement* oUserName = new cTextBoxElement({400, 80}, 2, pmpTextures["textbox"],
                                                      cOverlayRenderModule::FONT, 13,
                                                       glm::vec3(0,0,0));
-        oUserName->SetPosition(glm::vec2(0, 500));
+        oUserName->Center();
+        oUserName->RemoveY(80);
         pmpOverlay.push_back({"oUserName", oUserName});
 
-        cPasswordTextBox* oPassword = new cPasswordTextBox({300, 80}, 2, pmpTextures["textbox"],
+        cPasswordTextBox* oPassword = new cPasswordTextBox({400, 80}, 2, pmpTextures["textbox"],
                                                       cOverlayRenderModule::FONT, 13,
                                                       glm::vec3(0,0,0));
-        oPassword->SetPosition(glm::vec2(500, 500));
+        oPassword->Center();
+        oPassword->AddY(80);
         pmpOverlay.push_back({"oPassword", oPassword});
 
-        cButton* oSubmit = new cButton({250, 75}, 0, pmpTextures["buttonTexture"],
+        cButton* oSubmit = new cButton({400, 75}, 0, pmpTextures["buttonTexture"],
                                        cOverlayRenderModule::FONT, 12,
                                        glm::vec3(0,0,0));
-        oSubmit->SetLabel("hallo");
+        oSubmit->SetLabel("Login");
         oSubmit->Center();
-        oSubmit->AddY(100);
+        oSubmit->AddY(170);
+        std::function<void(cButton*)> OnSubmitHandler = std::bind(&cMainMenu::HandleOnSubmit, this, std::placeholders::_1);
+        oSubmit->ppaCallbacks.push_back(OnSubmitHandler);
+
         pmpOverlay.push_back({"oSubmit", oSubmit});
 
-        ((cButton*)GetElement("oExit"))->ppaCallbacks.push_back([&] (cButton* poSender) -> void {
-            exit(0);
+        ((cButton*)GetElement("oExit"))->ppaCallbacks.emplace_back([&] (cButton* poSender) -> void {
+            Quit();
         });
     }
 public:
@@ -49,7 +62,7 @@ public:
     {
     }
 
-    void HandleOnSubmit();
+    void HandleOnSubmit(cButton* poSender);
 
     bool ShouldHandleInput() override
     {
@@ -57,7 +70,7 @@ public:
     }
 };
 
-void cMainMenu::HandleOnSubmit()
+void cMainMenu::HandleOnSubmit(cButton* poSender)
 {
     std::cout << "submit" << std::endl;
 }
