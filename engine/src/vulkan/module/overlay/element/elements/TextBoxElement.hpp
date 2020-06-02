@@ -73,6 +73,8 @@ void cTextBoxElement::HandleCharacter(char cCharacter)
 
 void cTextBoxElement::HandleKey(uint uiKeyCode, uint uiAction)
 {
+    if (ppFocusHandler == nullptr) return;
+
     if (ppFocusHandler->GetFocussedElement() == this && uiAction == GLFW_PRESS && uiKeyCode == GLFW_KEY_BACKSPACE)
     {
         psText = psText.substr(0, psText.size() - 1);

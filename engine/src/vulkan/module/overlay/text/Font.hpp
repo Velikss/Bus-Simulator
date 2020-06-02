@@ -126,3 +126,10 @@ uint cFont::GetFontHeight(float fFontSize)
     stb_fontchar& pData = ppFontData[(uint) 'o' - firstChar];
     return pData.y1 * (fFontSize / 10);
 }
+
+struct tFontInfo
+{
+    cFont* ppFont = nullptr;
+    float pfFontSize = 12;
+    glm::vec3 ptFontColor;
+};
