@@ -74,7 +74,7 @@ void cTabsElement::OnPreLoad()
 
 void cTabsElement::OnLoadVertices()
 {
-    papChildren.push_back(ppBackground);
+    AddChild(ppBackground);
 
     uint uiOffset = 0;
     for (auto&[sName, pTab] : pmpTabs)
@@ -89,8 +89,8 @@ void cTabsElement::OnLoadVertices()
         pLabel->SetPosition(tPosition);
         pLabel->UpdateText(sName);
 
-        papChildren.push_back(pmpTabButtons[sName]);
-        papChildren.push_back(pLabel);
+        AddChild(pmpTabButtons[sName]);
+        AddChild(pLabel);
 
         uiOffset += (uiWidth + 10);
     }

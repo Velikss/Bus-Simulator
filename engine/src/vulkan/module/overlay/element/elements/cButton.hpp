@@ -5,7 +5,7 @@
 #include <vulkan/module/overlay/element/elements/ClickableElement.hpp>
 #include <vulkan/module/overlay/element/elements/SimpleButton.hpp>
 
-class cTextBoxElement : public cCompoundElement, public iInputHandler
+class cButton : public cCompoundElement, public iInputHandler
 {
 protected:
     cTextElement* ppTextElement = nullptr;
@@ -20,19 +20,17 @@ protected:
     uint puiStartChar = 0;
 
 public:
-    cTextBoxElement(tElementInfo tSize, uint uiPadding, cTexture* pTexture,
+    cButton(tElementInfo tSize, uint uiPadding, cTexture* pTexture,
                     cFont* ppFont, float fFontSize, glm::vec3 tTextColor);
 
     void HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction) override;
-    void HandleCharacter(char cCharacter) override;
-    void HandleKey(uint uiKeyCode, uint uiAction) override;
-
+    void SetLabel(const string& sLabel);
 protected:
     virtual void UpdateText();
     uint GetTextWidth(uint uiStartChar);
 };
 
-cTextBoxElement::cTextBoxElement(tElementInfo tSize, uint uiPadding, cTexture* pTexture,
+cButton::cButton(tElementInfo tSize, uint uiPadding, cTexture* pTexture,
                                  cFont* pFont, float fFontSize, glm::vec3 tTextColor)
 {
     ppFont = pFont;
@@ -40,7 +38,6 @@ cTextBoxElement::cTextBoxElement(tElementInfo tSize, uint uiPadding, cTexture* p
     puiBoxWidth = tSize.uiWidth;
 
     uint uiTextHeight = pFont->GetFontHeight(fFontSize) + (uiPadding * 2);
-    assert(uiTextHeight < tSize.uiHeight);
     uint uiOffset = (tSize.uiHeight - uiTextHeight) / 2;
 
     ppTextElement = new cTextElement();
@@ -53,7 +50,7 @@ cTextBoxElement::cTextBoxElement(tElementInfo tSize, uint uiPadding, cTexture* p
     AddChild(ppTextElement);
 }
 
-void cTextBoxElement::HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction)
+void cButton::HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction)
 {
     glm::vec2 tClick = glm::inverse(cUIElement::GetRawMatrix()) * glm::vec4(dXPos, dYPos, 0, 1);
     if (ppClickable->DidClick(tClick))
@@ -62,27 +59,7 @@ void cTextBoxElement::HandleMouseButton(uint uiButton, double dXPos, double dYPo
     }
 }
 
-void cTextBoxElement::HandleCharacter(char cCharacter)
-{
-    if (ppFocusHandler->GetFocussedElement() == this)
-    {
-        psText += cCharacter;
-        UpdateText();
-    }
-}
-
-void cTextBoxElement::HandleKey(uint uiKeyCode, uint uiAction)
-{
-    if (ppFocusHandler == nullptr) return;
-
-    if (ppFocusHandler->GetFocussedElement() == this && uiAction == GLFW_PRESS && uiKeyCode == GLFW_KEY_BACKSPACE)
-    {
-        psText = psText.substr(0, psText.size() - 1);
-        UpdateText();
-    }
-}
-
-void cTextBoxElement::UpdateText()
+void cButton::UpdateText()
 {
     puiStartChar = 0;
     uint uiWidth = GetTextWidth(puiStartChar);
@@ -96,7 +73,13 @@ void cTextBoxElement::UpdateText()
     ppTextElement->UpdateText(psDisplayText);
 }
 
-uint cTextBoxElement::GetTextWidth(uint uiStartChar)
+uint cButton::GetTextWidth(uint uiStartChar)
 {
     return cTextElement::GetTextWidth(psText.substr(uiStartChar), ppFont, pfFontSize);
+}
+
+void cButton::SetLabel(const string& sLabel)
+{
+    this->psText = sLabel;
+    UpdateText();
 }

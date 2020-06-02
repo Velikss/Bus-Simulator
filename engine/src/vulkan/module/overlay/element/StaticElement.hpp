@@ -7,20 +7,12 @@
 #include <vulkan/texture/Texture.hpp>
 #include <vulkan/module/overlay/element/UIElement.hpp>
 
-struct tElementInfo
-{
-    uint uiWidth;
-    uint uiHeight;
-};
-
 class cStaticElement : public cUIElement
 {
 protected:
     std::vector<tVertex2D> patVertices;
 
     cTexture* ppTexture;
-    tElementInfo ptInfo;
-
 public:
     cStaticElement(tElementInfo tInfo, cTexture* pTexture);
 
@@ -33,6 +25,8 @@ public:
     uint GetChildCount() override;
     bool IsTextElement(uint uiIndex) override;
     glm::vec3 GetColor(uint uiIndex) override;
+    tElementInfo GetSize();
+    void SetSize(uint uiWidth, uint uiHeight);
 };
 
 cStaticElement::cStaticElement(tElementInfo tInfo, cTexture* pTexture) //-V730
@@ -97,4 +91,16 @@ bool cStaticElement::IsTextElement(uint uiIndex)
 glm::vec3 cStaticElement::GetColor(uint uiIndex)
 {
     return glm::vec3();
+}
+
+tElementInfo cStaticElement::GetSize()
+{
+    return ptInfo;
+}
+
+void cStaticElement::SetSize(uint uiWidth, uint uiHeight)
+{
+    ptInfo.uiWidth = uiWidth;
+    ptInfo.uiHeight = uiHeight;
+    Invalidate();
 }

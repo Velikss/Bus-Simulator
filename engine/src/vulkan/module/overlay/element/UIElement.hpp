@@ -4,17 +4,23 @@
 #include <vulkan/util/Invalidatable.hpp>
 #include <vulkan/module/overlay/FocusHandler.hpp>
 
+struct tElementInfo
+{
+    uint uiWidth;
+    uint uiHeight;
+};
+
 class cUIElement : public cInvalidatable, public cFocussable
 {
 protected:
     iFocusHandler* ppFocusHandler = nullptr;
 
-private:
     cInvalidatable* ppParent = nullptr;
 
     glm::vec2 ptRotation = glm::vec2(0.0f, 0.0f);
     glm::vec2 ptPosition = glm::vec2(0.0f, 0.0f);
     glm::vec2 ptScale = glm::vec2(1.0f, 1.0f);
+    tElementInfo ptInfo = {0,0};
 
 public:
     virtual ~cUIElement();
@@ -45,6 +51,11 @@ public:
     void RotateRight(float fAngleDiff);
     glm::vec2 GetPosition();
     glm::vec2 GetScale();
+    tElementInfo GetSize();
+
+    void Center();
+    void CenterHorizontal();
+    void CenterVertical();
 
     virtual glm::mat4 GetMatrix(cWindow* pWindow, uint uiIndex);
     virtual glm::mat4 GetRawMatrix();
@@ -149,15 +160,36 @@ glm::vec2 cUIElement::GetScale()
 
 void cUIElement::AddX(float fAddX)
 {
-    ptScale.x += fAddX;
+    ptPosition.x += fAddX;
 }
 
 void cUIElement::AddY(float fAddY)
 {
-    ptScale.y += fAddY;
+    ptPosition.y += fAddY;
 }
 
 void cUIElement::OnPreLoad()
 {
 
+}
+
+void cUIElement::CenterVertical()
+{
+    SetPosition({ptPosition.x, (((float)HEIGHT - ptInfo.uiHeight) / 2)});
+}
+
+void cUIElement::CenterHorizontal()
+{
+    SetPosition({(((float)WIDTH - ptInfo.uiWidth) / 2), ptPosition.y});
+}
+
+void cUIElement::Center()
+{
+    CenterVertical();
+    CenterHorizontal();
+}
+
+tElementInfo cUIElement::GetSize()
+{
+    return ptInfo;
 }

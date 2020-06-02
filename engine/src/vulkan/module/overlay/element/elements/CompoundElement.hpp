@@ -17,6 +17,7 @@ public:
     bool IsTextElement(uint uiIndex) override;
     glm::vec3 GetColor(uint uiIndex) override;
 
+    void AddChild(cUIElement* poElem);
     void OnLoadVertices() override;
     VkDeviceSize GetMemorySize(uint uiIndex);
     void InitializeMemory(void* pMemory, uint uiIndex) override;
@@ -35,6 +36,9 @@ void cCompoundElement::OnLoadVertices()
     for (cUIElement* pElement : papChildren)
     {
         pElement->OnLoadVertices();
+        tElementInfo tInfo = pElement->GetSize();
+        if (tInfo.uiWidth > ptInfo.uiWidth) ptInfo.uiWidth = tInfo.uiWidth;
+        if (tInfo.uiHeight > ptInfo.uiHeight) ptInfo.uiHeight = tInfo.uiHeight;
     }
 }
 
@@ -102,4 +106,12 @@ bool cCompoundElement::Invalidated()
         }
     }
     return cCompoundElement::Invalidated();
+}
+
+void cCompoundElement::AddChild(cUIElement* poElem)
+{
+    papChildren.push_back(poElem);
+    tElementInfo tInfo = poElem->GetSize();
+    if (tInfo.uiWidth > ptInfo.uiWidth) ptInfo.uiWidth = tInfo.uiWidth;
+    if (tInfo.uiHeight > ptInfo.uiHeight) ptInfo.uiHeight = tInfo.uiHeight;
 }

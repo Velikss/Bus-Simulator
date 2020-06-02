@@ -8,6 +8,7 @@
 #include <vulkan/module/overlay/element/elements/SimpleButton.hpp>
 #include <vulkan/module/overlay/element/elements/TextBoxElement.hpp>
 #include <vulkan/module/overlay/element/elements/PasswordTextBox.hpp>
+#include <vulkan/module/overlay/element/elements/cButton.hpp>
 
 class cMainMenu : public cOverlayWindow
 {
@@ -24,10 +25,8 @@ protected:
 
     void ConstructElements()
     {
-        pmpOverlay["oPanel"] = new cStaticElement({1, 1}, pmpTextures["background"]);
-
-        pmpOverlay["oPanel"]->SetScale({(uint)((double)WIDTH * 0.85), (uint)((double)HEIGHT * 0.85)});
-        Center(pmpOverlay["oPanel"]);
+        pmpOverlay["oPanel"] = new cStaticElement({(uint)((double)WIDTH * 0.85), (uint)((double)HEIGHT * 0.85)}, pmpTextures["background"]);
+        ((cStaticElement*)(pmpOverlay["oPanel"]))->Center();
 
         pmpOverlay["oUserName"] = new cTextBoxElement({400, 120}, 2, pmpTextures["roof"],
                                                      cOverlayRenderModule::FONT, 13,
@@ -39,14 +38,13 @@ protected:
                                                       glm::vec3(1, 1, 0));
         pmpOverlay["oPassword"]->SetPosition(glm::vec2(500, 500));
 
-        pmpOverlay["oSubmit"] = new cSimpleButton({250, 75}, pmpTextures["buttonTexture"]);
-        pmpOverlay["oSubmit"]->SetPosition({0, 100});
+        pmpOverlay["oSubmit"] = new cButton({250,75}, 0, pmpTextures["buttonTexture"], cOverlayRenderModule::FONT, 12,
+                                            glm::vec3(1, 1, 0));
+        ((cButton*)(pmpOverlay["oSubmit"]))->SetLabel("hallo");
+        pmpOverlay["oSubmit"]->Center();
+        pmpOverlay["oSubmit"]->AddY(100);
     }
-
-    void Center(cUIElement* poElem);
-    void CenterHorizontal(cUIElement* poElem);
-    void CenterVertical(cUIElement* poElem);
-
+    
 public:
     cMainMenu(iOverlayProvider* pOverlayProvider) : ppOverlayProvider(pOverlayProvider)
     {
@@ -73,24 +71,4 @@ public:
 void cMainMenu::HandleOnSubmit()
 {
     std::cout << "submit" << std::endl;
-}
-
-void cMainMenu::Center(cUIElement* poElem)
-{
-    CenterHorizontal(poElem);
-    CenterVertical(poElem);
-}
-
-void cMainMenu::CenterHorizontal(cUIElement* poElem)
-{
-    glm::vec2 oPosition = poElem->GetPosition();
-    glm::vec2 oSize = poElem->GetScale();
-    poElem->SetPosition({(((float)WIDTH - oSize.x) / 2), oPosition.y});
-}
-
-void cMainMenu::CenterVertical(cUIElement* poElem)
-{
-    glm::vec2 oPosition = poElem->GetPosition();
-    glm::vec2 oSize = poElem->GetScale();
-    poElem->SetPosition({oPosition.x, (((float)HEIGHT - oSize.y) / 2), });
 }
