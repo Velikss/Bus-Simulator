@@ -37,7 +37,7 @@ public:
     void HandleKey(uint uiKeyCode, uint uiAction) override;
     void HandleScroll(double dOffsetX, double dOffsetY) override;
     void HandleCharacter(char cCharacter) override;
-    void HandleMouseButton(uint uiButton, double dXPos, double dYPos) override;
+    void HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction) override;
 
     void SetFocussedElement(cFocussable* pUIElement) override;
     cFocussable* GetFocussedElement() override;
@@ -157,14 +157,14 @@ void cOverlayWindow::HandleCharacter(char cCharacter)
     }
 }
 
-void cOverlayWindow::HandleMouseButton(uint uiButton, double dXPos, double dYPos)
+void cOverlayWindow::HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction)
 {
     for (auto&[sName, pElement] : pmpOverlay)
     {
         iInputHandler* pInputHandler = dynamic_cast<iInputHandler*>(pElement);
         if (pInputHandler != nullptr)
         {
-            pInputHandler->HandleMouseButton(uiButton, dXPos, dYPos);
+            pInputHandler->HandleMouseButton(uiButton, dXPos, dYPos, 0);
         }
     }
 }

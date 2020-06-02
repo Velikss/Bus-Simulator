@@ -84,7 +84,7 @@ public:
     void HandleScroll(double dOffsetX, double dOffsetY) override;
     void HandleCharacter(char cCharacter) override;
     cCommandBuffer** GetCommandBuffers() override;
-    void HandleMouseButton(uint uiButton, double dXPos, double dYPos) override;
+    void HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction) override;
 
 protected:
     virtual void LoadMRTShaders(std::vector<string>& shaders) = 0;
@@ -460,15 +460,15 @@ void cEngine::HandleCharacter(char cCharacter)
     }
 }
 
-void cEngine::HandleMouseButton(uint uiButton, double dXPos, double dYPos)
+void cEngine::HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction)
 {
     if (ppActiveOverlayWindow != nullptr && ppActiveOverlayWindow->ShouldHandleInput())
     {
-        ppActiveOverlayWindow->HandleMouseButton(uiButton, dXPos, dYPos);
+        ppActiveOverlayWindow->HandleMouseButton(uiButton, dXPos, dYPos, iAction);
     }
     else if (ppScene != nullptr)
     {
-        ppScene->HandleMouseButton(uiButton, dXPos, dYPos);
+        ppScene->HandleMouseButton(uiButton, dXPos, dYPos, iAction);
     }
 }
 

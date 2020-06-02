@@ -66,7 +66,7 @@ public:
     void HandleCharacter(char cCharacter) override;
 
     virtual void OnInputDisable();
-    void HandleMouseButton(uint uiButton, double dXPos, double dYPos) override;
+    void HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction) override;
 
 protected:
     void Quit();
@@ -225,7 +225,7 @@ void cScene::HandleCharacter(char cCharacter)
 
 }
 
-void cScene::HandleMouseButton(uint uiButton, double dXPos, double dYPos)
+void cScene::HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction)
 {
 
 }

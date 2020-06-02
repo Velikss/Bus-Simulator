@@ -74,7 +74,7 @@ void cGameLoop::RemoveTask(iTickTask* pTask)
 {
     for (auto it = papTasks.begin(); it < papTasks.end(); it++)
     {
-        if (*it.base() == pTask)
+        if (*it == pTask)
         {
             papTasks.erase(it);
             break;

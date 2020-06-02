@@ -119,7 +119,7 @@ void cUIManager::Update()
             {
                 for (uint uiIndex = 0; uiIndex < tElement.patBuffers.size(); uiIndex++)
                 {
-                    tElement.ppElement->FillMemory(tElement.papMappedMemory[uiIndex], uiIndex);
+                    tElement.ppElement->InitializeMemory(tElement.papMappedMemory[uiIndex], uiIndex);
                 }
                 tElement.ppElement->Validate();
                 uiCount++;

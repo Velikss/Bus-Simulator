@@ -23,7 +23,7 @@ public:
     cTextBoxElement(tElementInfo tSize, uint uiPadding, cTexture* pTexture,
                     cFont* ppFont, float fFontSize, glm::vec3 tTextColor);
 
-    void HandleMouseButton(uint uiButton, double dXPos, double dYPos) override;
+    void HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction) override;
     void HandleCharacter(char cCharacter) override;
     void HandleKey(uint uiKeyCode, uint uiAction) override;
 
@@ -53,7 +53,7 @@ cTextBoxElement::cTextBoxElement(tElementInfo tSize, uint uiPadding, cTexture* p
     papChildren.push_back(ppTextElement);
 }
 
-void cTextBoxElement::HandleMouseButton(uint uiButton, double dXPos, double dYPos)
+void cTextBoxElement::HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction)
 {
     glm::vec2 tClick = glm::inverse(cUIElement::GetRawMatrix()) * glm::vec4(dXPos, dYPos, 0, 1);
     if (ppClickable->DidClick(tClick))

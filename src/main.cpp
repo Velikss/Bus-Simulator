@@ -3,6 +3,7 @@
 #include <Engine.hpp>
 #include <scenes/BusWorldScene.hpp>
 #include <overlay/TestOverlay.hpp>
+#include <overlay/MainMenu.hpp>
 
 class cApplication : public cEngine
 {
@@ -37,7 +38,7 @@ protected:
 
     void LoadOverlayWindows(std::map<string, cOverlayWindow*>& mOverlayWindows) override
     {
-        mOverlayWindows["test"] = new cTestOverlay(this);
+        mOverlayWindows["MainMenu"] = new cMainMenu(this);
     }
 };
 

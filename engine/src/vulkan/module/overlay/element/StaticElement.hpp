@@ -26,7 +26,7 @@ public:
 
     void OnLoadVertices() override;
     VkDeviceSize GetMemorySize(uint uiIndex) override;
-    void FillMemory(void* pMemory, uint uiIndex) override;
+    void InitializeMemory(void* pMemory, uint uiIndex) override;
     uint GetVertexCount(uint uiIndex) override;
     VkImageView& GetImageView(uint uiIndex) override;
     VkSampler& GetImageSampler(uint uiIndex) override;
@@ -64,7 +64,7 @@ VkDeviceSize cStaticElement::GetMemorySize(uint uiIndex)
     return patVertices.size() * sizeof(tVertex2D);
 }
 
-void cStaticElement::FillMemory(void* pMemory, uint uiIndex)
+void cStaticElement::InitializeMemory(void* pMemory, uint uiIndex)
 {
     memcpy(pMemory, patVertices.data(), GetMemorySize(uiIndex));
 }

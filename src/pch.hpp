@@ -58,6 +58,14 @@ bool Is64Bit()
 #endif
 }
 
+#ifndef MIN
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#endif
+
+#ifndef MAX
+#define MAX(a,b) (((a)>(b))?(a):(b))
+#endif
+
 void sleep(int sleepMs)
 {
 #if defined(LINUX)

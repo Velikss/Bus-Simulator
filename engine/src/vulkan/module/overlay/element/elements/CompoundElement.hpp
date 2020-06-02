@@ -19,7 +19,7 @@ public:
 
     void OnLoadVertices() override;
     VkDeviceSize GetMemorySize(uint uiIndex);
-    void FillMemory(void* pMemory, uint uiIndex) override;
+    void InitializeMemory(void* pMemory, uint uiIndex) override;
     uint GetVertexCount(uint uiIndex) override;
 
     VkImageView& GetImageView(uint uiIndex);
@@ -57,9 +57,9 @@ VkDeviceSize cCompoundElement::GetMemorySize(uint uiIndex)
     return papChildren[uiIndex]->GetMemorySize(0);
 }
 
-void cCompoundElement::FillMemory(void* pMemory, uint uiIndex)
+void cCompoundElement::InitializeMemory(void* pMemory, uint uiIndex)
 {
-    papChildren[uiIndex]->FillMemory(pMemory, 0);
+    papChildren[uiIndex]->InitializeMemory(pMemory, 0);
 }
 
 uint cCompoundElement::GetVertexCount(uint uiIndex)

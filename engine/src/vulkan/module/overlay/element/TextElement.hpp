@@ -20,7 +20,7 @@ private:
 public:
     void OnLoadVertices() override;
     VkDeviceSize GetMemorySize(uint uiIndex) override;
-    void FillMemory(void* pMemory, uint uiIndex) override;
+    void InitializeMemory(void* pMemory, uint uiIndex) override;
     uint GetVertexCount(uint uiIndex) override;
 
     VkImageView& GetImageView(uint uiIndex) override;
@@ -47,7 +47,7 @@ VkDeviceSize cTextElement::GetMemorySize(uint uiIndex)
     return MAX_CHARACTER_COUNT * 4 * sizeof(tVertex2D);
 }
 
-void cTextElement::FillMemory(void* pMemory, uint uiIndex)
+void cTextElement::InitializeMemory(void* pMemory, uint uiIndex)
 {
     const uint firstChar = STB_FONT_arial_50_usascii_FIRST_CHAR;
 

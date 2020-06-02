@@ -26,7 +26,7 @@ public:
 
     virtual void OnLoadVertices() = 0;
     virtual VkDeviceSize GetMemorySize(uint uiIndex) = 0;
-    virtual void FillMemory(void* pMemory, uint uiIndex) = 0;
+    virtual void InitializeMemory(void* pMemory, uint uiIndex) = 0;
     virtual uint GetVertexCount(uint uiIndex) = 0;
 
     virtual VkImageView& GetImageView(uint uiIndex) = 0;
@@ -38,8 +38,12 @@ public:
     void SetRotation(const glm::vec2 poRotation);
     void SetPosition(const glm::vec2 poPosition);
     void SetScale(const glm::vec2 poScale);
+    void AddX(float fAddX);
+    void AddY(float fAddY);
     void RotateLeft(float fAngleDiff);
     void RotateRight(float fAngleDiff);
+    glm::vec2 GetPosition();
+    glm::vec2 GetScale();
 
     virtual glm::mat4 GetMatrix(cWindow* pWindow, uint uiIndex);
     virtual glm::mat4 GetRawMatrix();
@@ -130,4 +134,24 @@ glm::mat4 cUIElement::GetRawMatrix()
     }
 
     return oModel;
+}
+
+glm::vec2 cUIElement::GetPosition()
+{
+    return ptPosition;
+}
+
+glm::vec2 cUIElement::GetScale()
+{
+    return ptScale;
+}
+
+void cUIElement::AddX(float fAddX)
+{
+    ptScale.x += fAddX;
+}
+
+void cUIElement::AddY(float fAddY)
+{
+    ptScale.y += fAddY;
 }

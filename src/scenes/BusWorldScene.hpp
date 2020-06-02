@@ -145,7 +145,7 @@ void cBusWorldScene::Update()
         poCamera->MoveDown();
 
     if (paKeys[GLFW_KEY_ESCAPE])
-        ppOverlayProvider->ActivateOverlayWindow("test");
+        ppOverlayProvider->ActivateOverlayWindow("MainMenu");
 
     dynamic_cast<cBus *>(pmpObjects["bus"])->Move();
 

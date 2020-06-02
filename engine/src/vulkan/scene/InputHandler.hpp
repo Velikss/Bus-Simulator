@@ -9,7 +9,7 @@ public:
     virtual void HandleKey(uint uiKeyCode, uint uiAction);
     virtual void HandleScroll(double dOffsetX, double dOffsetY);
     virtual void HandleCharacter(char cCharacter);
-    virtual void HandleMouseButton(uint uiButton, double dXPos, double dYPos);
+    virtual void HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction);
 };
 
 void iInputHandler::HandleMouse(uint uiDeltaX, uint uiDeltaY)
@@ -32,7 +32,7 @@ void iInputHandler::HandleCharacter(char cCharacter)
 
 }
 
-void iInputHandler::HandleMouseButton(uint uiButton, double dXPos, double dYPos)
+void iInputHandler::HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction)
 {
 
 }

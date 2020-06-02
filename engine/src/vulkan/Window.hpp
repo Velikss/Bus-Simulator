@@ -278,5 +278,5 @@ void cWindow::mouseButtonCallback(GLFWwindow* pWindow, int iButton, int iAction,
     double dXPos, dYPos;
     glfwGetCursorPos(pWindow, &dXPos, &dYPos);
 
-    poInstance->ppInputHandler->HandleMouseButton((uint) iButton, dXPos, dYPos);
+    poInstance->ppInputHandler->HandleMouseButton((uint) iButton, dXPos, dYPos, iAction);
 }
