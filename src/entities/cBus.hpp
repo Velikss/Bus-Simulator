@@ -20,6 +20,11 @@ const float C_COLL_Z1 = -7.0f;
 const float C_COLL_X2 = 1.6f;
 const float C_COLL_Z2 = 2.7f;
 
+enum class Direction
+{
+    Left, Right
+};
+
 class cBus : public cBaseObject, IPassengerHolder
 {
 public:
@@ -33,9 +38,10 @@ public:
     int piPingTimeout = C_UNDEFINED;
     int piBusId = C_UNDEFINED;
 
-    cEntityGroup* entityGroup;
+    cEntityGroup *entityGroup;
 
-    cBus(cMesh* mesh) : cBaseObject(mesh, cCollider::RectangleCollider(C_COLL_X1, C_COLL_Z1, C_COLL_X2, C_COLL_Z2), false)
+    cBus(cMesh *mesh) : cBaseObject(mesh, cCollider::RectangleCollider(C_COLL_X1, C_COLL_Z1, C_COLL_X2, C_COLL_Z2),
+                                    false)
     {
     }
 
@@ -45,7 +51,7 @@ public:
 
     void Move();
 
-    void Steer(std::string sDirection);
+    void Steer(Direction direction);
 
     void Accelerate();
 
@@ -74,8 +80,7 @@ void cBus::Move()
         if (pfSteeringModifier > 0)
         {
             steerCollision = !this->RotateLeft(pfSteeringModifier / 10);
-        }
-        else
+        } else
         {
             steerCollision = !this->RotateRight(pfSteeringModifier * -1 / 10);
         }
@@ -121,12 +126,12 @@ void cBus::IdleAcceleration()
     }
 }
 
-void cBus::Steer(std::string sDirection)
+void cBus::Steer(Direction direction)
 {
     // Block steering while stopped
     if (pfCurrentSpeed == 0) return;
 
-    if (sDirection == "left")
+    if (direction == Direction::Left)
     {
         // If the steering modifier is still set to right (lower than 0), reset the modifier to 0.
         if (pfSteeringModifier < 0)
@@ -139,7 +144,7 @@ void cBus::Steer(std::string sDirection)
             pfSteeringModifier += 0.2f;
         }
     }
-    if (sDirection == "right")
+    if (direction == Direction::Right)
     {
         // If the steering modifier is still set to left (higher than 0), reset the modifier to 0.
         if (pfSteeringModifier > 0)
