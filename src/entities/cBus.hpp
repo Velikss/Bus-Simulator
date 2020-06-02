@@ -41,6 +41,8 @@ public:
     cEntityGroup *entityGroup;
     cAudioHandler *ppAudioHandler;
     int piEngineChannel;
+    int piEngineAccelChannel;
+    int piEngineDecelChannel;
     int piIdleChannel;
 
     cBus(cAudioHandler *pAudioHandler, cMesh *mesh) : cBaseObject(mesh,
@@ -50,12 +52,12 @@ public:
     {
         ppAudioHandler = pAudioHandler;
 
-        ppAudioHandler->LoadSound("resources/audio/engine.wav", true, true, false);
-        piEngineChannel = ppAudioHandler->PlaySound("resources/audio/engine.wav", GetPosition(), 1.0f);
+        ppAudioHandler->LoadSound("resources/audio/VOLUME_engine.wav", true, true, false);
+        piEngineChannel = ppAudioHandler->PlaySound("resources/audio/VOLUME_engine.wav", GetPosition(), 0.1f);
         ppAudioHandler->SetPaused(piEngineChannel, true);
 
         ppAudioHandler->LoadSound("resources/audio/engine-idle.wav", true, true, false);
-        piIdleChannel = ppAudioHandler->PlaySound("resources/audio/engine-idle.wav", GetPosition(), 1.0f);
+        piIdleChannel = ppAudioHandler->PlaySound("resources/audio/engine-idle.wav", GetPosition(), 0.8f);
         ppAudioHandler->SetPaused(piIdleChannel, true);
     }
 
@@ -123,6 +125,7 @@ void cBus::Accelerate()
     {
         pfCurrentSpeed += CalculateAcceleration() / 2;
     }
+
 }
 
 void cBus::Decelerate()
@@ -197,14 +200,16 @@ float cBus::CalculateAcceleration()
     {
         if (pfMaxSpeed * fVal >= pfCurrentSpeed)
         {
-            return pfAccelerationModifier = 1.1f - fVal;
+            pfAccelerationModifier = 1.1f - fVal;
+            ppAudioHandler->SetChannelVolume(piEngineChannel, 1.1f - pfAccelerationModifier);
+            return pfAccelerationModifier;
         }
     }
     return 0.0;
 }
 
 /*
- * Function  to make the vehicle decelerate slower if it's going faster.
+ * Function to make the vehicle decelerate slower if it's going faster.
  */
 float cBus::CalculateDeceleration()
 {
@@ -212,7 +217,8 @@ float cBus::CalculateDeceleration()
     {
         if (pfMinSpeed * fVal <= pfCurrentSpeed)
         {
-            return pfAccelerationModifier = 1.1f - fVal;
+            pfAccelerationModifier = 1.1f - fVal;
+            return pfAccelerationModifier;
         }
     }
     return 0.0;

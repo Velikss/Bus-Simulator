@@ -183,8 +183,6 @@ void cBusWorldScene::HandleKey(uint uiKeyCode, uint uiAction)
 
 void cBusWorldScene::HandleScroll(double dOffsetX, double dOffsetY)
 {
-    ppAudioHandler->PlaySound("resources/beep.wav", glm::vec3(0, 5, 0), 0.11f);
-
     poCamera->LookMouseWheelDiff((float) dOffsetX, (float) dOffsetY);
 }
 

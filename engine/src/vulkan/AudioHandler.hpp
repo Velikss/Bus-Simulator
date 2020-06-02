@@ -1,6 +1,6 @@
 #pragma once
 
-#define MAX_AUDIO_CHANNELS 32
+#define MAX_AUDIO_CHANNELS 64
 
 #include <pch.hpp>
 #include <fmod.hpp>
