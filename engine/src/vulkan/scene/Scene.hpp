@@ -68,6 +68,7 @@ public:
     virtual void OnInputDisable();
     void HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction) override;
 
+    void AfterLoad();
 protected:
     void Quit();
 };
@@ -241,4 +242,8 @@ void cScene::OnInputDisable()
     {
         paKeys[uiIndex] = false;
     }
+}
+
+void cScene::AfterLoad()
+{
 }

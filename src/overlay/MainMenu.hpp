@@ -38,14 +38,26 @@ protected:
                                                       glm::vec3(1, 1, 0));
         pmpOverlay["oPassword"]->SetPosition(glm::vec2(500, 500));
 
+        cButton* oExit = new cButton({40, 40}, 0, pmpTextures["buttonTexture"],
+                                       cOverlayRenderModule::FONT, 5,
+                                       glm::vec3(0, 0, 0));
+        oExit->SetLabel("X");
+        oExit->CenterHorizontal();
+        oExit->AddX(780);
+        oExit->AddY(100);
+        oExit->ppaCallbacks.push_back([&] (cButton* poSender) -> void {
+            exit(0);
+        });
+        pmpOverlay["oExit"] = oExit;
+
         cButton* oSubmit = new cButton({250, 75}, 0, pmpTextures["buttonTexture"],
-                                            cOverlayRenderModule::FONT, 12,
-                                            glm::vec3(1, 1, 0));
+                                       cOverlayRenderModule::FONT, 12,
+                                       glm::vec3(1, 1, 0));
         oSubmit->SetLabel("hallo");
         oSubmit->Center();
         oSubmit->AddY(100);
         oSubmit->ppaCallbacks.push_back([&] (cButton* poSender) -> void {
-            std::cout << "login..." << std::endl;
+            HandleOnSubmit();
         });
         pmpOverlay["oSubmit"] = oSubmit;
     }

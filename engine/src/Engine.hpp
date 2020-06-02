@@ -324,6 +324,7 @@ void cEngine::MainLoop(void)
             ppAudioHandler->SetCamera(ppScene->GetCameraRef());
 
             ENGINE_LOG("Scene loaded, adding tick task...");
+            ppScene->AfterLoad();
             ppGameLoop->AddTask(ppScene);
 
             pbInitialized = true;

@@ -9,7 +9,7 @@
 class cOverlayWindow : public iInputHandler, public iTickTask, public iFocusHandler
 {
 public:
-    std::map<string, cUIElement*> pmpOverlay;
+    std::unordered_map<string, cUIElement*> pmpOverlay;
 
 protected:
     std::map<string, cTexture*> pmpTextures;

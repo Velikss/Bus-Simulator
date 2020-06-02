@@ -2,6 +2,7 @@
 #include <iostream>
 #include <Engine.hpp>
 #include <scenes/BusWorldScene.hpp>
+#include <scenes/BlankScene.hpp>
 #include <overlay/TestOverlay.hpp>
 #include <overlay/MainMenu.hpp>
 
