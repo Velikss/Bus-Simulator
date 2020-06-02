@@ -25,7 +25,12 @@ enum class Direction
     Left, Right
 };
 
-class cBus : public cBaseObject, IPassengerHolder
+enum class cState
+{
+    eDriving, eLoading, eUnloading, eStill
+};
+
+class cBus : public cBaseObject, public IPassengerHolder
 {
 public:
     float pfMaxSpeed = C_MAX_SPEED;
@@ -38,10 +43,11 @@ public:
     int piPingTimeout = C_UNDEFINED;
     int piBusId = C_UNDEFINED;
 
-    cEntityGroup *entityGroup;
+    cEntityGroup *poEntityGroup;
     cAudioHandler *ppAudioHandler;
     int piEngineChannel;
     int piIdleChannel;
+    cState oState;
 
     cBus(cAudioHandler *pAudioHandler, cMesh *mesh) : cBaseObject(mesh,
                                                                   cCollider::RectangleCollider(C_COLL_X1, C_COLL_Z1,
@@ -57,6 +63,8 @@ public:
         ppAudioHandler->LoadSound("resources/audio/engine-idle.wav", true, true, false);
         piIdleChannel = ppAudioHandler->PlaySound("resources/audio/engine-idle.wav", GetPosition(), 1.0f);
         ppAudioHandler->SetPaused(piIdleChannel, true);
+        poEntityGroup = new cEntityGroup;
+        oState = cState::eStill;
     }
 
     float CalculateAcceleration();
@@ -111,9 +119,9 @@ void cBus::Move()
 
     if (steerCollision || moveCollision)
     {
-        pfAccelerationModifier = 0;
-        pfSteeringModifier = 0;
-        pfCurrentSpeed = 0;
+        pfAccelerationModifier = 0.0f;
+        pfSteeringModifier = 0.0f;
+        pfCurrentSpeed = 0.0f;
     }
 }
 
@@ -230,10 +238,12 @@ glm::vec3 cBus::GetDoorPosition()
 
 bool cBus::AddPassenger(IPassenger *passenger)
 {
-    return false;
+    poEntityGroup->AddEntity(passenger);
+    return true;
 }
 
 bool cBus::RemovePassenger(IPassenger *passenger)
 {
-    return false;
+    poEntityGroup->RemoveEntity(passenger);
+    return true;
 }

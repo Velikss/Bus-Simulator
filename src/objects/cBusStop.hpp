@@ -20,6 +20,8 @@ public:
     bool AddPassenger(IPassenger *passenger) override;
 
     bool RemovePassenger(IPassenger *passenger) override;
+
+    void SetPassengerTarget(glm::vec3 oTargetPos);
 };
 
 bool cBusStop::AddPassenger(IPassenger *passenger)
@@ -32,4 +34,14 @@ bool cBusStop::RemovePassenger(IPassenger *passenger)
 {
     poEntityGroup->RemoveEntity(passenger);
     return true;
+}
+
+void cBusStop::SetPassengerTarget(glm::vec3 oTargetPos)
+{
+    std::vector<IEntity *> *entities;
+    poEntityGroup->GetEntityList(&entities);
+    for (int i = 0; i < poEntityGroup->GetEntities()->size(); i++)
+    {
+        (*entities)[i]->SetTarget(oTargetPos);
+    }
 }

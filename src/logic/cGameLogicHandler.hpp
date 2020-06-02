@@ -6,6 +6,8 @@
 #include <entities/cBus.hpp>
 #include <logic/cMissionHandler.hpp>
 
+const float C_PASSENGER_ENTER_DISTANCE = 1.5f;
+
 class cGameLogicHandler
 {
 private:
@@ -14,23 +16,122 @@ private:
     cScene* ppScene;
     cMissionHandler* ppMission;
     cBus* ppBus;
+    cBusStop* poCurrentBusStop = nullptr;
+    std::map<string, cBaseObject*> pmpObjects;
 public:
     cGameLogicHandler(cScene* pScene, cBus* pBus, cMissionHandler* pMission = nullptr)
     {
         ppScene = pScene;
         ppBus = pBus;
         ppMission = pMission;
+        pmpObjects = ppScene->GetObjects();
     }
 
     void Update();
     cMissionHandler* GetMissionHandler();
     bool SetMissionHandler(cMissionHandler* pMissionHandler);
     bool LoadMission();
+    void LoadPassengers(cBusStop* oBusStop);
+    void UnloadPassengers(cBusStop* oBusStop);
 };
 
 void cGameLogicHandler::Update()
 {
+    // update all passenger entities with their behaviours
     ppMission->Update();
+
+    if(ppBus->oState == cState::eStill)
+    {
+        if(ppBus->pfCurrentSpeed > 0.0f)
+            ppBus->oState = cState::eDriving;
+    }
+    if(ppBus->oState == cState::eDriving)
+    {
+        if(ppBus->pfCurrentSpeed == 0.0f)
+        {
+            cBusStop* oCurrentBusStop = ppMission->BusStopWithinRadius(ppBus->GetDoorPosition());
+            if(oCurrentBusStop == nullptr)
+            {
+                ppBus->oState = cState::eStill;
+            }
+            else
+            {
+                ppBus->oState = cState::eUnloading;
+                poCurrentBusStop = oCurrentBusStop;
+            }
+        }
+    }
+    if(ppBus->oState == cState::eUnloading)
+    {
+        UnloadPassengers(poCurrentBusStop);
+        ppBus->oState = cState::eLoading;
+    }
+    if(ppBus->oState == cState::eLoading)
+    {
+        LoadPassengers(poCurrentBusStop);
+        if(!ppMission->PassengersAvailable(poCurrentBusStop))
+            ppBus->oState = cState::eStill;
+    }
+}
+
+void cGameLogicHandler::LoadPassengers(cBusStop* oBusStop)
+{
+    glm::vec3 oBusDoorPos = ppBus->GetDoorPosition();
+
+    std::vector<IEntity *> *entities;
+    oBusStop->poEntityGroup->GetEntityList(&entities);
+
+    // Loop through all passengers currently in the bus stop
+    for (uint i = 0; i < oBusStop->poEntityGroup->GetEntities()->size(); i++)
+    {
+        cPassenger* oPassenger = dynamic_cast<cPassenger*>((*entities)[i]);
+
+        // Check if passenger is already at its destination
+        if(!oPassenger->DestinationEqual(oBusStop))
+        {
+            // move passenger to the bus door position
+            oPassenger->SetTarget(ppBus->GetDoorPosition());
+
+            glm::vec3 oPassengerPos = oPassenger->GetPosition();
+
+            //check if passenger is within a certain radius of the bus door
+            float distSquared = ((oBusDoorPos.x - oPassengerPos.x) * (oBusDoorPos.x - oPassengerPos.x)) +
+                                ((oBusDoorPos.z - oPassengerPos.z) * (oBusDoorPos.z - oPassengerPos.z));
+            if (distSquared < C_PASSENGER_ENTER_DISTANCE * C_PASSENGER_ENTER_DISTANCE && distSquared > 0)
+            {
+                oBusStop->RemovePassenger(oPassenger);
+                ppBus->AddPassenger(oPassenger);
+                oPassenger->pbVisible = false;
+                i--;
+            }
+        }
+    }
+}
+
+void cGameLogicHandler::UnloadPassengers(cBusStop *oBusStop)
+{
+    glm::vec3 oBusDoorPos = ppBus->GetDoorPosition();
+
+    std::vector<IEntity *> *entities;
+    ppBus->poEntityGroup->GetEntityList(&entities);
+
+    // Loop through all passengers currently in the bus
+    for (uint i = 0; i < ppBus->poEntityGroup->GetEntities()->size(); i++)
+    {
+        cPassenger* oPassenger = dynamic_cast<cPassenger*>((*entities)[i]);
+        // Check if tis busStop is this passengers destination
+        if(oPassenger->DestinationEqual(oBusStop))
+        {
+            oPassenger->SetPosition(ppBus->GetDoorPosition());
+            oPassenger->pbVisible = true;
+            // remove from bus entityGroup
+            ppBus->RemovePassenger(oPassenger);
+            // Add to bus stop entity group and set target to the bus stop position
+            oBusStop->AddPassenger(oPassenger);
+            oPassenger->SetTarget(oBusStop->GetPosition());
+            i--;
+        }
+    }
 }
 
 bool cGameLogicHandler::LoadMission()
@@ -39,7 +140,6 @@ bool cGameLogicHandler::LoadMission()
         return false;
 
     std::deque<cBusStop*> oRoute = ppMission->GetRouteQueue();
-    std::map<string, cBaseObject*> mpObjects = ppScene->GetObjects();
     int iRouteSize = oRoute.size();
 
     // TODO probably need to make a global stack
@@ -52,7 +152,6 @@ bool cGameLogicHandler::LoadMission()
     // Loop through all busStops on the route
     for(uint i = 0; i < iRouteSize; i++)
     {
-        // Todo how do we want to add behaviours to the missions, always the same behaviours?
         // Check if busStops already have this behaviour
         if(!oRoute[i]->poEntityGroup->BehaviourExists(ppScene->pcbSeperation))
             oRoute[i]->poEntityGroup->AddBehaviour(ppScene->pcbSeperation);
@@ -79,9 +178,9 @@ bool cGameLogicHandler::LoadMission()
                 string key = "passenger" + std::to_string(iKeyNum);
 
                 // Check if addPassenger was successful
-                if(oRoute[i]->AddPassenger(dynamic_cast<cPassenger*>(mpObjects[key])))
+                if(oRoute[i]->AddPassenger(dynamic_cast<cPassenger*>(pmpObjects[key])))
                 {
-                    cPassenger* oCurrentPassenger = dynamic_cast<cPassenger*>(mpObjects[key]);
+                    cPassenger* oCurrentPassenger = dynamic_cast<cPassenger*>(pmpObjects[key]);
                     glm::vec3 oBusStopRotation =  oRoute[i]->GetRotation();
 
                     // Check the rotation of the bus stop and place the passengers accordingly.
@@ -135,9 +234,8 @@ bool cGameLogicHandler::SetMissionHandler(cMissionHandler* pMissionHandler)
     // Unload the busStops from current missionHandler
     if(ppMission != nullptr)
         ppMission->UnloadMissionHandler();
+    // TODO remove any passengers that are still in the bus entityGroup
 
     ppMission = pMissionHandler;
-
-    // TODO check if already exists
     return true;
 }

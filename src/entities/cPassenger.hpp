@@ -15,6 +15,7 @@ public:
 
     void SetDestination(cBusStop* oBusStop);
     cBusStop GetDestination();
+    bool DestinationEqual(cBusStop* oBusStop);
 };
 
 void cPassenger::SetDestination(cBusStop *oBusStop)
@@ -25,4 +26,9 @@ void cPassenger::SetDestination(cBusStop *oBusStop)
 cBusStop cPassenger::GetDestination()
 {
     return *ppoDestination;
+}
+
+bool cPassenger::DestinationEqual(cBusStop* oBusStop)
+{
+    return (oBusStop == ppoDestination);
 }
