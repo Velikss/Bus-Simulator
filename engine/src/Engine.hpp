@@ -100,7 +100,9 @@ private:
     void InitVulkan(void);
     void MainLoop(void);
     void Cleanup(void);
+
     void RebuildPipeline(void);
+    void RebuildCommandBuffers(void);
 };
 
 cEngine::cEngine(const string& sAppName) : psAppName(sAppName)
@@ -376,6 +378,20 @@ void cEngine::MainLoop(void)
                 ppRequestedOverlayWindow = nullptr;
                 pbUpdateOverlayWindow = false;
             }
+
+#ifdef ENGINE_TIMING_DEBUG
+            steady_clock::time_point tStartTime = steady_clock::now();
+#endif
+            cMRTUniformHandler* pUniformHandler = ((cMRTUniformHandler*) ppMRTRenderModule->GetUniformHandler());
+            if (pUniformHandler->UpdateUniformTextures(ppScene))
+            {
+                RebuildCommandBuffers();
+
+#ifdef ENGINE_TIMING_DEBUG
+                ENGINE_LOG("texture change took " << duration_cast<microseconds>(steady_clock::now() - tStartTime).count()
+                                    << "us");
+#endif
+            }
         }
     }
 
@@ -507,6 +523,11 @@ void cEngine::RebuildPipeline(void)
         pUniformHandler->SetupUniformBuffers(ppTextureHandler, ppScene);
     }
 
+    RebuildCommandBuffers();
+}
+
+void cEngine::RebuildCommandBuffers(void)
+{
     // Record the commands for rendering to the command buffer.
     cMRTRenderRecorder mrt(ppMRTRenderModule->GetRenderPass(), ppSwapChain,
                            ppMRTRenderModule->GetRenderPipeline(),
