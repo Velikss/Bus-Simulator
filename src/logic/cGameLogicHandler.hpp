@@ -7,12 +7,11 @@
 #include <logic/cMissionHandler.hpp>
 
 const float C_PASSENGER_ENTER_DISTANCE = 1.5f;
+const int C_MAX_BUS_STOP_PASSENGERS = 3;
 
 class cGameLogicHandler
 {
 private:
-    const int iMaxBusStopPassengers = 3;
-
     cScene* ppScene;
     cMissionHandler* ppMission;
     cBus* ppBus;
@@ -170,7 +169,7 @@ bool cGameLogicHandler::LoadMission()
             break;
 
         // get random amount of passengers to spawn next to the busStop
-        int iPassengerAmount = rand() % (iMaxBusStopPassengers + 1); // rand between 0 and iMaxBusStopPassengers
+        int iPassengerAmount = rand() % (C_MAX_BUS_STOP_PASSENGERS + 1); // rand between 0 and iMaxBusStopPassengers
         // create the random amount of passengers
         for (int j = 0; j < iPassengerAmount; ++j)
         {
