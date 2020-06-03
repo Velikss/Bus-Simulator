@@ -1,0 +1,16 @@
+{
+    "GameServer": {
+      "IP": "0.0.0.0",
+      "PORT": "14001",
+      "SSO-IP": "127.0.0.1",
+      "SSO-PORT": "14000",
+      "ID": "d69849fd-78ad-4c68-a941-1aacc8bcccb1"
+    },
+    "SSOServer": {
+      "IP": "0.0.0.0",
+      "PORT": "14000",
+      "IDS": [
+        "d69849fd-78ad-4c68-a941-1aacc8bcccb1"
+      ]
+    }
+  }

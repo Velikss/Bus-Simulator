@@ -1,5 +1,7 @@
 #pragma once
 #include <pch.hpp>
+#include <server/src/Uri.hpp>
+#include <server/src/SSO/SsoHelper.hpp>
 #include <server/src/NetworkServer.hpp>
 #include <server/src/NetworkClient.hpp>
 
