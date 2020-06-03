@@ -35,13 +35,11 @@ public:
     void Stop()
     {
         pbShutdown = true;
-	    if(!pbDestroyed)
-        {
-            for (auto&[name, t] : paThreads)
-                if (t.joinable())
-                    t.join();
-            CloseConnection();
-        }
+        for (auto&[name, t] : paThreads)
+            if (t.joinable())
+                t.join();
+        CloseConnection();
+        paThreads.clear();
     }
 
 	~cNetworkServer()
