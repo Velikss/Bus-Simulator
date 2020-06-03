@@ -21,14 +21,12 @@ public:
 
 	void Disconnect()
     {
-	    if(!pbDestroyed)
-        {
-            pbShutdown = true;
-            for (auto&[name, t] : paThreads)
-                if (t.joinable())
-                    t.join();
-            CloseConnection();
-        }
+        pbShutdown = true;
+        for (auto&[name, t] : paThreads)
+            if (t.joinable())
+                t.join();
+        CloseConnection();
+        paThreads.clear();
     }
 
     ~cNetworkClient()
@@ -92,14 +90,14 @@ void cNetworkClient::OnRecieveLoop()
                 if (!OnRecieve(this))
                 {
                     CloseConnection();
-                    break;
+                    return;
                 }
         }
         else if (status == cNetworkAbstractions::cConnectionStatus::eDISCONNECTED)
         {
             if (OnDisconnect) OnDisconnect(this);
             CloseConnection();
-            break;
+            return;
         }
     }
 }
