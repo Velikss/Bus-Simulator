@@ -250,7 +250,7 @@ void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
             "resources/textures/streetUtil/trafficLight.png");
     pmpTextures["busStop"] = pTextureHandler->LoadTextureFromFile("resources/textures/streetUtil/busStop.png");
     // buses
-    pmpTextures["schoolBus"] = pTextureHandler->LoadTextureFromFile("resources/textures/buses/schoolBus.png");
+    pmpTextures["schoolBus"] = pTextureHandler->LoadTextureFromFile("resources/textures/buses/schoolBus-purple.png");
 
     // passengers
     pmpTextures["passenger"] = pTextureHandler->LoadTextureFromFile("resources/textures/penguin.png");
