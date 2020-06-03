@@ -54,6 +54,7 @@ public:
 
     void SetupUniformBuffers(cTextureHandler* pTextureHandler, cScene* pScene) override;
     void UpdateUniformBuffers(cScene* pScene) override;
+    bool UpdateUniformTextures(cScene* pScene);
 
     uint GetDescriptorSetLayoutCount(void) override;
     VkDescriptorSetLayout* GetDescriptorSetLayouts(void) override;
@@ -67,6 +68,8 @@ private:
     void CreateUniformBuffers(cScene* pScene);
     void CreateDescriptorPool();
     void CreateDescriptorSets(cTextureHandler* pTextureHandler, cScene* pScene);
+
+    void UpdateDescriptorTexture(uint uiIndex, cTexture* pTexture);
 
     void CopyToDeviceMemory(VkDeviceMemory& oDeviceMemory, void* pData, uint uiDataSize);
     void Cleanup();
@@ -245,6 +248,30 @@ void cMRTUniformHandler::UpdateUniformBuffers(cScene* pScene)
 #endif
 }
 
+bool cMRTUniformHandler::UpdateUniformTextures(cScene* pScene)
+{
+    uint uiIndex = 0;
+    bool bIdle = false;
+    for (auto&[sName, pObject] : pScene->GetObjects())
+    {
+        if (pObject->GetMesh()->Invalidated())
+        {
+            if (!bIdle)
+            {
+                bIdle = true;
+                ppLogicalDevice->WaitUntilIdle();
+            }
+
+            cMesh* pMesh = pObject->GetMesh();
+            UpdateDescriptorTexture(uiIndex, pMesh->GetTexture());
+            pMesh->Validate();
+        }
+        uiIndex++;
+    }
+
+    return bIdle;
+}
+
 void cMRTUniformHandler::CopyToDeviceMemory(VkDeviceMemory& oDeviceMemory, void* pData, uint uiDataSize)
 {
     void* pMappedMemory;
@@ -352,6 +379,8 @@ void cMRTUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, 
         ppLogicalDevice->UpdateDescriptorSets((uint) atDescriptorWrites.size(), atDescriptorWrites.data(),
                                               0, nullptr);
 
+        oObject.second->GetMesh()->Validate();
+
         uiIndex++;
     }
 
@@ -382,6 +411,28 @@ void cMRTUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, 
     tCameraDescriptorWrite.pBufferInfo = &tCameraBufferInfo;
 
     ppLogicalDevice->UpdateDescriptorSets(1, &tCameraDescriptorWrite,
+                                          0, nullptr);
+}
+
+void cMRTUniformHandler::UpdateDescriptorTexture(uint uiIndex, cTexture* pTexture)
+{
+    assert(pTexture != nullptr);
+
+    VkDescriptorImageInfo tImageInfo = {};
+    tImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    tImageInfo.imageView = pTexture->GetView();
+    tImageInfo.sampler = pTexture->GetSampler();
+
+    VkWriteDescriptorSet tDescriptorWrite = {};
+    tDescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    tDescriptorWrite.dstSet = poObjectDescriptorSets[uiIndex];
+    tDescriptorWrite.dstBinding = 1;
+    tDescriptorWrite.dstArrayElement = 0;
+    tDescriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    tDescriptorWrite.descriptorCount = 1;
+    tDescriptorWrite.pImageInfo = &tImageInfo;
+
+    ppLogicalDevice->UpdateDescriptorSets(1, &tDescriptorWrite,
                                           0, nullptr);
 }
 

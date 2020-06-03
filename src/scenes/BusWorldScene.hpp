@@ -170,6 +170,11 @@ void cBusWorldScene::HandleKey(uint uiKeyCode, uint uiAction)
         pGameLogicHandler->SetMissionHandler(pMissionHandler2);
         pGameLogicHandler->LoadMission();
     }
+    if (uiAction == GLFW_PRESS && uiKeyCode == GLFW_KEY_SEMICOLON)
+    {
+        ENGINE_LOG("texture change");
+        pmpObjects["skybox"]->GetMesh()->SetTexture(pmpTextures["grey"]);
+    }
 }
 
 void cBusWorldScene::HandleScroll(double dOffsetX, double dOffsetY)
