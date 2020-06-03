@@ -113,11 +113,6 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cEntity.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cEntityGroup.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBehaviourHandler.hpp
-        ${PROJECT_SOURCE_DIR}/src/multiplayer/SslHelper.hpp
-        ${PROJECT_SOURCE_DIR}/src/multiplayer/NetworkAbstractions.hpp
-        ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkConnection.hpp
-        ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkClient.hpp
-        ${PROJECT_SOURCE_DIR}/src/multiplayer/cMultiplayerHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/collision/Collider.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/collision/CollisionHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/collision/ColliderSet.hpp

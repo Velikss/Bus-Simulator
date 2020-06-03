@@ -27,6 +27,8 @@ public:
     void HandleCharacter(char cCharacter) override;
     void HandleKey(uint uiKeyCode, uint uiAction) override;
 
+    string GetValue();
+    void SetValue(const string& sValue);
 protected:
     virtual void UpdateText();
     uint GetTextWidth(uint uiStartChar);
@@ -99,4 +101,15 @@ void cTextBoxElement::UpdateText()
 uint cTextBoxElement::GetTextWidth(uint uiStartChar)
 {
     return cTextElement::GetTextWidth(psText.substr(uiStartChar), ppFont, pfFontSize) + 5;
+}
+
+string cTextBoxElement::GetValue()
+{
+    return psText;
+}
+
+void cTextBoxElement::SetValue(const string& sValue)
+{
+    psText = sValue;
+    UpdateText();
 }

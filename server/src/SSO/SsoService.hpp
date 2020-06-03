@@ -1,5 +1,7 @@
 #pragma once
 #include <pch.hpp>
+#include <server/src/Uri.hpp>
+#include <server/src/SSO/SsoHelper.hpp>
 #include <server/src/NetworkServer.hpp>
 #include <server/src/NetworkClient.hpp>
 
@@ -113,6 +115,8 @@ void cSSOService::_OnDisconnect(cNetworkConnection *pConnection)
 
 SSO_STATUS cSSOService::HandleSession(cNetworkConnection *pConnection, cRequest & oRequest)
 {
+    if (IsWhiteListed(pConnection)) return C_SSO_OK;
+
     using namespace cHttp;
     cResponse oClientAwnser;
     if (!cHttp::RecieveRequest(pConnection, oRequest)) return C_SSO_ERR;
