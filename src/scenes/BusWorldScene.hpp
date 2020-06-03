@@ -145,7 +145,7 @@ void cBusWorldScene::Update()
         poCamera->MoveDown();
 
     if (paKeys[GLFW_KEY_ESCAPE])
-        ppOverlayProvider->ActivateOverlayWindow("MainMenu");
+        ppOverlayProvider->ActivateOverlayWindow("BusMenu");
     if (paKeys[GLFW_KEY_HOME])
         ppOverlayProvider->ActivateOverlayWindow("Test");
 

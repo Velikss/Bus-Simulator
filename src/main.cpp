@@ -5,6 +5,7 @@
 #include <scenes/BlankScene.hpp>
 #include <overlay/TestOverlay.hpp>
 #include <overlay/MainMenu.hpp>
+#include <overlay/BusMenu.hpp>
 
 class cApplication : public cEngine
 {
@@ -41,6 +42,7 @@ protected:
     {
         mOverlayWindows["MainMenu"] = new cMainMenu(this);
         mOverlayWindows["Test"] = new cTestOverlay(this);
+        mOverlayWindows["BusMenu"] = new cBusMenu(this);
     }
 };
 
