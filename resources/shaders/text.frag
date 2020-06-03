@@ -12,7 +12,7 @@ void main(void)
     // If we're not rendering text, just sample the sprite
     if (text.a == 0)
     {
-        outFragColor = texture(samplerSprite, inUV);
+        outFragColor = vec4(texture(samplerSprite, inUV).rgb, 1);
     }
     else
     {

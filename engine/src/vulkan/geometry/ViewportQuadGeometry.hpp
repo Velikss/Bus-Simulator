@@ -26,16 +26,16 @@ void cViewportQuadGeometry::Init(cLogicalDevice* pLogicalDevice)
 cViewportQuadGeometry::cViewportQuadGeometry(cLogicalDevice* pLogicalDevice)
 {
     // Four vertices at the corners of the viewport
-    patVertices.push_back(CreateVertex(
+    patVertices.emplace_back(CreateVertex(
             {1.0f, 1.0f, 0.0f}, {1.0f, 1.0f} // 0: bottom right
     ));
-    patVertices.push_back(CreateVertex(
+    patVertices.emplace_back(CreateVertex(
             {-1.0f, 1.0f, 0.0f}, {0.0f, 1.0f} // 1: bottom left
     ));
-    patVertices.push_back(CreateVertex(
+    patVertices.emplace_back(CreateVertex(
             {-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f} // 2: top left
     ));
-    patVertices.push_back(CreateVertex(
+    patVertices.emplace_back(CreateVertex(
             {1.0f, -1.0f, 0.0f}, {1.0f, 0.0f} // 3: top right
     ));
 
@@ -47,8 +47,8 @@ cViewportQuadGeometry::cViewportQuadGeometry(cLogicalDevice* pLogicalDevice)
     }
 
     // Get the amount of vertices and indices
-    puiVertexCount = patVertices.size();
-    puiIndexCount = paiIndices.size();
+    puiVertexCount = (uint) patVertices.size();
+    puiIndexCount = (uint) paiIndices.size();
 
     // Setup the buffers on the device and copy the data there
     CopyToDevice(pLogicalDevice);

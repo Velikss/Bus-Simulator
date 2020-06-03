@@ -60,14 +60,14 @@ cGeometry* cGeometry::FromOBJFile(const char* sFilePath,
     cModelHelper::LoadModel(sFilePath, pGeometry->patVertices, pGeometry->paiIndices);
 
     // Get the amount of vertices and indices
-    pGeometry->puiVertexCount = pGeometry->patVertices.size();
-    pGeometry->puiIndexCount = pGeometry->paiIndices.size();
+    pGeometry->puiVertexCount = (uint) pGeometry->patVertices.size();
+    pGeometry->puiIndexCount = (uint) pGeometry->paiIndices.size();
 
     assert(pGeometry->puiVertexCount > 0);  // there should be vertices
     assert(pGeometry->puiIndexCount > 0);   // there should be indices
 
     // If a custom UV scale is specified, rescale the UV's
-    if (fXUVScale != 1.0f || fYUVScale != 1.0f)
+    if (fXUVScale != 1.0f || fYUVScale != 1.0f) //-V550
     {
         for (Vertex& tVertex : pGeometry->patVertices)
         {

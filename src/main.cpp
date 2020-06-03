@@ -2,6 +2,9 @@
 #include <iostream>
 #include <Engine.hpp>
 #include <scenes/BusWorldScene.hpp>
+#include <scenes/BlankScene.hpp>
+#include <overlay/TestOverlay.hpp>
+#include <overlay/MainMenu.hpp>
 
 class cApplication : public cEngine
 {
@@ -31,7 +34,13 @@ protected:
 
     void LoadScene(cScene** pScene) override
     {
-        *pScene = new cBusWorldScene();
+        *pScene = new cBusWorldScene(this);
+    }
+
+    void LoadOverlayWindows(std::map<string, cOverlayWindow*>& mOverlayWindows) override
+    {
+        mOverlayWindows["MainMenu"] = new cMainMenu(this);
+        mOverlayWindows["Test"] = new cTestOverlay(this);
     }
 };
 

@@ -69,6 +69,14 @@ void fSleep(int sleepMs)
 #endif
 }
 
+#ifndef MIN
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#endif
+
+#ifndef MAX
+#define MAX(a,b) (((a)>(b))?(a):(b))
+#endif
+
 #define GLFW_INCLUDE_VULKAN                 // We want to use GLFW with Vulkan
 #define GLM_FORCE_RADIANS                   // Force GLM to use radians everywhere
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES  // Force GLM to use aligned types by default
@@ -132,6 +140,7 @@ int toInteger(string& str, long long& value)
     }
     catch (std::exception & ex)
     {
+        std::cout << ex.what() << std::endl;
         return -1;
     }
 }
@@ -256,8 +265,8 @@ std::string base64_decode(std::string const& encoded_string) {
     while (in_len-- && ( encoded_string[in_] != '=') && is_base64(encoded_string[in_])) { //-V108
         char_array_4[i++] = encoded_string[in_]; in_++; //-V108
         if (i ==4) { //-V112
-            for (i = 0; i <4; i++) //-V112
-                char_array_4[i] = base64_chars.find(char_array_4[i]);
+            for (i = 0; i < (unsigned char)4; i++) //-V112
+                char_array_4[i] = (unsigned char)base64_chars.find(char_array_4[i]);
 
             char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
             char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
@@ -273,8 +282,8 @@ std::string base64_decode(std::string const& encoded_string) {
         for (j = i; j <4; j++) //-V112
             char_array_4[j] = 0;
 
-        for (j = 0; j <4; j++) //-V112
-            char_array_4[j] = base64_chars.find(char_array_4[j]);
+        for (j = 0; j < (unsigned char)4; j++) //-V112
+            char_array_4[j] = (unsigned char)base64_chars.find(char_array_4[j]);
 
         char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
         char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);

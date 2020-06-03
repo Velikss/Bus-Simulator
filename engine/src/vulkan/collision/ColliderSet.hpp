@@ -10,10 +10,10 @@ class cColliderSet
 public:
     std::vector<cCollider*> papColliders;
 
-    bool Collides(cCollider* pCollider, glm::mat4& tColliderMatrix);
+    bool Collides(cCollider* pCollider, const glm::mat4& tColliderMatrix);
 };
 
-bool cColliderSet::Collides(cCollider* pCollider, glm::mat4& tColliderMatrix)
+bool cColliderSet::Collides(cCollider* pCollider, const glm::mat4& tColliderMatrix) //-V669
 {
     // The base distance is the size of the collider plus some padding
     uint uiBaseDist = pCollider->GetSize() + COLLIDER_PADDING;

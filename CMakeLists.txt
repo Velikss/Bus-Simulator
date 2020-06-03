@@ -16,12 +16,13 @@ add_subdirectory(engine)
 set(Headers
     ${PROJECT_SOURCE_DIR}/src/pch.hpp
         src/logic/TrafficLightController.hpp)
+        src/overlay/MainMenu.hpp engine/src/vulkan/module/overlay/element/elements/cButton.hpp engine/src/vulkan/module/overlay/element/elements/LabeledElement.hpp src/scenes/BlankScene.hpp src/overlay/BaseMenu.hpp)
 set(Sources
     ${PROJECT_SOURCE_DIR}/src/main.cpp
 )
 
 include_directories(${PROJECT_SOURCE_DIR}/src)
-add_executable(${This} ${Sources} ${Headers})
+add_executable(${This} ${Sources} ${Headers} src/overlay/TestOverlay.hpp)
 target_link_libraries(${This} engine)
 
 IF (WIN32)

@@ -42,7 +42,7 @@ void cMissionHandler::UnloadBusStop(cBusStop* oBusStop)
 {
     std::vector<IEntity *> *entities;
     oBusStop->poEntityGroup->GetEntityList(&entities);
-    for (int i = 0; i < oBusStop->poEntityGroup->GetEntities()->size(); i++)
+    for (int i = 0; i < oBusStop->poEntityGroup->GetEntities()->size(); i++) //-V104
     {
         (*entities)[i]->SetPosition(C_DEFAULT_PASSENGER_LOCATION);
         (*entities)[i]->pbVisible = false;
@@ -95,9 +95,9 @@ void cMissionHandler::SetPassengersDestinations()
 // Unload all the busStops on the route of the missionHandler
 void cMissionHandler::UnloadMissionHandler()
 {
-    for(uint i = 0; i < poRoute.size(); i++)
+    for(uint i = 0; i < poRoute.size(); i++) //-V104
     {
-        UnloadBusStop(poRoute[i]);
+        UnloadBusStop(poRoute[i]); //-V108
     }
 }
 

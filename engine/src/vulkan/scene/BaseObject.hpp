@@ -66,7 +66,7 @@ private:
                                              const glm::vec3& tRotation);
 };
 
-cBaseObject::cBaseObject(cMesh* pMesh, cCollider* pCollider, bool bStatic) : ppMesh(pMesh)
+cBaseObject::cBaseObject(cMesh* pMesh, cCollider* pCollider, bool bStatic) : ppMesh(pMesh) //-V730
 {
     pbStatic = bStatic;
     ppCollider = pCollider;

@@ -28,8 +28,6 @@ protected:
 
     std::map<string, cBaseObject*> pmpObjects;
 
-    std::map<string, cStaticElement*> pmpOverlay;
-
     bool paKeys[GLFW_KEY_LAST] = {false};
 
     cColliderSet* ppColliders = new cColliderSet();
@@ -41,8 +39,7 @@ private:
     std::vector<cLightObject*> papLightObjects;
 
 public:
-    glm::vec3 textColor = glm::vec3(0, 1, 0);
-    float pfAmbientLight = 0.2;
+    float pfAmbientLight = 0.2f;
 
     cBehaviourHandler* pcbSeperation = nullptr;
     cBehaviourHandler* pcbCohesion = nullptr;
@@ -56,10 +53,8 @@ public:
 
     uint GetObjectCount();
     std::map<string, cBaseObject*>& GetObjects();
-    std::map<string, cMesh*>& GetMeshes();
     std::vector<cBaseObject*>& GetMovableObjects();
     std::vector<cLightObject*>& GetLightObjects();
-    std::map<string, cStaticElement*> GetOverlay();
 
     Camera& GetCamera();
     Camera** GetCameraRef();
@@ -69,12 +64,17 @@ public:
     virtual void Load(cTextureHandler* pTextureHandler,
                       cLogicalDevice* pLogicalDevice,
                       cAudioHandler* pAudioHandler = nullptr);
+    void Unload();
 
     void HandleMouse(uint uiDeltaX, uint uiDeltaY) override;
     void HandleKey(uint uiKeyCode, uint uiAction) override;
     void HandleScroll(double dOffsetX, double dOffsetY) override;
     void HandleCharacter(char cCharacter) override;
 
+    virtual void OnInputDisable();
+    void HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction) override;
+
+    virtual void AfterLoad();
 protected:
     void Quit();
 };
@@ -86,36 +86,34 @@ cScene::cScene()
 cScene::~cScene()
 {
     delete ppColliders;
+    delete poCamera;
 
-    for (auto oObject : pmpObjects)
-    {
-        delete oObject.second;
-    }
+    Unload();
 
-    for (auto oMesh : pmpMeshes)
-    {
-        delete oMesh.second;
-    }
-
-    for (auto oGeometry : pmpGeometries)
-    {
-        delete oGeometry.second;
-    }
-
-    for (auto oTexture : pmpTextures)
-    {
-        delete oTexture.second;
-    }
-
-    for (auto oElement : pmpOverlay)
-    {
-        delete oElement.second;
-    }
+    ENGINE_LOG("Cleaned up scene");
 }
 
 void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler)
 {
     this->ppAudioHandler = pAudioHandler;
+
+    for (auto oTexture : pmpTextures)
+    {
+        assert(oTexture.second != nullptr);
+    }
+    ENGINE_LOG("Loaded " << pmpTextures.size() << " textures");
+
+    for (auto oGeometry : pmpGeometries)
+    {
+        assert(oGeometry.second != nullptr);
+    }
+    ENGINE_LOG("Loaded " << pmpGeometries.size() << " geometries");
+
+    for (auto oMesh : pmpMeshes)
+    {
+        assert(oMesh.second != nullptr);
+    }
+    ENGINE_LOG("Loaded " << pmpMeshes.size() << " meshes");
 
     for (auto oObject : pmpObjects)
     {
@@ -143,26 +141,30 @@ void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevi
 
         oObject.second->Setup(ppColliders);
     }
+    ENGINE_LOG("Loaded " << pmpObjects.size() << " objects, of which " << papMovableObjects.size()
+                         << " are movable and " << papLightObjects.size() << " are lights");
+}
+
+void cScene::Unload()
+{
+    for (auto oObject : pmpObjects)
+    {
+        delete oObject.second;
+    }
 
     for (auto oMesh : pmpMeshes)
     {
-        assert(oMesh.second != nullptr);
+        delete oMesh.second;
     }
 
     for (auto oGeometry : pmpGeometries)
     {
-        assert(oGeometry.second != nullptr);
+        delete oGeometry.second;
     }
 
     for (auto oTexture : pmpTextures)
     {
-        assert(oTexture.second != nullptr);
-    }
-
-    for (auto oElement : pmpOverlay)
-    {
-        assert(oElement.second != nullptr);
-        oElement.second->LoadVertices();
+        delete oTexture.second;
     }
 }
 
@@ -178,17 +180,12 @@ void cScene::Update()
 
 uint cScene::GetObjectCount()
 {
-    return pmpObjects.size();
+    return (uint) pmpObjects.size();
 }
 
 std::map<string, cBaseObject*>& cScene::GetObjects()
 {
     return pmpObjects;
-}
-
-std::map<string, cMesh*>& cScene::GetMeshes()
-{
-    return pmpMeshes;
 }
 
 std::vector<cBaseObject*>& cScene::GetMovableObjects()
@@ -199,11 +196,6 @@ std::vector<cBaseObject*>& cScene::GetMovableObjects()
 std::vector<cLightObject*>& cScene::GetLightObjects()
 {
     return papLightObjects;
-}
-
-std::map<string, cStaticElement*> cScene::GetOverlay()
-{
-    return pmpOverlay;
 }
 
 Camera& cScene::GetCamera()
@@ -245,7 +237,24 @@ void cScene::HandleCharacter(char cCharacter)
 
 }
 
-Camera **cScene::GetCameraRef()
+void cScene::HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction)
+{
+
+}
+
+Camera** cScene::GetCameraRef()
 {
     return &poCamera;
+}
+
+void cScene::OnInputDisable()
+{
+    for (uint uiIndex = 0; uiIndex < sizeof(paKeys) / sizeof(paKeys[0]); uiIndex++)
+    {
+        paKeys[uiIndex] = false;
+    }
+}
+
+void cScene::AfterLoad()
+{
 }

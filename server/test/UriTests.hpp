@@ -107,8 +107,8 @@ TEST(UriTests, ParseFromString)
                 bool bSameSize = tUri.asPath.size() == oUri.pasPath.size();
                 EXPECT_TRUE(bSameSize);
                 if (bSameSize)
-                    for (uint iCounter = 0; iCounter < tUri.asPath.size(); iCounter++)
-                        EXPECT_EQ(oUri.pasPath[iCounter], tUri.asPath[iCounter]);
+                    for (uint iCounter = 0; iCounter < tUri.asPath.size(); iCounter++) //-V104
+                        EXPECT_EQ(oUri.pasPath[iCounter], tUri.asPath[iCounter]); //-V108
             }
             if (tUri.asParameters.size() > 0)
                 for (auto& [key, value] : tUri.asParameters)

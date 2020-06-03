@@ -33,10 +33,18 @@ private:
     cNetworkConnection::tNetworkInitializationSettings tConnectNetworkSettings;
     cMultiplayerHandler *poMultiplayerHandler = nullptr;
 
+    iOverlayProvider* ppOverlayProvider;
+
 public:
+    cBusWorldScene(iOverlayProvider* pOverlayProvider)
+    {
+        ppOverlayProvider = pOverlayProvider;
+    }
+
     ~cBusWorldScene()
     {
-        if (poMultiplayerHandler) delete poMultiplayerHandler;
+        if (poMultiplayerHandler) delete poMultiplayerHandler; //-V809
+        delete pMissionHandler2;
     }
 
     void LoadTextures(cTextureHandler *pTextureHandler);
@@ -46,8 +54,6 @@ public:
     void LoadMeshes();
 
     void LoadObjects(cAudioHandler* pAudioHandler);
-
-    void LoadOverlay(cLogicalDevice* pLogicalDevice);
 
     void LoadMissions();
 
@@ -84,10 +90,10 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
     poMultiplayerHandler = new cMultiplayerHandler(&tConnectNetworkSettings, this);
     if (poMultiplayerHandler->Start())
     {
-        std::cout << "multiplayer connected." << std::endl;
+        ENGINE_LOG("Multiplayer connected");
     } else
     {
-        std::cout << "multiplayer failed to connect." << std::endl;
+        ENGINE_WARN("Multiplayer failed to connect");
         delete poMultiplayerHandler;
         poMultiplayerHandler = nullptr;
     }
@@ -110,8 +116,8 @@ void cBusWorldScene::Update()
     entityGroup.UpdateEntities();
 
     if (paKeys[GLFW_KEY_Q])
-        dynamic_cast<cEntity *>(pmpObjects["entity3"])->SetTarget(
-                dynamic_cast<cBus *>(pmpObjects["bus"])->GetDoorPosition());
+        dynamic_cast<cEntity *>(pmpObjects["entity3"])->SetTarget( //-V522
+                dynamic_cast<cBus *>(pmpObjects["bus"])->GetDoorPosition()); //-V522
     if (paKeys[GLFW_KEY_E])
     {
         for (auto &entity : *entityGroup.GetEntities())
@@ -120,7 +126,7 @@ void cBusWorldScene::Update()
         }
     }
     if (paKeys[GLFW_KEY_T])
-        dynamic_cast<cEntity *>(pmpObjects["entity"])->SetPosition(glm::vec3(5, 5, 5));
+        dynamic_cast<cEntity *>(pmpObjects["entity"])->SetPosition(glm::vec3(5, 5, 5)); //-V522
     if (paKeys[GLFW_KEY_W])
         BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Accelerate() : poCamera->Forward();
     if (paKeys[GLFW_KEY_S])
@@ -156,7 +162,9 @@ void cBusWorldScene::Update()
         poCamera->MoveDown();
 
     if (paKeys[GLFW_KEY_ESCAPE])
-        Quit();
+        ppOverlayProvider->ActivateOverlayWindow("MainMenu");
+    if (paKeys[GLFW_KEY_HOME])
+        ppOverlayProvider->ActivateOverlayWindow("Test");
 
     dynamic_cast<cBus *>(pmpObjects["bus"])->Move();
 
@@ -178,6 +186,11 @@ void cBusWorldScene::HandleKey(uint uiKeyCode, uint uiAction)
     {
         pGameLogicHandler->SetMissionHandler(pMissionHandler2);
         pGameLogicHandler->LoadMission();
+    }
+    if (uiAction == GLFW_PRESS && uiKeyCode == GLFW_KEY_SEMICOLON)
+    {
+        ENGINE_LOG("texture change");
+        pmpObjects["skybox"]->GetMesh()->SetTexture(pmpTextures["grey"]);
     }
 
     // Horn
@@ -945,18 +958,6 @@ void cBusWorldScene::LoadObjects(cAudioHandler *pAudioHandler)
         string key = "multiplayer_bus_" + std::to_string(i);
         pmpObjects[key] = new cBus(pAudioHandler, pmpMeshes["bus"]);
         pmpObjects[key]->SetScale(glm::vec3(0));
-        dynamic_cast<cBus *>(pmpObjects[key])->piBusId = i;
+        dynamic_cast<cBus *>(pmpObjects[key])->piBusId = i; //-V522
     }
-}
-
-void cBusWorldScene::LoadOverlay(cLogicalDevice* pLogicalDevice)
-{
-    pmpOverlay["test"] = new cStaticElement({300, 300}, pmpTextures["grey"], pLogicalDevice);
-    pmpOverlay["test"]->SetPosition(glm::vec2(500, 500));
-    pmpOverlay["test1"] = new cStaticElement({100, 100}, pmpTextures["roof"], pLogicalDevice);
-    pmpOverlay["test1"]->SetPosition(glm::vec2(500, 800));
-
-    pmpOverlay["test2"] = new cTextElement({100, 100}, nullptr, pLogicalDevice);
-    pmpOverlay["test2"]->SetPosition(glm::vec2(500, 500));
-    dynamic_cast<cTextElement*>(pmpOverlay["test2"])->SetFont(20, cOverlayRenderModule::FONT, glm::vec3(1, 1, 0));
 }

@@ -21,7 +21,7 @@ private:
     const bool pbENABLE_VALIDATION_LAYERS = true;
 #endif
 
-    VkInstance poInstance;
+    VkInstance poInstance = VK_NULL_HANDLE;
 
 public:
     cVulkanInstance(void);
@@ -81,12 +81,12 @@ cVulkanInstance::cVulkanInstance(void)
     // If validation layers are enabled, add them to the create info
     if (pbENABLE_VALIDATION_LAYERS)
     {
-        tCreateInfo.enabledLayerCount = pasValidationLayers.size();
+        tCreateInfo.enabledLayerCount = (uint) pasValidationLayers.size();
         tCreateInfo.ppEnabledLayerNames = pasValidationLayers.data();
     }
     else
     {
-        tCreateInfo.enabledLayerCount = 0;
+        tCreateInfo.enabledLayerCount = 0; //-V1048
     }
 
     // Create the Vulkan instance, and throw an error on failure

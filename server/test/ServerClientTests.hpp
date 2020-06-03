@@ -62,7 +62,7 @@ TEST(ServerClientTests, Connect)
     pPlainClient = std::make_shared<cNetworkClient>(pPlainClientSettings.get());
     EXPECT_TRUE(pPlainClient->Connect());
     string sGreeting = "hallo";
-    pPlainClient->SendBytes((byte*)sGreeting.c_str(), sGreeting.size());
+    pPlainClient->SendBytes((byte*)sGreeting.c_str(), (int) sGreeting.size());
     fSleep(50);
     EXPECT_EQ(iTimesRecieved, 1);
     pPlainServer->Stop();

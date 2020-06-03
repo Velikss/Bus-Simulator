@@ -7,19 +7,25 @@
 #include <vulkan/renderpass/RenderPass.hpp>
 #include <vulkan/uniform/UniformHandler.hpp>
 
-class cRenderPipeline
+class cRenderPipeline //-V730
 {
 protected:
     VkPipelineLayout poPipelineLayout = VK_NULL_HANDLE;
     VkPipeline poPipeline = VK_NULL_HANDLE;
 
     cLogicalDevice* ppLogicalDevice;
+    cSwapChain* ppSwapChain;
+    cRenderPass* ppRenderPass;
+    iUniformHandler* ppUniformHandler;
+    std::vector<string> paShaders;
 
 public:
     virtual ~cRenderPipeline();
 
     VkPipelineLayout& GetLayout();
     VkPipeline& GetPipeline();
+
+    void RebuildPipeline();
 
 protected:
     void Init(cSwapChain* pSwapChain,
@@ -37,6 +43,9 @@ protected:
                                 cRenderPass* pRenderPass,
                                 iUniformHandler* pUniformHandler,
                                 std::vector<string>& aShaders) = 0;
+
+private:
+    void Cleanup();
 };
 
 void cRenderPipeline::Init(cSwapChain* pSwapChain,
@@ -52,6 +61,10 @@ void cRenderPipeline::Init(cSwapChain* pSwapChain,
     assert(aShaders.size() >= 2);
 
     ppLogicalDevice = pLogicalDevice;
+    ppSwapChain = pSwapChain;
+    ppRenderPass = pRenderPass;
+    ppUniformHandler = pUniformHandler;
+    paShaders = aShaders;
 
     CreatePipelineLayout(pSwapChain, pLogicalDevice, pRenderPass, pUniformHandler);
     assert(poPipelineLayout != VK_NULL_HANDLE); // pipeline layout should be created
@@ -64,10 +77,7 @@ void cRenderPipeline::Init(cSwapChain* pSwapChain,
 
 cRenderPipeline::~cRenderPipeline()
 {
-    if (poPipeline != VK_NULL_HANDLE)
-    {
-        ppLogicalDevice->DestroyPipeline(poPipeline, nullptr);
-    }
+    Cleanup();
     if (poPipelineLayout != VK_NULL_HANDLE)
     {
         ppLogicalDevice->DestroyPipelineLayout(poPipelineLayout, nullptr);
@@ -86,4 +96,20 @@ VkPipeline& cRenderPipeline::GetPipeline()
     assert(poPipeline != VK_NULL_HANDLE); // render pipeline needs to be initialized first
 
     return poPipeline;
+}
+
+void cRenderPipeline::Cleanup()
+{
+    if (poPipeline != VK_NULL_HANDLE)
+    {
+        ppLogicalDevice->DestroyPipeline(poPipeline, nullptr);
+        poPipeline = VK_NULL_HANDLE;
+    }
+}
+
+void cRenderPipeline::RebuildPipeline()
+{
+    Cleanup();
+    CreatePipeline(ppSwapChain, ppLogicalDevice, ppRenderPass,
+                   ppUniformHandler, paShaders);
 }

@@ -40,25 +40,25 @@ struct Vertex
         atAttributeDescriptions[0].binding = 0;
         atAttributeDescriptions[0].location = 0;
         atAttributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-        atAttributeDescriptions[0].offset = offsetof(Vertex, pos);
+        atAttributeDescriptions[0].offset = offsetof(Vertex, pos); //-V103
 
         // Attribute at location 1 (normal)
         atAttributeDescriptions[1].binding = 0;
         atAttributeDescriptions[1].location = 1;
         atAttributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-        atAttributeDescriptions[1].offset = offsetof(Vertex, normal);
+        atAttributeDescriptions[1].offset = offsetof(Vertex, normal); //-V103
 
         // Attribute at location 2 (color)
         atAttributeDescriptions[2].binding = 0;
         atAttributeDescriptions[2].location = 2;
         atAttributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
-        atAttributeDescriptions[2].offset = offsetof(Vertex, color);
+        atAttributeDescriptions[2].offset = offsetof(Vertex, color); //-V103
 
         // Attribute at location 3 (texCoord)
         atAttributeDescriptions[3].binding = 0;
         atAttributeDescriptions[3].location = 3;
         atAttributeDescriptions[3].format = VK_FORMAT_R32G32_SFLOAT;
-        atAttributeDescriptions[3].offset = offsetof(Vertex, texCoord);
+        atAttributeDescriptions[3].offset = offsetof(Vertex, texCoord); //-V103
 
         return atAttributeDescriptions;
     }

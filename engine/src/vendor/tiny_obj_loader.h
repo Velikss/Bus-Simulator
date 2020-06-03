@@ -395,7 +395,7 @@ static std::istream &safeGetline(std::istream &is, std::string &t) {
   // The sentry object performs various tasks,
   // such as thread synchronization and updating the stream state.
 
-  std::istream::sentry se(is, true);
+  std::istream::sentry se(is, true); //-V808
   std::streambuf *sb = is.rdbuf();
 
   for (;;) {
@@ -801,7 +801,7 @@ static bool ParseTextureNameAndOption(std::string *texname,
       token += 7;
       texopt->sharpness = parseReal(&token, 1.0);
     } else if ((0 == strncmp(token, "-bm", 3)) && IS_SPACE((token[3]))) {
-      token += 4;
+      token += 4; //-V112
       texopt->bump_multiplier = parseReal(&token, 1.0);
     } else if ((0 == strncmp(token, "-o", 2)) && IS_SPACE((token[2]))) {
       token += 3;
@@ -827,7 +827,7 @@ static bool ParseTextureNameAndOption(std::string *texname,
       }
       token = end;
     } else if ((0 == strncmp(token, "-mm", 3)) && IS_SPACE((token[3]))) {
-      token += 4;
+      token += 4; //-V112
       parseReal2(&(texopt->brightness), &(texopt->contrast), &token, 0.0, 1.0);
     } else {
       // Assume texture filename
@@ -843,7 +843,7 @@ static bool ParseTextureNameAndOption(std::string *texname,
   }
 
   if (found_texname) {
-    (*texname) = texture_name;
+    (*texname) = texture_name; //-V820
     return true;
   } else {
     return false;
@@ -851,14 +851,14 @@ static bool ParseTextureNameAndOption(std::string *texname,
 }
 
 static void InitMaterial(material_t *material) {
-  material->name = "";
-  material->ambient_texname = "";
-  material->diffuse_texname = "";
-  material->specular_texname = "";
-  material->specular_highlight_texname = "";
-  material->bump_texname = "";
-  material->displacement_texname = "";
-  material->alpha_texname = "";
+  material->name = ""; //-V815
+  material->ambient_texname = ""; //-V815
+  material->diffuse_texname = ""; //-V815
+  material->specular_texname = ""; //-V815
+  material->specular_highlight_texname = ""; //-V815
+  material->bump_texname = ""; //-V815
+  material->displacement_texname = ""; //-V815
+  material->alpha_texname = ""; //-V815
   for (int i = 0; i < 3; i++) {
     material->ambient[i] = 0.f;
     material->diffuse[i] = 0.f;
@@ -878,11 +878,11 @@ static void InitMaterial(material_t *material) {
   material->clearcoat_roughness = 0.f;
   material->anisotropy_rotation = 0.f;
   material->anisotropy = 0.f;
-  material->roughness_texname = "";
-  material->metallic_texname = "";
-  material->sheen_texname = "";
-  material->emissive_texname = "";
-  material->normal_texname = "";
+  material->roughness_texname = ""; //-V815
+  material->metallic_texname = ""; //-V815
+  material->sheen_texname = ""; //-V815
+  material->emissive_texname = ""; //-V815
+  material->normal_texname = ""; //-V815
 
   material->unknown_parameter.clear();
 }
@@ -1172,7 +1172,7 @@ void LoadMtl(std::map<std::string, int> *material_map,
 
     // PBR: clearcoat roughness
     if ((0 == strncmp(token, "Pcr", 3)) && IS_SPACE(token[3])) {
-      token += 4;
+      token += 4; //-V112
       material.clearcoat_roughness = parseReal(&token);
       continue;
     }
@@ -1237,7 +1237,7 @@ void LoadMtl(std::map<std::string, int> *material_map,
     }
 
     // bump texture
-    if ((0 == strncmp(token, "bump", 4)) && IS_SPACE(token[4])) {
+    if ((0 == strncmp(token, "bump", 4)) && IS_SPACE(token[4])) { //-V112
       token += 5;
       ParseTextureNameAndOption(&(material.bump_texname),
                                 &(material.bump_texopt), token,
@@ -1256,7 +1256,7 @@ void LoadMtl(std::map<std::string, int> *material_map,
     }
 
     // displacement texture
-    if ((0 == strncmp(token, "disp", 4)) && IS_SPACE(token[4])) {
+    if ((0 == strncmp(token, "disp", 4)) && IS_SPACE(token[4])) { //-V112
       token += 5;
       ParseTextureNameAndOption(&(material.displacement_texname),
                                 &(material.displacement_texopt), token,
@@ -1301,7 +1301,7 @@ void LoadMtl(std::map<std::string, int> *material_map,
     }
 
     // PBR: normal map texture
-    if ((0 == strncmp(token, "norm", 4)) && IS_SPACE(token[4])) {
+    if ((0 == strncmp(token, "norm", 4)) && IS_SPACE(token[4])) { //-V112
       token += 5;
       ParseTextureNameAndOption(
           &(material.normal_texname), &(material.normal_texopt), token,
@@ -1518,7 +1518,7 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
       }
 
       // replace with emplace_back + std::move on C++11
-      faceGroup.push_back(std::vector<vertex_index>());
+      faceGroup.push_back(std::vector<vertex_index>()); //-V823
       faceGroup[faceGroup.size() - 1].swap(face);
 
       continue;
@@ -1626,7 +1626,7 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
       if (names.size() > 1) {
         name = names[1];
       } else {
-        name = "";
+        name = ""; //-V815
       }
 
       continue;
@@ -1958,7 +1958,7 @@ bool LoadObjWithCallback(std::istream &inStream, const callback_t &callback,
 #else
       std::sscanf(token, "%s", namebuf);
 #endif
-      std::string object_name = std::string(namebuf);
+      std::string object_name = std::string(namebuf); //-V821
 
       if (callback.object_cb) {
         callback.object_cb(user_data, object_name.c_str());

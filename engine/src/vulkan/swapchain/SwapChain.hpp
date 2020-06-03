@@ -34,6 +34,7 @@ class cSwapChain
 {
 private:
     cLogicalDevice* ppLogicalDevice;
+    cWindow* ppWindow;
 
     std::vector<VkImage> paoSwapChainImages;
     std::vector<VkImageView> paoSwapChainImageViews;
@@ -70,6 +71,8 @@ public:
                           VkFence& oFence,
                           uint* puiImageIndex);
 
+    void RebuildSwapChain();
+
 private:
     VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& atAvailableFormats);
     VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& atAvailablePresentModes);
@@ -86,11 +89,14 @@ private:
 
     void CreateSwapChain(cWindow* pWindow);
     void CreateImageViews(void);
+
+    void Cleanup();
 };
 
-cSwapChain::cSwapChain(cLogicalDevice* pLogicalDevice, cWindow* pWindow)
+cSwapChain::cSwapChain(cLogicalDevice* pLogicalDevice, cWindow* pWindow) //-V730
 {
     ppLogicalDevice = pLogicalDevice;
+    ppWindow = pWindow;
 
     CreateSwapChain(pWindow);
     CreateImageViews();
@@ -98,41 +104,7 @@ cSwapChain::cSwapChain(cLogicalDevice* pLogicalDevice, cWindow* pWindow)
 
 cSwapChain::~cSwapChain()
 {
-    VkDevice& oDevice = ppLogicalDevice->GetDevice(); // TODO: Use internal cLogicalDevice methods
-
-    std::array<tFrameBufferAttachment*, 6> aptAttachments = {
-            &ptOffScreenBuffer.ptPositionAttachment,
-            &ptOffScreenBuffer.ptNormalsAttachment,
-            &ptOffScreenBuffer.ptAlbedoAttachment,
-            &ptOffScreenBuffer.ptDepthAttachment,
-            &ptOffScreenBuffer.ptMaterialAttachment,
-            &ptOverlayBuffer.ptColorAttachment
-    };
-    for (tFrameBufferAttachment* pAttachment : aptAttachments)
-    {
-        vkDestroyImageView(oDevice, pAttachment->oView, nullptr);
-        vkDestroyImage(oDevice, pAttachment->oImage, nullptr);
-        ppLogicalDevice->FreeMemory(pAttachment->oMemory, nullptr);
-    }
-
-    ppLogicalDevice->DestroySampler(ptOffScreenBuffer.poSampler, nullptr);
-
-    // Destroy all the framebuffers
-    for (VkFramebuffer framebuffer : paoSwapChainFramebuffers)
-    {
-        vkDestroyFramebuffer(oDevice, framebuffer, nullptr);
-    }
-    vkDestroyFramebuffer(oDevice, ptOffScreenBuffer.poFramebuffer, nullptr);
-    vkDestroyFramebuffer(oDevice, ptOverlayBuffer.poFramebuffer, nullptr);
-
-    // Destroy all the image views
-    for (VkImageView imageView : paoSwapChainImageViews)
-    {
-        vkDestroyImageView(oDevice, imageView, nullptr);
-    }
-
-    // Destroy the swap chain
-    vkDestroySwapchainKHR(ppLogicalDevice->GetDevice(), poSwapChain, nullptr);
+    Cleanup();
 }
 
 VkSurfaceFormatKHR cSwapChain::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& atAvailableFormats)
@@ -168,24 +140,16 @@ VkPresentModeKHR cSwapChain::ChooseSwapPresentMode(const std::vector<VkPresentMo
 
 VkExtent2D cSwapChain::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& tCapabilities, cWindow* pWindow)
 {
-    if (tCapabilities.currentExtent.width != UINT32_MAX)
-    {
-        // By default the window manager sets currentExtent to the exact window resolution, so we can use that
-        return tCapabilities.currentExtent;
-    }
-    else
-    {
-        // If currentExtent is not present, use our window size clamped to the bounds of the capabilities
+    // Use our window size clamped to the bounds of the capabilities
 
-        VkExtent2D actualExtent = {WIDTH, HEIGHT};
+    VkExtent2D actualExtent = {cWindow::puiWidth, cWindow::puiHeight};
 
-        actualExtent.width = std::max(tCapabilities.minImageExtent.width,
-                                      std::min(tCapabilities.maxImageExtent.width, actualExtent.width));
-        actualExtent.height = std::max(tCapabilities.minImageExtent.height,
-                                       std::min(tCapabilities.maxImageExtent.height, actualExtent.height));
+    actualExtent.width = std::max(tCapabilities.minImageExtent.width,
+                                  std::min(tCapabilities.maxImageExtent.width, actualExtent.width));
+    actualExtent.height = std::max(tCapabilities.minImageExtent.height,
+                                   std::min(tCapabilities.maxImageExtent.height, actualExtent.height));
 
-        return actualExtent;
-    }
+    return actualExtent;
 }
 
 uint cSwapChain::ChooseSwapImageCount(const VkSurfaceCapabilitiesKHR& tCapabilities)
@@ -298,8 +262,10 @@ void cSwapChain::CreateSwapChain(cWindow* pWindow)
 
     // Get the swap chain image handles
     vkGetSwapchainImagesKHR(oDevice, poSwapChain, &uiImageCount, nullptr);
-    paoSwapChainImages.resize(uiImageCount);
+    paoSwapChainImages.resize(uiImageCount); //-V106
     vkGetSwapchainImagesKHR(oDevice, poSwapChain, &uiImageCount, paoSwapChainImages.data());
+
+    ENGINE_LOG("Created swap chain with " << uiImageCount << " images");
 }
 
 void cSwapChain::CreateImageViews(void)
@@ -364,7 +330,7 @@ void cSwapChain::CreateFramebuffers(VkRenderPass& oFinalRenderPass,
     tFramebufferInfo.pNext = NULL;
     tFramebufferInfo.renderPass = oOffScreenRenderPass;
     tFramebufferInfo.pAttachments = atAttachments.data();
-    tFramebufferInfo.attachmentCount = atAttachments.size();
+    tFramebufferInfo.attachmentCount = (uint) atAttachments.size();
     tFramebufferInfo.width = ptSwapChainExtent.width;
     tFramebufferInfo.height = ptSwapChainExtent.height;
     tFramebufferInfo.layers = 1;
@@ -434,16 +400,18 @@ void cSwapChain::CreateResources(void) // TODO: This might belong somewhere else
     {
         throw std::runtime_error("failed to create offscreen sampler!");
     }
+
+    ENGINE_LOG("Render target resources loaded");
 }
 
 uint cSwapChain::GetFramebufferSize(void)
 {
-    return paoSwapChainFramebuffers.size();
+    return (uint) paoSwapChainFramebuffers.size();
 }
 
 VkFramebuffer& cSwapChain::GetFramebuffer(uint index)
 {
-    return paoSwapChainFramebuffers[index];
+    return paoSwapChainFramebuffers[index]; //-V108
 }
 
 void cSwapChain::AcquireNextImage(int64 ulTimeout,
@@ -451,7 +419,83 @@ void cSwapChain::AcquireNextImage(int64 ulTimeout,
                                   VkFence& oFence,
                                   uint* pImageIndex)
 {
-    vkAcquireNextImageKHR(ppLogicalDevice->GetDevice(), poSwapChain, ulTimeout, oSemaphore, oFence, pImageIndex);
+    uint err = vkAcquireNextImageKHR(ppLogicalDevice->GetDevice(), poSwapChain, ulTimeout, oSemaphore, oFence, pImageIndex);
+    if (err != VK_SUCCESS)
+    {
+        if (err == VK_ERROR_SURFACE_LOST_KHR)
+        {
+            ENGINE_LOG("surface lost");
+        }
+        else if (err == VK_ERROR_DEVICE_LOST)
+        {
+            ENGINE_LOG("device lost");
+        }
+        else if (err == VK_ERROR_OUT_OF_DEVICE_MEMORY)
+        {
+            ENGINE_LOG("out of device memory");
+        }
+        else if (err == VK_ERROR_OUT_OF_HOST_MEMORY)
+        {
+            ENGINE_LOG("out of host memory");
+        }
+        else if (err == VK_ERROR_OUT_OF_DATE_KHR)
+        {
+            ENGINE_LOG("out of date");
+        }
+        else
+        {
+            ENGINE_LOG(err);
+        }
+    }
+}
+
+void cSwapChain::RebuildSwapChain()
+{
+    Cleanup();
+    ppWindow->RebuildSurface();
+    CreateSwapChain(ppWindow);
+    CreateImageViews();
+    CreateResources();
+}
+
+void cSwapChain::Cleanup()
+{
+    VkDevice& oDevice = ppLogicalDevice->GetDevice(); // TODO: Use internal cLogicalDevice methods
+
+    std::array<tFrameBufferAttachment*, 6> aptAttachments = {
+            &ptOffScreenBuffer.ptPositionAttachment,
+            &ptOffScreenBuffer.ptNormalsAttachment,
+            &ptOffScreenBuffer.ptAlbedoAttachment,
+            &ptOffScreenBuffer.ptDepthAttachment,
+            &ptOffScreenBuffer.ptMaterialAttachment,
+            &ptOverlayBuffer.ptColorAttachment
+    };
+    for (tFrameBufferAttachment* pAttachment : aptAttachments)
+    {
+        vkDestroyImageView(oDevice, pAttachment->oView, nullptr);
+        vkDestroyImage(oDevice, pAttachment->oImage, nullptr);
+        ppLogicalDevice->FreeMemory(pAttachment->oMemory, nullptr);
+    }
+
+    ppLogicalDevice->DestroySampler(ptOffScreenBuffer.poSampler, nullptr);
+
+    // Destroy all the framebuffers
+    for (VkFramebuffer framebuffer : paoSwapChainFramebuffers)
+    {
+        vkDestroyFramebuffer(oDevice, framebuffer, nullptr);
+    }
+    vkDestroyFramebuffer(oDevice, ptOffScreenBuffer.poFramebuffer, nullptr);
+    vkDestroyFramebuffer(oDevice, ptOverlayBuffer.poFramebuffer, nullptr);
+
+    // Destroy all the image views
+    for (VkImageView imageView : paoSwapChainImageViews)
+    {
+        vkDestroyImageView(oDevice, imageView, nullptr);
+    }
+
+    // Destroy the swap chain
+    vkDestroySwapchainKHR(ppLogicalDevice->GetDevice(), poSwapChain, nullptr);
+    poSwapChain = VK_NULL_HANDLE;
 }
 
 tFrameBufferAttachment& cSwapChain::GetAttachment(uint uiIndex)

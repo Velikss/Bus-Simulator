@@ -6,7 +6,9 @@ project(${This} C CXX)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -luuid")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -luuid")
+
+add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
 set(Headers 
     ${PROJECT_SOURCE_DIR}/src/pch.hpp
@@ -21,18 +23,15 @@ find_package(OpenSSL REQUIRED)
 find_package(ODBC REQUIRED)
 
 include_directories( ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../ ${PROJECT_SOURCE_DIR}/src ${OPENSSL_INCLUDE_DIR} ${ODBC_INCLUDE_DIR})
-add_library(${This} STATIC ${PROJECT_SOURCE_DIR}/src/main.cpp ${Headers})
 add_executable(${This}-Test ${PROJECT_SOURCE_DIR}/test/main.cpp ${Headers})
-add_executable(${This}-bin ${PROJECT_SOURCE_DIR}/src/main.cpp ${Headers})
+add_executable(${This} ${PROJECT_SOURCE_DIR}/src/main.cpp ${Headers})
 
 IF (WIN32)
     find_package(glm REQUIRED)
     target_link_libraries(${This} PUBLIC OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY} glm)
-    target_link_libraries(${This}-bin PUBLIC OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY} glm)
     target_link_libraries(${This}-Test PUBLIC OpenSSL::SSL OpenSSL::Crypto ${ODBC_LIBRARY} glm GTest::gtest)
 ELSE()
     target_link_libraries(${This} PUBLIC ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${ODBC_LIBRARY})
-    target_link_libraries(${This}-bin PUBLIC ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${ODBC_LIBRARY})
     target_link_libraries(${This}-Test PUBLIC ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${ODBC_LIBRARY} gtest)
 ENDIF()
 

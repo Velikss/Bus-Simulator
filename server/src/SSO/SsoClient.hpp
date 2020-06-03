@@ -54,7 +54,7 @@ bool cSSOClient::Logout()
     oRequest.SetHeaders(aHeaders);
 
     SendRequest(oRequest, oResponse, -1);
-    psSessionKey = "";
+    psSessionKey.clear();
     return oResponse.GetResponseCode() == 200;
 }
 
@@ -62,6 +62,6 @@ bool cSSOClient::SendRequest(cRequest &oRequest, cResponse& oResponse, int uiTim
 {
     oRequest.SetHeader("session-key" , psSessionKey);
     string sRequest = oRequest.Serialize();
-    SendBytes((const byte*)sRequest.c_str(), sRequest.size());
+    SendBytes((const byte*)sRequest.c_str(), (int) sRequest.size());
     return RecieveResponse(this, oResponse, uiTimeOut);
 }

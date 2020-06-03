@@ -33,7 +33,7 @@ namespace SSO
             return C_SSO_FAIL_UPDATE;
 
 #if defined(x86_64)
-        if ((*digest = (unsigned char*)OPENSSL_malloc(EVP_MD_size(EVP_sha512()))) == NULL)
+        if ((*digest = (unsigned char*)OPENSSL_malloc(EVP_MD_size(EVP_sha512()))) == NULL) //-V106
 #else
         if ((*digest = (unsigned char*)OPENSSL_malloc(EVP_MD_size(EVP_sha256()))) == NULL)
 #endif

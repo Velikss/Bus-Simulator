@@ -61,7 +61,7 @@ void cMRTRenderRecorder::Setup(uint uiIndex)
     paoClearValues[2].color = {0.0f, 0.0f, 0.0f, 1.0f}; // black with 100% opacity
     paoClearValues[3].depthStencil = {1.0f, 0}; // furthest possible depth
     paoClearValues[4].color = {0.0f, 0.0f, 0.0f, 1.0f}; // black with 100% opacity
-    ptRenderPassInfo.clearValueCount = paoClearValues.size();
+    ptRenderPassInfo.clearValueCount = (uint) paoClearValues.size();
     ptRenderPassInfo.pClearValues = paoClearValues.data();
 }
 

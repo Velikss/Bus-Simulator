@@ -41,8 +41,6 @@ void cImageHelper::CreateImage(uint uiWidth,
                                cLogicalDevice* pLogicalDevice)
 {
     assert(uiWidth > 0 && uiHeight > 0);
-    assert(oImage == VK_NULL_HANDLE);
-    assert(oImageMemory == VK_NULL_HANDLE);
     assert(pLogicalDevice != nullptr);
 
     VkImageCreateInfo tImageInfo = {};

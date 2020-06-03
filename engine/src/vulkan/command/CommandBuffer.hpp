@@ -39,14 +39,14 @@ cCommandBuffer::cCommandBuffer(cLogicalDevice* pLogicalDevice, cSwapChain* pSwap
 cCommandBuffer::~cCommandBuffer(void)
 {
     ppLogicalDevice->FreeCommandBuffers(cCommandHelper::poCommandPool,
-                                        paoCommandBuffers.size(),
+                                        (uint) paoCommandBuffers.size(),
                                         paoCommandBuffers.data());
 }
 
 void cCommandBuffer::CreateBuffers(cSwapChain* pSwapChain)
 {
     // Make the command buffer list the same size as the framebuffer list
-    paoCommandBuffers.resize(pSwapChain->GetFramebufferSize());
+    paoCommandBuffers.resize(pSwapChain->GetFramebufferSize()); //-V106
 
     // Struct with information on how to allocate the command buffers
     VkCommandBufferAllocateInfo tAllocInfo = {};
@@ -77,9 +77,9 @@ void cCommandBuffer::RecordBuffers(iCommandBufferRecorder* pRecorder)
     tBeginInfo.pInheritanceInfo = nullptr;
 
     // Loop over all the buffers and record the commands using the recorder
-    for (uint i = 0; i < paoCommandBuffers.size(); i++)
+    for (uint i = 0; i < paoCommandBuffers.size(); i++) //-V104
     {
-        RecordBuffer(paoCommandBuffers[i], pRecorder, tBeginInfo, i);
+        RecordBuffer(paoCommandBuffers[i], pRecorder, tBeginInfo, i); //-V108
     }
 }
 
@@ -109,5 +109,5 @@ void cCommandBuffer::RecordBuffer(VkCommandBuffer& oBuffer,
 
 VkCommandBuffer& cCommandBuffer::GetBuffer(uint uiIndex)
 {
-    return paoCommandBuffers[uiIndex];
+    return paoCommandBuffers[uiIndex]; //-V108
 }

@@ -13,7 +13,7 @@ public:
     // Copy a texture (pixels) into an image
     static void CopyTextureToImage(cLogicalDevice* pLogicalDevice,
                                    stbi_uc* pcPixels,
-                                   tTextureInfo tTextureInfo,
+                                   const tTextureInfo& tTextureInfo,
                                    VkImage& oImage);
 
     // Change the layout of an image
@@ -34,7 +34,7 @@ public:
 
 void cTextureHelper::CopyTextureToImage(cLogicalDevice* pLogicalDevice,
                                         byte* pcPixels,
-                                        tTextureInfo tTextureInfo,
+                                        const tTextureInfo& tTextureInfo,
                                         VkImage& oImage)
 {
 
