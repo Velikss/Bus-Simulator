@@ -7,8 +7,6 @@
 
 class cMainMenu : public cBaseMenu
 {
-private:
-    iOverlayProvider* ppOverlayProvider;
 protected:
     void LoadTextures(cTextureHandler* pTextureHandler) override
     {
@@ -58,7 +56,7 @@ protected:
         });
     }
 public:
-    cMainMenu(iOverlayProvider* pOverlayProvider) : cBaseMenu(pOverlayProvider)
+    cMainMenu(iGameManager* pOverlayProvider) : cBaseMenu(pOverlayProvider)
     {
     }
 
@@ -72,5 +70,7 @@ public:
 
 void cMainMenu::HandleOnSubmit(cButton* poSender)
 {
+    ppOverlayProvider->ActivateOverlayWindow("Loading");
+    ppOverlayProvider->SwitchScene("BusWorld");
     std::cout << "submit" << std::endl;
 }

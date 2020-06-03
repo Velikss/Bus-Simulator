@@ -32,10 +32,11 @@
 #include <thread>
 #include <chrono>
 #include <vulkan/module/overlay/OverlayWindow.hpp>
-#include <vulkan/module/overlay/OverlayProvider.hpp>
+#include <vulkan/util/GameManager.hpp>
 #include <vulkan/util/CommandBufferHolder.hpp>
+#include <vulkan/SceneManager.hpp>
 
-class cEngine : public iOverlayProvider, public iInputHandler, public iCommandBufferHolder
+class cEngine : public iGameManager, public iInputHandler, public iCommandBufferHolder
 {
 private:
     const string psAppName;
@@ -59,8 +60,10 @@ private:
     cGameLoop* ppGameLoop = nullptr;
     std::thread* ppGameThread = nullptr;
 
-    cScene* ppScene = nullptr;
+    cSceneManager* ppSceneManager = nullptr;
     cAudioHandler* ppAudioHandler = nullptr;
+    string psRequestedScene = "";
+    bool pbUpdateScene = false;
 
     std::map<string, cOverlayWindow*> pmOverlayWindows;
     cOverlayWindow* ppActiveOverlayWindow = nullptr;
@@ -85,6 +88,7 @@ public:
     void HandleCharacter(char cCharacter) override;
     cCommandBuffer** GetCommandBuffers() override;
     void HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction) override;
+    void SwitchScene(const string& sName) override;
 
 protected:
     virtual void LoadMRTShaders(std::vector<string>& shaders) = 0;
@@ -92,7 +96,7 @@ protected:
     virtual void LoadOverlayShaders(std::vector<string>& shaders) = 0;
 
     virtual void LoadOverlayWindows(std::map<string, cOverlayWindow*>& mOverlayWindows) = 0;
-    virtual void LoadScene(cScene** pScene) = 0;
+    virtual void SetupScenes(std::map<string, cScene*>& mScenes, string* sInitialScene) = 0;
 
 private:
     void CreateGLWindow(void);
@@ -103,6 +107,7 @@ private:
 
     void RebuildPipeline(void);
     void RebuildCommandBuffers(void);
+    void RebuildUniforms(void);
 };
 
 cEngine::cEngine(const string& sAppName) : psAppName(sAppName)
@@ -205,6 +210,9 @@ void cEngine::InitVulkan(void)
     papCommandBuffers[1]->RecordBuffers(&clearRecorder);
     papCommandBuffers[2]->RecordBuffers(&clearRecorder);
 
+    // Create the scene manager
+    ppSceneManager = new cSceneManager(ppLogicalDevice, ppTextureHandler, ppAudioHandler);
+
     // Set up the game loop
     ppGameLoop = new cGameLoop();
     ppGameThread = new std::thread(std::ref(*ppGameLoop));
@@ -245,6 +253,12 @@ cOverlayWindow* cEngine::GetActiveOverlayWindow()
     return ppActiveOverlayWindow;
 }
 
+void cEngine::SwitchScene(const string& sName)
+{
+    psRequestedScene = sName;
+    pbUpdateScene = true;
+}
+
 void cEngine::MainLoop(void)
 {
     ENGINE_LOG("Engine running");
@@ -255,9 +269,11 @@ void cEngine::MainLoop(void)
         // Let the window do it's thing
         ppWindow->HandleEvents();
 
+        cScene* pScene = ppSceneManager->GetActiveScene();
+
         // If the scene is signalling it wants to
         // quit, pass it on to the window
-        if (ppScene != nullptr && ppScene->ShouldQuit())
+        if (pScene != nullptr && pScene->ShouldQuit())
         {
             ENGINE_LOG("Scene is asking for application quit");
             ppWindow->Close();
@@ -284,7 +300,7 @@ void cEngine::MainLoop(void)
         ppAudioHandler->Update();
 
         // Draw a frame
-        ppRenderHandler->DrawFrame(ppScene, ppOverlayRenderModule, papCommandBuffers[2]);
+        ppRenderHandler->DrawFrame(pScene, ppOverlayRenderModule, papCommandBuffers[2]);
 
         // If the scene hasn't been loaded, load it now
         // We want to draw at least one frame before loading the
@@ -305,16 +321,20 @@ void cEngine::MainLoop(void)
 
             ENGINE_LOG("Loading scene...");
 
-            // Ask the application for the scene
-            LoadScene(&ppScene);
+            // Ask the application for the scenes
+            string sActiveScene = "";
+            SetupScenes(ppSceneManager->GetScenes(), &sActiveScene);
+            assert(sActiveScene.size() > 0);
 
-            // Create and load the scene
-            ppScene->Load(ppTextureHandler, ppLogicalDevice, ppAudioHandler);
+            // Load the scene
+            ppSceneManager->LoadScene(sActiveScene);
+            pScene = ppSceneManager->GetActiveScene();
+            assert(pScene != nullptr);
 
             // Setup the buffers for uniform variables
-            ppLightsRenderModule->GetUniformHandler()->SetupUniformBuffers(ppTextureHandler, ppScene);
-            ppMRTRenderModule->GetUniformHandler()->SetupUniformBuffers(ppTextureHandler, ppScene);
-            ppOverlayRenderModule->GetUniformHandler()->SetupUniformBuffers(ppTextureHandler, ppScene);
+            ppLightsRenderModule->GetUniformHandler()->SetupUniformBuffers(ppTextureHandler, pScene);
+            ppMRTRenderModule->GetUniformHandler()->SetupUniformBuffers(ppTextureHandler, pScene);
+            ppOverlayRenderModule->GetUniformHandler()->SetupUniformBuffers(ppTextureHandler, pScene);
 
             // We cannot (re-)record command buffers while the GPU is
             // using them, so we have to wait until it's idle.
@@ -323,26 +343,26 @@ void cEngine::MainLoop(void)
             // Record the commands for rendering to the command buffer.
             cMRTRenderRecorder mrt(ppMRTRenderModule->GetRenderPass(), ppSwapChain,
                                    ppMRTRenderModule->GetRenderPipeline(),
-                                   ppMRTRenderModule->GetUniformHandler(), ppScene);
+                                   ppMRTRenderModule->GetUniformHandler(), pScene);
             cLightingRenderRecorder light(ppLightsRenderModule->GetRenderPass(), ppSwapChain,
                                           ppLightsRenderModule->GetRenderPipeline(),
-                                          ppLightsRenderModule->GetUniformHandler(), ppScene);
+                                          ppLightsRenderModule->GetUniformHandler(), pScene);
             papCommandBuffers[0]->RecordBuffers(&mrt);
             papCommandBuffers[1]->RecordBuffers(&light);
 
             ppOverlayRenderModule->CreateCommandRecorder();
             papCommandBuffers[2]->RecordBuffers(ppOverlayRenderModule->GetCommandRecorder());
 
-            ppAudioHandler->SetCamera(ppScene->GetCameraRef());
+            ppAudioHandler->SetCamera(pScene->GetCameraRef());
 
             ENGINE_LOG("Scene loaded, adding tick task...");
-            ppScene->AfterLoad();
-            ppGameLoop->AddTask(ppScene);
+            pScene->AfterLoad();
+            ppGameLoop->AddTask(pScene);
             ppGameLoop->SetPaused(false);
 
             pbInitialized = true;
         }
-        else
+        else if (pScene != nullptr)
         {
             for (auto&[sName, pWindow] : pmOverlayWindows)
             {
@@ -360,14 +380,14 @@ void cEngine::MainLoop(void)
                 ppGameLoop->SetPaused(true);
                 if (ppRequestedOverlayWindow != nullptr && ppRequestedOverlayWindow->ShouldHandleInput())
                 {
-                    ppScene->OnInputDisable();
+                    pScene->OnInputDisable();
                 }
 
                 // Set the active window to the new one
                 ppActiveOverlayWindow = ppRequestedOverlayWindow;
 
                 // Setup the new uniform buffers
-                ppOverlayRenderModule->GetUniformHandler()->SetupUniformBuffers(ppTextureHandler, ppScene);
+                ppOverlayRenderModule->GetUniformHandler()->SetupUniformBuffers(ppTextureHandler, pScene);
                 // Re-record the command buffers
                 papCommandBuffers[2]->RecordBuffers(ppOverlayRenderModule->GetCommandRecorder());
 
@@ -378,12 +398,38 @@ void cEngine::MainLoop(void)
                 ppRequestedOverlayWindow = nullptr;
                 pbUpdateOverlayWindow = false;
             }
+            else if (pbUpdateScene)
+            {
+                pScene = ppSceneManager->GetActiveScene();
+                assert(pScene != nullptr);
+
+                ppGameLoop->SetPaused(true);
+                ppGameLoop->RemoveTask(pScene);
+                ppLogicalDevice->WaitUntilIdle();
+
+                ppSceneManager->LoadScene(psRequestedScene);
+                pScene = ppSceneManager->GetActiveScene();
+                assert(pScene != nullptr);
+
+                RebuildUniforms();
+                RebuildCommandBuffers();
+
+                DeactivateOverlayWindow();
+
+                ppAudioHandler->SetCamera(pScene->GetCameraRef());
+                pScene->AfterLoad();
+                ppGameLoop->AddTask(pScene);
+
+                ppGameLoop->SetPaused(false);
+                psRequestedScene = "";
+                pbUpdateScene = false;
+            }
 
 #ifdef ENGINE_TIMING_DEBUG
             steady_clock::time_point tStartTime = steady_clock::now();
 #endif
             cMRTUniformHandler* pUniformHandler = ((cMRTUniformHandler*) ppMRTRenderModule->GetUniformHandler());
-            if (pUniformHandler->UpdateUniformTextures(ppScene))
+            if (pUniformHandler->UpdateUniformTextures(pScene))
             {
                 RebuildCommandBuffers();
 
@@ -420,7 +466,7 @@ void cEngine::Cleanup(void)
     delete ppGameThread;
     delete ppGameLoop;
 
-    delete ppScene;
+    delete ppSceneManager;
     delete ppRenderHandler;
     delete ppOverlayRenderModule;
     delete ppTextureHandler;
@@ -446,9 +492,9 @@ void cEngine::HandleMouse(uint uiDeltaX, uint uiDeltaY)
     {
         ppActiveOverlayWindow->HandleMouse(uiDeltaX, uiDeltaY);
     }
-    else if (ppScene != nullptr)
+    else if (ppSceneManager->GetActiveScene() != nullptr)
     {
-        ppScene->HandleMouse(uiDeltaX, uiDeltaY);
+        ppSceneManager->GetActiveScene()->HandleMouse(uiDeltaX, uiDeltaY);
     }
 }
 
@@ -458,9 +504,9 @@ void cEngine::HandleKey(uint uiKeyCode, uint uiAction)
     {
         ppActiveOverlayWindow->HandleKey(uiKeyCode, uiAction);
     }
-    else if (ppScene != nullptr)
+    else if (ppSceneManager->GetActiveScene() != nullptr)
     {
-        ppScene->HandleKey(uiKeyCode, uiAction);
+        ppSceneManager->GetActiveScene()->HandleKey(uiKeyCode, uiAction);
     }
 }
 
@@ -470,9 +516,9 @@ void cEngine::HandleScroll(double dOffsetX, double dOffsetY)
     {
         ppActiveOverlayWindow->HandleScroll(dOffsetX, dOffsetY);
     }
-    else if (ppScene != nullptr)
+    else if (ppSceneManager->GetActiveScene() != nullptr)
     {
-        ppScene->HandleScroll(dOffsetX, dOffsetY);
+        ppSceneManager->GetActiveScene()->HandleScroll(dOffsetX, dOffsetY);
     }
 }
 
@@ -482,9 +528,9 @@ void cEngine::HandleCharacter(char cCharacter)
     {
         ppActiveOverlayWindow->HandleCharacter(cCharacter);
     }
-    else if (ppScene != nullptr)
+    else if (ppSceneManager->GetActiveScene() != nullptr)
     {
-        ppScene->HandleCharacter(cCharacter);
+        ppSceneManager->GetActiveScene()->HandleCharacter(cCharacter);
     }
 }
 
@@ -494,9 +540,9 @@ void cEngine::HandleMouseButton(uint uiButton, double dXPos, double dYPos, int i
     {
         ppActiveOverlayWindow->HandleMouseButton(uiButton, dXPos, dYPos, iAction);
     }
-    else if (ppScene != nullptr)
+    else if (ppSceneManager->GetActiveScene() != nullptr)
     {
-        ppScene->HandleMouseButton(uiButton, dXPos, dYPos, iAction);
+        ppSceneManager->GetActiveScene()->HandleMouseButton(uiButton, dXPos, dYPos, iAction);
     }
 }
 
@@ -517,25 +563,35 @@ void cEngine::RebuildPipeline(void)
     ppLightsRenderModule->GetRenderPipeline()->RebuildPipeline();
     ppOverlayRenderModule->GetRenderPipeline()->RebuildPipeline();
 
-    for (iUniformHandler* pUniformHandler : papUniformHandlers)
-    {
-        pUniformHandler->RebuildUniforms();
-        pUniformHandler->SetupUniformBuffers(ppTextureHandler, ppScene);
-    }
-
+    RebuildUniforms();
     RebuildCommandBuffers();
 }
 
 void cEngine::RebuildCommandBuffers(void)
 {
+    cScene* pScene = ppSceneManager->GetActiveScene();
+    assert(pScene != nullptr);
+
     // Record the commands for rendering to the command buffer.
     cMRTRenderRecorder mrt(ppMRTRenderModule->GetRenderPass(), ppSwapChain,
                            ppMRTRenderModule->GetRenderPipeline(),
-                           ppMRTRenderModule->GetUniformHandler(), ppScene);
+                           ppMRTRenderModule->GetUniformHandler(), pScene);
     cLightingRenderRecorder light(ppLightsRenderModule->GetRenderPass(), ppSwapChain,
                                   ppLightsRenderModule->GetRenderPipeline(),
-                                  ppLightsRenderModule->GetUniformHandler(), ppScene);
+                                  ppLightsRenderModule->GetUniformHandler(), pScene);
     papCommandBuffers[0]->RecordBuffers(&mrt);
     papCommandBuffers[1]->RecordBuffers(&light);
     papCommandBuffers[2]->RecordBuffers(ppOverlayRenderModule->GetCommandRecorder());
+}
+
+void cEngine::RebuildUniforms(void)
+{
+    cScene* pScene = ppSceneManager->GetActiveScene();
+    assert(pScene != nullptr);
+
+    for (iUniformHandler* pUniformHandler : papUniformHandlers)
+    {
+        pUniformHandler->RebuildUniforms();
+        pUniformHandler->SetupUniformBuffers(ppTextureHandler, pScene);
+    }
 }

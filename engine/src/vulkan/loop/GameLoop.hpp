@@ -118,6 +118,16 @@ void cGameLoop::MainLoop()
             Tick();
         }
 
+        if (pbTasksInvalid)
+        {
+            papTasks.clear();
+            for (iTickTask* pTask : papStagingTasks)
+            {
+                papTasks.push_back(pTask);
+            }
+            pbTasksInvalid = false;
+        }
+
         // The next tick should start PERIOD milliseconds after the last one
         tNext += tPERIOD;
         std::this_thread::sleep_until(tNext);
@@ -147,15 +157,5 @@ void cGameLoop::Tick()
     for (iTickTask* pTask : papTasks)
     {
         pTask->Tick();
-    }
-
-    if (pbTasksInvalid)
-    {
-        papTasks.clear();
-        for (iTickTask* pTask : papStagingTasks)
-        {
-            papTasks.push_back(pTask);
-        }
-        pbTasksInvalid = false;
     }
 }

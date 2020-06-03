@@ -28,12 +28,12 @@ protected:
 
 private:
     cNetworkConnection::tNetworkInitializationSettings tConnectNetworkSettings;
-    cMultiplayerHandler *poMultiplayerHandler = nullptr;
+    cMultiplayerHandler* poMultiplayerHandler = nullptr;
 
-    iOverlayProvider* ppOverlayProvider;
+    iGameManager* ppOverlayProvider;
 
 public:
-    cBusWorldScene(iOverlayProvider* pOverlayProvider)
+    cBusWorldScene(iGameManager* pOverlayProvider)
     {
         ppOverlayProvider = pOverlayProvider;
     }
@@ -41,18 +41,21 @@ public:
     ~cBusWorldScene()
     {
         if (poMultiplayerHandler) delete poMultiplayerHandler; //-V809
+        delete pMissionHandler1;
         delete pMissionHandler2;
+        delete pGameLogicHandler;
     }
 
-    void LoadTextures(cTextureHandler *pTextureHandler);
+    void LoadTextures(cTextureHandler* pTextureHandler);
 
-    void LoadGeometries(cLogicalDevice *pLogicalDevice);
+    void LoadGeometries(cLogicalDevice* pLogicalDevice);
 
     void LoadMeshes();
 
     void LoadObjects();
 
     void LoadMissions();
+    void Unload() override;
 
     bool BusCentered = false;
 
@@ -67,7 +70,8 @@ public:
     cMissionHandler* pMissionHandler2;
 };
 
-void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler)
+void
+cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler)
 {
     LoadTextures(pTextureHandler);
     LoadGeometries(pLogicalDevice);
@@ -84,7 +88,8 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
     if (poMultiplayerHandler->Start())
     {
         ENGINE_LOG("Multiplayer connected");
-    } else
+    }
+    else
     {
         ENGINE_WARN("Multiplayer failed to connect");
         delete poMultiplayerHandler;
@@ -93,35 +98,53 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
     cScene::Load(pTextureHandler, pLogicalDevice, pAudioHandler);
 }
 
+void cBusWorldScene::Unload()
+{
+    delete pBusCamera;
+    pBusCamera = new BusCamera;
+    poCamera = pFirstPersonFlyCamera;
+    BusCentered = false;
+
+    if (poMultiplayerHandler) delete poMultiplayerHandler;
+    delete pMissionHandler1;
+    delete pMissionHandler2;
+    delete pGameLogicHandler;
+
+    entityGroup.ClearEntities();
+    entityGroup2.ClearEntities();
+
+    cScene::Unload();
+}
+
 void cBusWorldScene::Update()
 {
     pGameLogicHandler->Update();
     entityGroup.UpdateEntities();
 
     if (paKeys[GLFW_KEY_Q])
-        dynamic_cast<cEntity *>(pmpObjects["entity3"])->SetTarget( //-V522
-                dynamic_cast<cBus *>(pmpObjects["bus"])->GetDoorPosition()); //-V522
+        dynamic_cast<cEntity*>(pmpObjects["entity3"])->SetTarget( //-V522
+                dynamic_cast<cBus*>(pmpObjects["bus"])->GetDoorPosition()); //-V522
     if (paKeys[GLFW_KEY_E])
     {
-        for (auto &entity : *entityGroup.GetEntities())
+        for (auto& entity : *entityGroup.GetEntities())
         {
-            dynamic_cast<cEntity *>(entity)->SetTarget(dynamic_cast<cBus *>(pmpObjects["bus"])->GetDoorPosition());
+            dynamic_cast<cEntity*>(entity)->SetTarget(dynamic_cast<cBus*>(pmpObjects["bus"])->GetDoorPosition());
         }
     }
     if (paKeys[GLFW_KEY_T])
-        dynamic_cast<cEntity *>(pmpObjects["entity"])->SetPosition(glm::vec3(5, 5, 5)); //-V522
+        dynamic_cast<cEntity*>(pmpObjects["entity"])->SetPosition(glm::vec3(5, 5, 5)); //-V522
     if (paKeys[GLFW_KEY_W])
-        BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Accelerate() : poCamera->Forward();
+        BusCentered ? dynamic_cast<cBus*>(pmpObjects["bus"])->Accelerate() : poCamera->Forward();
     if (paKeys[GLFW_KEY_S])
-        BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Decelerate() : poCamera->BackWard();
+        BusCentered ? dynamic_cast<cBus*>(pmpObjects["bus"])->Decelerate() : poCamera->BackWard();
     if (!paKeys[GLFW_KEY_W] && !paKeys[GLFW_KEY_S])
-        if (BusCentered) dynamic_cast<cBus *>(pmpObjects["bus"])->IdleAcceleration();
+        if (BusCentered) dynamic_cast<cBus*>(pmpObjects["bus"])->IdleAcceleration();
     if (!paKeys[GLFW_KEY_A] && !paKeys[GLFW_KEY_D])
-        if (BusCentered) dynamic_cast<cBus *>(pmpObjects["bus"])->IdleSteering();
+        if (BusCentered) dynamic_cast<cBus*>(pmpObjects["bus"])->IdleSteering();
     if (paKeys[GLFW_KEY_A])
-        BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Steer("left") : poCamera->MoveLeft();
+        BusCentered ? dynamic_cast<cBus*>(pmpObjects["bus"])->Steer("left") : poCamera->MoveLeft();
     if (paKeys[GLFW_KEY_D])
-        BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Steer("right") : poCamera->MoveRight();
+        BusCentered ? dynamic_cast<cBus*>(pmpObjects["bus"])->Steer("right") : poCamera->MoveRight();
     if (paKeys[GLFW_KEY_C])
     {
         BusCentered = false;
@@ -149,7 +172,7 @@ void cBusWorldScene::Update()
     if (paKeys[GLFW_KEY_HOME])
         ppOverlayProvider->ActivateOverlayWindow("Test");
 
-    dynamic_cast<cBus *>(pmpObjects["bus"])->Move();
+    dynamic_cast<cBus*>(pmpObjects["bus"])->Move();
 
     cScene::Update();
     if (poMultiplayerHandler) poMultiplayerHandler->PushData();
@@ -160,12 +183,12 @@ void cBusWorldScene::HandleKey(uint uiKeyCode, uint uiAction)
     cScene::HandleKey(uiKeyCode, uiAction);
 
     // Temporary gameLogic keys
-    if(uiAction == GLFW_PRESS && uiKeyCode == GLFW_KEY_L)
+    if (uiAction == GLFW_PRESS && uiKeyCode == GLFW_KEY_L)
     {
         pGameLogicHandler->SetMissionHandler(pMissionHandler1);
         pGameLogicHandler->LoadMission();
     }
-    if(uiAction == GLFW_PRESS && uiKeyCode == GLFW_KEY_O)
+    if (uiAction == GLFW_PRESS && uiKeyCode == GLFW_KEY_O)
     {
         pGameLogicHandler->SetMissionHandler(pMissionHandler2);
         pGameLogicHandler->LoadMission();
@@ -227,7 +250,7 @@ void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
     pmpTextures["passenger"] = pTextureHandler->LoadTextureFromFile("resources/textures/penguin.png");
 }
 
-void cBusWorldScene::LoadGeometries(cLogicalDevice *pLogicalDevice)
+void cBusWorldScene::LoadGeometries(cLogicalDevice* pLogicalDevice)
 {
     // skybox
     pmpGeometries["skybox"] = cGeometry::FromOBJFile("resources/geometries/skybox.obj", pLogicalDevice);
@@ -720,7 +743,7 @@ void cBusWorldScene::LoadObjects()
     pmpObjects["entity4"] = new IPassenger(pmpMeshes["passenger"]);
     pmpObjects["entity4"]->SetPosition(glm::vec3(13.0f, 0.15f, -10.5f));
 
-    for(uint i = 0; i < 11; i ++)
+    for (uint i = 0; i < 11; i++)
     {
         string key = "passenger" + std::to_string(i);
         pmpObjects[key] = new IPassenger(pmpMeshes["passenger"]);
@@ -732,16 +755,16 @@ void cBusWorldScene::LoadObjects()
         string key = "multiplayer_bus_" + std::to_string(i);
         pmpObjects[key] = new cBus(pmpMeshes["bus"]);
         pmpObjects[key]->SetScale(glm::vec3(0));
-        dynamic_cast<cBus *>(pmpObjects[key])->piBusId = i; //-V522
+        dynamic_cast<cBus*>(pmpObjects[key])->piBusId = i; //-V522
     }
 
     // Init behaviour handler
     cBehaviourHandler::Init();
     cBehaviourHandler::AddBehavioursFromDirectory("resources/scripting");
 
-    cBehaviourHandler *cbSeperation = new cBehaviourHandler("seperation");
-    cBehaviourHandler *cbCohesion = new cBehaviourHandler("cohesion");
-    cBehaviourHandler *cbSeeking = new cBehaviourHandler("seeking");
+    cBehaviourHandler* cbSeperation = new cBehaviourHandler("seperation");
+    cBehaviourHandler* cbCohesion = new cBehaviourHandler("cohesion");
+    cBehaviourHandler* cbSeeking = new cBehaviourHandler("seeking");
 
     entityGroup.AddEntity(dynamic_cast<cEntity*>(pmpObjects["entity"]));
     entityGroup.AddEntity(dynamic_cast<cEntity*>(pmpObjects["entity2"]));

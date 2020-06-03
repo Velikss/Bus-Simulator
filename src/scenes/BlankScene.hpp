@@ -2,14 +2,14 @@
 
 #include <pch.hpp>
 #include <vulkan/scene/Scene.hpp>
-#include <vulkan/module/overlay/OverlayProvider.hpp>
+#include <vulkan/util/GameManager.hpp>
 #include <vulkan/scene/LightObject.hpp>
 
 class cBlankScene : public cScene
 {
-    iOverlayProvider* ppOverlayProvider;
+    iGameManager* ppOverlayProvider;
 public:
-    cBlankScene(iOverlayProvider* pOverlayProvider)
+    cBlankScene(iGameManager* pOverlayProvider)
     {
         ppOverlayProvider = pOverlayProvider;
     }
