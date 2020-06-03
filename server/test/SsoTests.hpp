@@ -3,7 +3,7 @@
 #include "../src/SSO/SsoHelper.hpp"
 #include "../vendor/StdUuid.hpp"
 #include "../src/SSO/SsoServer.hpp"
-#include "../src/GameServer/CGameServer.hpp"
+#include "../src/GameServer/GameServer.hpp"
 #include "../src/SSO/SsoClient.hpp"
 #include <filesystem>
 

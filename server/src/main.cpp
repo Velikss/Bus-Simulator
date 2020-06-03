@@ -1,5 +1,5 @@
 #include <pch.hpp>
-#include <GameServer/CGameServer.hpp>
+#include <GameServer/GameServer.hpp>
 #include <SSO/SsoServer.hpp>
 #include <vendor/Json.hpp>
 

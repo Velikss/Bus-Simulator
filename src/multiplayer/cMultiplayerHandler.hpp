@@ -2,8 +2,9 @@
 
 #include <pch.hpp>
 #include <entities/cBus.hpp>
-#include <NetworkClient.hpp>
 #include <StdUuid.hpp>
+#include <GameServer/GameConnectionHelper.hpp>
+#include <SSO/SsoClient.hpp>
 
 struct tFixedVec3
 {
@@ -30,35 +31,7 @@ static glm::vec3 ToGLMVec(tFixedVec3* pVec)
     };
 }
 
-bool RecieveData(cNetworkConnection* pConnection, byte*& buffer, int& iRecievedContent)
-{
-    int iSize = 0;
-    const long recievedSize = pConnection->ReceiveBytes(((byte*) &iSize), 4); //-V206 //-V112
-    if (recievedSize != 4) ENGINE_WARN("Didn't receive header"); //-V112
-    buffer = new byte[iSize]; //-V121
-    while (iRecievedContent != iSize)
-    {
-        iRecievedContent += pConnection->ReceiveBytes(buffer + iRecievedContent, iSize - iRecievedContent); //-V104
-        if (iRecievedContent == -1) iRecievedContent += 1;
-    }
-    return true;
-}
-
-bool SendData(cNetworkConnection* pConnection, byte* buffer, int iSize)
-{
-    if (!pConnection->SendBytes((byte*) &iSize, 4)) return false; //-V206 //-V112
-    if (!pConnection->SendBytes(buffer, iSize)) return false;
-    return true;
-}
-
-bool SendData(cNetworkClient* pConnection, byte* buffer, int iSize)
-{
-    if (!pConnection->SendBytes((byte*) &iSize, 4)) return false; //-V206 //-V112
-    if (!pConnection->SendBytes(buffer, iSize)) return false;
-    return true;
-}
-
-class cMultiplayerHandler : protected cNetworkClient
+class cMultiplayerHandler : protected cSSOClient
 {
 protected:
     cScene* ppScene = nullptr;
@@ -67,7 +40,7 @@ protected:
     std::map<std::string, std::string> pmsBusIds;
     std::stack<uint> paAvailableBusses;
 public:
-    cMultiplayerHandler(tNetworkInitializationSettings* pSettings, cScene* pScene) : cNetworkClient(pSettings)
+    cMultiplayerHandler(cNetworkConnection::tNetworkInitializationSettings* pSettings, cScene* pScene) : cSSOClient(pSettings)
     {
         this->ppScene = pScene;
         psGameServerUuid = uuids::to_string(uuids::uuid_system_generator{}());
@@ -98,7 +71,7 @@ public:
 
     void PushData()
     {
-        if (!ppScene) return;
+        if (!ppScene || !pbConnectionAcitve) return;
 
         static const int pos_pos = 36;
         static const int rot_pos = pos_pos + sizeof(tFixedVec3);
@@ -111,7 +84,7 @@ public:
         tFixedVec3 fixedRot = ToFixedVec(oRot);
         memcpy(pBuffer + pos_pos, &fixedPos, sizeof(tFixedVec3));
         memcpy(pBuffer + rot_pos, &fixedRot, sizeof(tFixedVec3));
-        SendData(this, pBuffer, msg_size);
+        nGameConnectionHelper::SendData(this, pBuffer, msg_size);
     }
 
     void Stop()
@@ -132,6 +105,10 @@ void cMultiplayerHandler::OnConnect(cNetworkConnection* pConnection)
 
 bool cMultiplayerHandler::OnRecieve(cNetworkConnection* pConnection)
 {
+    if(!pbConnectionAcitve) return true;
+
+    using namespace nGameConnectionHelper;
+
     byte* buffer = nullptr;
     int iRecievedContent = 0;
     if (!RecieveData(pConnection, buffer, iRecievedContent))

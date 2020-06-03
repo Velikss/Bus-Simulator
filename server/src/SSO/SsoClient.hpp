@@ -1,13 +1,15 @@
 #pragma once
 #include <pch.hpp>
-#include <server/src/NetworkClient.hpp>
-#include <server/src/Http/HTTP.hpp>
+#include <NetworkClient.hpp>
+#include <Http/HTTP.hpp>
 
 using namespace cHttp;
 
 class cSSOClient : public cNetworkClient
 {
     string psSessionKey = "";
+protected:
+    bool pbConnectionAcitve = false;
 public:
     cSSOClient(tNetworkInitializationSettings* ptSettings) : cNetworkClient(ptSettings)
     {
@@ -36,7 +38,9 @@ bool cSSOClient::Login(const string &sLoginName, const string &sPassword, size_t
 
     if(!SendRequest(oRequest, oResponse)) return false;
     psSessionKey = oResponse.GetHeader("session-key");
-    return oResponse.GetResponseCode() == 200;
+    if(oResponse.GetResponseCode() == 200)
+        pbConnectionAcitve = true;
+    return pbConnectionAcitve;
 }
 
 bool cSSOClient::Logout()
@@ -55,6 +59,7 @@ bool cSSOClient::Logout()
 
     SendRequest(oRequest, oResponse, -1);
     psSessionKey.clear();
+    pbConnectionAcitve = false;
     return oResponse.GetResponseCode() == 200;
 }
 

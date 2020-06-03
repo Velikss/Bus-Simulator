@@ -15,7 +15,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/Uri.hpp
         ${PROJECT_SOURCE_DIR}/src/DirectoryWatcher.hpp
         vendor/Json.hpp
-        vendor/Utf8.hpp src/NetworkAbstractions.hpp src/SslHelper.hpp src/ODBC/ODBCInstance.hpp vendor/StdUuid.hpp src/SSO/SsoServer.hpp src/GameServer/CGameServer.hpp src/SSO/SsoService.hpp src/GameServer.hpp src/SSO/SsoClient.hpp src/SSO/SsoHelper.hpp)
+        vendor/Utf8.hpp src/NetworkAbstractions.hpp src/SslHelper.hpp src/ODBC/ODBCInstance.hpp vendor/StdUuid.hpp src/SSO/SsoServer.hpp src/SSO/SsoService.hpp src/GameServer/GameServer.hpp src/SSO/SsoClient.hpp src/SSO/SsoHelper.hpp src/GameServer/GameConnectionHelper.hpp)
 
 set(OPENSSL_USE_STATIC_LIBS TRUE)
 find_package(GTest CONFIG REQUIRED)

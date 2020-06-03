@@ -2,27 +2,7 @@
 #include <pch.hpp>
 #include <server/src/ODBC/ODBCInstance.hpp>
 #include <server/src/SSO/SsoService.hpp>
-
-bool RecieveData(cNetworkConnection* pConnection, byte* buffer, int & iRecievedContent)
-{
-    int iSize = 0;
-    const size_t recievedSize = (size_t) pConnection->ReceiveBytes(((byte *) &iSize), 4); //-V206 //-V112
-    if (recievedSize != 4) std::cout << "didn't recieve header." << std::endl; //-V112
-    buffer = new byte[iSize]; //-V121
-    while (iRecievedContent != iSize)
-    {
-        iRecievedContent += pConnection->ReceiveBytes(buffer + iRecievedContent, iSize - iRecievedContent); //-V104
-        if (iRecievedContent == -1) iRecievedContent += 1;
-    }
-    return true;
-}
-
-bool SendData(cNetworkConnection* pConnection, byte* buffer, int iSize)
-{
-    if(!pConnection->SendBytes((byte*)&iSize, 4)) return false; //-V206 //-V112
-    if(!pConnection->SendBytes(buffer, iSize)) return false;
-    return true;
-}
+#include <server/src/GameServer/GameConnectionHelper.hpp>
 
 class cGameServer : public cSSOService
 {
@@ -127,13 +107,13 @@ void cGameServer::OnDisconnect(cNetworkConnection *pConnection)
 bool cGameServer::HandleGameConnection(cNetworkConnection* pConnection)
 {
     int iRecievedContent = 0;
-    if (!RecieveData(pConnection, &(paBuffer[0]), iRecievedContent))
+    if (!nGameConnectionHelper::RecieveData(pConnection, &(paBuffer[0]), iRecievedContent))
         return false;
 
     for(uint i = 0; i < paConnections.size(); i++) //-V104
         if (paConnections[i] != pConnection) //-V108
         {
-            if (!SendData(paConnections[i], &(paBuffer[0]), iRecievedContent)) //-V108
+            if (!nGameConnectionHelper::SendData(paConnections[i], &(paBuffer[0]), iRecievedContent)) //-V108
             {
                 std::cout << "failed sending to " << paConnections[i]->GetConnectionString() << ", error: " << paConnections[i]->piFailures << std::endl;; //-V108
                 if (paConnections[i]->piFailures++ >= 5) //-V108
