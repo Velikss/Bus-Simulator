@@ -6,6 +6,7 @@
 #include <overlay/TestOverlay.hpp>
 #include <overlay/MainMenu.hpp>
 #include <overlay/LoadingOverlay.hpp>
+#include <overlay/BusMenu.hpp>
 
 class cApplication : public cEngine
 {
@@ -46,6 +47,7 @@ protected:
         mOverlayWindows["MainMenu"] = new cMainMenu(this);
         mOverlayWindows["Test"] = new cTestOverlay(this);
         mOverlayWindows["Loading"] = new cLoadingOverlay();
+        mOverlayWindows["BusMenu"] = new cBusMenu(this);
     }
 };
 

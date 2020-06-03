@@ -106,9 +106,9 @@ namespace JavaScriptEntityFunctions
         // Get Velocity and push the values to the array
         glm::vec2 velocity = poEntity->GetVelocity();
 
-        duk_push_number(poContext, (double)velocity[0]);
+        duk_push_int(poContext, velocity[0]);
         duk_put_prop_index(poContext, ArrayIndex, 0);
-        duk_push_number(poContext, (double)velocity[1]);
+        duk_push_int(poContext, velocity[1]);
         duk_put_prop_index(poContext, ArrayIndex, 1);
 
         return 1;
