@@ -89,7 +89,7 @@ public:
     cCommandBuffer** GetCommandBuffers() override;
     void HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction) override;
     void SwitchScene(const string& sName) override;
-
+    std::map<string, cScene*>& GetScenes();
 protected:
     virtual void LoadMRTShaders(std::vector<string>& shaders) = 0;
     virtual void LoadLightingShaders(std::vector<string>& shaders) = 0;
@@ -594,4 +594,9 @@ void cEngine::RebuildUniforms(void)
         pUniformHandler->RebuildUniforms();
         pUniformHandler->SetupUniformBuffers(ppTextureHandler, pScene);
     }
+}
+
+std::map<string, cScene*>& cEngine::GetScenes()
+{
+    return ppSceneManager->GetScenes();
 }

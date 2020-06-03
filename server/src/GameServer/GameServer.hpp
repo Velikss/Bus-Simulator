@@ -109,7 +109,7 @@ bool cGameServer::HandleGameConnection(cNetworkConnection* pConnection)
     int iRecievedContent = 0;
     if (!nGameConnectionHelper::RecieveData(pConnection, &(paBuffer[0]), iRecievedContent))
         return false;
-
+    std::cout << "recieved data." << std::endl;
     for(uint i = 0; i < paConnections.size(); i++) //-V104
         if (paConnections[i] != pConnection && IsWhiteListed(paConnections[i])) //-V108
         {
