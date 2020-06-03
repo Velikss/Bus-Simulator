@@ -141,7 +141,8 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/Focussable.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/PasswordTextBox.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/TabsElement.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/ComboBox.hpp src/vulkan/module/overlay/element/elements/CheckBox.hpp src/vulkan/module/overlay/element/elements/LabeledTextbox.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/ComboBox.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/CheckBox.hpp)
 
 include_directories(${_ENGINE_INCLUDE_DIRS})
 add_library(${This} STATIC ${PROJECT_SOURCE_DIR}/src/main.cpp ${Headers})

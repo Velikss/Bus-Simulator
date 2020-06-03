@@ -28,8 +28,6 @@ public:
 
     void SetFont(float fFontSize, cFont* pFont, glm::vec3 tColor);
     void UpdateText(const string& sText);
-    glm::vec3 GetColor();
-    uint GetWidth();
 
     uint GetChildCount() override;
     bool IsTextElement(uint uiIndex) override;
@@ -40,6 +38,8 @@ public:
 
 void cTextElement::OnLoadVertices()
 {
+    ptInfo.uiWidth = GetTextWidth(psText, ppFont, pfFontSize);
+    ptInfo.uiHeight = ppFont->GetFontHeight(pfFontSize);
 }
 
 VkDeviceSize cTextElement::GetMemorySize(uint uiIndex)
@@ -130,23 +130,17 @@ void cTextElement::SetFont(float fFontSize, cFont* pFont, glm::vec3 tColor)
     pfFontSize = fFontSize;
     ppFont = pFont;
     ptColor = tColor;
+
+    ptInfo.uiWidth = GetTextWidth(psText, ppFont, pfFontSize);
+    ptInfo.uiHeight = ppFont->GetFontHeight(pfFontSize);
 }
 
 void cTextElement::UpdateText(const string& sText)
 {
     assert(ppFont != nullptr);
     psText = sText;
+    ptInfo.uiWidth = GetTextWidth(psText, ppFont, pfFontSize);
     Invalidate();
-}
-
-glm::vec3 cTextElement::GetColor()
-{
-    return ptColor;
-}
-
-uint cTextElement::GetWidth()
-{
-    return puiWidth;
 }
 
 uint cTextElement::GetChildCount()
@@ -168,9 +162,8 @@ uint cTextElement::GetTextWidth(string sString, cFont* pFont, float fFontSize)
 {
     const uint firstChar = STB_FONT_arial_50_usascii_FIRST_CHAR;
 
-    // Calculate text size
+    // Calculate character size
     const float charW = fFontSize / 10;
-    const float charH = fFontSize / 10;
 
     // Calculate text width
     float fTextWidth = 0;

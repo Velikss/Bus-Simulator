@@ -10,13 +10,13 @@ class cMainMenu : public cBaseMenu
 private:
     iOverlayProvider* ppOverlayProvider;
 protected:
-    void LoadTextures(cTextureHandler* pTextureHandler)
+    void LoadTextures(cTextureHandler* pTextureHandler) override
     {
         cBaseMenu::LoadTextures(pTextureHandler);
         pmpTextures["textbox"] = pTextureHandler->LoadTextureFromFile("resources/textures/textbox.png");
     }
 
-    void ConstructElements()
+    void ConstructElements() override
     {
         cBaseMenu::ConstructElements();
 

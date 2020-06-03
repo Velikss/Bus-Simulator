@@ -25,7 +25,6 @@ public:
     uint GetChildCount() override;
     bool IsTextElement(uint uiIndex) override;
     glm::vec3 GetColor(uint uiIndex) override;
-    tElementInfo GetSize();
     void SetSize(uint uiWidth, uint uiHeight);
 };
 
@@ -91,11 +90,6 @@ bool cStaticElement::IsTextElement(uint uiIndex)
 glm::vec3 cStaticElement::GetColor(uint uiIndex)
 {
     return glm::vec3();
-}
-
-tElementInfo cStaticElement::GetSize()
-{
-    return ptInfo;
 }
 
 void cStaticElement::SetSize(uint uiWidth, uint uiHeight)
