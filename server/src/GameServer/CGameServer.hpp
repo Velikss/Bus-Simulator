@@ -143,6 +143,5 @@ bool cGameServer::HandleGameConnection(cNetworkConnection* pConnection)
                 }
             }
         }
-    delete buffer;
     return true;
 }
