@@ -112,17 +112,17 @@ void cMainMenu::HandleOnSubmit(cButton* poSender)
     ptConnectNetworkSettings.usPort = 14001;
     ptConnectNetworkSettings.eMode = cNetworkConnection::cMode::eNonBlocking;
     (*pppoMultiplayerHandler) = new cMultiplayerHandler(&ptConnectNetworkSettings);
-    (*pppoMultiplayerHandler)->Connect();
-    if((*pppoMultiplayerHandler)->Login(poUserName->GetValue(), poPassword->GetValue()))
+    if((*pppoMultiplayerHandler)->Connect())
     {
-        std::cout << "Successfully logged in." << std::endl;
+        if ((*pppoMultiplayerHandler)->Login(poUserName->GetValue(), poPassword->GetValue()))
+        {
+            std::cout << "Successfully logged in." << std::endl;
+            return;
+        }
     }
-    else
-    {
-        std::cout << "Failed to log in." << std::endl;
-        (*pppoMultiplayerHandler)->Disconnect();
-        delete (*pppoMultiplayerHandler);
-    }
+    std::cout << "Failed to log in." << std::endl;
+    (*pppoMultiplayerHandler)->Disconnect();
+    delete (*pppoMultiplayerHandler);
 }
 
 void cMainMenu::HandleSinglePlayer(cButton* poSender)
@@ -140,15 +140,15 @@ void cMainMenu::HandleRegister(cButton* poSender)
     ptConnectNetworkSettings.usPort = 14001;
     ptConnectNetworkSettings.eMode = cNetworkConnection::cMode::eNonBlocking;
     (*pppoMultiplayerHandler) = new cMultiplayerHandler(&ptConnectNetworkSettings);
-    (*pppoMultiplayerHandler)->Connect();
-    if((*pppoMultiplayerHandler)->RegisterUser(poUserName->GetValue(), poPassword->GetValue()))
+    if((*pppoMultiplayerHandler)->Connect())
     {
-        std::cout << "Successfully registered user." << std::endl;
+        if ((*pppoMultiplayerHandler)->RegisterUser(poUserName->GetValue(), poPassword->GetValue()))
+        {
+            std::cout << "Successfully registered user." << std::endl;
+            return;
+        }
     }
-    else
-    {
-        std::cout << "Failed to register user." << std::endl;
-        (*pppoMultiplayerHandler)->Disconnect();
-        delete (*pppoMultiplayerHandler);
-    }
+    std::cout << "Failed to register user." << std::endl;
+    (*pppoMultiplayerHandler)->Disconnect();
+    delete (*pppoMultiplayerHandler);
 }
