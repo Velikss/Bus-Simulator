@@ -7,8 +7,6 @@
 
 class cBusMenu : public cBaseMenu
 {
-private:
-    iOverlayProvider* ppOverlayProvider;
 protected:
     void LoadTextures(cTextureHandler* pTextureHandler) override
     {
@@ -62,11 +60,12 @@ protected:
         });
     }
 public:
-    cBusMenu(iOverlayProvider* pOverlayProvider) : cBaseMenu(pOverlayProvider)
-    {
-    }
+    cBusMenu(iGameManager* pOverlayProvider) : cBaseMenu(pOverlayProvider)
+            {
+            }
 
     void HandleOnSubmit(cButton* poSender);
+    void HandleSinglePlayer(cButton* poSender);
 
     bool ShouldHandleInput() override
     {
