@@ -64,7 +64,8 @@ public:
     virtual void Load(cTextureHandler* pTextureHandler,
                       cLogicalDevice* pLogicalDevice,
                       cAudioHandler* pAudioHandler = nullptr);
-    void Unload();
+    virtual void Unload();
+    void UnloadObjects();
 
     void HandleMouse(uint uiDeltaX, uint uiDeltaY) override;
     void HandleKey(uint uiKeyCode, uint uiAction) override;
@@ -88,7 +89,7 @@ cScene::~cScene()
     delete ppColliders;
     delete poCamera;
 
-    Unload();
+    UnloadObjects();
 
     ENGINE_LOG("Cleaned up scene");
 }
@@ -146,6 +147,16 @@ void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevi
 }
 
 void cScene::Unload()
+{
+    UnloadObjects();
+
+    papLightObjects.clear();
+    papMovableObjects.clear();
+    ppColliders->papColliders.clear();
+    poCamera->Reset();
+}
+
+void cScene::UnloadObjects()
 {
     for (auto oObject : pmpObjects)
     {

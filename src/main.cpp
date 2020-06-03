@@ -5,6 +5,8 @@
 #include <scenes/BlankScene.hpp>
 #include <overlay/TestOverlay.hpp>
 #include <overlay/MainMenu.hpp>
+#include <overlay/LoadingOverlay.hpp>
+#include <overlay/BusMenu.hpp>
 
 class cApplication : public cEngine
 {
@@ -32,15 +34,20 @@ protected:
         shaders.push_back("resources/shaders/compiled/text.frag.spv");
     }
 
-    void LoadScene(cScene** pScene) override
+    void SetupScenes(std::map<string, cScene*>& mScenes, string* sInitialScene) override
     {
-        *pScene = new cBusWorldScene(this);
+        mScenes["Blank"] = new cBlankScene(this);
+        mScenes["BusWorld"] = new cBusWorldScene(this);
+
+        *sInitialScene = "Blank";
     }
 
     void LoadOverlayWindows(std::map<string, cOverlayWindow*>& mOverlayWindows) override
     {
         mOverlayWindows["MainMenu"] = new cMainMenu(this);
         mOverlayWindows["Test"] = new cTestOverlay(this);
+        mOverlayWindows["Loading"] = new cLoadingOverlay();
+        mOverlayWindows["BusMenu"] = new cBusMenu(this);
     }
 };
 

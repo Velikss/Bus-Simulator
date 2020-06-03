@@ -15,7 +15,7 @@
 class cTestOverlay : public cOverlayWindow
 {
 private:
-    iOverlayProvider* ppOverlayProvider;
+    iGameManager* ppOverlayProvider;
 
     cClickableElement* pButton;
     cTextElement* pText;
@@ -78,7 +78,7 @@ protected:
     }
 
 public:
-    cTestOverlay(iOverlayProvider* pOverlayProvider) : ppOverlayProvider(pOverlayProvider)
+    cTestOverlay(iGameManager* pOverlayProvider) : ppOverlayProvider(pOverlayProvider)
     {}
 
     void Tick() override

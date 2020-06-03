@@ -3,6 +3,27 @@
 #include <server/src/ODBC/ODBCInstance.hpp>
 #include <server/src/SSO/SsoService.hpp>
 
+bool RecieveData(cNetworkConnection* pConnection, byte* buffer, int & iRecievedContent)
+{
+    int iSize = 0;
+    const size_t recievedSize = (size_t) pConnection->ReceiveBytes(((byte *) &iSize), 4); //-V206 //-V112
+    if (recievedSize != 4) std::cout << "didn't recieve header." << std::endl; //-V112
+    buffer = new byte[iSize]; //-V121
+    while (iRecievedContent != iSize)
+    {
+        iRecievedContent += pConnection->ReceiveBytes(buffer + iRecievedContent, iSize - iRecievedContent); //-V104
+        if (iRecievedContent == -1) iRecievedContent += 1;
+    }
+    return true;
+}
+
+bool SendData(cNetworkConnection* pConnection, byte* buffer, int iSize)
+{
+    if(!pConnection->SendBytes((byte*)&iSize, 4)) return false; //-V206 //-V112
+    if(!pConnection->SendBytes(buffer, iSize)) return false;
+    return true;
+}
+
 class cGameServer : public cSSOService
 {
     std::map<string, bool> pC_aRequiredTables {
@@ -10,6 +31,7 @@ class cGameServer : public cSSOService
     };
 
     std::shared_ptr<cODBCInstance> poDB;
+    byte paBuffer[255];
 public:
     cGameServer(cNetworkConnection::tNetworkInitializationSettings* tSettings) : cSSOService(tSettings)
     {
@@ -66,13 +88,16 @@ public:
         cNetworkServer::Stop();
     }
 
+private:
     bool OnConnect(cNetworkConnection* pConnection);
     bool OnRecieve(cNetworkConnection* pConnection);
     void OnDisconnect(cNetworkConnection* pConnection);
+    bool HandleGameConnection(cNetworkConnection* pConnection);
 };
 
 bool cGameServer::OnConnect(cNetworkConnection* pConnection)
 {
+    std::cout << "Client connected: " << pConnection->GetConnectionString() << std::endl;
     return true;
 }
 
@@ -90,18 +115,33 @@ bool cGameServer::OnRecieve(cNetworkConnection *pConnection)
         return true;
     }
 
-    if (iStatus == C_SSO_OK) //-V547
-    {
-        cResponse oResponse;
-        oResponse.SetResponseCode(200);
-        string sBuffer = oResponse.Serialize();
-        pConnection->SendBytes((byte*)sBuffer.c_str(), (int) sBuffer.size());
-        return true;
-    }
+    if (iStatus == C_SSO_OK) return HandleGameConnection(pConnection);
     return false;
 }
 
 void cGameServer::OnDisconnect(cNetworkConnection *pConnection)
 {
+    std::cout << "Client disconnected: " << pConnection->GetConnectionString() << std::endl;
+}
 
+bool cGameServer::HandleGameConnection(cNetworkConnection* pConnection)
+{
+    int iRecievedContent = 0;
+    if (!RecieveData(pConnection, &(paBuffer[0]), iRecievedContent))
+        return false;
+
+    for(uint i = 0; i < paConnections.size(); i++) //-V104
+        if (paConnections[i] != pConnection) //-V108
+        {
+            if (!SendData(paConnections[i], &(paBuffer[0]), iRecievedContent)) //-V108
+            {
+                std::cout << "failed sending to " << paConnections[i]->GetConnectionString() << ", error: " << paConnections[i]->piFailures << std::endl;; //-V108
+                if (paConnections[i]->piFailures++ >= 5) //-V108
+                {
+                    std::cout << "terminated connection " << paConnections[i]->GetConnectionString() << std::endl;; //-V108
+                    RemoveConnectionAt(i);
+                }
+            }
+        }
+    return true;
 }

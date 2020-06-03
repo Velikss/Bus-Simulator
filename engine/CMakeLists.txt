@@ -113,11 +113,6 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cEntity.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cEntityGroup.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBehaviourHandler.hpp
-        ${PROJECT_SOURCE_DIR}/src/multiplayer/SslHelper.hpp
-        ${PROJECT_SOURCE_DIR}/src/multiplayer/NetworkAbstractions.hpp
-        ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkConnection.hpp
-        ${PROJECT_SOURCE_DIR}/src/multiplayer/cNetworkClient.hpp
-        ${PROJECT_SOURCE_DIR}/src/multiplayer/cMultiplayerHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/collision/Collider.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/collision/CollisionHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/collision/ColliderSet.hpp
@@ -126,7 +121,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/AudioHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/util/DirectoryWatcher.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/OverlayWindow.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/OverlayProvider.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/util/GameManager.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/ClickableElement.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/UIManager.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/UIElement.hpp
@@ -142,7 +137,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/PasswordTextBox.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/TabsElement.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/ComboBox.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/CheckBox.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/CheckBox.hpp src/vulkan/SceneManager.hpp)
 
 include_directories(${_ENGINE_INCLUDE_DIRS})
 add_library(${This} STATIC ${PROJECT_SOURCE_DIR}/src/main.cpp ${Headers})

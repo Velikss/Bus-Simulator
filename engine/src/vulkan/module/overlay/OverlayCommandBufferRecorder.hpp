@@ -18,14 +18,14 @@ private:
     VkRenderPassBeginInfo ptRenderPassInfo = {};
     std::array<VkClearValue, 1> paoClearValues = {};
 
-    iOverlayProvider* ppOverlayProvider;
+    iGameManager* ppOverlayProvider;
 
 public:
     cOverlayCommandBufferRecorder(cRenderPass* pRenderPass,
                                   cSwapChain* pSwapChain,
                                   cRenderPipeline* pGraphicsPipeline,
                                   iUniformHandler* pUniformHandler,
-                                  iOverlayProvider* pOverlayProvider);
+                                  iGameManager* pOverlayProvider);
 
     void Setup(uint uiIndex) override;
     void RecordCommands(VkCommandBuffer& oCommandBuffer, uint uiIndex) override;
@@ -35,7 +35,7 @@ cOverlayCommandBufferRecorder::cOverlayCommandBufferRecorder(cRenderPass* pRende
                                                              cSwapChain* pSwapChain,
                                                              cRenderPipeline* pGraphicsPipeline,
                                                              iUniformHandler* pUniformHandler,
-                                                             iOverlayProvider* pOverlayProvider)
+                                                             iGameManager* pOverlayProvider)
 {
     ppRenderPass = pRenderPass;
     ppSwapChain = pSwapChain;
