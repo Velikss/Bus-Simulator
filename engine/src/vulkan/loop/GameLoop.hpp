@@ -20,7 +20,8 @@ private:
 
     // Tasks to run every tick
     std::vector<iTickTask*> papTasks;
-    std::mutex poTasksMutex;
+    std::vector<iTickTask*> papStagingTasks;
+    bool pbTasksInvalid = false;
 
     // If false, the loop will terminate
     bool pbRunning = true;
@@ -65,18 +66,20 @@ void cGameLoop::operator()()
 
 void cGameLoop::AddTask(iTickTask* pTask)
 {
-    papTasks.push_back(pTask);
+    papStagingTasks.push_back(pTask);
+    pbTasksInvalid = true;
 
     ENGINE_LOG("Added new task to game loop");
 }
 
 void cGameLoop::RemoveTask(iTickTask* pTask)
 {
-    for (auto it = papTasks.begin(); it < papTasks.end(); it++)
+    for (auto it = papStagingTasks.begin(); it < papStagingTasks.end(); it++)
     {
         if (*it == pTask)
         {
-            papTasks.erase(it);
+            papStagingTasks.erase(it);
+            pbTasksInvalid = true;
             break;
         }
     }
@@ -140,18 +143,19 @@ void cGameLoop::CheckTickTime(time_point<steady_clock> tPrev, time_point<steady_
 
 void cGameLoop::Tick()
 {
-    // Try locking the mutex if it's available, otherwise print a warning message
-    if (poTasksMutex.try_lock())
+    // Run all the tick tasks
+    for (iTickTask* pTask : papTasks)
     {
-        // Run all the tick tasks
-        for (iTickTask* pTask : papTasks)
-        {
-            pTask->Tick();
-        }
-        poTasksMutex.unlock();
+        pTask->Tick();
     }
-    else
+
+    if (pbTasksInvalid)
     {
-        ENGINE_WARN("Skipped a tick because tasks are locked");
+        papTasks.clear();
+        for (iTickTask* pTask : papStagingTasks)
+        {
+            papTasks.push_back(pTask);
+        }
+        pbTasksInvalid = false;
     }
 }
