@@ -40,9 +40,8 @@ protected:
     std::map<std::string, std::string> pmsBusIds;
     std::stack<uint> paAvailableBusses;
 public:
-    cMultiplayerHandler(cNetworkConnection::tNetworkInitializationSettings* pSettings, cScene* pScene) : cSSOClient(pSettings)
+    cMultiplayerHandler(cNetworkConnection::tNetworkInitializationSettings* pSettings) : cSSOClient(pSettings)
     {
-        this->ppScene = pScene;
         psGameServerUuid = uuids::to_string(uuids::uuid_system_generator{}());
         memcpy(pBuffer, psGameServerUuid.c_str(), 36);
 
@@ -67,6 +66,15 @@ public:
     bool Start()
     {
         return Connect();
+    }
+
+    void AssignScene(cScene* pScene)
+    {
+        ppScene = pScene;
+    }
+    void ClearScene()
+    {
+        ppScene = nullptr;
     }
 
     void PushData()
@@ -115,9 +123,12 @@ bool cMultiplayerHandler::OnRecieve(cNetworkConnection* pConnection)
     if (!RecieveData(pConnection, buffer, iRecievedContent))
         return false;
 
+    if (!ppScene) return true;
+    auto pScene = ppScene;
+
     std::string sId((char*) buffer, 36);
 
-    auto& aObjects = ppScene->GetObjects();
+    auto& aObjects = pScene->GetObjects();
 
     if (pmsBusIds.count(sId) == 0)
     {

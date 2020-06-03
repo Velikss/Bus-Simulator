@@ -40,7 +40,7 @@ public:
 
     ~cBusWorldScene()
     {
-        if (poMultiplayerHandler) delete poMultiplayerHandler; //-V809
+        delete poMultiplayerHandler; //-V809
         delete pMissionHandler1;
         delete pMissionHandler2;
         delete pGameLogicHandler;
@@ -70,33 +70,13 @@ public:
     cMissionHandler* pMissionHandler2;
 };
 
-void
-cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler)
+void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler)
 {
     LoadTextures(pTextureHandler);
     LoadGeometries(pLogicalDevice);
     LoadMeshes();
     LoadObjects();
     LoadMissions();
-
-    // Connect to multiplayer instance if possbile.
-    tConnectNetworkSettings.sAddress = "127.0.0.1";
-    tConnectNetworkSettings.usPort = 14001;
-    tConnectNetworkSettings.eMode = cNetworkConnection::cMode::eNonBlocking;
-
-    poMultiplayerHandler = new cMultiplayerHandler(&tConnectNetworkSettings, this);
-    if (poMultiplayerHandler->Start())
-    {
-        ENGINE_LOG("Multiplayer connected");
-        bool bCreated = poMultiplayerHandler->RegisterUser("root", "hiddenhand");
-        bool bLoggedIn = poMultiplayerHandler->Login("root", "hiddenhand");
-    }
-    else
-    {
-        ENGINE_WARN("Multiplayer failed to connect");
-        delete poMultiplayerHandler;
-        poMultiplayerHandler = nullptr;
-    }
     cScene::Load(pTextureHandler, pLogicalDevice, pAudioHandler);
 }
 

@@ -7,6 +7,8 @@
 
 class cMainMenu : public cBaseMenu
 {
+    cMultiplayerHandler** pppoMultiplayerHandler = nullptr;
+    cNetworkConnection::tNetworkInitializationSettings ptConnectNetworkSettings = {};
 protected:
     void LoadTextures(cTextureHandler* pTextureHandler) override
     {
@@ -59,15 +61,24 @@ protected:
         oSubmit->AddY(170);
         std::function<void(cButton*)> OnSubmitHandler = std::bind(&cMainMenu::HandleOnSubmit, this, std::placeholders::_1);
         oSubmit->ppaCallbacks.push_back(OnSubmitHandler);
-
         pmpOverlay.push_back({"oSubmit", oSubmit});
+
+        cButton* oRegister = new cButton({400, 75}, 0, pmpTextures["buttonTexture"],
+                                       cOverlayRenderModule::FONT, 10,
+                                       glm::vec3(0,0,0));
+        oRegister->SetLabel("Register");
+        oRegister->Center();
+        oRegister->AddY(260);
+        std::function<void(cButton*)> OnRegisterHandler = std::bind(&cMainMenu::HandleRegister, this, std::placeholders::_1);
+        oRegister->ppaCallbacks.push_back(OnRegisterHandler);
+        pmpOverlay.push_back({"oRegister", oRegister});
 
         cButton* oSinglePlayer = new cButton({400, 75}, 0, pmpTextures["buttonTexture"],
                                        cOverlayRenderModule::FONT, 10,
                                        glm::vec3(0,0,0));
         oSinglePlayer->SetLabel("Singleplayer");
         oSinglePlayer->Center();
-        oSinglePlayer->AddY(270);
+        oSinglePlayer->AddY(350);
         std::function<void(cButton*)> OnSinglePlayerHandler = std::bind(&cMainMenu::HandleSinglePlayer, this, std::placeholders::_1);
         oSinglePlayer->ppaCallbacks.push_back(OnSinglePlayerHandler);
 
@@ -78,12 +89,14 @@ protected:
         });
     }
 public:
-    cMainMenu(iGameManager* pOverlayProvider) : cBaseMenu(pOverlayProvider)
+    cMainMenu(iGameManager* pOverlayProvider, cMultiplayerHandler** ppMultiplayerHandler) : cBaseMenu(pOverlayProvider)
     {
+        pppoMultiplayerHandler = ppMultiplayerHandler;
     }
 
     void HandleOnSubmit(cButton* poSender);
     void HandleSinglePlayer(cButton* poSender);
+    void HandleRegister(cButton* poSender);
 
     bool ShouldHandleInput() override
     {
@@ -95,7 +108,21 @@ void cMainMenu::HandleOnSubmit(cButton* poSender)
 {
     cTextBoxElement* poUserName = (cTextBoxElement*)GetElement("oUserName");
     cPasswordTextBox* poPassword = (cPasswordTextBox*)GetElement("oPassword");
-    std::cout << "logging in with credentials: " << poUserName->GetValue() << ":" << poPassword->GetValue();
+    ptConnectNetworkSettings.sAddress = "127.0.0.1";
+    ptConnectNetworkSettings.usPort = 14001;
+    ptConnectNetworkSettings.eMode = cNetworkConnection::cMode::eNonBlocking;
+    (*pppoMultiplayerHandler) = new cMultiplayerHandler(&ptConnectNetworkSettings);
+    (*pppoMultiplayerHandler)->Connect();
+    if((*pppoMultiplayerHandler)->Login(poUserName->GetValue(), poPassword->GetValue()))
+    {
+        std::cout << "Successfully logged in." << std::endl;
+    }
+    else
+    {
+        std::cout << "Failed to log in." << std::endl;
+        (*pppoMultiplayerHandler)->Disconnect();
+        delete (*pppoMultiplayerHandler);
+    }
 }
 
 void cMainMenu::HandleSinglePlayer(cButton* poSender)
@@ -103,4 +130,25 @@ void cMainMenu::HandleSinglePlayer(cButton* poSender)
     ppOverlayProvider->ActivateOverlayWindow("Loading");
     ppOverlayProvider->SwitchScene("BusWorld");
     std::cout << "entering singleplayer mode" << std::endl;
+}
+
+void cMainMenu::HandleRegister(cButton* poSender)
+{
+    cTextBoxElement* poUserName = (cTextBoxElement*)GetElement("oUserName");
+    cPasswordTextBox* poPassword = (cPasswordTextBox*)GetElement("oPassword");
+    ptConnectNetworkSettings.sAddress = "127.0.0.1";
+    ptConnectNetworkSettings.usPort = 14001;
+    ptConnectNetworkSettings.eMode = cNetworkConnection::cMode::eNonBlocking;
+    (*pppoMultiplayerHandler) = new cMultiplayerHandler(&ptConnectNetworkSettings);
+    (*pppoMultiplayerHandler)->Connect();
+    if((*pppoMultiplayerHandler)->RegisterUser(poUserName->GetValue(), poPassword->GetValue()))
+    {
+        std::cout << "Successfully registered user." << std::endl;
+    }
+    else
+    {
+        std::cout << "Failed to register user." << std::endl;
+        (*pppoMultiplayerHandler)->Disconnect();
+        delete (*pppoMultiplayerHandler);
+    }
 }

@@ -10,6 +10,7 @@
 
 class cApplication : public cEngine
 {
+    cMultiplayerHandler* ppMultiplayerHandler = nullptr;
 public:
     cApplication() : cEngine("Bus Simulator")
     {
@@ -44,7 +45,7 @@ protected:
 
     void LoadOverlayWindows(std::map<string, cOverlayWindow*>& mOverlayWindows) override
     {
-        mOverlayWindows["MainMenu"] = new cMainMenu(this);
+        mOverlayWindows["MainMenu"] = new cMainMenu(this, &ppMultiplayerHandler);
         mOverlayWindows["Test"] = new cTestOverlay(this);
         mOverlayWindows["Loading"] = new cLoadingOverlay();
         mOverlayWindows["BusMenu"] = new cBusMenu(this);
