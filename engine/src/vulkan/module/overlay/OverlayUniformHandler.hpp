@@ -5,7 +5,7 @@
 #include <vulkan/swapchain/SwapChain.hpp>
 #include <vulkan/module/overlay/text/Font.hpp>
 #include <vulkan/module/overlay/element/TextElement.hpp>
-#include <vulkan/module/overlay/OverlayProvider.hpp>
+#include <vulkan/util/GameManager.hpp>
 
 struct tOverlayUniformObject
 {
@@ -41,14 +41,14 @@ private:
 
     VkDescriptorSet paoCurrentDescriptorSets[2];
 
-    iOverlayProvider* ppOverlayProvider;
+    iGameManager* ppOverlayProvider;
 
     bool pbAllocated = false;
 
 public:
     cOverlayUniformHandler(cLogicalDevice* pLogicalDevice,
                            cFont* pFont, cWindow* pWindow,
-                           iOverlayProvider* pOverlayProvider);
+                           iGameManager* pOverlayProvider);
     ~cOverlayUniformHandler();
 
     void SetupUniformBuffers(cTextureHandler* pTextureHandler, cScene* pScene) override;
@@ -73,7 +73,7 @@ private:
 
 cOverlayUniformHandler::cOverlayUniformHandler(cLogicalDevice* pLogicalDevice,
                                                cFont* pFont, cWindow* pWindow,
-                                               iOverlayProvider* pOverlayProvider)
+                                               iGameManager* pOverlayProvider)
 {
     assert(pLogicalDevice != nullptr);
     assert(pFont != nullptr);

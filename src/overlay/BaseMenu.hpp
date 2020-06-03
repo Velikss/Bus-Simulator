@@ -9,8 +9,8 @@
 
 class cBaseMenu : public cOverlayWindow
 {
-private:
-    iOverlayProvider* ppOverlayProvider;
+protected:
+    iGameManager* ppOverlayProvider;
 protected:
     void LoadTextures(cTextureHandler* pTextureHandler)
     {
@@ -37,7 +37,7 @@ protected:
         pmpOverlay.push_back({"oExit", oExit});
     }
 public:
-    cBaseMenu(iOverlayProvider* pOverlayProvider) : ppOverlayProvider(pOverlayProvider)
+    cBaseMenu(iGameManager* pOverlayProvider) : ppOverlayProvider(pOverlayProvider)
     {
     }
 

@@ -20,7 +20,7 @@ private:
     byte font24pixels[fontHeight][fontWidth];
 
     cWindow* ppWindow;
-    iOverlayProvider* ppOverlayProvider;
+    iGameManager* ppOverlayProvider;
 
     iCommandBufferRecorder* ppCommandRecorder;
 
@@ -28,7 +28,7 @@ public:
     cOverlayRenderModule(cLogicalDevice* pLogicalDevice,
                          cSwapChain* pSwapChain, cWindow* pWindow,
                          std::vector<string>& aShaders,
-                         iOverlayProvider* pOverlayProvider);
+                         iGameManager* pOverlayProvider);
     virtual ~cOverlayRenderModule();
 
     void CreateCommandRecorder();
@@ -48,7 +48,7 @@ cFont* cOverlayRenderModule::FONT = nullptr;
 cOverlayRenderModule::cOverlayRenderModule(cLogicalDevice* pLogicalDevice,
                                            cSwapChain* pSwapChain, cWindow* pWindow,
                                            std::vector<string>& aShaders,
-                                           iOverlayProvider* pOverlayProvider)
+                                           iGameManager* pOverlayProvider)
         : cRenderModule(pLogicalDevice, pSwapChain, aShaders)
 {
     assert(pWindow != nullptr);

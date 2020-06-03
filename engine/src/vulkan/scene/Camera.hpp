@@ -28,6 +28,8 @@ public:
 
     glm::mat4 view = glm::mat4(1.0f);
 public:
+    virtual ~Camera();
+
     float cameraHeight = 1.75f;
 
     bool lockHeight = true;
@@ -39,6 +41,8 @@ public:
     cBaseObject* cameraPivotObject;
     glm::vec3 cameraPivotPos;
     glm::vec3 cameraPivotChanges;
+
+    virtual void Reset();
 
     virtual void Forward() = 0;
     virtual void BackWard() = 0;
@@ -68,6 +72,15 @@ public:
     virtual float GetYaw() = 0;
     virtual void SetYaw(float yaw) = 0;
 };
+
+Camera::~Camera()
+{
+}
+
+void Camera::Reset()
+{
+    cameraPivotObject = nullptr;
+}
 
 class FirstPersonFlyCamera : public Camera
 {
