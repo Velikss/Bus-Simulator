@@ -111,7 +111,7 @@ bool cGameServer::HandleGameConnection(cNetworkConnection* pConnection)
         return false;
 
     for(uint i = 0; i < paConnections.size(); i++) //-V104
-        if (paConnections[i] != pConnection) //-V108
+        if (paConnections[i] != pConnection && IsWhiteListed(paConnections[i])) //-V108
         {
             if (!nGameConnectionHelper::SendData(paConnections[i], &(paBuffer[0]), iRecievedContent)) //-V108
             {

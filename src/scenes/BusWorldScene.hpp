@@ -80,14 +80,16 @@ cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalD
     LoadMissions();
 
     // Connect to multiplayer instance if possbile.
-    tConnectNetworkSettings.sAddress = "51.68.34.201";
-    tConnectNetworkSettings.usPort = 8080;
+    tConnectNetworkSettings.sAddress = "127.0.0.1";
+    tConnectNetworkSettings.usPort = 14001;
     tConnectNetworkSettings.eMode = cNetworkConnection::cMode::eNonBlocking;
 
     poMultiplayerHandler = new cMultiplayerHandler(&tConnectNetworkSettings, this);
     if (poMultiplayerHandler->Start())
     {
         ENGINE_LOG("Multiplayer connected");
+        bool bCreated = poMultiplayerHandler->RegisterUser("root", "hiddenhand");
+        bool bLoggedIn = poMultiplayerHandler->Login("root", "hiddenhand");
     }
     else
     {

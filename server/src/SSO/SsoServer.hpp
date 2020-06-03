@@ -74,6 +74,7 @@ protected:
     void OnDisconnect(cNetworkConnection* pConnection);
 
     bool HandleSessionRequest(cNetworkConnection* pConnection, cUri & oUri, cRequest& oRequest);
+    bool HandleAccountRequest(cNetworkConnection* pConnection, cUri & oUri, cRequest& oRequest);
 };
 
 bool cSSOServer::OnConnect(cNetworkConnection* pConnection)
@@ -125,6 +126,7 @@ bool cSSOServer::OnRecieve(cNetworkConnection *pConnection)
     if (oUri.pasPath.size() <= 1) return false;
 
     if(oUri.pasPath[1] == "session") return HandleSessionRequest(pConnection, oUri, oRequest);
+    if(oUri.pasPath[1] == "account") return HandleAccountRequest(pConnection, oUri, oRequest);
 
     return false;
 }
@@ -261,4 +263,27 @@ bool cSSOServer::CreateUser(const string &sLoginname, const string &sPassword)
         return false;
 
     return poDB->Exec("INSERT INTO User (User.UserName, User.Password) VALUES('" + sLoginname + "', '" + sEncoded + "');");
+}
+
+bool cSSOServer::HandleAccountRequest(cNetworkConnection* pConnection, cUri& oUri, cRequest& oRequest)
+{
+    if(oUri.pasPath.size() < 2) return false;
+
+    cResponse oResponse;
+    oResponse.SetResponseCode(403);
+    std::vector<cHeader> aHeaders;
+    aHeaders.push_back({"Server", "Orange-SSO"});
+    aHeaders.push_back({"Connection", "keep-alive"});
+
+    if(oUri.pasPath[2] == "create") // If a session is requested.
+    {
+        string sLoginname = oRequest.GetHeader("loginname");
+        string sPassword = oRequest.GetHeader("password");
+        oResponse.SetResponseCode(CreateUser(sLoginname, sPassword) ? 200 : 403);
+    }
+
+    oResponse.SetHeaders(aHeaders);
+    string sResponse = oResponse.Serialize();
+    pConnection->SendBytes((byte*)sResponse.c_str(), (int) sResponse.size());
+    return true;
 }

@@ -31,7 +31,7 @@ static glm::vec3 ToGLMVec(tFixedVec3* pVec)
     };
 }
 
-class cMultiplayerHandler : protected cSSOClient
+class cMultiplayerHandler : public cSSOClient
 {
 protected:
     cScene* ppScene = nullptr;
@@ -92,6 +92,7 @@ public:
         cNetworkClient::Disconnect();
     }
 
+    bool RegisterUser(const string& sUserName, const string& sPassword);
 protected:
     void OnConnect(cNetworkConnection* pConnection);
     bool OnRecieve(cNetworkConnection* pConnection);
@@ -156,4 +157,20 @@ bool cMultiplayerHandler::OnRecieve(cNetworkConnection* pConnection)
 void cMultiplayerHandler::OnDisconnect(cNetworkConnection* pConnection)
 {
     ENGINE_LOG("Disconnected client");
+}
+
+bool cMultiplayerHandler::RegisterUser(const string& sUserName, const string& sPassword)
+{
+    cRequest oRequest;
+    cResponse oResponse;
+    std::vector<cHeader> aHeaders;
+    aHeaders.push_back({"Connection", "keep-alive"});
+
+    oRequest.SetMethod(cMethod::ePOST);
+    oRequest.SetResource("/sso/account/create");
+    oRequest.SetHeader("loginname", sUserName);
+    oRequest.SetHeader("password", sPassword);
+
+    SendRequest(oRequest, oResponse, -1);
+    return oResponse.GetResponseCode() == 200;
 }
