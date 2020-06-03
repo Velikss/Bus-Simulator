@@ -1,9 +1,9 @@
 #pragma once
 
 #include <pch.hpp>
-#include <multiplayer/cNetworkClient.hpp>
-#include "StdUuid.hpp"
 #include <entities/cBus.hpp>
+#include <NetworkClient.hpp>
+#include <StdUuid.hpp>
 
 struct tFixedVec3
 {

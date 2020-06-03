@@ -10,6 +10,7 @@ int main()
     std::ifstream oConfigStream("./config.json");
     if (!oConfigStream.is_open()) throw std::runtime_error("could not find config.");
     oConfigStream >> oJson;
+    oConfigStream.close();
 
     if (oJson.empty()) throw std::runtime_error("could not load config.");
 

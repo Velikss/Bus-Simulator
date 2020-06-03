@@ -20,7 +20,7 @@ set(Sources
     ${PROJECT_SOURCE_DIR}/src/main.cpp
 )
 
-include_directories(${PROJECT_SOURCE_DIR}/src)
+include_directories(${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/server/src ${PROJECT_SOURCE_DIR}/server/vendor)
 add_executable(${This} ${Sources} ${Headers} src/overlay/TestOverlay.hpp)
 target_link_libraries(${This} engine)
 
