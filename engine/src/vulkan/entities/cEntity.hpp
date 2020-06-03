@@ -13,11 +13,13 @@ private:
     glm::vec2 poSteeringForce;
     float pfMaxSpeed;
 public:
-    cEntity(cMesh* mesh) : IEntity(mesh)
+    bool pbRotateOnMove;
+    cEntity(cMesh *mesh, bool bRotateOnMove = false) : IEntity(mesh)
     {
         poVelocity = glm::vec2(0, 0);
         poSteeringForce = glm::vec2(0, 0);
-        pfMaxSpeed = 0.1f;
+        pfMaxSpeed = 0.1;
+        pbRotateOnMove = bRotateOnMove;
     }
 
     void AddBehaviour(cBehaviourHandler*& poBehaviour);
@@ -112,7 +114,19 @@ void cEntity::UpdatePosition()
         pos.x += poVelocity.x;
         pos.z += poVelocity.y;
         SetPosition(pos);
-    }
+        if(pbRotateOnMove)
+        {
+            float angle = glm::degrees(atan2(poVelocity.y, poVelocity.x));
+            if (angle > 0)
+            {
+                this->SetRotation(glm::vec3(0.0f, 360 - angle, 0.0f));
+            }
+            else
+            {
+                this->SetRotation(glm::vec3(0.0f, angle * -1, 0.0f));
+            }
+        }
+     }
 
     if (poVelocity.x > 0.001 && poVelocity.y > 0.001)
     {

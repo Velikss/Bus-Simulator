@@ -215,8 +215,6 @@ bool cGameLogicHandler::LoadMission()
                         oCurrentPassenger->SetPosition(oRoute[i]->GetPosition() + glm::vec3(iKeyNum * 0.1f, 0.0f, 0.0f));
                     }
 
-                    // Set rotation the same as the bus stop
-                    oCurrentPassenger->SetRotation(glm::vec3(0.0f, oBusStopRotation.y, 0.0f));
                     oCurrentPassenger->SetTarget(oRoute[i]->GetPosition()); // set target to bus stop
                     oCurrentPassenger->SetDestination(oRoute[iRandDestIndex]); // set destination to random bus stop
                     oCurrentPassenger->pbVisible = true;
@@ -236,6 +234,7 @@ void cGameLogicHandler::ResetBus()
 {
     std::vector<IEntity *> *entities;
     ppBus->poEntityGroup->GetEntityList(&entities);
+    // loop through all entities inside the entityGroup of the bus
     for (int i = 0; i < ppBus->poEntityGroup->GetEntities()->size(); i++)
     {
         (*entities)[i]->SetPosition(C_DEFAULT_PASSENGER_LOCATION);
