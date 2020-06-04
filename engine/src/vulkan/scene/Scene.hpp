@@ -231,7 +231,7 @@ void cScene::HandleMouse(uint uiDeltaX, uint uiDeltaY)
 
 void cScene::HandleKey(uint uiKeyCode, uint uiAction)
 {
-    if (uiKeyCode != 0)
+    if (uiKeyCode != 0 && uiKeyCode < GLFW_KEY_LAST)
     {
         if (uiAction == GLFW_PRESS) paKeys[uiKeyCode] = true;
         if (uiAction == GLFW_RELEASE) paKeys[uiKeyCode] = false;
