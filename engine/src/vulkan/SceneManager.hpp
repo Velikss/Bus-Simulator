@@ -16,7 +16,7 @@ private:
 
 public:
     cSceneManager(cLogicalDevice* ppLogicalDevice, cTextureHandler* ppTextureHandler, cAudioHandler* ppAudioHandler);
-    void LoadScene(const string& sName);
+    void SwitchScene(const string& sName);
 
     std::map<string, cScene*>& GetScenes();
     cScene* GetActiveScene();
@@ -44,7 +44,7 @@ cSceneManager::~cSceneManager()
     }
 }
 
-void cSceneManager::LoadScene(const string& sName)
+void cSceneManager::SwitchScene(const string& sName)
 {
     auto tResult = pmpScenes.find(sName);
     assert(tResult != pmpScenes.end()); // scene must exist

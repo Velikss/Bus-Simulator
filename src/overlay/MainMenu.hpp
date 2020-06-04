@@ -117,9 +117,9 @@ void cMainMenu::HandleOnSubmit(cButton* poSender)
         if ((*pppoMultiplayerHandler)->Login(poUserName->GetValue(), poPassword->GetValue()))
         {
             std::cout << "Successfully logged in." << std::endl;
-            ppOverlayProvider->ActivateOverlayWindow("Loading");
-            ppOverlayProvider->SwitchScene("BusWorld");
-            ((cBusWorldScene*)ppOverlayProvider->GetScenes()["BusWorld"])->AssignMultiplayerHandler((*pppoMultiplayerHandler) );
+            ppGameManager->ActivateOverlayWindow("Loading");
+            ppGameManager->SwitchScene("BusWorld");
+            ((cBusWorldScene*)ppGameManager->GetScenes()["BusWorld"])->AssignMultiplayerHandler((*pppoMultiplayerHandler) );
             std::cout << "entering singleplayer mode" << std::endl;
             return;
         }
@@ -131,8 +131,8 @@ void cMainMenu::HandleOnSubmit(cButton* poSender)
 
 void cMainMenu::HandleSinglePlayer(cButton* poSender)
 {
-    ppOverlayProvider->ActivateOverlayWindow("Loading");
-    ppOverlayProvider->SwitchScene("BusWorld");
+    ppGameManager->ActivateOverlayWindow("Loading");
+    ppGameManager->SwitchScene("BusWorld");
     std::cout << "entering singleplayer mode" << std::endl;
 }
 

@@ -20,7 +20,17 @@ const float C_COLL_Z1 = -7.0f;
 const float C_COLL_X2 = 1.6f;
 const float C_COLL_Z2 = 2.7f;
 
-class cBus : public cBaseObject, IPassengerHolder
+enum class cDirection
+{
+    Left, Right
+};
+
+enum class cState
+{
+    eDriving, eLoading, eUnloading, eStill
+};
+
+class cBus : public cBaseObject, public IPassengerHolder
 {
 public:
     float pfMaxSpeed = C_MAX_SPEED;
@@ -33,10 +43,31 @@ public:
     int piPingTimeout = C_UNDEFINED;
     int piBusId = C_UNDEFINED;
 
-    cEntityGroup* entityGroup;
+    cEntityGroup *poEntityGroup;
+    cState oState;
 
-    cBus(cMesh* mesh) : cBaseObject(mesh, cCollider::RectangleCollider(C_COLL_X1, C_COLL_Z1, C_COLL_X2, C_COLL_Z2), false)
+    cAudioHandler *ppAudioHandler;
+    int piEngineChannel;
+    int piEngineAccelChannel;
+    int piEngineDecelChannel;
+    int piIdleChannel;
+
+    cBus(cAudioHandler *pAudioHandler, cMesh *mesh) : cBaseObject(mesh,
+                                                                  cCollider::RectangleCollider(C_COLL_X1, C_COLL_Z1,
+                                                                                               C_COLL_X2, C_COLL_Z2),
+                                                                  false)
     {
+        ppAudioHandler = pAudioHandler;
+
+        ppAudioHandler->LoadSound("resources/audio/VOLUME_engine.wav", true, true, false);
+        piEngineChannel = ppAudioHandler->PlaySound("resources/audio/VOLUME_engine.wav", GetPosition(), 0.1f);
+        ppAudioHandler->SetPaused(piEngineChannel, true);
+
+        ppAudioHandler->LoadSound("resources/audio/engine-idle.wav", true, true, false);
+        piIdleChannel = ppAudioHandler->PlaySound("resources/audio/engine-idle.wav", GetPosition(), 0.8f);
+        ppAudioHandler->SetPaused(piIdleChannel, true);
+        poEntityGroup = new cEntityGroup;
+        oState = cState::eStill;
     }
 
     float CalculateAcceleration();
@@ -45,7 +76,7 @@ public:
 
     void Move();
 
-    void Steer(std::string sDirection);
+    void Steer(cDirection odirection);
 
     void Accelerate();
 
@@ -57,9 +88,9 @@ public:
 
     glm::vec3 GetDoorPosition();
 
-    bool AddPassenger(IPassenger *passenger) override;
+    bool AddPassenger(IPassenger *pPassenger) override;
 
-    bool RemovePassenger(IPassenger *passenger) override;
+    bool RemovePassenger(IPassenger *pPassenger) override;
 
 };
 
@@ -67,25 +98,33 @@ void cBus::Move()
 {
     glm::vec3 oDirection(sin(glm::radians(GetRotation().y)), 0, cos(glm::radians(GetRotation().y)));
     bool moveCollision = !SetPosition(GetPosition() - (oDirection * (pfCurrentSpeed / 100)));
-
     bool steerCollision = false;
+
+    // If bus is moving, rotate steering wheel and play engine sound. If not play engine idle sound and don't use the steering wheel.
     if (pfCurrentSpeed != 0)
     {
         if (pfSteeringModifier > 0)
         {
             steerCollision = !this->RotateLeft(pfSteeringModifier / 10);
-        }
-        else
+        } else
         {
             steerCollision = !this->RotateRight(pfSteeringModifier * -1 / 10);
         }
+        ppAudioHandler->SetPaused(piIdleChannel, true);
+        ppAudioHandler->SetChannelPosition(piEngineChannel, GetPosition());
+        ppAudioHandler->SetPaused(piEngineChannel, false);
+    } else
+    {
+        ppAudioHandler->SetPaused(piEngineChannel, true);
+        ppAudioHandler->SetChannelPosition(piIdleChannel, GetPosition());
+        ppAudioHandler->SetPaused(piIdleChannel, false);
     }
 
     if (steerCollision || moveCollision)
     {
-        pfAccelerationModifier = 0;
-        pfSteeringModifier = 0;
-        pfCurrentSpeed = 0;
+        pfAccelerationModifier = 0.0f;
+        pfSteeringModifier = 0.0f;
+        pfCurrentSpeed = 0.0f;
     }
 }
 
@@ -95,6 +134,7 @@ void cBus::Accelerate()
     {
         pfCurrentSpeed += CalculateAcceleration() / 2;
     }
+
 }
 
 void cBus::Decelerate()
@@ -121,12 +161,12 @@ void cBus::IdleAcceleration()
     }
 }
 
-void cBus::Steer(std::string sDirection)
+void cBus::Steer(cDirection direction)
 {
     // Block steering while stopped
     if (pfCurrentSpeed == 0) return;
 
-    if (sDirection == "left")
+    if (direction == cDirection::Left)
     {
         // If the steering modifier is still set to right (lower than 0), reset the modifier to 0.
         if (pfSteeringModifier < 0)
@@ -139,7 +179,7 @@ void cBus::Steer(std::string sDirection)
             pfSteeringModifier += 0.2f;
         }
     }
-    if (sDirection == "right")
+    if (direction == cDirection::Right)
     {
         // If the steering modifier is still set to left (higher than 0), reset the modifier to 0.
         if (pfSteeringModifier > 0)
@@ -169,14 +209,16 @@ float cBus::CalculateAcceleration()
     {
         if (pfMaxSpeed * fVal >= pfCurrentSpeed)
         {
-            return pfAccelerationModifier = 1.1f - fVal;
+            pfAccelerationModifier = 1.1f - fVal;
+            ppAudioHandler->SetChannelVolume(piEngineChannel, 1.1f - pfAccelerationModifier);
+            return pfAccelerationModifier;
         }
     }
     return 0.0;
 }
 
 /*
- * Function  to make the vehicle decelerate slower if it's going faster.
+ * Function to make the vehicle decelerate slower if it's going faster.
  */
 float cBus::CalculateDeceleration()
 {
@@ -184,7 +226,8 @@ float cBus::CalculateDeceleration()
     {
         if (pfMinSpeed * fVal <= pfCurrentSpeed)
         {
-            return pfAccelerationModifier = 1.1f - fVal;
+            pfAccelerationModifier = 1.1f - fVal;
+            return pfAccelerationModifier;
         }
     }
     return 0.0;
@@ -200,12 +243,14 @@ glm::vec3 cBus::GetDoorPosition()
     return doorPos;
 }
 
-bool cBus::AddPassenger(IPassenger *passenger)
+bool cBus::AddPassenger(IPassenger *pPassenger)
 {
-    return false;
+    poEntityGroup->AddEntity(pPassenger);
+    return true;
 }
 
-bool cBus::RemovePassenger(IPassenger *passenger)
+bool cBus::RemovePassenger(IPassenger *pPassenger)
 {
-    return false;
+    poEntityGroup->RemoveEntity(pPassenger);
+    return true;
 }
