@@ -175,11 +175,6 @@ void cBusWorldScene::HandleKey(uint uiKeyCode, uint uiAction)
         pGameLogicHandler->SetMissionHandler(pMissionHandler2);
         pGameLogicHandler->LoadMission();
     }
-    if (uiAction == GLFW_PRESS && uiKeyCode == GLFW_KEY_SEMICOLON)
-    {
-        ENGINE_LOG("texture change");
-        pmpObjects["skybox"]->GetMesh()->SetTexture(pmpTextures["grey"]);
-    }
 }
 
 void cBusWorldScene::HandleScroll(double dOffsetX, double dOffsetY)
@@ -207,10 +202,7 @@ void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
     pmpTextures["roof"] = pTextureHandler->LoadTextureFromFile("resources/textures/roof.jpg");
     pmpTextures["stoneHouse"] = pTextureHandler->LoadTextureFromFile("resources/textures/stone.jpg");
     pmpTextures["grass"] = pTextureHandler->LoadTextureFromFile("resources/textures/grass.jpg");
-    pmpTextures["street"] = pTextureHandler->LoadTextureFromFile("resources/textures/street.jpg");
-    pmpTextures["moon"] = pTextureHandler->LoadTextureFromFile("resources/textures/moon.jpg");
     pmpTextures["skybox"] = pTextureHandler->LoadTextureFromFile("resources/textures/skybox.jpg");
-    pmpTextures["grey"] = pTextureHandler->LoadTextureFromFile("resources/textures/uvtemplate.bmp");
     // buildings
     pmpTextures["building"] = pTextureHandler->LoadTextureFromFile("resources/textures/buildings/building.jpg");
     pmpTextures["building2"] = pTextureHandler->LoadTextureFromFile("resources/textures/buildings/building2.jpg");

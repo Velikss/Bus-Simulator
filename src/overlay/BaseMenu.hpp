@@ -10,15 +10,16 @@
 class cBaseMenu : public cOverlayWindow
 {
 protected:
-    iGameManager* ppOverlayProvider;
+    iGameManager* ppGameManager;
+
 protected:
-    void LoadTextures(cTextureHandler* pTextureHandler)
+    void LoadTextures(cTextureHandler* pTextureHandler) override
     {
-        pmpTextures["buttonTexture"] = pTextureHandler->LoadTextureFromFile("resources/textures/button.jpg");
-        pmpTextures["background"] = pTextureHandler->LoadTextureFromFile("resources/textures/background.jpg");
+        pmpTextures["buttonTexture"] = pTextureHandler->LoadTextureFromFile("resources/textures/button.png");
+        pmpTextures["background"] = pTextureHandler->LoadTextureFromFile("resources/textures/background.png");
     }
 
-    void ConstructElements()
+    void ConstructElements() override
     {
         cStaticElement* oPanel = new cStaticElement({(uint)((double)cWindow::puiWidth * 0.85), (uint)((double)cWindow::puiHeight * 0.85)}, pmpTextures["background"]);
         oPanel->Center();
@@ -32,16 +33,16 @@ protected:
         oExit->AddX(780);
         oExit->AddY(100);
         oExit->ppaCallbacks.push_back([&] (cButton* poSender) -> void {
-            ppOverlayProvider->DeactivateOverlayWindow();
+            ppGameManager->DeactivateOverlayWindow();
         });
         pmpOverlay.push_back({"oExit", oExit});
     }
 public:
-    cBaseMenu(iGameManager* pOverlayProvider) : ppOverlayProvider(pOverlayProvider)
+    cBaseMenu(iGameManager* pOverlayProvider) : ppGameManager(pOverlayProvider)
     {
     }
 
-    void Tick()
+    void Tick() override
     {
     }
 
