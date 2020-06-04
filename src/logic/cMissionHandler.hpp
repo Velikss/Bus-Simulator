@@ -22,7 +22,7 @@ public:
     void AddStop(cBusStop* pBusStop);
     void UnloadBusStop(cBusStop* oBusStop);
     void SetPassengersDestinations();
-    void UnloadMissionHandler();
+    void UnloadRouteBusStops();
     cBusStop* BusStopWithinRadius(glm::vec3 oBusDoorPos);
     std::deque<cBusStop*>& GetRouteQueue();
     bool PassengersAvailable(cBusStop* oBusStop);
@@ -40,7 +40,7 @@ void cMissionHandler::Update()
 // Resets all the passengers currently on the busStop and removes them from the entityGroup
 void cMissionHandler::UnloadBusStop(cBusStop* oBusStop)
 {
-    std::vector<IEntity *> *entities;
+    std::vector<IEntity*>* entities;
     oBusStop->poEntityGroup->GetEntityList(&entities);
     for (int i = 0; i < oBusStop->poEntityGroup->GetEntities()->size(); i++) //-V104
     {
@@ -52,9 +52,9 @@ void cMissionHandler::UnloadBusStop(cBusStop* oBusStop)
 
 // check if bus stop has available passengers
 // by checking if all passengers at the bus stop have this bus stop as their destination
-bool cMissionHandler::PassengersAvailable(cBusStop *oBusStop)
+bool cMissionHandler::PassengersAvailable(cBusStop* oBusStop)
 {
-    std::vector<IEntity *> *entities;
+    std::vector<IEntity*>* entities;
     oBusStop->poEntityGroup->GetEntityList(&entities);
 
     for (uint i = 0; i < oBusStop->poEntityGroup->GetEntities()->size(); i++)
@@ -83,7 +83,7 @@ void cMissionHandler::SetPassengersDestinations()
         int iRandDestIndex = rand() % (poRoute.size() - (i + 1))+ (i + 1);
 
         // set destination for all passengers
-        std::vector<IEntity *> *entities;
+        std::vector<IEntity*>* entities;
         poRoute[i]->poEntityGroup->GetEntityList(&entities);
         for (uint j = 0; j < poRoute[i]->poEntityGroup->GetEntities()->size(); j++)
         {
@@ -93,16 +93,16 @@ void cMissionHandler::SetPassengersDestinations()
 }
 
 // Unload all the busStops on the route of the missionHandler
-void cMissionHandler::UnloadMissionHandler()
+void cMissionHandler::UnloadRouteBusStops()
 {
-    for(uint i = 0; i < poRoute.size(); i++) //-V104
+    for(uint i = 0; i < poRoute.size(); i++)
     {
-        UnloadBusStop(poRoute[i]); //-V108
+        UnloadBusStop(poRoute[i]);
     }
 }
 
 // return the bus stop that is within a certain radius of the bus door
-cBusStop * cMissionHandler::BusStopWithinRadius(glm::vec3 oBusDoorPos)
+cBusStop* cMissionHandler::BusStopWithinRadius(glm::vec3 oBusDoorPos)
 {
     for(uint i = 0; i < poRoute.size(); i++)
     {
@@ -123,7 +123,7 @@ void cMissionHandler::AddStop(cBusStop* pBusStop)
     poRoute.push_back(pBusStop);
 }
 
-std::deque<cBusStop *>& cMissionHandler::GetRouteQueue()
+std::deque<cBusStop*>& cMissionHandler::GetRouteQueue()
 {
     return poRoute;
 }

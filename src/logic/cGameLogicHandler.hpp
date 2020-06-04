@@ -81,7 +81,7 @@ void cGameLogicHandler::LoadPassengers(cBusStop* oBusStop)
 {
     glm::vec3 oBusDoorPos = ppBus->GetDoorPosition();
 
-    std::vector<IEntity *> *entities;
+    std::vector<IEntity*>* entities;
     oBusStop->poEntityGroup->GetEntityList(&entities);
 
     // Loop through all passengers currently in the bus stop
@@ -116,7 +116,7 @@ void cGameLogicHandler::UnloadPassengers(cBusStop *oBusStop)
 {
     glm::vec3 oBusDoorPos = ppBus->GetDoorPosition();
 
-    std::vector<IEntity *> *entities;
+    std::vector<IEntity*>* entities;
     ppBus->poEntityGroup->GetEntityList(&entities);
 
     // Loop through all passengers currently in the bus
@@ -229,7 +229,7 @@ bool cGameLogicHandler::LoadMission()
 // Unload all passengers currently in the bus and place them back at de default location
 void cGameLogicHandler::ResetBus()
 {
-    std::vector<IEntity *> *entities;
+    std::vector<IEntity *>* entities;
     ppBus->poEntityGroup->GetEntityList(&entities);
     // loop through all entities inside the entityGroup of the bus
     for (int i = 0; i < ppBus->poEntityGroup->GetEntities()->size(); i++)
@@ -248,10 +248,10 @@ cMissionHandler* cGameLogicHandler::GetMissionHandler()
 
 bool cGameLogicHandler::SetMissionHandler(cMissionHandler* pMissionHandler)
 {
-    // Unload the busStops from current missionHandler
+    // Unload the busStops from current missionHandler and the bus
     if(ppMission != nullptr)
     {
-        ppMission->UnloadMissionHandler();
+        ppMission->UnloadRouteBusStops();
         ResetBus();
     }
 
