@@ -6,5 +6,5 @@
 class IPassenger : public cEntity
 {
 public:
-    IPassenger(cMesh *mesh) : cEntity(mesh){}
+    IPassenger(cMesh *mesh) : cEntity(mesh, true){}
 };

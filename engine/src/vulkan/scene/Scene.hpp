@@ -12,6 +12,7 @@
 #include <vulkan/geometry/ViewportQuadGeometry.hpp>
 #include <vulkan/module/overlay/element/StaticElement.hpp>
 #include <vulkan/AudioHandler.hpp>
+#include <vulkan/entities/cBehaviourHandler.hpp>
 
 class cScene : public iInputHandler, public iTickTask
 {
@@ -39,6 +40,10 @@ private:
 
 public:
     float pfAmbientLight = 0.2f;
+
+    cBehaviourHandler* pcbSeperation = nullptr;
+    cBehaviourHandler* pcbCohesion = nullptr;
+    cBehaviourHandler* pcbSeeking = nullptr;
 
     cScene();
     virtual ~cScene();

@@ -22,7 +22,7 @@ private:
     cWindow* ppWindow;
     iGameManager* ppOverlayProvider;
 
-    iCommandBufferRecorder* ppCommandRecorder;
+    iCommandBufferRecorder* ppCommandRecorder = nullptr;
 
 public:
     cOverlayRenderModule(cLogicalDevice* pLogicalDevice,
