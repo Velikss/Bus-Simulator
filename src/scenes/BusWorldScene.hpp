@@ -85,8 +85,10 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
     LoadMeshes();
     LoadObjects(pAudioHandler);
     LoadBehaviours();
-//    LoadOverlay(pLogicalDevice);
     LoadMissions();
+
+    cWindow::SetMouseLocked(true);
+
     cScene::Load(pTextureHandler, pLogicalDevice, pAudioHandler);
 }
 

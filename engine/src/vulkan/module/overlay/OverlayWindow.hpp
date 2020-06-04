@@ -30,6 +30,8 @@ public:
                    iCommandRecorderProvider* pCommandRecorder);
 
     virtual bool ShouldHandleInput() = 0;
+    virtual void OnOpen();
+    virtual void OnClose();
 
     cUIManager* GetUIManager();
 
@@ -188,4 +190,14 @@ cUIElement* cOverlayWindow::GetElement(const string& sName)
         return oElem->second;
     else
         return nullptr;
+}
+
+void cOverlayWindow::OnOpen()
+{
+
+}
+
+void cOverlayWindow::OnClose()
+{
+
 }

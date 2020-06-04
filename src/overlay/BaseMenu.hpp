@@ -50,4 +50,14 @@ public:
     {
         return true;
     }
+
+    void OnOpen() override
+    {
+        cWindow::SetMouseLocked(false);
+    }
+
+    void OnClose() override
+    {
+        cWindow::SetMouseLocked(true);
+    }
 };

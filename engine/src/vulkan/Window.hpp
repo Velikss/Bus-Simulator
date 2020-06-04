@@ -63,6 +63,7 @@ public:
 
     static void SetResolution(uint uiWidth, uint uiHeight);
     static void SetFullscreen(bool bFullscreen);
+    static void SetMouseLocked(bool bLocked);
     void RebuildSurface();
 
 private:
@@ -116,7 +117,6 @@ void cWindow::CreateGLWindow()
                                 psWindowName.c_str(), nullptr, nullptr);
 
     glfwSetCursorPosCallback(ppWindow, mouseCallback);
-    //glfwSetInputMode(ppWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetKeyCallback(ppWindow, keyCallback);
     glfwSetScrollCallback(ppWindow, scrollCallback);
     glfwSetCharCallback(ppWindow, characterCallback);
@@ -329,6 +329,11 @@ void cWindow::SetFullscreen(bool bFullscreen)
         poInstance->pbFullscreen = false;
         poInstance->pbRequestRebuild = true;
     }
+}
+
+void cWindow::SetMouseLocked(bool bLocked)
+{
+    glfwSetInputMode(poInstance->ppWindow, GLFW_CURSOR, bLocked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 }
 
 void cWindow::RebuildSurface()

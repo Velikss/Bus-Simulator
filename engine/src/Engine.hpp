@@ -290,6 +290,7 @@ void cEngine::ActivateOverlayWindow(const string& sName)
     // If there currently is an overlay window active, remove it's tick task
     if (ppActiveOverlayWindow != nullptr)
     {
+        ppActiveOverlayWindow->OnClose();
         ppGameLoop->RemoveTask(ppActiveOverlayWindow);
     }
     // Add a tick task for the new overlay window
@@ -305,6 +306,7 @@ void cEngine::DeactivateOverlayWindow()
     // If an overlay window is active, request an overlay window update
     if (ppActiveOverlayWindow != nullptr)
     {
+        ppActiveOverlayWindow->OnClose();
         ppGameLoop->RemoveTask(ppActiveOverlayWindow);
         ppRequestedOverlayWindow = nullptr;
         pbUpdateOverlayWindow = true;
@@ -530,6 +532,11 @@ void cEngine::UpdateOverlay(void)
 
     // Clear the request variables
     ppRequestedOverlayWindow = nullptr;
+
+    if (ppActiveOverlayWindow != nullptr)
+    {
+        ppActiveOverlayWindow->OnOpen();
+    }
 }
 
 void cEngine::UpdateScene(void)
