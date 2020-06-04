@@ -11,7 +11,7 @@ class cGameServer : public cSSOService
     };
 
     std::shared_ptr<cODBCInstance> poDB;
-    byte paBuffer[255];
+    byte* paBuffer = new byte[255];
 public:
     cGameServer(cNetworkConnection::tNetworkInitializationSettings* tSettings) : cSSOService(tSettings)
     {
@@ -21,6 +21,11 @@ public:
         SetOnConnectEvent(_OnConnect);
         SetOnRecieveEvent(_OnRecieve);
         SetOnDisconnectEvent(_OnDisconnect);
+    }
+
+    ~cGameServer()
+    {
+        delete[] paBuffer;
     }
 
     bool InitDB(const string& sODBCConnectionString)
@@ -115,7 +120,7 @@ void cGameServer::OnDisconnect(cNetworkConnection *pConnection)
 bool cGameServer::HandleGameConnection(cNetworkConnection* pConnection)
 {
     int iRecievedContent = 0;
-    if (!nGameConnectionHelper::RecieveData(pConnection, &(paBuffer[0]), iRecievedContent))
+    if (!nGameConnectionHelper::RecieveData(pConnection, paBuffer, iRecievedContent))
         return false;
     for(uint i = 0; i < paConnections.size(); i++) //-V104
         if (paConnections[i] != pConnection && IsWhiteListed(paConnections[i])) //-V108

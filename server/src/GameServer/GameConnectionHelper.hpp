@@ -4,7 +4,7 @@
 namespace nGameConnectionHelper
 {
 
-    bool RecieveData(cNetworkConnection* pConnection, byte* buffer, int& iRecievedContent)
+    bool RecieveData(cNetworkConnection* pConnection, byte* &buffer, int& iRecievedContent)
     {
         int iSize = 0;
         const size_t recievedSize = (size_t) pConnection->ReceiveBytes(((byte * ) & iSize), 4); //-V206 //-V112
