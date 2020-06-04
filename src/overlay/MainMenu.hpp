@@ -4,11 +4,13 @@
 #include <overlay/BaseMenu.hpp>
 #include <vulkan/module/overlay/element/elements/TextBoxElement.hpp>
 #include <vulkan/module/overlay/element/elements/PasswordTextBox.hpp>
+#include <Json.hpp>
 
 class cMainMenu : public cBaseMenu
 {
     cMultiplayerHandler** pppoMultiplayerHandler = nullptr;
     cNetworkConnection::tNetworkInitializationSettings ptConnectNetworkSettings = {};
+    nlohmann::json poJson = {};
 protected:
     void LoadTextures(cTextureHandler* pTextureHandler) override
     {
@@ -92,6 +94,10 @@ public:
     cMainMenu(iGameManager* pOverlayProvider, cMultiplayerHandler** ppMultiplayerHandler) : cBaseMenu(pOverlayProvider)
     {
         pppoMultiplayerHandler = ppMultiplayerHandler;
+        std::ifstream oConfigStream("./config.json");
+        if (!oConfigStream.is_open()) throw std::runtime_error("could not find config.");
+        oConfigStream >> poJson;
+        oConfigStream.close();
     }
 
     void HandleOnSubmit(cButton* poSender);

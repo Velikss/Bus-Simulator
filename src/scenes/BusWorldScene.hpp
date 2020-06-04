@@ -67,15 +67,15 @@ public:
 
     bool BusCentered = false;
 
-    cEntityGroup entityGroup;
-    cEntityGroup entityGroup2;
+    cEntityGroup entityGroup = nullptr;
+    cEntityGroup entityGroup2 = nullptr;
 
     BusCamera* pBusCamera = new BusCamera;
     FirstPersonFlyCamera* pFirstPersonFlyCamera = new FirstPersonFlyCamera;
 
-    cGameLogicHandler* pGameLogicHandler;
-    cMissionHandler* pMissionHandler1;
-    cMissionHandler* pMissionHandler2;
+    cGameLogicHandler* pGameLogicHandler = nullptr;
+    cMissionHandler* pMissionHandler1 = nullptr;
+    cMissionHandler* pMissionHandler2 = nullptr;
 };
 
 void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler)
