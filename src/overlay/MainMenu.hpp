@@ -10,7 +10,7 @@ class cMainMenu : public cBaseMenu
 {
     cMultiplayerHandler** pppoMultiplayerHandler = nullptr;
     cNetworkConnection::tNetworkInitializationSettings ptConnectNetworkSettings = {};
-    nlohmann::json poJson = {};
+    nlohmann::json poJson;
 protected:
     void LoadTextures(cTextureHandler* pTextureHandler) override
     {
@@ -94,10 +94,6 @@ public:
     cMainMenu(iGameManager* pOverlayProvider, cMultiplayerHandler** ppMultiplayerHandler) : cBaseMenu(pOverlayProvider)
     {
         pppoMultiplayerHandler = ppMultiplayerHandler;
-        std::ifstream oConfigStream("./config.json");
-        if (!oConfigStream.is_open()) throw std::runtime_error("could not find config.");
-        oConfigStream >> poJson;
-        oConfigStream.close();
     }
 
     void HandleOnSubmit(cButton* poSender);
@@ -114,9 +110,24 @@ void cMainMenu::HandleOnSubmit(cButton* poSender)
 {
     cTextBoxElement* poUserName = (cTextBoxElement*)GetElement("oUserName");
     cPasswordTextBox* poPassword = (cPasswordTextBox*)GetElement("oPassword");
-    ptConnectNetworkSettings.sAddress = "127.0.0.1";
-    ptConnectNetworkSettings.usPort = 14001;
+
+    poJson = {};
+    std::ifstream oConfigStream("./config.json");
+    if (!oConfigStream.is_open()) throw std::runtime_error("could not find config.");
+    oConfigStream >> poJson;
+    oConfigStream.close();
+    if (!poJson.contains("Multiplayer")) throw std::runtime_error("could not find multiplayer settings");
+    if (!poJson["Multiplayer"].contains("IP")) throw std::runtime_error("could not find server-ip setting");
+    if (!poJson["Multiplayer"].contains("PORT")) throw std::runtime_error("could not find server-port setting");
+
+    string sPort = poJson["Multiplayer"]["PORT"];
+    ushort usPort = strtoul(sPort.c_str(), NULL, 0);
+
+    ptConnectNetworkSettings.sAddress = cNetworkAbstractions::DNSLookup(poJson["Multiplayer"]["IP"]);
+    ptConnectNetworkSettings.usPort = usPort;
     ptConnectNetworkSettings.eMode = cNetworkConnection::cMode::eNonBlocking;
+    poJson.clear();
+    std::cout << "Connecting to: " << ptConnectNetworkSettings.sAddress << ":" << ptConnectNetworkSettings.usPort << std::endl;
     (*pppoMultiplayerHandler) = new cMultiplayerHandler(&ptConnectNetworkSettings);
     if((*pppoMultiplayerHandler)->Connect())
     {
@@ -126,7 +137,7 @@ void cMainMenu::HandleOnSubmit(cButton* poSender)
             ppGameManager->ActivateOverlayWindow("Loading");
             ppGameManager->SwitchScene("BusWorld");
             ((cBusWorldScene*)ppGameManager->GetScenes()["BusWorld"])->AssignMultiplayerHandler((*pppoMultiplayerHandler) );
-            std::cout << "entering singleplayer mode" << std::endl;
+            std::cout << "entering multiplayer mode" << std::endl;
             return;
         }
     }
@@ -146,9 +157,23 @@ void cMainMenu::HandleRegister(cButton* poSender)
 {
     cTextBoxElement* poUserName = (cTextBoxElement*)GetElement("oUserName");
     cPasswordTextBox* poPassword = (cPasswordTextBox*)GetElement("oPassword");
-    ptConnectNetworkSettings.sAddress = "127.0.0.1";
-    ptConnectNetworkSettings.usPort = 14001;
+    poJson = {};
+    std::ifstream oConfigStream("./config.json");
+    if (!oConfigStream.is_open()) throw std::runtime_error("could not find config.");
+    oConfigStream >> poJson;
+    oConfigStream.close();
+    if (!poJson.contains("Multiplayer")) throw std::runtime_error("could not find multiplayer settings");
+    if (!poJson["Multiplayer"].contains("IP")) throw std::runtime_error("could not find server-ip setting");
+    if (!poJson["Multiplayer"].contains("PORT")) throw std::runtime_error("could not find server-port setting");
+
+    string sPort = poJson["Multiplayer"]["PORT"];
+    ushort usPort = strtoul(sPort.c_str(), NULL, 0);
+
+    ptConnectNetworkSettings.sAddress = cNetworkAbstractions::DNSLookup(poJson["Multiplayer"]["IP"]);
+    ptConnectNetworkSettings.usPort = usPort;
     ptConnectNetworkSettings.eMode = cNetworkConnection::cMode::eNonBlocking;
+    poJson.clear();
+    std::cout << "Connecting to: " << ptConnectNetworkSettings.sAddress << ":" << ptConnectNetworkSettings.usPort << std::endl;
     (*pppoMultiplayerHandler) = new cMultiplayerHandler(&ptConnectNetworkSettings);
     if((*pppoMultiplayerHandler)->Connect())
     {
