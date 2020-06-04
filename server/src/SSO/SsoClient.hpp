@@ -36,7 +36,7 @@ bool cSSOClient::Login(const string &sLoginName, const string &sPassword, size_t
     oRequest.SetResource("/sso/session/request");
     oRequest.SetHeaders(aHeaders);
 
-    if(!SendRequest(oRequest, oResponse)) return false;
+    if(!SendRequest(oRequest, oResponse, -1)) return false;
     psSessionKey = oResponse.GetHeader("session-key");
     if(oResponse.GetResponseCode() == 200)
         pbConnectionAcitve = true;

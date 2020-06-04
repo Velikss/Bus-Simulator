@@ -153,7 +153,7 @@ SSO_STATUS cSSOService::HandleSession(cNetworkConnection *pConnection, cRequest 
                 paSessions.erase(oResponse.GetHeader("session-key"));
                 string sResponseBuffer = oResponse.Serialize();
                 pConnection->SendBytes((byte*)sResponseBuffer.c_str(), (int) sResponseBuffer.size());
-                return C_SSO_LOGIN_OK;
+                return C_SSO_NOHANDLE;
             }
         }
         string sResponseBuffer = oResponse.Serialize();
