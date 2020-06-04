@@ -67,8 +67,8 @@ public:
 
     bool BusCentered = false;
 
-    cEntityGroup entityGroup = nullptr;
-    cEntityGroup entityGroup2 = nullptr;
+    cEntityGroup entityGroup;
+    cEntityGroup entityGroup2;
 
     BusCamera* pBusCamera = new BusCamera;
     FirstPersonFlyCamera* pFirstPersonFlyCamera = new FirstPersonFlyCamera;
