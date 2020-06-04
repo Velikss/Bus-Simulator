@@ -85,16 +85,25 @@ bool cGameServer::OnRecieve(cNetworkConnection *pConnection)
 {
     cRequest oRequest;
     SSO_STATUS iStatus = HandleSession(pConnection, oRequest);
-
-    if (iStatus == C_SSO_DISCONNECT) return false;
-    if (iStatus == C_SSO_NOHANDLE) return true;
+    if (iStatus == C_SSO_DISCONNECT)
+    {
+        std::cout << "force disconnect: " << pConnection->GetConnectionString();
+        return false;
+    }
+    if (iStatus == C_SSO_NOHANDLE)
+    {
+        std::cout << "sso handled request from: " << pConnection->GetConnectionString();
+        return true;
+    }
     if (iStatus == C_SSO_LOGIN_OK)
     {
+        std::cout << pConnection->GetConnectionString() << ", logged in." << std::endl;
         WhiteListConnection(pConnection);
         return true;
     }
 
     if (iStatus == C_SSO_OK) return HandleGameConnection(pConnection);
+    std::cout << "connection left: " << pConnection->GetConnectionString();
     return false;
 }
 
