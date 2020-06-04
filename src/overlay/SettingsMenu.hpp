@@ -15,6 +15,7 @@ private:
     cComboBox* ppResolution;
     cValueSelector* ppGamma;
     cComboBox* ppLightMode;
+    cCheckBox* ppFullscreen;
 
     bool pbResolutionChanged = false;
     bool pbGammaChanged = false;
@@ -22,6 +23,7 @@ private:
 
 public:
     cSettingsMenu(iGameManager* pOverlayProvider);
+    void HandleKey(uint uiKeyCode, uint uiAction) override;
 
 protected:
     void LoadTextures(cTextureHandler* pTextureHandler) override;
@@ -39,6 +41,7 @@ void cSettingsMenu::LoadTextures(cTextureHandler* pTextureHandler)
     cBaseMenu::LoadTextures(pTextureHandler);
 
     pmpTextures["foreground"] = pTextureHandler->LoadTextureFromFile("resources/textures/grey.jpg");
+    pmpTextures["checked"] = pTextureHandler->LoadTextureFromFile("resources/textures/checked.png");
 }
 
 void cSettingsMenu::ConstructElements()
@@ -103,6 +106,19 @@ void cSettingsMenu::ConstructElements()
     pLightModeLabel->AddX(-650);
     pLightModeLabel->AddY(-200);
 
+    ppFullscreen = new cCheckBox({75, 75},
+                                 pmpTextures["buttonTexture"],
+                                 pmpTextures["checked"]);
+    ppFullscreen->Center();
+    ppFullscreen->AddX(-580);
+    ppFullscreen->AddY(-90);
+    cTextElement* pFullscreenLabel = new cTextElement();
+    pFullscreenLabel->SetFont(tLabelFont);
+    pFullscreenLabel->UpdateText("Fullscreen:");
+    pFullscreenLabel->Center();
+    pFullscreenLabel->AddX(-670);
+    pFullscreenLabel->AddY(-55);
+
     ppApplyButton = new cButton({400, 75}, 0,
                                 pmpTextures["buttonTexture"], tNormalFont);
     ppApplyButton->SetLabel("Apply");
@@ -116,6 +132,8 @@ void cSettingsMenu::ConstructElements()
     pmpOverlay.push_back({"gamma_label", pGammaLabel});
     pmpOverlay.push_back({"light_mode", ppLightMode});
     pmpOverlay.push_back({"light_mode_label", pLightModeLabel});
+    pmpOverlay.push_back({"light_mode", ppFullscreen});
+    pmpOverlay.push_back({"light_mode_label", pFullscreenLabel});
     pmpOverlay.push_back({"apply_button", ppApplyButton});
 }
 
@@ -124,7 +142,8 @@ void cSettingsMenu::HandleAction(cUIElement* pButton)
     ENGINE_LOG("HandleAction");
     if (pButton == ppApplyButton)
     {
-        if (pbResolutionChanged)
+        cWindow::SetFullscreen(ppFullscreen->IsChecked());
+        if (pbResolutionChanged && !ppFullscreen->IsChecked())
         {
             tResolution& tResolution = cSettings::pmtResolutions[ppResolution->GetSelected()];
             cWindow::SetResolution(tResolution.puiWidth, tResolution.puiHeight);
@@ -151,4 +170,24 @@ void cSettingsMenu::HandleAction(cUIElement* pButton)
     {
         pbLightModeChanged = true;
     }
+}
+
+void cSettingsMenu::HandleKey(uint uiKeyCode, uint uiAction)
+{
+    if (uiAction == GLFW_PRESS)
+    {
+        switch (uiKeyCode)
+        {
+            case GLFW_KEY_ESCAPE:
+            case GLFW_KEY_HOME:
+                ppGameManager->DeactivateOverlayWindow();
+                return;
+            case GLFW_KEY_ENTER:
+            case GLFW_KEY_SPACE:
+                HandleAction(ppApplyButton);
+                return;
+        }
+    }
+
+    cOverlayWindow::HandleKey(uiKeyCode, uiAction);
 }
