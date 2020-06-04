@@ -37,44 +37,39 @@ public:
 
 void cGameLogicHandler::Update()
 {
-    // update all passenger entities with their behaviours
-    ppMission->Update();
+    if(ppMission != nullptr) {
+        // update all passenger entities with their behaviours
+        ppMission->Update();
 
-    if(ppBus->oState == cState::eStill)
-    {
-        if(ppBus->pfCurrentSpeed > 0.0f)
-            ppBus->oState = cState::eDriving;
-    }
-    if(ppBus->oState == cState::eDriving)
-    {
-        if(ppBus->pfCurrentSpeed == 0.0f)
-        {
-            // Get bus stop that is within the radius
-            cBusStop* oCurrentBusStop = ppMission->BusStopWithinRadius(ppBus->GetDoorPosition());
+        if (ppBus->oState == cState::eStill) {
+            if (ppBus->pfCurrentSpeed > 0.0f)
+                ppBus->oState = cState::eDriving;
+        }
+        if (ppBus->oState == cState::eDriving) {
+            if (ppBus->pfCurrentSpeed == 0.0f) {
+                // Get bus stop that is within the radius
+                cBusStop *oCurrentBusStop = ppMission->BusStopWithinRadius(ppBus->GetDoorPosition());
 
-            // Check if a bus stop was close enough
-            if(oCurrentBusStop == nullptr)
-            {
-                ppBus->oState = cState::eStill;
-            }
-            else
-            {
-                ppBus->oState = cState::eUnloading;
-                poCurrentBusStop = oCurrentBusStop;
+                // Check if a bus stop was close enough
+                if (oCurrentBusStop == nullptr) {
+                    ppBus->oState = cState::eStill;
+                }
+                else {
+                    ppBus->oState = cState::eUnloading;
+                    poCurrentBusStop = oCurrentBusStop;
+                }
             }
         }
-    }
-    if(ppBus->oState == cState::eUnloading)
-    {
-        UnloadPassengers(poCurrentBusStop);
-        ppBus->oState = cState::eLoading;
-    }
-    if(ppBus->oState == cState::eLoading)
-    {
-        LoadPassengers(poCurrentBusStop);
-        // go to state eStill if bus stop has no more passengers available
-        if(!ppMission->PassengersAvailable(poCurrentBusStop))
-            ppBus->oState = cState::eStill;
+        if (ppBus->oState == cState::eUnloading) {
+            UnloadPassengers(poCurrentBusStop);
+            ppBus->oState = cState::eLoading;
+        }
+        if (ppBus->oState == cState::eLoading) {
+            LoadPassengers(poCurrentBusStop);
+            // go to state eStill if bus stop has no more passengers available
+            if (!ppMission->PassengersAvailable(poCurrentBusStop))
+                ppBus->oState = cState::eStill;
+        }
     }
 }
 
