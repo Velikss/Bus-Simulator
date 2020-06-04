@@ -8,15 +8,18 @@
 class cBusMenu : public cBaseMenu
 {
 protected:
+    iGameManager* ppoOverlayProvider;
+    std::vector<cStaticElement*> poBusIcons;
+    int piCurrentBus = 0;
+
     void LoadTextures(cTextureHandler *pTextureHandler);
 
     void ConstructElements();
 
-    std::vector<cStaticElement*> poBusIcons;
-
 public:
     cBusMenu(iGameManager *pOverlayProvider) : cBaseMenu(pOverlayProvider)
     {
+        ppoOverlayProvider = pOverlayProvider;
     }
 
     void HandleOnSubmit(cButton *poSender);
@@ -27,13 +30,10 @@ public:
     {
         return true;
     }
+
+    void PreviousBus(cButton *poSender);
+    void NextBus(cButton *poSender);
 };
-
-void cBusMenu::HandleOnSubmit(cButton *poSender)
-{
-    std::cout << "submit" << std::endl;
-}
-
 
 void cBusMenu::LoadTextures(cTextureHandler *pTextureHandler)
 {
@@ -56,10 +56,11 @@ void cBusMenu::ConstructElements()
             new cStaticElement({400, 400}, pmpTextures["bus-red-icon"])
     };
 
-    for(auto& element : poBusIcons)
+    for(int i = 0; i < poBusIcons.size(); i++)
     {
-        element->Center();
-        element->SetScale(glm::vec2(0, 0));
+        poBusIcons[i]->Center();
+        poBusIcons[i]->SetScale(glm::vec2(0, 0));
+        pmpOverlay.push_back({"Bus-Icon-" + i, poBusIcons[i]});
     }
 
     cTextElement *oBusLabel = new cTextElement();
@@ -76,6 +77,8 @@ void cBusMenu::ConstructElements()
     oLeftBus->Center();
     oLeftBus->RemoveX(550);
     pmpOverlay.push_back({"oLeftBus", oLeftBus});
+    std::function<void(cButton *)> OnPreviousBus = std::bind(&cBusMenu::PreviousBus, this, std::placeholders::_1);
+    oLeftBus->ppaCallbacks.push_back(OnPreviousBus);
 
     cButton *oRightBus = new cButton({250, 75}, 0, pmpTextures["buttonTexture"], cOverlayRenderModule::FONT, 12,
                                      glm::vec3(0, 0, 0));
@@ -83,10 +86,10 @@ void cBusMenu::ConstructElements()
     oRightBus->Center();
     oRightBus->AddX(550);
     pmpOverlay.push_back({"oRightBus", oRightBus});
+    std::function<void(cButton *)> OnNextBus = std::bind(&cBusMenu::NextBus, this, std::placeholders::_1);
+    oRightBus->ppaCallbacks.push_back(OnNextBus);
 
-    cStaticElement *oBusImage = new cStaticElement({400, 400}, pmpTextures["bus"]);
-    oBusImage->Center();
-    pmpOverlay.push_back({"oBusImage", oBusImage});
+    poBusIcons[0]->SetScale(glm::vec2(1, 1));
 
 
     cButton *oSubmit = new cButton({400, 75}, 0, pmpTextures["buttonTexture"],
@@ -106,7 +109,35 @@ void cBusMenu::ConstructElements()
                                                                  });
 }
 
-// void cBusMenu::SelectBus()
-// {
-//
-// }
+void cBusMenu::PreviousBus(cButton *poSender)
+{
+    poBusIcons[piCurrentBus]->SetScale(glm::vec2(0));
+
+    if((piCurrentBus - 1) >= 0)
+        poBusIcons[--piCurrentBus]->SetScale(glm::vec2(1, 1));
+    else
+    {
+        piCurrentBus += poBusIcons.size() - 1;
+        poBusIcons[piCurrentBus]->SetScale(glm::vec2(1, 1));
+    }
+}
+
+void cBusMenu::NextBus(cButton *poSender)
+{
+    poBusIcons[piCurrentBus]->SetScale(glm::vec2(0));
+
+    if(piCurrentBus + 1 < poBusIcons.size())
+        poBusIcons[++piCurrentBus]->SetScale(glm::vec2(1, 1));
+    else
+    {
+        piCurrentBus -= poBusIcons.size() - 1;
+        poBusIcons[piCurrentBus]->SetScale(glm::vec2(1, 1));
+    }
+}
+
+void cBusMenu::HandleOnSubmit(cButton *poSender)
+{
+    ppoOverlayProvider->GetScenes().at("BusWorld")->;
+    std::cout << "submit" << std::endl;
+}
+
