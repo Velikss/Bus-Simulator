@@ -276,10 +276,10 @@ void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
 #if defined(LINUX)
             std::vector<std::string> soPathSplit = split(split(entry.path(), ".")[0], "/");
 #elif defined(WINDOWS)
-            std::vector<std::string> soPathSplit = split(split(sPath, ".")[0], "\\");
+            std::vector<std::string> soPathSplit = split(split(entry.path().string(), ".")[0], "\\");
 #endif
             std::string key = soPathSplit[soPathSplit.size() - 1];
-            pmpTextures[key] = pTextureHandler->LoadTextureFromFile(entry.path().c_str());
+            pmpTextures[key] = pTextureHandler->LoadTextureFromFile(entry.path().string().c_str());
         }
     }
 
