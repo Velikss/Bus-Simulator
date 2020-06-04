@@ -23,6 +23,8 @@ public:
 
     void HandleKey(uint uiKeyCode, uint uiAction) override;
 
+    void AssignMultiplayerHandler(cMultiplayerHandler* pMultiplayerHandler);
+    void ClearMultiplayerHandler();
 protected:
     void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler) override;
 
@@ -40,7 +42,7 @@ public:
 
     ~cBusWorldScene()
     {
-        delete poMultiplayerHandler; //-V809
+        delete poMultiplayerHandler;
         delete pMissionHandler1;
         delete pMissionHandler2;
         delete pGameLogicHandler;
@@ -55,6 +57,7 @@ public:
     void LoadObjects();
 
     void LoadMissions();
+    void AfterLoad();
     void Unload() override;
 
     bool BusCentered = false;
@@ -757,4 +760,20 @@ void cBusWorldScene::LoadObjects()
     entityGroup.AddBehaviour(cbSeperation);
     entityGroup.AddBehaviour(cbCohesion);
     entityGroup.AddBehaviour(cbSeeking);
+}
+
+void cBusWorldScene::AssignMultiplayerHandler(cMultiplayerHandler* pMultiplayerHandler)
+{
+    poMultiplayerHandler = pMultiplayerHandler;
+}
+
+void cBusWorldScene::ClearMultiplayerHandler()
+{
+    poMultiplayerHandler = nullptr;
+}
+
+void cBusWorldScene::AfterLoad()
+{
+    cScene::AfterLoad();
+    if(poMultiplayerHandler) poMultiplayerHandler->AssignScene(this);
 }

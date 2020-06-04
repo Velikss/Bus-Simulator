@@ -86,8 +86,7 @@ bool cGameServer::OnRecieve(cNetworkConnection *pConnection)
     cRequest oRequest;
     SSO_STATUS iStatus = HandleSession(pConnection, oRequest);
 
-    if (iStatus == C_SSO_DISCONNECT)
-        return false;
+    if (iStatus == C_SSO_DISCONNECT) return false;
     if (iStatus == C_SSO_NOHANDLE) return true;
     if (iStatus == C_SSO_LOGIN_OK)
     {

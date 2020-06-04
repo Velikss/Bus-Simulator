@@ -31,7 +31,15 @@ int main()
             ushort usPort = strtoul(sPort.c_str(), NULL, 0);
             tSSOServerSettings.usPort = usPort;
         }
+        if (!oJson["SSOServer"].contains("DB-DRIVER") ||
+                !oJson["SSOServer"].contains("DB-DATABASE") ||
+                !oJson["SSOServer"].contains("DB-IP") ||
+                !oJson["SSOServer"].contains("DB-USR") ||
+                !oJson["SSOServer"].contains("DB-PWD"))
+            throw std::runtime_error("could not find database settings for the sso server.");
     }
+    else
+        throw std::runtime_error("could not find database settings for the sso server.");
 
     tGameServerSettings.sAddress = "0.0.0.0";
     tGameServerSettings.usPort = 14000;
@@ -50,6 +58,12 @@ int main()
         if(!oJson["GameServer"].contains("SSO-IP")) throw std::runtime_error("could not find sso ip for the game server.");
         if(!oJson["GameServer"].contains("SSO-PORT")) throw std::runtime_error("could not find sso port for the game server.");
 
+        if (!oJson["GameServer"].contains("DB-DRIVER") ||
+            !oJson["GameServer"].contains("DB-DATABASE") ||
+            !oJson["GameServer"].contains("DB-IP") ||
+            !oJson["GameServer"].contains("DB-USR") ||
+            !oJson["GameServer"].contains("DB-PWD"))
+            throw std::runtime_error("could not find database settings for the game server.");
     }
     else
         throw std::runtime_error("could not find sso setting for the game server.");
@@ -57,7 +71,11 @@ int main()
     poSSOServer = std::make_shared<cSSOServer>(&tSSOServerSettings);
     poGameServer = std::make_shared<cGameServer>(&tGameServerSettings);
 
-    if(!poSSOServer->InitDB("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=SSO;"))
+    if(!poSSOServer->InitDB("driver=" + (string)oJson["SSOServer"]["DB-DRIVER"] + ";" +
+                            "server=" + (string)oJson["SSOServer"]["DB-IP"] + ";" +
+                            "user=" + (string)oJson["SSOServer"]["DB-USR"] + ";" +
+                            "pwd=" + (string)oJson["SSOServer"]["DB-PWD"] + ";" +
+                            "database=" + (string)oJson["SSOServer"]["DB-DATABASE"] + ";"))
         throw std::runtime_error("SSO server could not initialize the database.");
 
     if(oJson["SSOServer"].contains("IDS"))
@@ -71,7 +89,11 @@ int main()
     if(!poSSOServer->Listen()) throw std::runtime_error("SSO server could not be started.");
     std::cout << "Started SSOServer at: " << tSSOServerSettings.sAddress << ":" << tSSOServerSettings.usPort << std::endl;
 
-    if(!poGameServer->InitDB("driver=MariaDB ODBC 3.1 Driver;server=192.168.178.187;user=root;pwd=hiddenhand;database=Game;"))
+    if(!poGameServer->InitDB("driver=" + (string)oJson["GameServer"]["DB-DRIVER"] + ";" +
+                             "server=" + (string)oJson["GameServer"]["DB-IP"] + ";" +
+                             "user=" + (string)oJson["GameServer"]["DB-USR"] + ";" +
+                             "pwd=" + (string)oJson["GameServer"]["DB-PWD"] + ";" +
+                             "database=" + (string)oJson["GameServer"]["DB-DATABASE"] + ";"))
         throw std::runtime_error("Game server could not initialize the database.");
 
     std::cout << "Starting GameServer..." << std::endl;
