@@ -35,6 +35,7 @@
 #include <vulkan/util/GameManager.hpp>
 #include <vulkan/util/CommandBufferHolder.hpp>
 #include <vulkan/SceneManager.hpp>
+#include <vulkan/util/Settings.hpp>
 
 class cEngine : public iGameManager, public iInputHandler, public iCommandBufferHolder
 {
@@ -267,6 +268,8 @@ void cEngine::InitEngine(void)
 {
     // Create the scene manager
     ppSceneManager = new cSceneManager(ppLogicalDevice, ppTextureHandler, ppAudioHandler);
+
+    cSettings::Init();
 
     // Set up the game loop
     ppGameLoop = new cGameLoop();

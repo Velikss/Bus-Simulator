@@ -13,6 +13,7 @@ protected:
 public:
     std::vector<std::function<void(cButton*)>> ppaCallbacks;
     cButton(tElementInfo tSize, uint uiPadding, cTexture* pTexture, cFont* pFont, float fFontSize, glm::vec3 tTextColor);
+    cButton(tElementInfo tSize, uint uiPadding, cTexture* pTexture, const tFontInfo& tFont);
 };
 
 cButton::cButton(tElementInfo tSize, uint uiPadding, cTexture* pTexture, cFont* pFont, float fFontSize, glm::vec3 tTextColor)
@@ -21,6 +22,11 @@ cButton::cButton(tElementInfo tSize, uint uiPadding, cTexture* pTexture, cFont* 
     ppClickable = new cSimpleButton(tSize, pTexture);
     AddChild(ppClickable);
     AddLabelLayer();
+}
+
+cButton::cButton(tElementInfo tSize, uint uiPadding, cTexture* pTexture, const tFontInfo& tFont)
+        : cButton(tSize, uiPadding, pTexture, tFont.ppFont, tFont.pfFontSize, tFont.ptFontColor)
+{
 }
 
 void cButton::HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction)

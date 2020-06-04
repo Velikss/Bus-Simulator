@@ -2,7 +2,6 @@
 
 //#define DEBUG_NORMALS
 
-const float gamma = 1.9;
 const float PI = 3.14159265359;
 
 layout (binding = 1) uniform sampler2D samplerPosition;
@@ -23,7 +22,9 @@ struct Light {
 layout (binding = 0) readonly buffer Buffer
 {
     vec4 viewPos;
-    float ambientLight;
+    float ambient;
+    float gamma;
+    uint lightMode;
     uint lightsCount;
     Light lights[];
 } ubo;
@@ -102,13 +103,7 @@ vec3 HandlePBR(vec3 fragPos)
             vec3 radiance = lightColor * attenuation * 12;
 
             // Cook-Torrance BRDF
-            float NDF = DistributionGGX(normal, halfwayDir, roughness);
-            float G   = GeometrySmith(normal, viewDir, lightDir, roughness);
             vec3  F   = fresnelSchlick(clamp(dot(halfwayDir, viewDir), 0.0, 1.0), F0);
-
-            vec3 nominator    = NDF * G * F;
-            float denominator = 4 * max(dot(normal, viewDir), 0.0) * max(dot(normal, lightDir), 0.0);
-            vec3 specular     = nominator / max(denominator, 0.001);// prevent divide by zero for NdotV=0.0 or NdotL=0.0
 
             // kS is equal to Fresnel
             vec3 kS = F;
@@ -124,7 +119,21 @@ vec3 HandlePBR(vec3 fragPos)
             // scale light by NdotL
             float NdotL = max(dot(normal, lightDir), 0.0);
 
-            Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+            if (ubo.lightMode == 1)
+            {
+                float NDF = DistributionGGX(normal, halfwayDir, roughness);
+                float G   = GeometrySmith(normal, viewDir, lightDir, roughness);
+
+                vec3 nominator    = NDF * G * F;
+                float denominator = 4 * max(dot(normal, viewDir), 0.0) * max(dot(normal, lightDir), 0.0);
+                vec3 specular     = nominator / max(denominator, 0.001);// prevent divide by zero for NdotV=0.0 or NdotL=0.0
+
+                Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+            }
+            else
+            {
+                Lo += ((kD * albedo) * radiance * NdotL) * 0.3;
+            }
 
             #ifdef DEBUG_NORMALS
             return normal;
@@ -134,14 +143,14 @@ vec3 HandlePBR(vec3 fragPos)
 
     // ambient lighting (note that the next IBL tutorial will replace
     // this ambient lighting with environment lighting).
-    vec3 ambient = albedo * 0.1;
+    vec3 ambient = albedo * ubo.ambient;
 
     vec3 result = ambient + Lo;
 
     // HDR tonemapping
     result = result / (result + vec3(1.0));
     // gamma correct
-    result = pow(result, vec3(1.0 / gamma));
+    result = pow(result, vec3(1.0 / ubo.gamma));
 
     return result;
 }

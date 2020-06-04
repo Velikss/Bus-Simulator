@@ -137,7 +137,8 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/PasswordTextBox.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/TabsElement.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/ComboBox.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/CheckBox.hpp src/vulkan/SceneManager.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/ValueSelector.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/CheckBox.hpp src/vulkan/SceneManager.hpp src/vulkan/util/Settings.hpp)
 
 include_directories(${_ENGINE_INCLUDE_DIRS})
 add_library(${This} STATIC ${PROJECT_SOURCE_DIR}/src/main.cpp ${Headers})
