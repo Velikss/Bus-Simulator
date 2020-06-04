@@ -17,6 +17,7 @@ private:
     cBus* ppBus;
     cBusStop* poCurrentBusStop = nullptr;
     std::map<string, cBaseObject*> pmpObjects;
+    bool pbMissionLoaded;
 public:
     cGameLogicHandler(cScene* pScene, cBus* pBus, cMissionHandler* pMission = nullptr)
     {
@@ -24,6 +25,7 @@ public:
         ppBus = pBus;
         ppMission = pMission;
         pmpObjects = ppScene->GetObjects();
+        pbMissionLoaded = false;
     }
 
     void Update();
@@ -37,7 +39,8 @@ public:
 
 void cGameLogicHandler::Update()
 {
-    if(ppMission != nullptr) {
+    // Check if mission is given and is loaded
+    if(ppMission != nullptr && pbMissionLoaded) {
         // update all passenger entities with their behaviours
         ppMission->Update();
 
@@ -219,7 +222,7 @@ bool cGameLogicHandler::LoadMission()
             }
         }
     }
-
+    pbMissionLoaded = true;
     return true;
 }
 
@@ -253,5 +256,6 @@ bool cGameLogicHandler::SetMissionHandler(cMissionHandler* pMissionHandler)
     }
 
     ppMission = pMissionHandler;
+    pbMissionLoaded = false;
     return true;
 }
