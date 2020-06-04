@@ -17,26 +17,26 @@ public:
         pbVisited = false;
     }
 
-    bool AddPassenger(IPassenger *passenger) override;
+    bool AddPassenger(IPassenger *pPassenger) override;
 
-    bool RemovePassenger(IPassenger *passenger) override;
+    bool RemovePassenger(IPassenger *pPassenger) override;
 
-    void SetPassengerTarget(glm::vec3 oTargetPos);
+    void SetPassengersTarget(glm::vec3 oTargetPos);
 };
 
-bool cBusStop::AddPassenger(IPassenger *passenger)
+bool cBusStop::AddPassenger(IPassenger *pPassenger)
 {
-    poEntityGroup->AddEntity(passenger);
+    poEntityGroup->AddEntity(pPassenger);
     return true;
 }
 
-bool cBusStop::RemovePassenger(IPassenger *passenger)
+bool cBusStop::RemovePassenger(IPassenger *pPassenger)
 {
-    poEntityGroup->RemoveEntity(passenger);
+    poEntityGroup->RemoveEntity(pPassenger);
     return true;
 }
 
-void cBusStop::SetPassengerTarget(glm::vec3 oTargetPos)
+void cBusStop::SetPassengersTarget(glm::vec3 oTargetPos)
 {
     std::vector<IEntity *> *entities;
     poEntityGroup->GetEntityList(&entities);

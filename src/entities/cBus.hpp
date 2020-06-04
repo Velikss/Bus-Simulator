@@ -20,7 +20,7 @@ const float C_COLL_Z1 = -7.0f;
 const float C_COLL_X2 = 1.6f;
 const float C_COLL_Z2 = 2.7f;
 
-enum class Direction
+enum class cDirection
 {
     Left, Right
 };
@@ -44,12 +44,13 @@ public:
     int piBusId = C_UNDEFINED;
 
     cEntityGroup *poEntityGroup;
+    cState oState;
+
     cAudioHandler *ppAudioHandler;
     int piEngineChannel;
     int piEngineAccelChannel;
     int piEngineDecelChannel;
     int piIdleChannel;
-    cState oState;
 
     cBus(cAudioHandler *pAudioHandler, cMesh *mesh) : cBaseObject(mesh,
                                                                   cCollider::RectangleCollider(C_COLL_X1, C_COLL_Z1,
@@ -75,7 +76,7 @@ public:
 
     void Move();
 
-    void Steer(Direction direction);
+    void Steer(cDirection odirection);
 
     void Accelerate();
 
@@ -87,9 +88,9 @@ public:
 
     glm::vec3 GetDoorPosition();
 
-    bool AddPassenger(IPassenger *passenger) override;
+    bool AddPassenger(IPassenger *pPassenger) override;
 
-    bool RemovePassenger(IPassenger *passenger) override;
+    bool RemovePassenger(IPassenger *pPassenger) override;
 
 };
 
@@ -160,12 +161,12 @@ void cBus::IdleAcceleration()
     }
 }
 
-void cBus::Steer(Direction direction)
+void cBus::Steer(cDirection direction)
 {
     // Block steering while stopped
     if (pfCurrentSpeed == 0) return;
 
-    if (direction == Direction::Left)
+    if (direction == cDirection::Left)
     {
         // If the steering modifier is still set to right (lower than 0), reset the modifier to 0.
         if (pfSteeringModifier < 0)
@@ -178,7 +179,7 @@ void cBus::Steer(Direction direction)
             pfSteeringModifier += 0.2f;
         }
     }
-    if (direction == Direction::Right)
+    if (direction == cDirection::Right)
     {
         // If the steering modifier is still set to left (higher than 0), reset the modifier to 0.
         if (pfSteeringModifier > 0)
@@ -242,14 +243,14 @@ glm::vec3 cBus::GetDoorPosition()
     return doorPos;
 }
 
-bool cBus::AddPassenger(IPassenger *passenger)
+bool cBus::AddPassenger(IPassenger *pPassenger)
 {
-    poEntityGroup->AddEntity(passenger);
+    poEntityGroup->AddEntity(pPassenger);
     return true;
 }
 
-bool cBus::RemovePassenger(IPassenger *passenger)
+bool cBus::RemovePassenger(IPassenger *pPassenger)
 {
-    poEntityGroup->RemoveEntity(passenger);
+    poEntityGroup->RemoveEntity(pPassenger);
     return true;
 }
