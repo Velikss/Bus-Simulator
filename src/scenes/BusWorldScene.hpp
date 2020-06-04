@@ -30,6 +30,7 @@ public:
     void ClearMultiplayerHandler();
 protected:
     void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler) override;
+    std::map<string, cTexture*> pmpBusTextures;
 
 private:
     cNetworkConnection::tNetworkInitializationSettings tConnectNetworkSettings;
@@ -76,6 +77,8 @@ public:
     cGameLogicHandler* pGameLogicHandler = nullptr;
     cMissionHandler* pMissionHandler1 = nullptr;
     cMissionHandler* pMissionHandler2 = nullptr;
+
+    void SetBusSkin(const string &sBusSkin);
 };
 
 void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler)
@@ -263,7 +266,20 @@ void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
             "resources/textures/streetUtil/trafficLight.png");
     pmpTextures["busStop"] = pTextureHandler->LoadTextureFromFile("resources/textures/streetUtil/busStop.png");
     // buses
-    pmpTextures["schoolBus"] = pTextureHandler->LoadTextureFromFile("resources/textures/buses/schoolBus-purple.png");
+    std::string path = "resources/textures/buses";
+    for (const auto & entry : std::filesystem::directory_iterator(path))
+    {
+        if(!entry.is_directory())
+        {
+#if defined(LINUX)
+            std::vector<std::string> soPathSplit = split(split(entry.path(), ".")[0], "/");
+#elif defined(WINDOWS)
+            std::vector<std::string> soPathSplit = split(split(sPath, ".")[0], "\\");
+#endif
+            std::string key = soPathSplit[soPathSplit.size() - 1];
+            pmpTextures[key] = pTextureHandler->LoadTextureFromFile(entry.path().c_str());
+        }
+    }
 
     // passengers
     pmpTextures["passenger"] = pTextureHandler->LoadTextureFromFile("resources/textures/penguin.png");
@@ -333,8 +349,8 @@ void cBusWorldScene::LoadMeshes()
                                                      pmpTextures["stoneHouse"]);
     pmpMeshes["walkways30-3"] = new cMesh(pmpGeometries["walkways30-3"], pmpTextures["stoneHouse"]);
     pmpMeshes["walkways10-3"] = new cMesh(pmpGeometries["walkways10-3"], pmpTextures["stoneHouse"]);
-    // buses
-    pmpMeshes["bus"] = new cMesh(pmpGeometries["bus"], pmpTextures["schoolBus"]);
+    // bus
+    pmpMeshes["bus"] = new cMesh(pmpGeometries["bus"], pmpTextures["bus-yellow"]);
     // streetUtil
     pmpMeshes["busStation"] = new cMesh(pmpGeometries["busStation"], pmpTextures["busStop"]);
     pmpMeshes["trafficLight"] = new cMesh(pmpGeometries["trafficLight"], pmpTextures["trafficLight"]);
@@ -958,4 +974,10 @@ void cBusWorldScene::AfterLoad()
 {
     cScene::AfterLoad();
     if(poMultiplayerHandler) poMultiplayerHandler->AssignScene(this);
+}
+
+void cBusWorldScene::SetBusSkin(const std::string& sBusSkin)
+{
+    ENGINE_LOG(sBusSkin);
+        pmpObjects["bus"]->GetMesh()->SetTexture(pmpTextures[sBusSkin]);
 }
