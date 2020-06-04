@@ -8,9 +8,9 @@
 class cBusMenu : public cBaseMenu
 {
 protected:
-    iGameManager* ppoOverlayProvider;
-    std::vector<cStaticElement*> poBusIcons;
-    int piCurrentBus = 0;
+    iGameManager *ppoOverlayProvider;
+    std::map<string, cStaticElement *> poBusIcons;
+    std::map<string, cStaticElement *>::iterator poBusIterator;
 
     void LoadTextures(cTextureHandler *pTextureHandler);
 
@@ -32,6 +32,7 @@ public:
     }
 
     void PreviousBus(cButton *poSender);
+
     void NextBus(cButton *poSender);
 };
 
@@ -41,9 +42,12 @@ void cBusMenu::LoadTextures(cTextureHandler *pTextureHandler)
     pmpTextures["textbox"] = pTextureHandler->LoadTextureFromFile("resources/textures/textbox.png");
     pmpTextures["bus"] = pTextureHandler->LoadTextureFromFile("resources/textures/penguin.png");
 
-    pmpTextures["bus-yellow-icon"] = pTextureHandler->LoadTextureFromFile("resources/textures/buses/icons/bus-yellow-icon.png");
-    pmpTextures["bus-purple-icon"] = pTextureHandler->LoadTextureFromFile("resources/textures/buses/icons/bus-purple-icon.png");
-    pmpTextures["bus-red-icon"] = pTextureHandler->LoadTextureFromFile("resources/textures/buses/icons/bus-red-icon.png");
+    pmpTextures["bus-yellow-icon"] = pTextureHandler->LoadTextureFromFile(
+            "resources/textures/buses/icons/bus-yellow-icon.png");
+    pmpTextures["bus-purple-icon"] = pTextureHandler->LoadTextureFromFile(
+            "resources/textures/buses/icons/bus-purple-icon.png");
+    pmpTextures["bus-red-icon"] = pTextureHandler->LoadTextureFromFile(
+            "resources/textures/buses/icons/bus-red-icon.png");
 }
 
 void cBusMenu::ConstructElements()
@@ -51,16 +55,20 @@ void cBusMenu::ConstructElements()
     cBaseMenu::ConstructElements();
 
     poBusIcons = {
-            new cStaticElement({400, 400}, pmpTextures["bus-yellow-icon"]),
-            new cStaticElement({400, 400}, pmpTextures["bus-purple-icon"]),
-            new cStaticElement({400, 400}, pmpTextures["bus-red-icon"])
+            {"yellow", new cStaticElement({400, 400}, pmpTextures["bus-yellow-icon"])},
+            {"purple", new cStaticElement({400, 400}, pmpTextures["bus-purple-icon"])},
+            {"red",    new cStaticElement({400, 400}, pmpTextures["bus-red-icon"])}
     };
 
-    for(int i = 0; i < poBusIcons.size(); i++)
+    poBusIterator = poBusIcons.find("yellow");
+
+    int i = 0;
+    for (auto &icon : poBusIcons)
     {
-        poBusIcons[i]->Center();
-        poBusIcons[i]->SetScale(glm::vec2(0, 0));
-        pmpOverlay.push_back({"Bus-Icon-" + i, poBusIcons[i]});
+        icon.second->Center();
+        icon.second->SetScale(glm::vec2(0, 0));
+        pmpOverlay.push_back({"Bus-Icon-" + i, icon.second});
+        i++;
     }
 
     cTextElement *oBusLabel = new cTextElement();
@@ -89,7 +97,7 @@ void cBusMenu::ConstructElements()
     std::function<void(cButton *)> OnNextBus = std::bind(&cBusMenu::NextBus, this, std::placeholders::_1);
     oRightBus->ppaCallbacks.push_back(OnNextBus);
 
-    poBusIcons[0]->SetScale(glm::vec2(1, 1));
+    poBusIterator->second->SetScale(glm::vec2(1, 1));
 
 
     cButton *oSubmit = new cButton({400, 75}, 0, pmpTextures["buttonTexture"],
@@ -111,33 +119,36 @@ void cBusMenu::ConstructElements()
 
 void cBusMenu::PreviousBus(cButton *poSender)
 {
-    poBusIcons[piCurrentBus]->SetScale(glm::vec2(0));
+    // Hide current skin
+    poBusIterator->second->SetScale(glm::vec2(0, 0));
 
-    if((piCurrentBus - 1) >= 0)
-        poBusIcons[--piCurrentBus]->SetScale(glm::vec2(1, 1));
-    else
-    {
-        piCurrentBus += poBusIcons.size() - 1;
-        poBusIcons[piCurrentBus]->SetScale(glm::vec2(1, 1));
-    }
+    // If we are not at the begin go to the next, else go back to end
+    (poBusIterator != poBusIcons.begin()) ? --poBusIterator : poBusIterator = poBusIcons.end();
+
+    // Display the icon
+    poBusIterator->second->SetScale(glm::vec2(1, 1));
 }
 
 void cBusMenu::NextBus(cButton *poSender)
 {
-    poBusIcons[piCurrentBus]->SetScale(glm::vec2(0));
+    // Hide current skin
+    poBusIterator->second->SetScale(glm::vec2(0, 0));
 
-    if(piCurrentBus + 1 < poBusIcons.size())
-        poBusIcons[++piCurrentBus]->SetScale(glm::vec2(1, 1));
-    else
+    // If we are not at the end go to next, else go back to begin
+    if (poBusIterator != poBusIcons.end())
     {
-        piCurrentBus -= poBusIcons.size() - 1;
-        poBusIcons[piCurrentBus]->SetScale(glm::vec2(1, 1));
+        poBusIterator++;
+    } else
+    {
+        poBusIterator = poBusIcons.begin();
     }
+
+    // Display the icon
+    poBusIterator->second->SetScale(glm::vec2(1, 1));
 }
 
 void cBusMenu::HandleOnSubmit(cButton *poSender)
 {
-    ppoOverlayProvider->GetScenes().at("BusWorld")->;
     std::cout << "submit" << std::endl;
 }
 
