@@ -27,6 +27,7 @@ public:
     VkSampler& GetImageSampler(uint uiIndex) override;
 
     void SetFont(float fFontSize, cFont* pFont, glm::vec3 tColor);
+    void SetFont(const tFontInfo& tFont);
     void UpdateText(const string& sText);
 
     uint GetChildCount() override;
@@ -133,6 +134,11 @@ void cTextElement::SetFont(float fFontSize, cFont* pFont, glm::vec3 tColor)
 
     ptInfo.uiWidth = GetTextWidth(psText, ppFont, pfFontSize);
     ptInfo.uiHeight = ppFont->GetFontHeight(pfFontSize);
+}
+
+void cTextElement::SetFont(const tFontInfo& tFont)
+{
+    SetFont(tFont.pfFontSize, tFont.ppFont, tFont.ptFontColor);
 }
 
 void cTextElement::UpdateText(const string& sText)

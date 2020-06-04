@@ -3,11 +3,12 @@
 #include <pch.hpp>
 #include <vulkan/module/overlay/element/elements/CompoundElement.hpp>
 #include <vulkan/module/overlay/element/elements/SimpleButton.hpp>
+#include <util/Formatter.hpp>
 
-class cComboBox : public cCompoundElement, public iInputHandler
+class cValueSelector : public cCompoundElement, public iInputHandler
 {
 public:
-    std::vector<std::function<void(cComboBox*)>> pafCallbacks;
+    std::vector<std::function<void(cValueSelector*)>> pafCallbacks;
 
 private:
     cTextElement* ppCurrentValue = nullptr;
@@ -15,19 +16,21 @@ private:
     cSimpleButton* ppLeftButton = nullptr;
     cSimpleButton* ppRightButton = nullptr;
 
-    std::vector<string> pasOptions;
-    uint puiSelectedIndex = 0;
+    float pfMinValue;
+    float pfMaxValue;
+    float pfStepSize;
+
+    float pfSelectedValue;
 
 public:
-    cComboBox(const tElementInfo& tSize, const tFontInfo& tFont,
-              cTexture* pBackgroundTexture, cTexture* pButtonTexture);
+    cValueSelector(const tElementInfo& tSize, const tFontInfo& tFont,
+                   cTexture* pBackgroundTexture, cTexture* pButtonTexture,
+                   float fMinValue, float fMaxValue, float fStepSize);
 
-    void AddOption(const string& sOption);
-    void SetSelected(const string& sSelected);
-    string GetSelected();
+    void SetValue(float fValue);
+    float GetValue();
 
     void HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction) override;
-    void OnPreLoad() override;
     void OnLoadVertices() override;
 
 private:
@@ -37,10 +40,15 @@ private:
     void NotifyCallbacks();
 };
 
-cComboBox::cComboBox(const tElementInfo& tSize, const tFontInfo& tFont,
-                     cTexture* pBackgroundTexture, cTexture* pButtonTexture)
+cValueSelector::cValueSelector(const tElementInfo& tSize, const tFontInfo& tFont,
+                               cTexture* pBackgroundTexture, cTexture* pButtonTexture,
+                               float fMinValue, float fMaxValue, float fStepSize)
 {
     uint uiButtonSize = tSize.uiHeight;
+
+    pfMinValue = fMinValue;
+    pfMaxValue = fMaxValue;
+    pfStepSize = fStepSize;
 
     cStaticElement* pBackground = new cStaticElement(tSize, pBackgroundTexture);
     pBackground->SetPosition({uiButtonSize, 0});
@@ -60,44 +68,24 @@ cComboBox::cComboBox(const tElementInfo& tSize, const tFontInfo& tFont,
     papChildren.push_back(ppLeftButton);
 }
 
-void cComboBox::AddOption(const string& sOption)
-{
-    pasOptions.push_back(sOption);
-}
-
-void cComboBox::OnPreLoad()
-{
-    assert(pasOptions.size() != 0);
-}
-
-void cComboBox::OnLoadVertices()
+void cValueSelector::OnLoadVertices()
 {
     cCompoundElement::OnLoadVertices();
     UpdateCurrentValue();
 }
 
-void cComboBox::SetSelected(const string& sSelected)
+void cValueSelector::SetValue(float fValue)
 {
-    uint uiIndex = 0;
-    for (string& sOption : pasOptions)
-    {
-        if (sOption == sSelected)
-        {
-            puiSelectedIndex = uiIndex;
-            return;
-        }
-        uiIndex++;
-    }
-
-    assert(false); // the value of sSelected is not a valid option
+    pfSelectedValue = fValue;
+    UpdateCurrentValue();
 }
 
-string cComboBox::GetSelected()
+float cValueSelector::GetValue()
 {
-    return pasOptions[puiSelectedIndex];
+    return pfSelectedValue;
 }
 
-void cComboBox::HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction)
+void cValueSelector::HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction)
 {
     if (iAction == GLFW_PRESS)
     {
@@ -113,32 +101,32 @@ void cComboBox::HandleMouseButton(uint uiButton, double dXPos, double dYPos, int
     }
 }
 
-void cComboBox::LeftButtonClick()
+void cValueSelector::LeftButtonClick()
 {
-    if (puiSelectedIndex > 0)
+    if (pfSelectedValue > pfMinValue)
     {
-        puiSelectedIndex--;
+        pfSelectedValue -= pfStepSize;
         UpdateCurrentValue();
         NotifyCallbacks();
     }
 }
 
-void cComboBox::RightButtonClick()
+void cValueSelector::RightButtonClick()
 {
-    if (puiSelectedIndex < (pasOptions.size() - 1))
+    if (pfSelectedValue < (pfMaxValue - pfStepSize))
     {
-        puiSelectedIndex++;
+        pfSelectedValue += pfStepSize;
         UpdateCurrentValue();
         NotifyCallbacks();
     }
 }
 
-void cComboBox::UpdateCurrentValue()
+void cValueSelector::UpdateCurrentValue()
 {
-    ppCurrentValue->UpdateText(pasOptions[puiSelectedIndex]);
+    ppCurrentValue->UpdateText(cFormatter() << pfSelectedValue);
 }
 
-void cComboBox::NotifyCallbacks()
+void cValueSelector::NotifyCallbacks()
 {
     for (auto& fEventHandler : pafCallbacks)
     {

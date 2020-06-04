@@ -88,8 +88,10 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
     LoadMeshes();
     LoadObjects(pAudioHandler);
     LoadBehaviours();
-//    LoadOverlay(pLogicalDevice);
     LoadMissions();
+
+    cWindow::SetMouseLocked(true);
+
     cScene::Load(pTextureHandler, pLogicalDevice, pAudioHandler);
 }
 
@@ -175,7 +177,7 @@ void cBusWorldScene::Update()
     if (paKeys[GLFW_KEY_ESCAPE])
         ppOverlayProvider->ActivateOverlayWindow("BusMenu");
     if (paKeys[GLFW_KEY_HOME])
-        ppOverlayProvider->ActivateOverlayWindow("Test");
+        ppOverlayProvider->ActivateOverlayWindow("Settings");
 
     dynamic_cast<cBus*>(pmpObjects["bus"])->Move();
 

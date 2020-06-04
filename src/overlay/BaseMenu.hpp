@@ -13,13 +13,13 @@ protected:
     iGameManager* ppGameManager;
 
 protected:
-    void LoadTextures(cTextureHandler* pTextureHandler) override
+    virtual void LoadTextures(cTextureHandler* pTextureHandler) override
     {
         pmpTextures["buttonTexture"] = pTextureHandler->LoadTextureFromFile("resources/textures/button.png");
         pmpTextures["background"] = pTextureHandler->LoadTextureFromFile("resources/textures/background.png");
     }
 
-    void ConstructElements() override
+    virtual void ConstructElements() override
     {
         cStaticElement* oPanel = new cStaticElement({(uint)((double)cWindow::puiWidth * 0.85), (uint)((double)cWindow::puiHeight * 0.85)}, pmpTextures["background"]);
         oPanel->Center();
@@ -49,5 +49,15 @@ public:
     bool ShouldHandleInput() override
     {
         return true;
+    }
+
+    void OnOpen() override
+    {
+        cWindow::SetMouseLocked(false);
+    }
+
+    void OnClose() override
+    {
+        cWindow::SetMouseLocked(true);
     }
 };

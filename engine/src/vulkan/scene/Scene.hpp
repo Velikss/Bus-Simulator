@@ -39,7 +39,7 @@ private:
     std::vector<cLightObject*> papLightObjects;
 
 public:
-    float pfAmbientLight = 0.2f;
+    float pfAmbientLight = 0.1f;
 
     cBehaviourHandler* pcbSeperation = nullptr;
     cBehaviourHandler* pcbCohesion = nullptr;
