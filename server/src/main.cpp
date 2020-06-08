@@ -31,6 +31,15 @@ int main()
             ushort usPort = strtoul(sPort.c_str(), NULL, 0);
             tSSOServerSettings.usPort = usPort;
         }
+        if(oJson["SSOServer"].contains("USESSL")) tSSOServerSettings.bUseSSL = oJson["SSOServer"]["USESSL"];
+        if (tSSOServerSettings.bUseSSL)
+        {
+            if(!oJson["SSOServer"].contains("SSL-CERT") ||
+               !oJson["SSOServer"].contains("SSL-KEY"))
+                throw std::runtime_error("could not find ssl cert and key settings for the sso server.");
+            tSSOServerSettings.sCertFile = oJson["SSOServer"]["SSL-CERT"];
+            tSSOServerSettings.sKeyFile = oJson["SSOServer"]["SSL-KEY"];
+        }
         if (!oJson["SSOServer"].contains("DB-DRIVER") ||
                 !oJson["SSOServer"].contains("DB-DATABASE") ||
                 !oJson["SSOServer"].contains("DB-IP") ||
@@ -53,7 +62,15 @@ int main()
             ushort usPort = strtoul(sPort.c_str(), NULL, 0);
             tGameServerSettings.usPort = usPort;
         }
-
+        if(oJson["GameServer"].contains("USESSL")) tGameServerSettings.bUseSSL = oJson["GameServer"]["USESSL"];
+        if (tGameServerSettings.bUseSSL)
+        {
+            if(!oJson["GameServer"].contains("SSL-CERT") ||
+               !oJson["GameServer"].contains("SSL-KEY"))
+                throw std::runtime_error("could not find ssl cert and key settings for the game server.");
+            tGameServerSettings.sCertFile = oJson["GameServer"]["SSL-CERT"];
+            tGameServerSettings.sKeyFile = oJson["GameServer"]["SSL-KEY"];
+        }
         if(!oJson["GameServer"].contains("ID")) throw std::runtime_error("could not find sso id for the game server.");
         if(!oJson["GameServer"].contains("SSO-IP")) throw std::runtime_error("could not find sso ip for the game server.");
         if(!oJson["GameServer"].contains("SSO-PORT")) throw std::runtime_error("could not find sso port for the game server.");
@@ -87,7 +104,7 @@ int main()
 
     std::cout << "Starting SSOServer..." << std::endl;
     if(!poSSOServer->Listen()) throw std::runtime_error("SSO server could not be started.");
-    std::cout << "Started SSOServer at: " << tSSOServerSettings.sAddress << ":" << tSSOServerSettings.usPort << std::endl;
+    std::cout << "Started SSOServer at: " << tSSOServerSettings.sAddress << ":" << tSSOServerSettings.usPort << ", SSL: " << (tSSOServerSettings.bUseSSL ? "true" : "false") << std::endl;
 
     if(!poGameServer->InitDB("driver=" + (string)oJson["GameServer"]["DB-DRIVER"] + ";" +
                              "server=" + (string)oJson["GameServer"]["DB-IP"] + ";" +
@@ -102,10 +119,10 @@ int main()
     string sPort = oJson["GameServer"]["SSO-PORT"];
     ushort usPort = strtoul(sPort.c_str(), NULL, 0);
 
-    if(!poGameServer->ConnectToSSOServer(oJson["GameServer"]["ID"], oJson["GameServer"]["SSO-IP"], usPort)) throw std::runtime_error("Game server could connect to the SSO server.");
+    if(!poGameServer->ConnectToSSOServer(oJson["GameServer"]["ID"], oJson["GameServer"]["SSO-IP"], usPort, tGameServerSettings.bUseSSL)) throw std::runtime_error("Game server could connect to the SSO server.");
     if(!poGameServer->Listen()) throw std::runtime_error("Game server could not be started.");
 
-    std::cout << "Started GameServer at: " << tGameServerSettings.sAddress << ":" << tGameServerSettings.usPort << std::endl;
+    std::cout << "Started GameServer at: " << tGameServerSettings.sAddress << ":" << tGameServerSettings.usPort << ", SSL: " << (tGameServerSettings.bUseSSL ? "true" : "false") << std::endl;
 
     for(;;){ fSleep(10000);}
     return 0;

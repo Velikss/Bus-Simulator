@@ -126,8 +126,11 @@ void cMainMenu::HandleOnSubmit(cButton* poSender)
     ptConnectNetworkSettings.sAddress = cNetworkAbstractions::DNSLookup(poJson["Multiplayer"]["IP"]);
     ptConnectNetworkSettings.usPort = usPort;
     ptConnectNetworkSettings.eMode = cNetworkConnection::cMode::eNonBlocking;
+    if (poJson["Multiplayer"].contains("USESSL"))
+        ptConnectNetworkSettings.bUseSSL = poJson["Multiplayer"]["USESSL"];
+
     poJson.clear();
-    std::cout << "Connecting to: " << ptConnectNetworkSettings.sAddress << ":" << ptConnectNetworkSettings.usPort << std::endl;
+    std::cout << "Connecting to: " << ptConnectNetworkSettings.sAddress << ":" << ptConnectNetworkSettings.usPort << ", SSL: " << (ptConnectNetworkSettings.bUseSSL ? "true" : "false") << std::endl;
     (*pppoMultiplayerHandler) = new cMultiplayerHandler(&ptConnectNetworkSettings);
     if((*pppoMultiplayerHandler)->Connect())
     {
