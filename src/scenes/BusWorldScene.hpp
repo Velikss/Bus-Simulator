@@ -46,7 +46,6 @@ public:
     ~cBusWorldScene()
     {
         delete poMultiplayerHandler;
-        delete pGameLogicHandler;
     }
 
     void LoadTextures(cTextureHandler* pTextureHandler);

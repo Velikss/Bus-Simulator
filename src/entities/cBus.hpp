@@ -106,14 +106,16 @@ void cBus::Move()
         if (pfSteeringModifier > 0)
         {
             steerCollision = !this->RotateLeft(pfSteeringModifier / 10);
-        } else
+        }
+        else
         {
             steerCollision = !this->RotateRight(pfSteeringModifier * -1 / 10);
         }
         ppAudioHandler->SetPaused(piIdleChannel, true);
         ppAudioHandler->SetChannelPosition(piEngineChannel, GetPosition());
         ppAudioHandler->SetPaused(piEngineChannel, false);
-    } else
+    }
+    else
     {
         ppAudioHandler->SetPaused(piEngineChannel, true);
         ppAudioHandler->SetChannelPosition(piIdleChannel, GetPosition());
@@ -134,7 +136,6 @@ void cBus::Accelerate()
     {
         pfCurrentSpeed += CalculateAcceleration() / 2;
     }
-
 }
 
 void cBus::Decelerate()
@@ -165,6 +166,11 @@ void cBus::Steer(cDirection direction)
 {
     // Block steering while stopped
     if (pfCurrentSpeed == 0) return;
+    if (pfCurrentSpeed < 0.0f)
+    {
+        if (direction == cDirection::Left) direction = cDirection::Right;
+        else direction = cDirection::Left;
+    }
 
     if (direction == cDirection::Left)
     {
