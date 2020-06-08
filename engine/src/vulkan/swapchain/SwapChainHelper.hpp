@@ -20,14 +20,16 @@ public:
                                  VkImageUsageFlagBits uiUsage,
                                  tFrameBufferAttachment* ptAttachment,
                                  cLogicalDevice* pLogicalDevice,
-                                 VkExtent2D tSize);
+                                 VkExtent2D tSize,
+                                 VkSampleCountFlagBits eSamples = VK_SAMPLE_COUNT_1_BIT);
 };
 
 void cSwapChainHelper::CreateAttachment(VkFormat eFormat,
                                         VkImageUsageFlagBits uiUsage,
                                         tFrameBufferAttachment* ptAttachment,
                                         cLogicalDevice* pLogicalDevice,
-                                        VkExtent2D tSize)
+                                        VkExtent2D tSize,
+                                        VkSampleCountFlagBits eSamples)
 {
     VkImageAspectFlags uiAspectMask = 0;
     VkImageLayout eImageLayout;
@@ -52,13 +54,13 @@ void cSwapChainHelper::CreateAttachment(VkFormat eFormat,
                               uiUsage | VK_IMAGE_USAGE_SAMPLED_BIT,
                               VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                               ptAttachment->oImage, ptAttachment->oMemory,
-                              pLogicalDevice);
+                              pLogicalDevice, eSamples);
 
     cImageHelper::CreateImageView(ptAttachment->oImage, eFormat,
                                   pLogicalDevice, &ptAttachment->oView,
                                   uiAspectMask);
 
-    ptAttachment->tDescription.samples = VK_SAMPLE_COUNT_1_BIT;
+    ptAttachment->tDescription.samples = eSamples;
     ptAttachment->tDescription.format = eFormat;
 
     ptAttachment->tDescription.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;

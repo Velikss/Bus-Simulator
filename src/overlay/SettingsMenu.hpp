@@ -16,10 +16,12 @@ private:
     cValueSelector* ppGamma;
     cComboBox* ppLightMode;
     cCheckBox* ppFullscreen;
+    cComboBox* ppAntiAliasing;
 
     bool pbResolutionChanged = false;
     bool pbGammaChanged = false;
     bool pbLightModeChanged = false;
+    bool pbAntiAliasingChanged = false;
 
 public:
     cSettingsMenu(iGameManager* pOverlayProvider);
@@ -119,6 +121,24 @@ void cSettingsMenu::ConstructElements()
     pFullscreenLabel->AddX(-670);
     pFullscreenLabel->AddY(-55);
 
+    ppAntiAliasing = new cComboBox({300, 50}, tNormalFont,
+                                pmpTextures["foreground"],
+                                pmpTextures["buttonTexture"]);
+    ppAntiAliasing->AddOption("Off");
+    ppAntiAliasing->AddOption("2x");
+    ppAntiAliasing->AddOption("4x");
+    ppAntiAliasing->AddOption("8x");
+    ppAntiAliasing->pafCallbacks.push_back(fHandleAction);
+    ppAntiAliasing->Center();
+    ppAntiAliasing->AddX(-750);
+    ppAntiAliasing->AddY(35);
+    cTextElement* pAntiAliasingLabel = new cTextElement();
+    pAntiAliasingLabel->SetFont(tLabelFont);
+    pAntiAliasingLabel->UpdateText("Anti Aliasing:");
+    pAntiAliasingLabel->Center();
+    pAntiAliasingLabel->AddX(-670);
+    pAntiAliasingLabel->AddY(15);
+
     ppApplyButton = new cButton({400, 75}, 0,
                                 pmpTextures["buttonTexture"], tNormalFont);
     ppApplyButton->SetLabel("Apply");
@@ -134,6 +154,8 @@ void cSettingsMenu::ConstructElements()
     pmpOverlay.push_back({"light_mode_label", pLightModeLabel});
     pmpOverlay.push_back({"light_mode", ppFullscreen});
     pmpOverlay.push_back({"light_mode_label", pFullscreenLabel});
+    pmpOverlay.push_back({"aa_mode", ppAntiAliasing});
+    pmpOverlay.push_back({"aa_mode_label", pAntiAliasingLabel});
     pmpOverlay.push_back({"apply_button", ppApplyButton});
 }
 
@@ -143,11 +165,6 @@ void cSettingsMenu::HandleAction(cUIElement* pButton)
     if (pButton == ppApplyButton)
     {
         cWindow::SetFullscreen(ppFullscreen->IsChecked());
-        if (pbResolutionChanged && !ppFullscreen->IsChecked())
-        {
-            tResolution& tResolution = cSettings::pmtResolutions[ppResolution->GetSelected()];
-            cWindow::SetResolution(tResolution.puiWidth, tResolution.puiHeight);
-        }
         if (pbGammaChanged)
         {
             cLightingUniformHandler::pfGamma = ppGamma->GetValue();
@@ -156,6 +173,17 @@ void cSettingsMenu::HandleAction(cUIElement* pButton)
         {
             cLightingUniformHandler::peLightingMode = ppLightMode->GetSelected() == "High" ? FANCY_LIGHTING
                                                                                            : FAST_LIGHTING;
+        }
+        if (pbAntiAliasingChanged)
+        {
+            tResolution& tResolution = cSettings::pmtResolutions[ppResolution->GetSelected()];
+            cSwapChain::peSampleCount = cSettings::pmeSampleCounts[ppAntiAliasing->GetSelected()];
+            cWindow::SetResolution(tResolution.puiWidth, tResolution.puiHeight);
+        }
+        else if (pbResolutionChanged && !ppFullscreen->IsChecked())
+        {
+            tResolution& tResolution = cSettings::pmtResolutions[ppResolution->GetSelected()];
+            cWindow::SetResolution(tResolution.puiWidth, tResolution.puiHeight);
         }
     }
     else if (pButton == ppResolution)
@@ -169,6 +197,10 @@ void cSettingsMenu::HandleAction(cUIElement* pButton)
     else if (pButton == ppLightMode)
     {
         pbLightModeChanged = true;
+    }
+    else if (pButton == ppAntiAliasing)
+    {
+        pbAntiAliasingChanged = true;
     }
 }
 

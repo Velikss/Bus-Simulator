@@ -582,6 +582,10 @@ void cEngine::RebuildPipeline(void)
     // Rebuild the swap chain
     ppSwapChain->RebuildSwapChain();
 
+    ppMRTRenderModule->RebuildRenderPass();
+
+    fSleep(100);
+
     // Recreate the framebuffer for all required resources
     ppSwapChain->CreateFramebuffers(ppLightsRenderModule->GetRenderPass()->GetRenderPass(),
                                     ppMRTRenderModule->GetRenderPass()->GetRenderPass(),

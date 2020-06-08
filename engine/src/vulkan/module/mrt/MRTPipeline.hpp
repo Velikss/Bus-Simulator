@@ -114,10 +114,10 @@ void cMRTPipeline::CreatePipeline(cSwapChain* pSwapChain,
     VkPipelineMultisampleStateCreateInfo tMultisampling = {};
     tMultisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     tMultisampling.sampleShadingEnable = VK_FALSE;
-    tMultisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+    tMultisampling.rasterizationSamples = cSwapChain::peSampleCount;
     tMultisampling.minSampleShading = 1.0f;
     tMultisampling.pSampleMask = nullptr;
-    tMultisampling.alphaToCoverageEnable = VK_FALSE;
+    tMultisampling.alphaToCoverageEnable = VK_TRUE;
     tMultisampling.alphaToOneEnable = VK_FALSE;
 
     std::array<VkPipelineColorBlendAttachmentState, 4> atBlendAttachments;

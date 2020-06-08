@@ -16,7 +16,8 @@ public:
                             VkMemoryPropertyFlags uiProperties,
                             VkImage& oImage,
                             VkDeviceMemory& oImageMemory,
-                            cLogicalDevice* pLogicalDevice);
+                            cLogicalDevice* pLogicalDevice,
+                            VkSampleCountFlagBits eSamples = VK_SAMPLE_COUNT_1_BIT);
     static void CreateImageView(VkImage& oImage,
                                 VkFormat eFormat,
                                 cLogicalDevice* pLogicalDevice,
@@ -38,7 +39,8 @@ void cImageHelper::CreateImage(uint uiWidth,
                                VkMemoryPropertyFlags uiProperties,
                                VkImage& oImage,
                                VkDeviceMemory& oImageMemory,
-                               cLogicalDevice* pLogicalDevice)
+                               cLogicalDevice* pLogicalDevice,
+                               VkSampleCountFlagBits eSamples)
 {
     assert(uiWidth > 0 && uiHeight > 0);
     assert(pLogicalDevice != nullptr);
@@ -55,7 +57,7 @@ void cImageHelper::CreateImage(uint uiWidth,
     tImageInfo.tiling = eTiling;
     tImageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     tImageInfo.usage = uiUsage;
-    tImageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    tImageInfo.samples = eSamples;
     tImageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
     if (!pLogicalDevice->CreateImage(&tImageInfo, nullptr, &oImage))

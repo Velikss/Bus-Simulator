@@ -23,7 +23,7 @@ struct tOffScreenBuffer
     VkSampler poSampler; // TODO: This probably doesn't belong here
 };
 
-struct tOverlayBuffer
+struct tFrameBuffer
 {
     tFrameBufferAttachment ptColorAttachment;
 
@@ -41,13 +41,15 @@ private:
     std::vector<VkFramebuffer> paoSwapChainFramebuffers;
 
     tOffScreenBuffer ptOffScreenBuffer;
-    tOverlayBuffer ptOverlayBuffer;
+    tFrameBuffer ptOverlayBuffer;
 
 public:
     VkSwapchainKHR poSwapChain; // TODO: Remove public access
 
     VkExtent2D ptSwapChainExtent;
     VkFormat peSwapChainImageFormat;
+
+    static VkSampleCountFlagBits peSampleCount;
 
     cSwapChain(cLogicalDevice* pLogicalDevice,
                cWindow* pWindow);
@@ -92,6 +94,8 @@ private:
 
     void Cleanup();
 };
+
+VkSampleCountFlagBits cSwapChain::peSampleCount = VK_SAMPLE_COUNT_1_BIT;
 
 cSwapChain::cSwapChain(cLogicalDevice* pLogicalDevice, cWindow* pWindow) //-V730
 {
@@ -364,19 +368,24 @@ void cSwapChain::CreateResources(void) // TODO: This might belong somewhere else
 {
     VkFormat eDepthFormat = cImageHelper::FindDepthFormat();
     cSwapChainHelper::CreateAttachment(eDepthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-                                       &ptOffScreenBuffer.ptDepthAttachment, ppLogicalDevice, ptSwapChainExtent);
+                                       &ptOffScreenBuffer.ptDepthAttachment, ppLogicalDevice, ptSwapChainExtent,
+                                       peSampleCount);
 
     cSwapChainHelper::CreateAttachment(VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-                                       &ptOffScreenBuffer.ptPositionAttachment, ppLogicalDevice, ptSwapChainExtent);
+                                       &ptOffScreenBuffer.ptPositionAttachment, ppLogicalDevice, ptSwapChainExtent,
+                                       peSampleCount);
 
     cSwapChainHelper::CreateAttachment(VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-                                       &ptOffScreenBuffer.ptNormalsAttachment, ppLogicalDevice, ptSwapChainExtent);
+                                       &ptOffScreenBuffer.ptNormalsAttachment, ppLogicalDevice, ptSwapChainExtent,
+                                       peSampleCount);
 
     cSwapChainHelper::CreateAttachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-                                       &ptOffScreenBuffer.ptAlbedoAttachment, ppLogicalDevice, ptSwapChainExtent);
+                                       &ptOffScreenBuffer.ptAlbedoAttachment, ppLogicalDevice, ptSwapChainExtent,
+                                       peSampleCount);
 
     cSwapChainHelper::CreateAttachment(VK_FORMAT_R8G8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-                                       &ptOffScreenBuffer.ptMaterialAttachment, ppLogicalDevice, ptSwapChainExtent);
+                                       &ptOffScreenBuffer.ptMaterialAttachment, ppLogicalDevice, ptSwapChainExtent,
+                                       peSampleCount);
 
     cSwapChainHelper::CreateAttachment(VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
                                        &ptOverlayBuffer.ptColorAttachment, ppLogicalDevice, ptSwapChainExtent);
@@ -419,7 +428,8 @@ void cSwapChain::AcquireNextImage(int64 ulTimeout,
                                   VkFence& oFence,
                                   uint* pImageIndex)
 {
-    uint err = vkAcquireNextImageKHR(ppLogicalDevice->GetDevice(), poSwapChain, ulTimeout, oSemaphore, oFence, pImageIndex);
+    uint err = vkAcquireNextImageKHR(ppLogicalDevice->GetDevice(), poSwapChain, ulTimeout, oSemaphore, oFence,
+                                     pImageIndex);
     if (err != VK_SUCCESS)
     {
         if (err == VK_ERROR_SURFACE_LOST_KHR)
