@@ -171,6 +171,8 @@ tQueueFamilyIndices cPhysicalDevice::FindQueueFamilies(VkPhysicalDevice& oDevice
 
     // Find one family that supports VK_QUEUE_GRAPHICS_BIT and store it in tIndices
     int iIndex = 0;
+    bool bPresentFound = false;
+    bool bGraphicsFound = false;
     for (const auto& tQueueFamily : atQueueFamilies)
     {
         VkBool32 presentSupport = false;
@@ -178,12 +180,17 @@ tQueueFamilyIndices cPhysicalDevice::FindQueueFamilies(VkPhysicalDevice& oDevice
         if (presentSupport)
         {
             tIndices.oulPresentFamily = iIndex;
+            bPresentFound = true;
         }
 
         if (tQueueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
         {
             tIndices.oulGraphicsFamily = iIndex;
+            bGraphicsFound = true;
         }
+
+        if (bPresentFound && bGraphicsFound) break;
+
         iIndex++;
     }
 
