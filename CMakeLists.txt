@@ -16,6 +16,7 @@ add_subdirectory(engine)
 set(Headers
     ${PROJECT_SOURCE_DIR}/src/pch.hpp
         src/overlay/MainMenu.hpp engine/src/vulkan/module/overlay/element/elements/cButton.hpp engine/src/vulkan/module/overlay/element/elements/LabeledElement.hpp src/scenes/BlankScene.hpp src/overlay/BaseMenu.hpp src/overlay/LoadingOverlay.hpp
+        src/overlay/MissionMenu.hpp)
         src/logic/TrafficLightController.hpp src/overlay/SettingsMenu.hpp src/overlay/InGame.hpp)
 set(Sources
     ${PROJECT_SOURCE_DIR}/src/main.cpp

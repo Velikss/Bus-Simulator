@@ -31,16 +31,15 @@ public:
 protected:
     void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler) override;
     std::map<string, cTexture*> pmpBusTextures;
-
 private:
     cNetworkConnection::tNetworkInitializationSettings tConnectNetworkSettings;
     cMultiplayerHandler* poMultiplayerHandler = nullptr;
 
     iGameManager* ppOverlayProvider;
-    std::map<string, std::shared_ptr<cMissionHandler>> pmpMissions;
 public:
-    cBusWorldScene(iGameManager* pOverlayProvider)
+    cBusWorldScene(iGameManager* pOverlayProvider, cGameLogicHandler** oGameLogicHandler)
     {
+        pGameLogicHandler = oGameLogicHandler;
         ppOverlayProvider = pOverlayProvider;
     }
 
@@ -72,7 +71,7 @@ public:
     BusCamera* pBusCamera = new BusCamera;
     FirstPersonFlyCamera* pFirstPersonFlyCamera = new FirstPersonFlyCamera;
 
-    cGameLogicHandler* pGameLogicHandler = nullptr;
+    cGameLogicHandler** pGameLogicHandler = nullptr;
 
     void SetBusSkin(const string &sBusSkin);
 };
@@ -109,7 +108,7 @@ void cBusWorldScene::Unload()
 
 void cBusWorldScene::Update()
 {
-    pGameLogicHandler->Update();
+    (*pGameLogicHandler)->Update(dynamic_cast<cBus*>(pmpObjects["bus"]));
     if (instanceof<FirstPersonFlyCamera>(poCamera))
         ppTrafficController->Update(poCamera->GetPosition());
     else
@@ -184,18 +183,6 @@ void cBusWorldScene::Update()
 void cBusWorldScene::HandleKey(uint uiKeyCode, uint uiAction)
 {
     cScene::HandleKey(uiKeyCode, uiAction);
-
-    // Temporary gameLogic keys
-    if (uiAction == GLFW_PRESS && uiKeyCode == GLFW_KEY_L)
-    {
-        pGameLogicHandler->SetMissionHandler(pmpMissions["Mission1"]);
-        pGameLogicHandler->LoadMission();
-    }
-    if (uiAction == GLFW_PRESS && uiKeyCode == GLFW_KEY_O)
-    {
-        pGameLogicHandler->SetMissionHandler(pmpMissions["Mission2"]);
-        pGameLogicHandler->LoadMission();
-    }
     // Horn
     if(uiAction == GLFW_PRESS && uiKeyCode == GLFW_KEY_E)
     {
@@ -210,15 +197,14 @@ void cBusWorldScene::HandleScroll(double dOffsetX, double dOffsetY)
 
 void cBusWorldScene::LoadMissions()
 {
-    pmpMissions["Mission1"] = std::make_shared<cMissionHandler>(dynamic_cast<cBusStop*>(pmpObjects["busStation1"]));
-    pmpMissions["Mission1"]->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation2"]));
-    pmpMissions["Mission1"]->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation3"]));
-    pmpMissions["Mission1"]->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation4"]));
-    pmpMissions["Mission1"]->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation5"]));
-    pmpMissions["Mission2"] = std::make_shared<cMissionHandler>(dynamic_cast<cBusStop*>(pmpObjects["busStation1"]));
-    pmpMissions["Mission2"]->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation3"]));
+    (*pGameLogicHandler)->pmpMissions["Mission1"]->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation1"]));
+    (*pGameLogicHandler)->pmpMissions["Mission1"]->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation2"]));
+    (*pGameLogicHandler)->pmpMissions["Mission1"]->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation3"]));
+    (*pGameLogicHandler)->pmpMissions["Mission1"]->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation4"]));
+    (*pGameLogicHandler)->pmpMissions["Mission1"]->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation5"]));
 
-    pGameLogicHandler = new cGameLogicHandler(this, dynamic_cast<cBus*>(pmpObjects["bus"]), pmpMissions["Mission1"]);
+    (*pGameLogicHandler)->pmpMissions["Mission2"]->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation1"]));
+    (*pGameLogicHandler)->pmpMissions["Mission2"]->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation3"]));
 }
 
 void cBusWorldScene::LoadBehaviours()

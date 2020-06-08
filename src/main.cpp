@@ -8,13 +8,16 @@
 #include <overlay/LoadingOverlay.hpp>
 #include <overlay/BusMenu.hpp>
 #include <overlay/SettingsMenu.hpp>
+#include <overlay/MissionMenu.hpp>
 
 class cApplication : public cEngine
 {
     cMultiplayerHandler* ppMultiplayerHandler = nullptr;
+    cGameLogicHandler* ppGameLogicHandler = nullptr;
 public:
     cApplication() : cEngine("Bus Simulator")
     {
+        InitialiseMissions();
     }
 
 protected:
@@ -39,7 +42,7 @@ protected:
     void SetupScenes(std::map<string, cScene*>& mScenes, string* sInitialScene) override
     {
         mScenes["Blank"] = new cBlankScene(this);
-        mScenes["BusWorld"] = new cBusWorldScene(this);
+        mScenes["BusWorld"] = new cBusWorldScene(this, &ppGameLogicHandler);
 
         *sInitialScene = "BusWorld";
     }
@@ -50,7 +53,15 @@ protected:
         mOverlayWindows["Test"] = new cTestOverlay(this);
         mOverlayWindows["Loading"] = new cLoadingOverlay();
         mOverlayWindows["BusMenu"] = new cBusMenu(this);
+        mOverlayWindows["MissionMenu"] = new cMissionMenu(this, &ppGameLogicHandler);
         mOverlayWindows["Settings"] = new cSettingsMenu(this);
+    }
+
+    void InitialiseMissions()
+    {
+        ppGameLogicHandler = new cGameLogicHandler();
+        ppGameLogicHandler->pmpMissions["Mission1"] = std::make_shared<cMissionHandler>();
+        ppGameLogicHandler->pmpMissions["Mission2"] = std::make_shared<cMissionHandler>();
     }
 };
 

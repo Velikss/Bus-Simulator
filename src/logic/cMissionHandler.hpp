@@ -13,10 +13,6 @@ private:
     std::deque<cBusStop*> poRoute;
 
 public:
-    cMissionHandler(cBusStop* pBusStop)
-    {
-        poRoute.push_back(pBusStop);
-    }
 
     void Update();
     void AddStop(cBusStop* pBusStop);
