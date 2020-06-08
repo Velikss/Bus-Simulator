@@ -174,7 +174,7 @@ void cBusWorldScene::Update()
     if (paKeys[GLFW_KEY_LEFT_SHIFT])
         poCamera->MoveDown();
 
-    if (paKeys[GLFW_KEY_ESCAPE])
+    if (paKeys[GLFW_KEY_TAB])
         ppOverlayProvider->ActivateOverlayWindow("BusMenu");
     if (paKeys[GLFW_KEY_HOME])
         ppOverlayProvider->ActivateOverlayWindow("Settings");
