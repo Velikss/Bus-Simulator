@@ -43,7 +43,7 @@ protected:
     void SetupScenes(std::map<string, cScene*>& mScenes, string* sInitialScene) override
     {
         mScenes["MainMenu"] = new cMainMenuScene(this);
-        mScenes["BusWorld"] = new cBusWorldScene(this);
+        mScenes["BusWorld"] = new cBusWorldScene(this, &ppGameLogicHandler);
 
         *sInitialScene = "MainMenu";
     }
