@@ -8,7 +8,6 @@
 class cBusStop : public cLightObject, public IPassengerHolder
 {
 public:
-    cEntityGroup* poEntityGroup;
     bool pbVisited;
 
     cBusStop(cMesh* mesh) : cLightObject(mesh, glm::vec3(1, 1, 0.2), 25,

@@ -43,7 +43,6 @@ public:
     int piPingTimeout = C_UNDEFINED;
     int piBusId = C_UNDEFINED;
 
-    cEntityGroup *poEntityGroup;
     cState oState;
 
     cAudioHandler *ppAudioHandler;
