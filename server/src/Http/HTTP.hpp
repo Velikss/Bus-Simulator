@@ -157,6 +157,7 @@ namespace cHttp
         {
             string sContentLength = oMessage.GetHeader("content-length");
             lEndMeta = sMessage.find(C_LINE_END + C_LINE_END);
+            auto lEndRequest = sMessage.find(C_LINE_END + C_LINE_END, lEndMeta + 4);
             if (sContentLength.size() == 0) return 0;
             return std::stoi(sContentLength);
         }

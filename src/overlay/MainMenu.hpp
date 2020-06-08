@@ -136,6 +136,7 @@ void cMainMenu::HandleOnSubmit(cButton* poSender)
             std::cout << "Successfully logged in." << std::endl;
             ppGameManager->ActivateOverlayWindow("Loading");
             ppGameManager->SwitchScene("BusWorld");
+            (*pppoMultiplayerHandler)->StartMultiplayerSession();
             ((cBusWorldScene*)ppGameManager->GetScenes()["BusWorld"])->AssignMultiplayerHandler((*pppoMultiplayerHandler) );
             std::cout << "entering multiplayer mode" << std::endl;
             return;

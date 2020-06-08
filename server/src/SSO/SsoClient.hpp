@@ -7,16 +7,16 @@ using namespace cHttp;
 
 class cSSOClient : public cNetworkClient
 {
-    string psSessionKey = "";
 protected:
     bool pbConnectionAcitve = false;
+    string psSessionKey = "";
 public:
     cSSOClient(tNetworkInitializationSettings* ptSettings) : cNetworkClient(ptSettings)
     {
     }
-
-    bool Login(const string& sLoginName, const string& sPassword, size_t uiTimeOut = 300);
-    bool Logout();
+    virtual void Disconnect();
+    virtual bool Login(const string& sLoginName, const string& sPassword, size_t uiTimeOut = 300);
+    virtual bool Logout();
     bool SendRequest(cRequest &oRequest, cResponse& oResponse, int uiTimeOut = 300);
 };
 
@@ -69,4 +69,10 @@ bool cSSOClient::SendRequest(cRequest &oRequest, cResponse& oResponse, int uiTim
     string sRequest = oRequest.Serialize();
     SendBytes((const byte*)sRequest.c_str(), (int) sRequest.size());
     return RecieveResponse(this, oResponse, uiTimeOut);
+}
+
+void cSSOClient::Disconnect()
+{
+    cNetworkClient::Disconnect();
+    this->pbConnectionAcitve = false;
 }

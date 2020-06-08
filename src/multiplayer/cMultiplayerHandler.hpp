@@ -36,6 +36,7 @@ class cMultiplayerHandler : public cSSOClient
 protected:
     cScene* ppScene = nullptr;
     string psGameServerUuid;
+    bool pbPushData = false;
     byte* pBuffer = new byte[36 + (sizeof(glm::vec3) * 2)];
     std::map<std::string, std::string> pmsBusIds;
     std::stack<uint> paAvailableBusses;
@@ -61,6 +62,7 @@ public:
     ~cMultiplayerHandler() override
     {
         Stop();
+        delete[] pBuffer;
     }
 
     bool Start()
@@ -79,7 +81,7 @@ public:
 
     void PushData()
     {
-        if (!ppScene || !pbConnectionAcitve) return;
+        if (!ppScene || !pbConnectionAcitve || !pbPushData) return;
 
         static const int pos_pos = 36;
         static const int rot_pos = pos_pos + sizeof(tFixedVec3);
@@ -101,6 +103,7 @@ public:
     }
 
     bool RegisterUser(const string& sUserName, const string& sPassword);
+    void StartMultiplayerSession();
 protected:
     void OnConnect(cNetworkConnection* pConnection);
     bool OnRecieve(cNetworkConnection* pConnection);
@@ -184,4 +187,16 @@ bool cMultiplayerHandler::RegisterUser(const string& sUserName, const string& sP
 
     SendRequest(oRequest, oResponse, -1);
     return oResponse.GetResponseCode() == 200;
+}
+
+void cMultiplayerHandler::StartMultiplayerSession()
+{
+    cRequest oRequest;
+    oRequest.SetMethod(cMethod::ePOST);
+    oRequest.SetResource("/game/start");
+    oRequest.SetHeader("Connection", "keep-alive");
+    oRequest.SetHeader("session-key" , psSessionKey);
+    string sRequest = oRequest.Serialize();
+    SendBytes((byte*)sRequest.c_str(), sRequest.size());
+    pbPushData = true;
 }

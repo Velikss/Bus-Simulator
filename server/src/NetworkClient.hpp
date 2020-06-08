@@ -19,7 +19,7 @@ public:
         }
 	}
 
-	void Disconnect()
+	virtual void Disconnect()
     {
         pbShutdown = true;
         for (auto&[name, t] : paThreads)
@@ -49,10 +49,10 @@ public:
         this->OnDisconnect = OnDisconnect;
     }
 
-	bool Connect();
+	virtual bool Connect();
 
 private:
-    void OnRecieveLoop();
+    virtual void OnRecieveLoop();
 };
 
 bool cNetworkClient::Connect()
