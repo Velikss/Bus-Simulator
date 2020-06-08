@@ -26,6 +26,8 @@ public:
     cRenderPass* GetRenderPass();
     cRenderPipeline* GetRenderPipeline();
 
+    void RebuildRenderPass();
+
 protected:
     void Init();
 
@@ -93,4 +95,13 @@ cRenderPipeline* cRenderModule::GetRenderPipeline()
     assert(ppRenderPipeline != nullptr);
 
     return ppRenderPipeline;
+}
+
+void cRenderModule::RebuildRenderPass()
+{
+    delete ppRenderPass;
+    ppRenderPass = nullptr;
+    CreateRenderPass();
+    assert(ppRenderPass != nullptr);
+    assert(ppRenderPass->GetRenderPass() != VK_NULL_HANDLE);
 }

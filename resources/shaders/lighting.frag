@@ -4,15 +4,17 @@
 
 const float PI = 3.14159265359;
 
-layout (binding = 1) uniform sampler2D samplerPosition;
-layout (binding = 2) uniform sampler2D samplerNormal;
-layout (binding = 3) uniform sampler2D samplerAlbedo;
-layout (binding = 4) uniform sampler2D samplerMaterial;
+layout (binding = 1) uniform sampler2DMS samplerPosition;
+layout (binding = 2) uniform sampler2DMS samplerNormal;
+layout (binding = 3) uniform sampler2DMS samplerAlbedo;
+layout (binding = 4) uniform sampler2DMS samplerMaterial;
 layout (binding = 5) uniform sampler2D samplerOverlay;
 
 layout (location = 0) in vec2 inTexCoord;
 
 layout (location = 0) out vec4 FragColor;
+
+layout (constant_id = 0) const int NUM_SAMPLES = 8;
 
 struct Light {
     vec4 position;
@@ -71,15 +73,14 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 }
 // ----------------------------------------------------------------------------
 
-vec3 HandlePBR(vec3 fragPos)
+vec3 HandlePBR(vec3 fragPos, vec3 norm, vec3 albedo, vec2 material)
 {
-    float metalness = texture(samplerMaterial, inTexCoord).r;
-    float roughness = texture(samplerMaterial, inTexCoord).g;
+    float metalness = material.r;
+    float roughness = material.g;
 
-    vec3 normal = normalize(texture(samplerNormal, inTexCoord).xyz);
+    vec3 normal = normalize(norm);
 
     vec3 viewPos = ubo.viewPos.xyz;
-    vec3 albedo = texture(samplerAlbedo, inTexCoord).rgb;
 
     vec3 F0 = mix(vec3(0.04), albedo, metalness);
 
@@ -135,7 +136,7 @@ vec3 HandlePBR(vec3 fragPos)
                 Lo += ((kD * albedo) * radiance * NdotL) * 0.3;
             }
 
-            #ifdef DEBUG_NORMALS
+                #ifdef DEBUG_NORMALS
             return normal;
             #endif
         }
@@ -155,6 +156,19 @@ vec3 HandlePBR(vec3 fragPos)
     return result;
 }
 
+// Manual resolve for MSAA samples
+vec4 resolve(sampler2DMS tex, ivec2 uv)
+{
+    vec4 result = vec4(0.0);
+    for (int i = 0; i < NUM_SAMPLES; i++)
+    {
+        vec4 val = texelFetch(tex, uv, i);
+        result += val;
+    }
+    // Average resolved samples
+    return result / float(NUM_SAMPLES);
+}
+
 void main()
 {
     // If there is a fragment of the overlay with 100% opacity, render it and skip the lighting calculations
@@ -165,16 +179,35 @@ void main()
     }
     else
     {
-        vec3 fragPos = texture(samplerPosition, inTexCoord).xyz;
+        // We're using integer texture samplers, so convert texture coordinates from float to int
+        ivec2 attDim = textureSize(samplerPosition);
+        ivec2 UV = ivec2(inTexCoord * attDim);
 
-        vec3 color;
-        if (fragPos.x > 9999)
+        vec3 color = vec3(0);
+
+        // For vertices that we don't want to light, the X component of the position is set to infinity
+        if (texelFetch(samplerPosition, UV, 0).x > 9999)
         {
-            color = texture(samplerAlbedo, inTexCoord).rgb;
+            // For these samples, just directly resolve the MSAA samples of the albedo into the final color
+            color = resolve(samplerAlbedo, UV).rgb;
         }
         else
         {
-            color = HandlePBR(fragPos);
+            // Loop over all the MSAA samples
+            for (int i = 0; i < NUM_SAMPLES; i++)
+            {
+                // Get the position, normal, albedo and material for this sample
+                vec3 pos = texelFetch(samplerPosition, UV, i).rgb;
+                vec3 normal = texelFetch(samplerNormal, UV, i).rgb;
+                vec3 albedo = texelFetch(samplerAlbedo, UV, i).rgb;
+                vec2 material = texelFetch(samplerMaterial, UV, i).rg;
+
+                // Add the lighting of all samples together
+                color += HandlePBR(pos, normal, albedo, material);
+            }
+
+            // Divide by the number of samples
+            color /= float(NUM_SAMPLES);
         }
 
         // If the overlay fragment has an opacity of 0, just render the final color

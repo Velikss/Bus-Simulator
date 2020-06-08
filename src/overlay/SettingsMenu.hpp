@@ -16,10 +16,13 @@ private:
     cValueSelector* ppGamma;
     cComboBox* ppLightMode;
     cCheckBox* ppFullscreen;
+    cComboBox* ppAntiAliasing;
+    cButton* ppQuitButton;
 
     bool pbResolutionChanged = false;
     bool pbGammaChanged = false;
     bool pbLightModeChanged = false;
+    bool pbAntiAliasingChanged = false;
 
 public:
     cSettingsMenu(iGameManager* pOverlayProvider);
@@ -119,12 +122,40 @@ void cSettingsMenu::ConstructElements()
     pFullscreenLabel->AddX(-670);
     pFullscreenLabel->AddY(-55);
 
+    ppAntiAliasing = new cComboBox({300, 50}, tNormalFont,
+                                   pmpTextures["foreground"],
+                                   pmpTextures["buttonTexture"]);
+    ppAntiAliasing->AddOption("Off");
+    ppAntiAliasing->AddOption("2x");
+    ppAntiAliasing->AddOption("4x");
+    ppAntiAliasing->AddOption("8x");
+    ppAntiAliasing->SetSelected("4x");
+    ppAntiAliasing->pafCallbacks.push_back(fHandleAction);
+    ppAntiAliasing->Center();
+    ppAntiAliasing->AddX(-750);
+    ppAntiAliasing->AddY(35);
+    cTextElement* pAntiAliasingLabel = new cTextElement();
+    pAntiAliasingLabel->SetFont(tLabelFont);
+    pAntiAliasingLabel->UpdateText("Anti Aliasing:");
+    pAntiAliasingLabel->Center();
+    pAntiAliasingLabel->AddX(-670);
+    pAntiAliasingLabel->AddY(15);
+
     ppApplyButton = new cButton({400, 75}, 0,
                                 pmpTextures["buttonTexture"], tNormalFont);
     ppApplyButton->SetLabel("Apply");
     ppApplyButton->ppaCallbacks.push_back(fHandleAction);
     ppApplyButton->Center();
     ppApplyButton->AddY(400);
+    ppApplyButton->AddX(-600);
+
+    ppQuitButton = new cButton({400, 75}, 0,
+                               pmpTextures["buttonTexture"], tNormalFont);
+    ppQuitButton->SetLabel("Exit Game");
+    ppQuitButton->ppaCallbacks.push_back(fHandleAction);
+    ppQuitButton->Center();
+    ppQuitButton->AddY(400);
+    ppQuitButton->AddX(600);
 
     pmpOverlay.push_back({"resolution", ppResolution});
     pmpOverlay.push_back({"resolution_label", pResolutionLabel});
@@ -134,7 +165,10 @@ void cSettingsMenu::ConstructElements()
     pmpOverlay.push_back({"light_mode_label", pLightModeLabel});
     pmpOverlay.push_back({"light_mode", ppFullscreen});
     pmpOverlay.push_back({"light_mode_label", pFullscreenLabel});
+    pmpOverlay.push_back({"aa_mode", ppAntiAliasing});
+    pmpOverlay.push_back({"aa_mode_label", pAntiAliasingLabel});
     pmpOverlay.push_back({"apply_button", ppApplyButton});
+    pmpOverlay.push_back({"quit_button", ppQuitButton});
 }
 
 void cSettingsMenu::HandleAction(cUIElement* pButton)
@@ -157,6 +191,11 @@ void cSettingsMenu::HandleAction(cUIElement* pButton)
             cLightingUniformHandler::peLightingMode = ppLightMode->GetSelected() == "High" ? FANCY_LIGHTING
                                                                                            : FAST_LIGHTING;
         }
+        if (pbAntiAliasingChanged)
+        {
+            cSwapChain::peSampleCount = cSettings::pmeSampleCounts[ppAntiAliasing->GetSelected()];
+            cWindow::RequestRebuild();
+        }
     }
     else if (pButton == ppResolution)
     {
@@ -169,6 +208,14 @@ void cSettingsMenu::HandleAction(cUIElement* pButton)
     else if (pButton == ppLightMode)
     {
         pbLightModeChanged = true;
+    }
+    else if (pButton == ppAntiAliasing)
+    {
+        pbAntiAliasingChanged = true;
+    }
+    else if (pButton == ppQuitButton)
+    {
+        Quit();
     }
 }
 

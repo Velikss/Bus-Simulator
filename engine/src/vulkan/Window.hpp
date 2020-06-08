@@ -64,6 +64,7 @@ public:
     static void SetResolution(uint uiWidth, uint uiHeight);
     static void SetFullscreen(bool bFullscreen);
     static void SetMouseLocked(bool bLocked);
+    static void RequestRebuild();
     void RebuildSurface();
 
 private:
@@ -329,6 +330,11 @@ void cWindow::SetFullscreen(bool bFullscreen)
         poInstance->pbFullscreen = false;
         poInstance->pbRequestRebuild = true;
     }
+}
+
+void cWindow::RequestRebuild()
+{
+    poInstance->pbRequestRebuild = true;
 }
 
 void cWindow::SetMouseLocked(bool bLocked)

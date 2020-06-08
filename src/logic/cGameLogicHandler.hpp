@@ -13,12 +13,12 @@ class cGameLogicHandler
 {
 private:
     cScene* ppScene;
-    cMissionHandler* ppMission;
+    std::shared_ptr<cMissionHandler> ppMission;
     cBus* ppBus;
     cBusStop* poCurrentBusStop = nullptr;
     std::map<string, cBaseObject*> pmpObjects;
 public:
-    cGameLogicHandler(cScene* pScene, cBus* pBus, cMissionHandler* pMission = nullptr)
+    cGameLogicHandler(cScene* pScene, cBus* pBus, std::shared_ptr<cMissionHandler> pMission = nullptr)
     {
         ppScene = pScene;
         ppBus = pBus;
@@ -27,8 +27,8 @@ public:
     }
 
     void Update();
-    cMissionHandler* GetMissionHandler();
-    bool SetMissionHandler(cMissionHandler* pMissionHandler);
+    std::shared_ptr<cMissionHandler> GetMissionHandler();
+    bool SetMissionHandler(std::shared_ptr<cMissionHandler> pMissionHandler);
     bool LoadMission();
     void LoadPassengers(cBusStop* oBusStop);
     void UnloadPassengers(cBusStop* oBusStop);
@@ -243,12 +243,12 @@ void cGameLogicHandler::ResetBus()
     ppBus->oState = cState::eStill;
 }
 
-cMissionHandler* cGameLogicHandler::GetMissionHandler()
+std::shared_ptr<cMissionHandler> cGameLogicHandler::GetMissionHandler()
 {
     return ppMission;
 }
 
-bool cGameLogicHandler::SetMissionHandler(cMissionHandler* pMissionHandler)
+bool cGameLogicHandler::SetMissionHandler(std::shared_ptr<cMissionHandler> pMissionHandler)
 {
     // Unload the busStops from current missionHandler
     if(ppMission != nullptr)

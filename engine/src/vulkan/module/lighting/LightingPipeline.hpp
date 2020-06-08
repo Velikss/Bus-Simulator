@@ -87,6 +87,22 @@ void cLightingPipeline::CreatePipeline(cSwapChain* pSwapChain,
     tFragShaderStageInfo.module = oFragShaderModule;
     tFragShaderStageInfo.pName = "main";
 
+    // Use specialization constants to pass number of samples to the shader (used for MSAA resolve)
+    VkSpecializationMapEntry tSpecializationEntry = {};
+    tSpecializationEntry.constantID = 0;
+    tSpecializationEntry.offset = 0;
+    tSpecializationEntry.size = sizeof(uint32_t);
+
+    uint32_t specializationData = cSwapChain::peSampleCount;
+
+    VkSpecializationInfo tSpecializationInfo = {};
+    tSpecializationInfo.mapEntryCount = 1;
+    tSpecializationInfo.pMapEntries = &tSpecializationEntry;
+    tSpecializationInfo.dataSize = sizeof(specializationData);
+    tSpecializationInfo.pData = &specializationData;
+
+    tFragShaderStageInfo.pSpecializationInfo = &tSpecializationInfo;
+
     VkPipelineShaderStageCreateInfo atShaderStages[] = {tVertShaderStageInfo, tFragShaderStageInfo};
 
     // Get the vertex binding description and attribute descriptions

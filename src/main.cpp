@@ -41,7 +41,7 @@ protected:
         mScenes["Blank"] = new cBlankScene(this);
         mScenes["BusWorld"] = new cBusWorldScene(this);
 
-        *sInitialScene = "Blank";
+        *sInitialScene = "BusWorld";
     }
 
     void LoadOverlayWindows(std::map<string, cOverlayWindow*>& mOverlayWindows) override
