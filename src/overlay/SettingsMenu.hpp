@@ -177,11 +177,6 @@ void cSettingsMenu::HandleAction(cUIElement* pButton)
     if (pButton == ppApplyButton)
     {
         cWindow::SetFullscreen(ppFullscreen->IsChecked());
-        if (pbResolutionChanged && !ppFullscreen->IsChecked())
-        {
-            tResolution& tResolution = cSettings::pmtResolutions[ppResolution->GetSelected()];
-            cWindow::SetResolution(tResolution.puiWidth, tResolution.puiHeight);
-        }
         if (pbGammaChanged)
         {
             cLightingUniformHandler::pfGamma = ppGamma->GetValue();
@@ -193,8 +188,14 @@ void cSettingsMenu::HandleAction(cUIElement* pButton)
         }
         if (pbAntiAliasingChanged)
         {
+            tResolution& tResolution = cSettings::pmtResolutions[ppResolution->GetSelected()];
             cSwapChain::peSampleCount = cSettings::pmeSampleCounts[ppAntiAliasing->GetSelected()];
-            cWindow::RequestRebuild();
+            cWindow::SetResolution(tResolution.puiWidth, tResolution.puiHeight);
+        }
+        else if (pbResolutionChanged && !ppFullscreen->IsChecked())
+        {
+            tResolution& tResolution = cSettings::pmtResolutions[ppResolution->GetSelected()];
+            cWindow::SetResolution(tResolution.puiWidth, tResolution.puiHeight);
         }
     }
     else if (pButton == ppResolution)

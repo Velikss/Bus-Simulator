@@ -156,19 +156,6 @@ vec3 HandlePBR(vec3 fragPos, vec3 norm, vec3 albedo, vec2 material)
     return result;
 }
 
-// Manual resolve for MSAA samples
-vec4 resolve(sampler2DMS tex, ivec2 uv)
-{
-    vec4 result = vec4(0.0);
-    for (int i = 0; i < NUM_SAMPLES; i++)
-    {
-        vec4 val = texelFetch(tex, uv, i);
-        result += val;
-    }
-    // Average resolved samples
-    return result / float(NUM_SAMPLES);
-}
-
 void main()
 {
     // If there is a fragment of the overlay with 100% opacity, render it and skip the lighting calculations
@@ -188,8 +175,8 @@ void main()
         // For vertices that we don't want to light, the X component of the position is set to infinity
         if (texelFetch(samplerPosition, UV, 0).x > 9999)
         {
-            // For these samples, just directly resolve the MSAA samples of the albedo into the final color
-            color = resolve(samplerAlbedo, UV).rgb;
+            // For these samples, just directly grab the first sample from the albedo to get the final color
+            color = texelFetch(samplerAlbedo, UV, 0).rgb;
         }
         else
         {
