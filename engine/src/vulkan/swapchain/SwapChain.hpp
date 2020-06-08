@@ -95,7 +95,7 @@ private:
     void Cleanup();
 };
 
-VkSampleCountFlagBits cSwapChain::peSampleCount = VK_SAMPLE_COUNT_1_BIT;
+VkSampleCountFlagBits cSwapChain::peSampleCount = VK_SAMPLE_COUNT_4_BIT;
 
 cSwapChain::cSwapChain(cLogicalDevice* pLogicalDevice, cWindow* pWindow) //-V730
 {

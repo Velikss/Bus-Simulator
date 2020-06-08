@@ -25,7 +25,7 @@ public:
     VkPipelineLayout& GetLayout();
     VkPipeline& GetPipeline();
 
-    void RebuildPipeline();
+    void RebuildPipeline(cRenderPass* pRenderPass);
 
 protected:
     void Init(cSwapChain* pSwapChain,
@@ -107,9 +107,10 @@ void cRenderPipeline::Cleanup()
     }
 }
 
-void cRenderPipeline::RebuildPipeline()
+void cRenderPipeline::RebuildPipeline(cRenderPass* pRenderPass)
 {
+    ppRenderPass = pRenderPass;
     Cleanup();
-    CreatePipeline(ppSwapChain, ppLogicalDevice, ppRenderPass,
+    CreatePipeline(ppSwapChain, ppLogicalDevice, pRenderPass,
                    ppUniformHandler, paShaders);
 }

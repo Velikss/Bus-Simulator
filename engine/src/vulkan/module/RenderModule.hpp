@@ -100,6 +100,7 @@ cRenderPipeline* cRenderModule::GetRenderPipeline()
 void cRenderModule::RebuildRenderPass()
 {
     delete ppRenderPass;
+    ppRenderPass = nullptr;
     CreateRenderPass();
     assert(ppRenderPass != nullptr);
     assert(ppRenderPass->GetRenderPass() != VK_NULL_HANDLE);

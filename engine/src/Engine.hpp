@@ -592,9 +592,9 @@ void cEngine::RebuildPipeline(void)
                                     ppOverlayRenderModule->GetRenderPass()->GetRenderPass());
 
     // Rebuild all the pipelines
-    ppMRTRenderModule->GetRenderPipeline()->RebuildPipeline();
-    ppLightsRenderModule->GetRenderPipeline()->RebuildPipeline();
-    ppOverlayRenderModule->GetRenderPipeline()->RebuildPipeline();
+    ppMRTRenderModule->GetRenderPipeline()->RebuildPipeline(ppMRTRenderModule->GetRenderPass());
+    ppLightsRenderModule->GetRenderPipeline()->RebuildPipeline(ppLightsRenderModule->GetRenderPass());
+    ppOverlayRenderModule->GetRenderPipeline()->RebuildPipeline(ppOverlayRenderModule->GetRenderPass());
 
     // Rebuild uniforms and command buffers
     RebuildUniforms();

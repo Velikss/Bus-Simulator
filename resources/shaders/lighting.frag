@@ -136,7 +136,7 @@ vec3 HandlePBR(vec3 fragPos, vec3 norm, vec3 albedo, vec2 material)
                 Lo += ((kD * albedo) * radiance * NdotL) * 0.3;
             }
 
-            #ifdef DEBUG_NORMALS
+                #ifdef DEBUG_NORMALS
             return normal;
             #endif
         }
@@ -179,26 +179,34 @@ void main()
     }
     else
     {
+        // We're using integer texture samplers, so convert texture coordinates from float to int
         ivec2 attDim = textureSize(samplerPosition);
         ivec2 UV = ivec2(inTexCoord * attDim);
 
-        vec4 alb = resolve(samplerAlbedo, UV);
-
         vec3 color = vec3(0);
+
+        // For vertices that we don't want to light, the X component of the position is set to infinity
         if (texelFetch(samplerPosition, UV, 0).x > 9999)
         {
-            color = alb.rgb;
+            // For these samples, just directly resolve the MSAA samples of the albedo into the final color
+            color = resolve(samplerAlbedo, UV).rgb;
         }
         else
         {
+            // Loop over all the MSAA samples
             for (int i = 0; i < NUM_SAMPLES; i++)
             {
+                // Get the position, normal, albedo and material for this sample
                 vec3 pos = texelFetch(samplerPosition, UV, i).rgb;
                 vec3 normal = texelFetch(samplerNormal, UV, i).rgb;
                 vec3 albedo = texelFetch(samplerAlbedo, UV, i).rgb;
                 vec2 material = texelFetch(samplerMaterial, UV, i).rg;
+
+                // Add the lighting of all samples together
                 color += HandlePBR(pos, normal, albedo, material);
             }
+
+            // Divide by the number of samples
             color /= float(NUM_SAMPLES);
         }
 
