@@ -52,7 +52,7 @@ void cBusMenu::LoadTextures(cTextureHandler* pTextureHandler)
 #endif
         std::string key = soPathSplit[soPathSplit.size() - 1];
         pmpTextures[key] = pTextureHandler->LoadTextureFromFile(entry.path().string().c_str());
-        poBusIcons[key] = new cStaticElement({400, 400}, pmpTextures[key]);
+        poBusIcons[key] = new cStaticElement({574, 367}, pmpTextures[key]);
     }
 }
 
@@ -70,25 +70,25 @@ void cBusMenu::ConstructElements()
     }
 
     cTextElement* oBusLabel = new cTextElement();
-    oBusLabel->SetFont(10, cOverlayRenderModule::FONT,
+    oBusLabel->SetFont(15, cOverlayRenderModule::FONT,
                        glm::vec3(0, 0, 0));
     oBusLabel->UpdateText("Bus Model:");
     oBusLabel->Center();
     oBusLabel->RemoveY(400);
     pmpOverlay.push_back({"oBusLabel", oBusLabel});
 
-    cButton* oLeftBus = new cButton({250, 75}, 0, pmpTextures["buttonTexture"], cOverlayRenderModule::FONT, 12,
+    cButton* oLeftBus = new cButton({50, 75}, 0, pmpTextures["buttonTexture"], cOverlayRenderModule::FONT, 12,
                                     glm::vec3(0, 0, 0));
-    oLeftBus->SetLabel("Left");
+    oLeftBus->SetLabel("<");
     oLeftBus->Center();
     oLeftBus->RemoveX(550);
     pmpOverlay.push_back({"oLeftBus", oLeftBus});
     std::function<void(cButton*)> OnPreviousBus = std::bind(&cBusMenu::PreviousBus, this, std::placeholders::_1);
     oLeftBus->ppaCallbacks.push_back(OnPreviousBus);
 
-    cButton* oRightBus = new cButton({250, 75}, 0, pmpTextures["buttonTexture"], cOverlayRenderModule::FONT, 12,
+    cButton* oRightBus = new cButton({50, 75}, 0, pmpTextures["buttonTexture"], cOverlayRenderModule::FONT, 12,
                                      glm::vec3(0, 0, 0));
-    oRightBus->SetLabel("Right");
+    oRightBus->SetLabel(">");
     oRightBus->Center();
     oRightBus->AddX(550);
     pmpOverlay.push_back({"oRightBus", oRightBus});
@@ -108,11 +108,6 @@ void cBusMenu::ConstructElements()
     oSubmit->ppaCallbacks.push_back(OnSubmitHandler);
 
     pmpOverlay.push_back({"oSubmit", oSubmit});
-
-    ((cButton*) GetElement("oExit"))->ppaCallbacks.emplace_back([&](cButton* poSender) -> void
-                                                                {
-                                                                    ppoOverlayProvider->DeactivateOverlayWindow();
-                                                                });
 }
 
 void cBusMenu::PreviousBus(cButton* poSender)
@@ -142,6 +137,7 @@ void cBusMenu::NextBus(cButton* poSender)
 void cBusMenu::HandleOnSubmit(cButton* poSender)
 {
     cBusWorldScene* s = static_cast<cBusWorldScene*>(ppoOverlayProvider->GetScenes().at("BusWorld"));
+    ppoOverlayProvider->DeactivateOverlayWindow();
     s->SetBusSkin(split(poBusIterator->first, "-icon")[0]);
 }
 
