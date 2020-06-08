@@ -198,13 +198,16 @@ VkSwapchainCreateInfoKHR cSwapChain::GetSwapChainCreateInfo(VkSurfaceFormatKHR& 
     tQueueFamilyIndices indices = pPhysicalDevice->FindQueueFamilies();
     uint queueFamilyIndices[] = {indices.oulGraphicsFamily.value(), indices.oulPresentFamily.value()};
 
-    if (indices.oulGraphicsFamily != indices.oulPresentFamily)
+    if (indices.oulGraphicsFamily.value() != indices.oulPresentFamily.value())
     {
         // If the graphics queue family isn't the same as the presentation queue family
         // we want to ue concurrent mode and set the indices
         tCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
         tCreateInfo.queueFamilyIndexCount = 2;
         tCreateInfo.pQueueFamilyIndices = queueFamilyIndices;
+
+        ENGINE_LOG("Running queues in concurrent mode ["
+                           << queueFamilyIndices[0] << ", " << queueFamilyIndices[1] << "]");
     }
     else
     {
@@ -213,6 +216,8 @@ VkSwapchainCreateInfoKHR cSwapChain::GetSwapChainCreateInfo(VkSurfaceFormatKHR& 
         tCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
         tCreateInfo.queueFamilyIndexCount = 0; // Optional
         tCreateInfo.pQueueFamilyIndices = nullptr; // Optional
+
+        ENGINE_LOG("Running queue in exclusive mode [" << queueFamilyIndices[0] << "]");
     }
 
     // Here we can define a transform that should be applied to the images

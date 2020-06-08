@@ -12,74 +12,67 @@ const int C_MAX_BUS_STOP_PASSENGERS = 3;
 class cGameLogicHandler
 {
 private:
-    cScene* ppScene;
-    std::shared_ptr<cMissionHandler> ppMission;
-    cBus* ppBus;
+    std::shared_ptr<cMissionHandler> ppMission = nullptr;
     cBusStop* poCurrentBusStop = nullptr;
-    std::map<string, cBaseObject*> pmpObjects;
-    bool pbMissionLoaded;
+    bool pbMissionLoaded = false;
 public:
-    cGameLogicHandler(cScene* pScene, cBus* pBus, std::shared_ptr<cMissionHandler> pMission = nullptr)
+    std::map<string, std::shared_ptr<cMissionHandler>> pmpMissions;
+
+    cGameLogicHandler()
     {
-        ppScene = pScene;
-        ppBus = pBus;
-        ppMission = pMission;
-        pmpObjects = ppScene->GetObjects();
-        pbMissionLoaded = false;
     }
 
-    void Update();
+    void Update(cBus* pBus);
     std::shared_ptr<cMissionHandler> GetMissionHandler();
-    bool SetMissionHandler(std::shared_ptr<cMissionHandler> pMissionHandler);
-    bool LoadMission();
-    void LoadPassengers(cBusStop* oBusStop);
-    void UnloadPassengers(cBusStop* oBusStop);
-    void ResetBus();
+    bool LoadMission(string sKey, cScene* pScene);
+    void LoadPassengers(cBusStop* oBusStop, cBus* pBus);
+    void UnloadPassengers(cBusStop* oBusStop, cBus* pBus);
+    void ResetBus(cBus* pBus);
 };
 
-void cGameLogicHandler::Update()
+void cGameLogicHandler::Update(cBus* pBus)
 {
     // Check if mission is given and is loaded
     if(ppMission != nullptr && pbMissionLoaded) {
         // update all passenger entities with their behaviours
         ppMission->Update();
 
-        if (ppBus->oState == cState::eStill) {
-            if (ppBus->pfCurrentSpeed > 0.0f)
-                ppBus->oState = cState::eDriving;
+        if (pBus->oState == cState::eStill) {
+            if (pBus->pfCurrentSpeed > 0.0f)
+                pBus->oState = cState::eDriving;
         }
-        if (ppBus->oState == cState::eDriving) {
-            if (ppBus->pfCurrentSpeed == 0.0f) {
+        if (pBus->oState == cState::eDriving) {
+            if (pBus->pfCurrentSpeed == 0.0f) {
                 // Get bus stop that is within the radius
-                cBusStop *oCurrentBusStop = ppMission->BusStopWithinRadius(ppBus->GetDoorPosition());
+                cBusStop *oCurrentBusStop = ppMission->BusStopWithinRadius(pBus->GetDoorPosition());
 
                 // Check if a bus stop was close enough
                 if (oCurrentBusStop == nullptr) {
-                    ppBus->oState = cState::eStill;
+                    pBus->oState = cState::eStill;
                 }
                 else {
-                    ppBus->oState = cState::eUnloading;
+                    pBus->oState = cState::eUnloading;
                     poCurrentBusStop = oCurrentBusStop;
                 }
             }
         }
-        if (ppBus->oState == cState::eUnloading) {
-            UnloadPassengers(poCurrentBusStop);
-            ppBus->oState = cState::eLoading;
+        if (pBus->oState == cState::eUnloading) {
+            UnloadPassengers(poCurrentBusStop, pBus);
+            pBus->oState = cState::eLoading;
         }
-        if (ppBus->oState == cState::eLoading) {
-            LoadPassengers(poCurrentBusStop);
+        if (pBus->oState == cState::eLoading) {
+            LoadPassengers(poCurrentBusStop, pBus);
             // go to state eStill if bus stop has no more passengers available
             if (!ppMission->PassengersAvailable(poCurrentBusStop))
-                ppBus->oState = cState::eStill;
+                pBus->oState = cState::eStill;
         }
     }
 }
 
 // Load al passengers from the given bus stop onto the bus
-void cGameLogicHandler::LoadPassengers(cBusStop* oBusStop)
+void cGameLogicHandler::LoadPassengers(cBusStop* oBusStop, cBus* pBus)
 {
-    glm::vec3 oBusDoorPos = ppBus->GetDoorPosition();
+    glm::vec3 oBusDoorPos = pBus->GetDoorPosition();
 
     std::vector<IEntity*>* entities;
     oBusStop->poEntityGroup->GetEntityList(&entities);
@@ -93,7 +86,7 @@ void cGameLogicHandler::LoadPassengers(cBusStop* oBusStop)
         if(!oPassenger->DestinationEqual(oBusStop))
         {
             // move passenger to the bus door position
-            oPassenger->SetTarget(ppBus->GetDoorPosition());
+            oPassenger->SetTarget(pBus->GetDoorPosition());
 
             glm::vec3 oPassengerPos = oPassenger->GetPosition();
 
@@ -103,7 +96,7 @@ void cGameLogicHandler::LoadPassengers(cBusStop* oBusStop)
             if (distSquared < C_PASSENGER_ENTER_DISTANCE * C_PASSENGER_ENTER_DISTANCE && distSquared > 0)
             {
                 oBusStop->RemovePassenger(oPassenger);
-                ppBus->AddPassenger(oPassenger);
+                pBus->AddPassenger(oPassenger);
                 oPassenger->pbVisible = false;
                 i--;
             }
@@ -112,24 +105,24 @@ void cGameLogicHandler::LoadPassengers(cBusStop* oBusStop)
 }
 
 // Unload all passengers in the bus into the given bus stop
-void cGameLogicHandler::UnloadPassengers(cBusStop *oBusStop)
+void cGameLogicHandler::UnloadPassengers(cBusStop *oBusStop, cBus* pBus)
 {
-    glm::vec3 oBusDoorPos = ppBus->GetDoorPosition();
+    glm::vec3 oBusDoorPos = pBus->GetDoorPosition();
 
     std::vector<IEntity*>* entities;
-    ppBus->poEntityGroup->GetEntityList(&entities);
+    pBus->poEntityGroup->GetEntityList(&entities);
 
     // Loop through all passengers currently in the bus
-    for (uint i = 0; i < ppBus->poEntityGroup->GetEntities()->size(); i++)
+    for (uint i = 0; i < pBus->poEntityGroup->GetEntities()->size(); i++)
     {
         cPassenger* oPassenger = dynamic_cast<cPassenger*>((*entities)[i]);
         // Check if tis busStop is this passengers destination
         if(oPassenger->DestinationEqual(oBusStop))
         {
-            oPassenger->SetPosition(ppBus->GetDoorPosition());
+            oPassenger->SetPosition(pBus->GetDoorPosition());
             oPassenger->pbVisible = true;
             // remove from bus entityGroup
-            ppBus->RemovePassenger(oPassenger);
+            pBus->RemovePassenger(oPassenger);
             // Add to bus stop entity group and set target to the bus stop position
             oBusStop->AddPassenger(oPassenger);
             oPassenger->SetTarget(oBusStop->GetPosition());
@@ -138,8 +131,38 @@ void cGameLogicHandler::UnloadPassengers(cBusStop *oBusStop)
     }
 }
 
-bool cGameLogicHandler::LoadMission()
+// Unload all passengers currently in the bus and place them back at de default location
+void cGameLogicHandler::ResetBus(cBus* pBus)
 {
+    std::vector<IEntity *>* entities;
+    pBus->poEntityGroup->GetEntityList(&entities);
+    // loop through all entities inside the entityGroup of the bus
+    for (int i = 0; i < pBus->poEntityGroup->GetEntities()->size(); i++)
+    {
+        (*entities)[i]->SetPosition(C_DEFAULT_PASSENGER_LOCATION);
+        (*entities)[i]->pbVisible = false;
+    }
+    pBus->poEntityGroup->ClearEntities();
+    pBus->oState = cState::eStill;
+}
+
+std::shared_ptr<cMissionHandler> cGameLogicHandler::GetMissionHandler()
+{
+    return ppMission;
+}
+
+bool cGameLogicHandler::LoadMission(string sKey, cScene* pScene)
+{
+    // Unload the busStops from current missionHandler and the bus
+    if(ppMission != nullptr)
+    {
+        ppMission->UnloadRouteBusStops();
+        ResetBus(dynamic_cast<cBus*>(pScene->GetObjects()["bus"]));
+    }
+
+    ppMission = pmpMissions[sKey];
+    pbMissionLoaded = false;
+
     if(ppMission == nullptr)
         return false;
 
@@ -157,10 +180,10 @@ bool cGameLogicHandler::LoadMission()
     for(uint i = 0; i < iRouteSize; i++)
     {
         // Check if busStops already have this behaviour
-        if(!oRoute[i]->poEntityGroup->BehaviourExists(ppScene->pcbSeperation))
-            oRoute[i]->poEntityGroup->AddBehaviour(ppScene->pcbSeperation);
-        if(!oRoute[i]->poEntityGroup->BehaviourExists(ppScene->pcbSeeking))
-            oRoute[i]->poEntityGroup->AddBehaviour(ppScene->pcbSeeking);
+        if(!oRoute[i]->poEntityGroup->BehaviourExists(pScene->pcbSeperation))
+            oRoute[i]->poEntityGroup->AddBehaviour(pScene->pcbSeperation);
+        if(!oRoute[i]->poEntityGroup->BehaviourExists(pScene->pcbSeeking))
+            oRoute[i]->poEntityGroup->AddBehaviour(pScene->pcbSeeking);
 
         // The last buStop can not have any passengers
         if(i == iRouteSize - 1)
@@ -182,9 +205,9 @@ bool cGameLogicHandler::LoadMission()
                 string key = "passenger" + std::to_string(iKeyNum);
 
                 // Check if addPassenger was successful
-                if(oRoute[i]->AddPassenger(dynamic_cast<cPassenger*>(pmpObjects[key])))
+                if(oRoute[i]->AddPassenger(dynamic_cast<cPassenger*>(pScene->GetObjects()[key])))
                 {
-                    cPassenger* oCurrentPassenger = dynamic_cast<cPassenger*>(pmpObjects[key]);
+                    cPassenger* oCurrentPassenger = dynamic_cast<cPassenger*>(pScene->GetObjects()[key]);
                     glm::vec3 oBusStopRotation =  oRoute[i]->GetRotation();
 
                     // Check the rotation of the bus stop and place the passengers accordingly.
@@ -223,39 +246,5 @@ bool cGameLogicHandler::LoadMission()
         }
     }
     pbMissionLoaded = true;
-    return true;
-}
-
-// Unload all passengers currently in the bus and place them back at de default location
-void cGameLogicHandler::ResetBus()
-{
-    std::vector<IEntity *>* entities;
-    ppBus->poEntityGroup->GetEntityList(&entities);
-    // loop through all entities inside the entityGroup of the bus
-    for (int i = 0; i < ppBus->poEntityGroup->GetEntities()->size(); i++)
-    {
-        (*entities)[i]->SetPosition(C_DEFAULT_PASSENGER_LOCATION);
-        (*entities)[i]->pbVisible = false;
-    }
-    ppBus->poEntityGroup->ClearEntities();
-    ppBus->oState = cState::eStill;
-}
-
-std::shared_ptr<cMissionHandler> cGameLogicHandler::GetMissionHandler()
-{
-    return ppMission;
-}
-
-bool cGameLogicHandler::SetMissionHandler(std::shared_ptr<cMissionHandler> pMissionHandler)
-{
-    // Unload the busStops from current missionHandler and the bus
-    if(ppMission != nullptr)
-    {
-        ppMission->UnloadRouteBusStops();
-        ResetBus();
-    }
-
-    ppMission = pMissionHandler;
-    pbMissionLoaded = false;
     return true;
 }
