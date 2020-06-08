@@ -22,6 +22,9 @@ typedef int NET_SOCK;
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <openssl/ossl_typ.h>
+#include <openssl/ssl.h>
+
 typedef int NET_SOCK;
 #define NET_INVALID_SOCKET_ID (-1)
 #define NET_SOCKET_ERROR      (-1)
