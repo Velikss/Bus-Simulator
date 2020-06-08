@@ -21,7 +21,7 @@ public:
     {
     }
 
-    bool ConnectToSSOServer(const string& sUuid, const string& sIp, const unsigned short& usPort);
+    bool ConnectToSSOServer(const string& sUuid, const string& sIp, const unsigned short& usPort, bool bUseSSL = true);
     SSO_STATUS HandleSession(cNetworkConnection* pConnection, cRequest & oRequest);
     void WhiteListConnection(cNetworkConnection* pConnection)
     {
@@ -185,7 +185,7 @@ SSO_STATUS cSSOService::HandleSession(cNetworkConnection *pConnection, cRequest 
     return C_SSO_OK;
 }
 
-bool cSSOService::ConnectToSSOServer(const string &sUuid, const string &sIp, const unsigned short &usPort)
+bool cSSOService::ConnectToSSOServer(const string &sUuid, const string &sIp, const unsigned short &usPort, bool bUseSSL)
 {
     psSSOUuid = sUuid;
 
@@ -195,6 +195,7 @@ bool cSSOService::ConnectToSSOServer(const string &sUuid, const string &sIp, con
     pttSSOClientSettings->eIPVersion = cNetworkConnection::cIPVersion::eV4;
     pttSSOClientSettings->eConnectionType = cNetworkConnection::cConnectionType::eTCP;
     pttSSOClientSettings->eMode = cNetworkConnection::cMode::eNonBlocking;
+    pttSSOClientSettings->bUseSSL = bUseSSL;
 
     poSSOClient = std::make_shared<cNetworkClient>(pttSSOClientSettings.get());
 

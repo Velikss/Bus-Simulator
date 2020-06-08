@@ -5,6 +5,9 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <openssl/ossl_typ.h>
+#include <openssl/ssl.h>
+
 #pragma comment(lib, "Ws2_32.lib")
 typedef int NET_SOCK;
 #define NET_INVALID_SOCKET_ID INVALID_SOCKET
@@ -19,6 +22,9 @@ typedef int NET_SOCK;
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <openssl/ossl_typ.h>
+#include <openssl/ssl.h>
+
 typedef int NET_SOCK;
 #define NET_INVALID_SOCKET_ID (-1)
 #define NET_SOCKET_ERROR      (-1)
@@ -48,6 +54,7 @@ public:
     static void NetShutdown();
     static void SetBlocking(NET_SOCK oSock, bool bBlocking = true);
     static cConnectionStatus IsConnected(NET_SOCK oSock, bool bBlocking);
+    static cConnectionStatus IsConnectedSSL(SSL* pSSL, bool bBlocking);
     static string DNSLookup(const string& sDomain);
     static string DNSReverseLookup(const string& sIp);
     static int CloseSocket(NET_SOCK & oSock);
@@ -142,4 +149,19 @@ string cNetworkAbstractions::DNSReverseLookup(const string& sIp) //-V813
                            NI_MAXHOST, servInfo, NI_MAXSERV, NI_NUMERICSERV) != 0)
         return "";
     return string(hostname);
+}
+
+cNetworkAbstractions::cConnectionStatus cNetworkAbstractions::IsConnectedSSL(SSL* pSSL, bool bBlocking)
+{
+    char pBuffer;
+    size_t uiRead = 0;
+    int iStatus = SSL_peek_ex(pSSL, &pBuffer, 1, &uiRead); //-V106
+    if (iStatus == SSL_ERROR_WANT_READ)
+        return cNetworkAbstractions::cConnectionStatus::eCONNECTED;
+    else if (iStatus == 1 && uiRead == 1)
+        return cNetworkAbstractions::cConnectionStatus::eAVAILABLE;
+    else if (iStatus == 0)
+        return cNetworkAbstractions::cConnectionStatus::eCONNECTED;
+    else
+        return cNetworkAbstractions::cConnectionStatus::eDISCONNECTED;
 }

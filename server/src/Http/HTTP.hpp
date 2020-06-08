@@ -435,7 +435,8 @@ namespace cHttp
             fSleep(50);
             if (uiTimeOut != -1) uiTimeOut-=50;
         }
-        if (!pConnection->Available()) return false;
+        if (!pConnection->Available())
+            return false;
 
         byte* aBytes = new byte[8192];
         size_t size = pConnection->ReceiveBytes(aBytes, 8192); //-V101

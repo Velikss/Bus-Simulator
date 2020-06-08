@@ -56,16 +56,22 @@ public:
 
     bool IsConnected()
     {
-	    return (cNetworkAbstractions::IsConnected(poSock, pptNetworkSettings->eMode == cMode::eBlocking) == cNetworkAbstractions::cConnectionStatus::eCONNECTED);
+        if (ppConnectionSSL)
+            return cNetworkAbstractions::IsConnectedSSL(ppConnectionSSL, pbBlocking) == cNetworkAbstractions::cConnectionStatus::eCONNECTED;
+	    return cNetworkAbstractions::IsConnected(poSock, pbBlocking) == cNetworkAbstractions::cConnectionStatus::eCONNECTED;
     }
 
     bool Available()
     {
-        return (cNetworkAbstractions::IsConnected(poSock, pbBlocking) == cNetworkAbstractions::cConnectionStatus::eAVAILABLE);
+        if (ppConnectionSSL)
+            return cNetworkAbstractions::IsConnectedSSL(ppConnectionSSL, pbBlocking) == cNetworkAbstractions::cConnectionStatus::eAVAILABLE;
+        return cNetworkAbstractions::IsConnected(poSock, pbBlocking) == cNetworkAbstractions::cConnectionStatus::eAVAILABLE;
     }
 
     cNetworkAbstractions::cConnectionStatus Status()
     {
+        if (ppConnectionSSL)
+            return cNetworkAbstractions::IsConnectedSSL(ppConnectionSSL, pbBlocking);
         return cNetworkAbstractions::IsConnected(poSock, pbBlocking);
     }
 
