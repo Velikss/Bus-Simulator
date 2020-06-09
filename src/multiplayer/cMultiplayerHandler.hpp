@@ -197,6 +197,6 @@ void cMultiplayerHandler::StartMultiplayerSession()
     oRequest.SetHeader("Connection", "keep-alive");
     oRequest.SetHeader("session-key" , psSessionKey);
     string sRequest = oRequest.Serialize();
-    SendBytes((byte*)sRequest.c_str(), sRequest.size());
+    SendBytes((byte*)sRequest.c_str(), (int)sRequest.size());
     pbPushData = true;
 }

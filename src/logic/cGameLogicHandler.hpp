@@ -178,7 +178,7 @@ bool cGameLogicHandler::LoadMission(string sKey, cScene* pScene)
         return false;
 
     std::deque<cBusStop*> oRoute = ppMission->GetRouteQueue();
-    int iRouteSize = oRoute.size();
+    auto iRouteSize = oRoute.size();
 
     // TODO probably need to make a global stack
     // Stack for all the passengers currently available
@@ -188,7 +188,7 @@ bool cGameLogicHandler::LoadMission(string sKey, cScene* pScene)
     }
 
     // Loop through all busStops on the route
-    for(uint i = 0; i < iRouteSize; i++)
+    for (uint i = 0; i < iRouteSize; i++)
     {
         // Check if busStops already have this behaviour
         if(!oRoute[i]->poEntityGroup->BehaviourExists(pScene->pcbSeperation))

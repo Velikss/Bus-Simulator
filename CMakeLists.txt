@@ -8,6 +8,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -luuid")
 
+add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+
 enable_testing()
 
 add_subdirectory(server)

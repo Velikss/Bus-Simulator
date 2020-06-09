@@ -73,7 +73,7 @@ void cTrafficLightController::Update(const glm::vec3& oPosition)
     }
 
     auto& aGroup = paTrafficGroups[uiIndex].second;
-    pusSwitchState = ((uiTime / pusSwitchTick) % aGroup.size());
+    pusSwitchState = (ushort) ((uiTime / pusSwitchTick) % aGroup.size());
 
     if (puiLastIndex != uiIndex)
     {

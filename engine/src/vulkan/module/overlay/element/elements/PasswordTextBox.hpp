@@ -27,7 +27,7 @@ cPasswordTextBox::cPasswordTextBox(const tElementInfo& tSize, uint uiPadding, cT
 void cPasswordTextBox::UpdateText()
 {
     psDisplayText.clear();
-    uint uiLength = MIN(psText.length(), puiMaxChars);
+    uint uiLength = (uint)MIN(psText.length(), puiMaxChars);
     for (uint uiIndex = 0; uiIndex < uiLength; uiIndex++)
     {
         psDisplayText += "*";

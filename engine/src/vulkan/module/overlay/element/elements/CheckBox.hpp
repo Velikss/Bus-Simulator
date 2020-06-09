@@ -60,5 +60,8 @@ bool cCheckBox::IsChecked()
 
 void cCheckBox::UpdateChecked()
 {
-    ppCheckElement->SetScale(glm::vec2(pbChecked ? 1 : 0));
+    if(pbChecked)
+        ppCheckElement->Show();
+    else
+        ppCheckElement->Hide();
 }

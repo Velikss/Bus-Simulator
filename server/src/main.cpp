@@ -28,7 +28,7 @@ int main()
         if(oJson["SSOServer"].contains("PORT"))
         {
             string sPort = oJson["SSOServer"]["PORT"];
-            ushort usPort = strtoul(sPort.c_str(), NULL, 0);
+            ushort usPort = (ushort)strtoul(sPort.c_str(), NULL, 0);
             tSSOServerSettings.usPort = usPort;
         }
         if(oJson["SSOServer"].contains("USESSL")) tSSOServerSettings.bUseSSL = oJson["SSOServer"]["USESSL"];
@@ -59,7 +59,7 @@ int main()
         if(oJson["GameServer"].contains("PORT"))
         {
             string sPort = oJson["GameServer"]["PORT"];
-            ushort usPort = strtoul(sPort.c_str(), NULL, 0);
+            ushort usPort = (ushort)strtoul(sPort.c_str(), NULL, 0);
             tGameServerSettings.usPort = usPort;
         }
         if(oJson["GameServer"].contains("USESSL")) tGameServerSettings.bUseSSL = oJson["GameServer"]["USESSL"];
@@ -117,7 +117,7 @@ int main()
     fSleep(1000);
 
     string sPort = oJson["GameServer"]["SSO-PORT"];
-    ushort usPort = strtoul(sPort.c_str(), NULL, 0);
+    ushort usPort = (ushort)strtoul(sPort.c_str(), NULL, 0);
 
     if(!poGameServer->ConnectToSSOServer(oJson["GameServer"]["ID"], oJson["GameServer"]["SSO-IP"], usPort, tGameServerSettings.bUseSSL)) throw std::runtime_error("Game server could connect to the SSO server.");
     if(!poGameServer->Listen()) throw std::runtime_error("Game server could not be started.");

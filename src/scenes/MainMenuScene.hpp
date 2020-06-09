@@ -49,8 +49,8 @@ cMainMenuScene::Load(cTextureHandler* pTextureHandler,
     LoadObjects(pAudioHandler);
 
     poCamera->cameraPos = glm::vec3(3.3f, 1.75f, -1.8f);
-    poCamera->pitch = -4.3;
-    poCamera->yaw = -46.68;
+    poCamera->pitch = -4.3f;
+    poCamera->yaw = -46.68f;
 
     cScene::Load(pTextureHandler, nullptr, pLogicalDevice, pAudioHandler);
 }
