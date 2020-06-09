@@ -23,7 +23,7 @@ protected:
     {
         cStaticElement* oPanel = new cStaticElement({(uint)((double)cWindow::puiWidth * 0.85), (uint)((double)cWindow::puiHeight * 0.85)}, pmpTextures["background"]);
         oPanel->Center();
-        pmpOverlay.push_back({"oPanel", oPanel});
+        pmpOverlay.push_back({"Background", oPanel});
 
         cButton* oExit = new cButton({40, 40}, 0, pmpTextures["buttonTexture"],
                                      cOverlayRenderModule::FONT, 5,

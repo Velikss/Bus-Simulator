@@ -21,6 +21,7 @@ protected:
     void ConstructElements() override
     {
         cBaseMenu::ConstructElements();
+        GetElement("Background")->SetScale(glm::vec2(0));
 
         cTextElement* oUserNameLabel = new cTextElement();
         oUserNameLabel->SetFont(8, cOverlayRenderModule::FONT,
