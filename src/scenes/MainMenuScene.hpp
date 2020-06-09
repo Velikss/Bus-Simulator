@@ -12,9 +12,9 @@ class cMainMenuScene : public cScene
 protected:
     void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler) override;
 
-    void AfterLoad();
+    void AfterLoad() override;
 
-    void Unload();
+    void Unload() override;
 
     void HandleMouse(uint uiDeltaX, uint uiDeltaY) override;
 public:

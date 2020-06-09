@@ -19,14 +19,14 @@ public:
 
     void AddChild(cUIElement* poElem);
     void OnLoadVertices() override;
-    VkDeviceSize GetMemorySize(uint uiIndex);
+    VkDeviceSize GetMemorySize(uint uiIndex) override;
     void InitializeMemory(void* pMemory, uint uiIndex) override;
     uint GetVertexCount(uint uiIndex) override;
 
-    VkImageView& GetImageView(uint uiIndex);
-    VkSampler& GetImageSampler(uint uiIndex);
+    VkImageView& GetImageView(uint uiIndex) override;
+    VkSampler& GetImageSampler(uint uiIndex) override;
 
-    glm::mat4 GetMatrix(cWindow* pWindow, uint uiIndex);
+    glm::mat4 GetMatrix(cWindow* pWindow, uint uiIndex) override;
     bool Invalidated() override;
     void SetFocusHandler(iFocusHandler* pFocusHandler) override;
 };

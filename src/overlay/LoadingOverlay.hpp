@@ -8,7 +8,7 @@
 class cLoadingOverlay : public cOverlayWindow
 {
 protected:
-    void LoadTextures(cTextureHandler* pTextureHandler)
+    void LoadTextures(cTextureHandler* pTextureHandler) override
     {
     }
 
@@ -22,7 +22,7 @@ protected:
     }
 
 public:
-    void Tick()
+    void Tick() override
     {
     }
 

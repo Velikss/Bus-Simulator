@@ -20,7 +20,7 @@ protected:
         cScene::Load(pTextureHandler, pLogicalDevice, pAudioHandler);
     }
 
-    void AfterLoad()
+    void AfterLoad() override
     {
         ppOverlayProvider->ActivateOverlayWindow("MainMenu");
     }

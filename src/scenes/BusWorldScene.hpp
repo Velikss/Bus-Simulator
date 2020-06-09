@@ -57,7 +57,7 @@ public:
     void LoadObjects(cAudioHandler* pAudioHandler);
 
     void LoadMissions();
-    void AfterLoad();
+    void AfterLoad() override;
     void Unload() override;
 
     void LoadBehaviours();

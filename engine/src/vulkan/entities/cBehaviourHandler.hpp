@@ -164,5 +164,7 @@ void cBehaviourHandler::OnFileChanged(const std::string& sFilePath, cDirectoryWa
             }
             break;
         }
+        default:
+            break;
     }
 }

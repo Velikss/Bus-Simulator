@@ -14,9 +14,9 @@ protected:
     std::map<string, cStaticElement*>::iterator poMissionIconIterator;
     cGameLogicHandler** pGameLogicHandler;
 
-    void LoadTextures(cTextureHandler* pTextureHandler);
+    void LoadTextures(cTextureHandler* pTextureHandler) override;
 
-    void ConstructElements();
+    void ConstructElements() override;
 
 public:
     cMissionMenu(iGameManager* pOverlayProvider, cGameLogicHandler** oGameLogicHandler) : cBaseMenu(pOverlayProvider)

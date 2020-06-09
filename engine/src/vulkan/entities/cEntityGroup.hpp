@@ -18,7 +18,7 @@ public:
 
     void RemoveEntity(cEntity* pEntity);
 
-    std::vector<IBaseEntity*>* GetEntities();
+    std::vector<IBaseEntity*>* GetEntities() override;
 
     void AddBehaviour(cBehaviourHandler*& poBehaviour);
 

@@ -12,9 +12,9 @@ protected:
     std::map<string, cStaticElement*> poBusIcons;
     std::map<string, cStaticElement*>::iterator poBusIterator;
 
-    void LoadTextures(cTextureHandler* pTextureHandler);
+    void LoadTextures(cTextureHandler* pTextureHandler) override;
 
-    void ConstructElements();
+    void ConstructElements() override;
 
 public:
     cBusMenu(iGameManager* pOverlayProvider) : cBaseMenu(pOverlayProvider)
