@@ -106,8 +106,11 @@ void cBusMenu::ConstructElements()
     oSubmit->AddY(370);
     std::function<void(cButton*)> OnSubmitHandler = std::bind(&cBusMenu::HandleOnSubmit, this, std::placeholders::_1);
     oSubmit->ppaCallbacks.push_back(OnSubmitHandler);
-
     pmpOverlay.push_back({"oSubmit", oSubmit});
+
+    ((cButton*)GetElement("oExit"))->ppaCallbacks.push_back([&] (cButton* poSender) -> void {
+        ppoOverlayProvider->ActivateOverlayWindow("InGame");
+    });
 }
 
 void cBusMenu::PreviousBus(cButton* poSender)

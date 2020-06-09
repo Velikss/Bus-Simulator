@@ -169,6 +169,10 @@ void cSettingsMenu::ConstructElements()
     pmpOverlay.push_back({"aa_mode_label", pAntiAliasingLabel});
     pmpOverlay.push_back({"apply_button", ppApplyButton});
     pmpOverlay.push_back({"quit_button", ppQuitButton});
+
+    ((cButton*)GetElement("oExit"))->ppaCallbacks.push_back([&] (cButton* poSender) -> void {
+        ppGameManager->ActivateOverlayWindow("InGame");
+    });
 }
 
 void cSettingsMenu::HandleAction(cUIElement* pButton)

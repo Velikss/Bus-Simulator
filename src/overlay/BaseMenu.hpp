@@ -35,6 +35,7 @@ protected:
         oExit->ppaCallbacks.push_back([&] (cButton* poSender) -> void {
             ppGameManager->DeactivateOverlayWindow();
         });
+
         pmpOverlay.push_back({"oExit", oExit});
     }
 public:

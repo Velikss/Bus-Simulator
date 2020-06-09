@@ -19,8 +19,8 @@ public:
 protected:
     void LoadTextures(cTextureHandler* pTextureHandler)
     {
-        pmpTextures["overlay"] = pTextureHandler->LoadTextureFromFile("resources/textures/overlay.png");
-        pmpTextures["overlay-inv"] = pTextureHandler->LoadTextureFromFile("resources/textures/overlay-inv.png");
+        pmpTextures["overlay"] = pTextureHandler->LoadFromFile("resources/textures/overlay.png");
+        pmpTextures["overlay-inv"] = pTextureHandler->LoadFromFile("resources/textures/overlay-inv.png");
     }
 
     void ConstructElements() override
@@ -109,6 +109,6 @@ void cInGame::UpdateSpeed(float fSpeed)
     if(++puiTimeout == 60)
     {
         puiTimeout = 0;
-        ((cTextElement*) GetElement("KmhValue"))->UpdateText(to_string_with_precision(fSpeed, 0));
+        ((cTextElement*) GetElement("KmhValue"))->UpdateText(to_string_with_precision((fSpeed < 0.0f) ? (fSpeed * -1.0f) : fSpeed, 0));
     }
 }
