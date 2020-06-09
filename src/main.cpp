@@ -2,7 +2,6 @@
 #include <iostream>
 #include <Engine.hpp>
 #include <scenes/BusWorldScene.hpp>
-#include <scenes/BlankScene.hpp>
 #include <overlay/TestOverlay.hpp>
 #include <overlay/MainMenu.hpp>
 #include <overlay/LoadingOverlay.hpp>
@@ -10,7 +9,6 @@
 #include <overlay/SettingsMenu.hpp>
 #include <overlay/MissionMenu.hpp>
 #include <scenes/MainMenuScene.hpp>
-#include <overlay/InGame.hpp>
 
 class cApplication : public cEngine
 {
@@ -62,7 +60,7 @@ protected:
 
     void InitialiseMissions()
     {
-        ppGameLogicHandler = new cGameLogicHandler();
+        ppGameLogicHandler = new cGameLogicHandler((cInGame*)GetOverlayByName("InGame"));
         ppGameLogicHandler->pmpMissions["Mission1"] = std::make_shared<cMissionHandler>();
         ppGameLogicHandler->pmpMissions["Mission2"] = std::make_shared<cMissionHandler>();
     }

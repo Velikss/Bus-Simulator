@@ -5,6 +5,7 @@
 #include <vulkan/scene/Scene.hpp>
 #include <entities/cBus.hpp>
 #include <logic/cMissionHandler.hpp>
+#include <overlay/InGame.hpp>
 
 const float C_PASSENGER_ENTER_DISTANCE = 1.5f;
 const int C_MAX_BUS_STOP_PASSENGERS = 3;
@@ -14,12 +15,14 @@ class cGameLogicHandler
 private:
     std::shared_ptr<cMissionHandler> ppMission = nullptr;
     cBusStop* poCurrentBusStop = nullptr;
+    cInGame* poInGameOverlay = nullptr;
     bool pbMissionLoaded = false;
 public:
     std::map<string, std::shared_ptr<cMissionHandler>> pmpMissions;
 
-    cGameLogicHandler()
+    cGameLogicHandler(cInGame* pInGameOverlay)
     {
+        poInGameOverlay = pInGameOverlay;
     }
 
     void Update(cBus* pBus);

@@ -108,6 +108,8 @@ public:
     cOverlayWindow* GetActiveOverlayWindow() override;
     // Request a certain overlay window to be activated
     void ActivateOverlayWindow(const string& sName) override;
+    // Returns overlay by name
+    cOverlayWindow* GetOverlayByName(const string& sName) override;
     // Request the active overlay window to be deactivated
     void DeactivateOverlayWindow() override;
     // Request a scene switch
@@ -712,4 +714,11 @@ void cEngine::HandleMouseButton(uint uiButton, double dXPos, double dYPos, int i
     {
         ppSceneManager->GetActiveScene()->HandleMouseButton(uiButton, dXPos, dYPos, iAction);
     }
+}
+
+cOverlayWindow* cEngine::GetOverlayByName(const string& sName)
+{
+    auto tResult = pmOverlayWindows.find(sName);
+    if (tResult == pmOverlayWindows.end()) return nullptr;
+    return tResult->second;
 }
