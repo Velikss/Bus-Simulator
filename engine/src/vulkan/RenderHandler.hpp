@@ -34,7 +34,7 @@ public:
 
     void CreateSemaphores(void);
 
-    void DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandler, cCommandBuffer* pCommandBuffer);
+    void DrawFrame(cScene* pScene);
 
     void SetUniformHandlers(iUniformHandler** pUniformHandlers, uint uiUniformHandlerCount);
 };
@@ -98,30 +98,8 @@ void cRenderHandler::CreateSemaphores()
     }
 }
 
-void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandler, cCommandBuffer* pCommandBuffer)
+void cRenderHandler::DrawFrame(cScene* pScene)
 {
-#ifdef ENABLE_FPS_COUNT
-    static auto startTime = std::chrono::high_resolution_clock::now();
-    static uint frameCount = 0;
-
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
-    frameCount++;
-    if (time >= 1)
-    {
-        ENGINE_LOG(frameCount << " fps");
-        assert(pTextHandler != nullptr);
-
-        //pTextHandler->UpdateText(cFormatter() << frameCount << " fps");
-
-        /*ppLogicalDevice->WaitUntilIdle();
-        pCommandBuffer->RecordBuffers(pTextHandler->GetCommandRecorder());*/
-        startTime = currentTime;
-        frameCount = 0;
-    }
-#endif
-
     static VkFence oNullFence = VK_NULL_HANDLE;
 
     // Wait for the fence of the current frame and reset it to the unsignalled state

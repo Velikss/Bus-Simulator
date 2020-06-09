@@ -36,6 +36,7 @@
 #include <vulkan/util/CommandBufferHolder.hpp>
 #include <vulkan/SceneManager.hpp>
 #include <vulkan/util/Settings.hpp>
+#include <vulkan/util/Profiler.hpp>
 
 class cEngine : public iGameManager, public iInputHandler, public iCommandBufferHolder
 {
@@ -370,7 +371,10 @@ void cEngine::MainLoop(void)
         ppAudioHandler->Update();
 
         // Draw a frame
-        ppRenderHandler->DrawFrame(pScene, ppOverlayRenderModule, papCommandBuffers[2]);
+        ppRenderHandler->DrawFrame(pScene);
+
+        // Run the profiler
+        cProfiler::poInstance.Update();
 
         // If the scene hasn't been loaded, load it now
         // We want to draw at least one frame before loading the
