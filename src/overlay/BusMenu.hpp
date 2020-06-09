@@ -39,7 +39,7 @@ public:
 void cBusMenu::LoadTextures(cTextureHandler* pTextureHandler)
 {
     cBaseMenu::LoadTextures(pTextureHandler);
-    pmpTextures["textbox"] = pTextureHandler->LoadTextureFromFile("resources/textures/textbox.png");
+    pmpTextures["textbox"] = pTextureHandler->LoadFromFile("resources/textures/textbox.png");
 
     // Load all bus icons
     std::string path = "resources/textures/buses/icons";
@@ -51,7 +51,7 @@ void cBusMenu::LoadTextures(cTextureHandler* pTextureHandler)
         std::vector<std::string> soPathSplit = split(split(entry.path().string(), ".")[0], "\\");
 #endif
         std::string key = soPathSplit[soPathSplit.size() - 1];
-        pmpTextures[key] = pTextureHandler->LoadTextureFromFile(entry.path().string().c_str());
+        pmpTextures[key] = pTextureHandler->LoadFromFile(entry.path().string().c_str());
         poBusIcons[key] = new cStaticElement({574, 367}, pmpTextures[key]);
     }
 }

@@ -43,8 +43,8 @@ void cSettingsMenu::LoadTextures(cTextureHandler* pTextureHandler)
 {
     cBaseMenu::LoadTextures(pTextureHandler);
 
-    pmpTextures["foreground"] = pTextureHandler->LoadTextureFromFile("resources/textures/grey.jpg");
-    pmpTextures["checked"] = pTextureHandler->LoadTextureFromFile("resources/textures/checked.png");
+    pmpTextures["foreground"] = pTextureHandler->LoadFromFile("resources/textures/grey.jpg");
+    pmpTextures["checked"] = pTextureHandler->LoadFromFile("resources/textures/checked.png");
 }
 
 void cSettingsMenu::ConstructElements()

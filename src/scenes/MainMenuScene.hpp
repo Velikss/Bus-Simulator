@@ -36,7 +36,8 @@ public:
     void LoadObjects(cAudioHandler* pAudioHandler);
 };
 
-void cMainMenuScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler)
+void
+cMainMenuScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler)
 {
     LoadTextures(pTextureHandler);
     LoadGeometries(pLogicalDevice);
@@ -63,21 +64,21 @@ void cMainMenuScene::AfterLoad()
 void cMainMenuScene::LoadTextures(cTextureHandler* pTextureHandler)
 {
     // buildings
-    pmpTextures["building"] = pTextureHandler->LoadTextureFromFile("resources/textures/buildings/building.jpg");
-    pmpTextures["needle"] = pTextureHandler->LoadTextureFromFile("resources/textures/buildings/needle.jpg");
+    pmpTextures["building"] = pTextureHandler->LoadFromFile("resources/textures/buildings/building.jpg");
+    pmpTextures["needle"] = pTextureHandler->LoadFromFile("resources/textures/buildings/needle.jpg");
     // street
-    pmpTextures["stoneHouse"] = pTextureHandler->LoadTextureFromFile("resources/textures/stone.jpg");
-    pmpTextures["road"] = pTextureHandler->LoadTextureFromFile("resources/textures/streets/road.png");
-    pmpTextures["threeWayCrossing"] = pTextureHandler->LoadTextureFromFile(
+    pmpTextures["stoneHouse"] = pTextureHandler->LoadFromFile("resources/textures/stone.jpg");
+    pmpTextures["road"] = pTextureHandler->LoadFromFile("resources/textures/streets/road.png");
+    pmpTextures["threeWayCrossing"] = pTextureHandler->LoadFromFile(
             "resources/textures/streets/threeWayCrossing.png");
-    pmpTextures["fourWayCrossing"] = pTextureHandler->LoadTextureFromFile(
+    pmpTextures["fourWayCrossing"] = pTextureHandler->LoadFromFile(
             "resources/textures/streets/fourWayCrossing.png");
     // streetUtil
-    pmpTextures["trafficLight"] = pTextureHandler->LoadTextureFromFile(
+    pmpTextures["trafficLight"] = pTextureHandler->LoadFromFile(
             "resources/textures/streetUtil/trafficLight.png");
-    pmpTextures["busStop"] = pTextureHandler->LoadTextureFromFile("resources/textures/streetUtil/busStop.png");
+    pmpTextures["busStop"] = pTextureHandler->LoadFromFile("resources/textures/streetUtil/busStop.png");
     // buses
-    pmpTextures["bus-yellow"] = pTextureHandler->LoadTextureFromFile("resources/textures/buses/bus-yellow.png");
+    pmpTextures["bus-yellow"] = pTextureHandler->LoadFromFile("resources/textures/buses/bus-yellow.png");
 }
 
 void cMainMenuScene::LoadGeometries(cLogicalDevice* pLogicalDevice)
