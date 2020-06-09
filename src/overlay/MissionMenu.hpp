@@ -35,6 +35,8 @@ public:
     void PreviousMission(cButton* poSender);
 
     void NextMission(cButton* poSender);
+
+    void HandleKey(uint uiKeyCode, uint uiAction) override;
 };
 
 void cMissionMenu::LoadTextures(cTextureHandler* pTextureHandler)
@@ -149,4 +151,20 @@ void cMissionMenu::HandleOnSubmit(cButton* poSender)
                                       static_cast<cBusWorldScene *>(ppoOverlayProvider->GetScenes().at("BusWorld")));
     ppoOverlayProvider->DeactivateOverlayWindow();
 
+}
+
+void cMissionMenu::HandleKey(uint uiKeyCode, uint uiAction)
+{
+    if (uiAction == GLFW_PRESS)
+    {
+        switch (uiKeyCode)
+        {
+            case GLFW_KEY_ESCAPE:
+            case GLFW_KEY_M:
+                ppGameManager->DeactivateOverlayWindow();
+                return;
+        }
+    }
+
+    cOverlayWindow::HandleKey(uiKeyCode, uiAction);
 }

@@ -24,8 +24,6 @@ public:
 
     void HandleOnSubmit(cButton* poSender);
 
-    void HandleSinglePlayer(cButton* poSender);
-
     bool ShouldHandleInput() override
     {
         return true;
@@ -34,6 +32,8 @@ public:
     void PreviousBus(cButton* poSender);
 
     void NextBus(cButton* poSender);
+
+    void HandleKey(uint uiKeyCode, uint uiAction) override;
 };
 
 void cBusMenu::LoadTextures(cTextureHandler* pTextureHandler)
@@ -142,5 +142,21 @@ void cBusMenu::HandleOnSubmit(cButton* poSender)
     cBusWorldScene* s = static_cast<cBusWorldScene*>(ppoOverlayProvider->GetScenes().at("BusWorld"));
     ppoOverlayProvider->DeactivateOverlayWindow();
     s->SetBusSkin(split(poBusIterator->first, "-icon")[0]);
+}
+
+void cBusMenu::HandleKey(uint uiKeyCode, uint uiAction)
+{
+    if (uiAction == GLFW_PRESS)
+    {
+        switch (uiKeyCode)
+        {
+            case GLFW_KEY_ESCAPE:
+            case GLFW_KEY_TAB:
+                ppGameManager->DeactivateOverlayWindow();
+                return;
+        }
+    }
+
+    cOverlayWindow::HandleKey(uiKeyCode, uiAction);
 }
 

@@ -17,7 +17,7 @@ public:
 
     void UpdateSpeed(float fSpeed);
 protected:
-    void LoadTextures(cTextureHandler* pTextureHandler)
+    void LoadTextures(cTextureHandler* pTextureHandler) override
     {
         pmpTextures["overlay"] = pTextureHandler->LoadFromFile("resources/textures/overlay.png");
         pmpTextures["overlay-inv"] = pTextureHandler->LoadFromFile("resources/textures/overlay-inv.png");
@@ -74,13 +74,19 @@ protected:
         oKmh->RemoveY(30);
         pmpOverlay.push_back({"Kmh", oKmh});
 
+        cTextElement* oFPS = new cTextElement();
+        oFPS->SetFont(6, cOverlayRenderModule::FONT,
+                      glm::vec3(0, 1, 0));
+        oFPS->SetPosition({10, 10});
+        pmpOverlay.push_back({"fps", oFPS});
+
         ShowMission();
     }
 
     void HideMission();
     void ShowMission();
 
-    void Tick()
+    void Tick() override
     {
     }
 
@@ -110,5 +116,7 @@ void cInGame::UpdateSpeed(float fSpeed)
     {
         puiTimeout = 0;
         ((cTextElement*) GetElement("KmhValue"))->UpdateText(to_string_with_precision((fSpeed < 0.0f) ? (fSpeed * -1.0f) : fSpeed, 0));
+
+        ((cTextElement*) GetElement("fps"))->UpdateText(cFormatter() << cProfiler::poInstance.GetFramesPerSecond() << " fps");
     }
 }
