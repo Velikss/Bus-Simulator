@@ -104,7 +104,7 @@ void cMissionMenu::ConstructElements()
     poMissionIconIterator->second->SetScale(glm::vec2(1, 1));
 
 
-    cButton* oSubmit = new cButton({400, 75}, 0, pmpTextures["buttonTexture"],
+    cButton* oSubmit = new cButton({400, 75}, 0, pmpTextures["buttonTexture-wide"],
                                    cOverlayRenderModule::FONT, 12,
                                    glm::vec3(0, 0, 0));
     oSubmit->SetLabel("Start mission");

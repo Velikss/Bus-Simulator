@@ -16,6 +16,7 @@ protected:
     virtual void LoadTextures(cTextureHandler* pTextureHandler) override
     {
         pmpTextures["buttonTexture"] = pTextureHandler->LoadFromFile("resources/textures/button.png");
+        pmpTextures["buttonTexture-wide"] = pTextureHandler->LoadFromFile("resources/textures/button-wide.png");
         pmpTextures["background"] = pTextureHandler->LoadFromFile("resources/textures/background.png");
     }
 
@@ -30,8 +31,8 @@ protected:
                                      glm::vec3(0, 0, 0));
         oExit->SetLabel("X");
         oExit->CenterHorizontal();
-        oExit->AddX(780);
-        oExit->AddY(100);
+        oExit->AddX(750);
+        oExit->AddY(110);
         oExit->ppaCallbacks.push_back([&] (cButton* poSender) -> void {
             ppGameManager->DeactivateOverlayWindow();
         });
