@@ -348,7 +348,7 @@ void cBusWorldScene::LoadGeometries(cGeometryHandler* pGeometryHandler)
     pmpGeometries["longSideBuilding1"] = pGeometryHandler->LoadFromFile(
             "resources/geometries/buildings/longSideBuilding1.obj", {20, 20});
     pmpGeometries["longSideBuilding2"] = pGeometryHandler->LoadFromFile(
-            "resources/geometries/buildings/longSideBuilding2.obj", {8, 8});
+            "resources/geometries/buildings/longSideBuilding2.obj", {9, 9});
 
     // grass
     pmpGeometries["grassField1"] = pGeometryHandler->LoadFromFile("resources/geometries/grassField1.obj", {8, 8});
