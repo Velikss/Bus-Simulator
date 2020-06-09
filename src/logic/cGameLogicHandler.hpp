@@ -196,6 +196,7 @@ bool cGameLogicHandler::LoadMission(string sKey, cScene* pScene)
     auto iRouteSize = oRoute.size();
 
     // Set Ingame overlay to first bus stop
+    poInGameOverlay->ShowMissionStatus();
     poInGameOverlay->SetNextStopName(oRoute.front()->psName);
 
     // TODO probably need to make a global stack
