@@ -183,7 +183,7 @@ void cMainMenuScene::LoadObjects(cAudioHandler* pAudioHandler)
 
 
     // Bus stations
-    pmpObjects["busStation1"] = new cBusStop(pmpMeshes["busStation"]);
+    pmpObjects["busStation1"] = new cBusStop(pmpMeshes["busStation"], "busStation");
     pmpObjects["busStation1"]->SetPosition(glm::vec3(8.603f, 0.15f, -11.0f));
 
     // Traffic lights

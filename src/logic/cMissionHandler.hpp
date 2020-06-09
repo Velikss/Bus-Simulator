@@ -19,6 +19,7 @@ public:
     void UnloadBusStop(cBusStop* oBusStop);
     void SetPassengersDestinations();
     void UnloadRouteBusStops();
+    void RefillActiveRouteQueue();
     cBusStop* BusStopWithinRadius(glm::vec3 oBusDoorPos);
     std::deque<cBusStop*>& GetRouteQueue();
     bool PassengersAvailable(cBusStop* oBusStop);
@@ -27,7 +28,7 @@ public:
 void cMissionHandler::Update()
 {
     // TODO only update when needed to move
-    for(auto & busStop : poActiveRoute)
+    for(auto & busStop : poRoute)
     {
         busStop->poEntityGroup->UpdateEntities();
     }
@@ -91,10 +92,17 @@ void cMissionHandler::SetPassengersDestinations()
 // Unload all the busStops on the route of the missionHandler
 void cMissionHandler::UnloadRouteBusStops()
 {
-    for(uint i = 0; i < poActiveRoute.size(); i++)
+    for(uint i = 0; i < poRoute.size(); i++)
     {
-        UnloadBusStop(poActiveRoute[i]);
+        UnloadBusStop(poRoute[i]);
     }
+}
+
+void cMissionHandler::RefillActiveRouteQueue()
+{
+    poActiveRoute.clear();
+    for(uint i = 0; i < poRoute.size(); i++)
+        poActiveRoute.push_back(poRoute[i]);
 }
 
 // return the bus stop that is within a certain radius of the bus door
@@ -117,6 +125,7 @@ cBusStop* cMissionHandler::BusStopWithinRadius(glm::vec3 oBusDoorPos)
 void cMissionHandler::AddStop(cBusStop* pBusStop)
 {
     poRoute.push_back(pBusStop);
+    poActiveRoute.push_back(pBusStop);
 }
 
 std::deque<cBusStop*>& cMissionHandler::GetRouteQueue()
