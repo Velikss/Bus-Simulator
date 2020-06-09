@@ -187,6 +187,17 @@ void cBusWorldScene::HandleKey(uint uiKeyCode, uint uiAction)
     {
         ppAudioHandler->PlaySound("resources/audio/horn1.wav", dynamic_cast<cBus *>(pmpObjects["bus"])->GetPosition(), 1.0f);
     }
+    // Bus door
+    if(uiAction == GLFW_PRESS && uiKeyCode == GLFW_KEY_O)
+    {
+        cBus* bus = dynamic_cast<cBus*>(pmpObjects["bus"]);
+        if(!bus->pbDoorOpen)
+            bus->OpenDoors();
+        else
+            bus->CloseDoors();
+
+        std::cout << bus->pbDoorOpen << std::endl;
+    }
 }
 
 void cBusWorldScene::HandleScroll(double dOffsetX, double dOffsetY)
