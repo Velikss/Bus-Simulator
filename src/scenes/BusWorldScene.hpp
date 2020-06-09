@@ -190,6 +190,20 @@ void cBusWorldScene::Update()
 
     }
     if (poMultiplayerHandler) poMultiplayerHandler->PushData();
+
+    static bool bOverlayRequested = false;
+    if (ppOverlayProvider->GetActiveOverlayWindow() == nullptr)
+    {
+        if (!bOverlayRequested)
+        {
+            ppOverlayProvider->ActivateOverlayWindow("InGame");
+            bOverlayRequested = true;
+        }
+    }
+    else
+    {
+        bOverlayRequested = false;
+    }
 }
 
 void cBusWorldScene::HandleKey(uint uiKeyCode, uint uiAction)
