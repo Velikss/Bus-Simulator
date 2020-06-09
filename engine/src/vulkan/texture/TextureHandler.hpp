@@ -40,6 +40,7 @@ public:
     ~cTextureHandler(void);
 
     // Load a texture from a file
+    cTexture* LoadFromFile(const string& sFilePath, cTextureSampler* pSampler);
     cTexture* LoadFromFile(const string& sFilePath);
 
     void WaitForLoadComplete();
@@ -138,7 +139,7 @@ cTextureHandler::~cTextureHandler(void)
     delete ppSkyboxSampler;
 }
 
-cTexture* cTextureHandler::LoadFromFile(const string& sFilePath)
+cTexture* cTextureHandler::LoadFromFile(const string& sFilePath, cTextureSampler* pSampler)
 {
     cTexture* pTexture;
 
@@ -147,7 +148,7 @@ cTexture* cTextureHandler::LoadFromFile(const string& sFilePath)
     if (tResult == pmpTextures.end())
     {
         // If not, create and load it
-        pTexture = new cTexture(ppLogicalDevice, sFilePath, GetDefaultSampler());
+        pTexture = new cTexture(ppLogicalDevice, sFilePath, pSampler);
 
         std::unique_lock<std::mutex> tLoadLock(ptLoadQueueMutex);
         papLoadQueue.push(pTexture);
@@ -163,6 +164,11 @@ cTexture* cTextureHandler::LoadFromFile(const string& sFilePath)
         // If it's already loaded, just grab the loaded texture
         return tResult->second;
     }
+}
+
+cTexture* cTextureHandler::LoadFromFile(const string& sFilePath)
+{
+    return LoadFromFile(sFilePath, GetDefaultSampler());
 }
 
 cTextureSampler* cTextureHandler::GetDefaultSampler()

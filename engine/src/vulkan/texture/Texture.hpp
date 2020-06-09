@@ -131,7 +131,7 @@ void cTexture::CopyIntoGPU()
     assert(poTextureImageMemory == VK_NULL_HANDLE); // image memory must not exist yet
     assert(poTextureImageView == VK_NULL_HANDLE);   // image view must not exist yet
 
-    // Create the image
+    // Create the image on the GPU
     // We want to use the SRGB format and optimal tiling
     cImageHelper::CreateImage(ptTextureInfo.uiWidth, ptTextureInfo.uiHeight,
                               VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,

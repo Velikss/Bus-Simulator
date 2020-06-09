@@ -272,7 +272,8 @@ void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
     pmpTextures["roof"] = pTextureHandler->LoadFromFile("resources/textures/roof.jpg");
     pmpTextures["stoneHouse"] = pTextureHandler->LoadFromFile("resources/textures/stone.jpg");
     pmpTextures["grass"] = pTextureHandler->LoadFromFile("resources/textures/grass.jpg");
-    pmpTextures["skybox"] = pTextureHandler->LoadFromFile("resources/textures/skybox.jpg");
+    pmpTextures["skybox"] = pTextureHandler->LoadFromFile("resources/textures/skybox.jpg",
+                                                          pTextureHandler->GetSkyboxSampler());
     // buildings
     pmpTextures["building"] = pTextureHandler->LoadFromFile("resources/textures/buildings/building.jpg");
     pmpTextures["building2"] = pTextureHandler->LoadFromFile("resources/textures/buildings/building2.jpg");
@@ -339,15 +340,15 @@ void cBusWorldScene::LoadGeometries(cGeometryHandler* pGeometryHandler)
     // buildings
     pmpGeometries["building"] = pGeometryHandler->LoadFromFile("resources/geometries/buildingTest.obj", {8, 8});
     pmpGeometries["needleBuilding"] = pGeometryHandler->LoadFromFile(
-            "resources/geometries/buildings/needleBuilding.obj", {8, 8});
+            "resources/geometries/buildings/needleBuilding.obj", {20, 20});
     pmpGeometries["blockBuilding2"] = pGeometryHandler->LoadFromFile(
             "resources/geometries/buildings/blockBuilding2.obj", {8, 8});
     pmpGeometries["blockBuilding3"] = pGeometryHandler->LoadFromFile(
             "resources/geometries/buildings/blockBuilding3.obj", {5, 5});
     pmpGeometries["blockBuilding4"] = pGeometryHandler->LoadFromFile(
-            "resources/geometries/buildings/blockBuilding4.obj", {8, 8});
+            "resources/geometries/buildings/blockBuilding4.obj", {20, 20});
     pmpGeometries["longSideBuilding1"] = pGeometryHandler->LoadFromFile(
-            "resources/geometries/buildings/longSideBuilding1.obj", {9, 9});
+            "resources/geometries/buildings/longSideBuilding1.obj", {20, 20});
     pmpGeometries["longSideBuilding2"] = pGeometryHandler->LoadFromFile(
             "resources/geometries/buildings/longSideBuilding2.obj", {8, 8});
 
