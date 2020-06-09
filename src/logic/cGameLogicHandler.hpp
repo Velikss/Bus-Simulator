@@ -257,6 +257,5 @@ bool cGameLogicHandler::LoadMission(string sKey, cScene* pScene)
         }
     }
     pbMissionLoaded = true;
-    ppMission->
     return true;
 }
