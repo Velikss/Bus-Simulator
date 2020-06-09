@@ -120,6 +120,9 @@ void cGeometry::LoadIntoGPU()
                                    VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
                                    paiIndices.data(), ulIndexBufferSize,
                                    poIndexBuffer, poIndexBufferMemory);
+
+    ENGINE_LOG("Loaded geometry " << psFilePath
+                                  << " (" << paiIndices.size() / 3 << " triangles)");
 }
 
 void cGeometry::UnloadFromRAM()

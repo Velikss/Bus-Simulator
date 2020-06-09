@@ -272,8 +272,7 @@ void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
     pmpTextures["roof"] = pTextureHandler->LoadFromFile("resources/textures/roof.jpg");
     pmpTextures["stoneHouse"] = pTextureHandler->LoadFromFile("resources/textures/stone.jpg");
     pmpTextures["grass"] = pTextureHandler->LoadFromFile("resources/textures/grass.jpg");
-    pmpTextures["skybox"] = pTextureHandler->LoadFromFile("resources/textures/skybox.jpg",
-                                                          pTextureHandler->GetSkyboxSampler());
+    pmpTextures["skybox"] = pTextureHandler->LoadFromFile("resources/textures/skybox.jpg");
     // buildings
     pmpTextures["building"] = pTextureHandler->LoadFromFile("resources/textures/buildings/building.jpg");
     pmpTextures["building2"] = pTextureHandler->LoadFromFile("resources/textures/buildings/building2.jpg");
@@ -307,6 +306,8 @@ void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
 
     // passengers
     pmpTextures["passenger"] = pTextureHandler->LoadFromFile("resources/textures/penguin.png");
+
+    pTextureHandler->WaitForLoadComplete();
 }
 
 void cBusWorldScene::LoadGeometries(cGeometryHandler* pGeometryHandler)

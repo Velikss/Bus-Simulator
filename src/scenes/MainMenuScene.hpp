@@ -83,6 +83,7 @@ void cMainMenuScene::LoadTextures(cTextureHandler* pTextureHandler)
     pmpTextures["busStop"] = pTextureHandler->LoadFromFile("resources/textures/streetUtil/busStop.png");
     // buses
     pmpTextures["bus-yellow"] = pTextureHandler->LoadFromFile("resources/textures/buses/bus-yellow.png");
+    pTextureHandler->WaitForLoadComplete();
 }
 
 void cMainMenuScene::LoadGeometries(cGeometryHandler* pGeometryHandler)
