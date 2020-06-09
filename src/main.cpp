@@ -56,11 +56,12 @@ protected:
         mOverlayWindows["MissionMenu"] = new cMissionMenu(this, &ppGameLogicHandler);
         mOverlayWindows["Settings"] = new cSettingsMenu(this);
         mOverlayWindows["InGame"] = new cInGame(this);
+        ppGameLogicHandler->SetGameOverlay(dynamic_cast<cInGame*>(mOverlayWindows["InGame"]));
     }
 
     void InitialiseMissions()
     {
-        ppGameLogicHandler = new cGameLogicHandler((cInGame*)GetOverlayByName("InGame"));
+        ppGameLogicHandler = new cGameLogicHandler();
         ppGameLogicHandler->pmpMissions["Mission1"] = std::make_shared<cMissionHandler>();
         ppGameLogicHandler->pmpMissions["Mission2"] = std::make_shared<cMissionHandler>();
     }

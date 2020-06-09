@@ -64,7 +64,7 @@ void cStaticElement::InitializeMemory(void* pMemory, uint uiIndex)
 
 uint cStaticElement::GetVertexCount(uint uiIndex)
 {
-    return patVertices.size();
+    return (uint)patVertices.size();
 }
 
 VkImageView& cStaticElement::GetImageView(uint uiIndex)

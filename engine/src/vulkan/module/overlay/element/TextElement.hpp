@@ -105,7 +105,7 @@ void cTextElement::InitializeMemory(void* pMemory, uint uiIndex)
 
     puiWidth = ((uint) x) + 1;
 
-    puiNumLetters = psText.length();
+    puiNumLetters = (uint)psText.length();
 }
 
 uint cTextElement::GetVertexCount(uint uiIndex)

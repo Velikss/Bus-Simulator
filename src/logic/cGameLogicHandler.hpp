@@ -20,17 +20,13 @@ private:
 public:
     std::map<string, std::shared_ptr<cMissionHandler>> pmpMissions;
 
-    cGameLogicHandler(cInGame* pInGameOverlay)
-    {
-        poInGameOverlay = pInGameOverlay;
-    }
-
     void Update(cBus* pBus);
     std::shared_ptr<cMissionHandler> GetMissionHandler();
     bool LoadMission(string sKey, cScene* pScene);
     void LoadPassengers(cBusStop* oBusStop, cBus* pBus);
     void UnloadPassengers(cBusStop* oBusStop, cBus* pBus);
     void ResetBus(cBus* pBus);
+    void SetGameOverlay(cInGame* oGameOverlay);
 };
 
 void cGameLogicHandler::Update(cBus* pBus)
@@ -63,19 +59,37 @@ void cGameLogicHandler::Update(cBus* pBus)
             }
         }
         if (pBus->oState == cState::eUnloading) {
-            if(pBus->pbDoorOpen)
+            // Makes nothing happen when player is not at the correct bus stop
+            if(poCurrentBusStop != (ppMission->GetRouteQueue().front()))
+                pBus->oState = cState::eStill;
+            else
             {
-                UnloadPassengers(poCurrentBusStop, pBus);
-                pBus->oState = cState::eLoading;
+                if (pBus->pbDoorOpen)
+                {
+                    UnloadPassengers(poCurrentBusStop, pBus);
+                    pBus->oState = cState::eLoading;
+                }
+                else if (pBus->pfCurrentSpeed > 0.0f)
+                    pBus->oState = cState::eDriving;
             }
-            else if(pBus->pfCurrentSpeed > 0.0f)
-                pBus->oState = cState::eDriving;
         }
         if (pBus->oState == cState::eLoading) {
             LoadPassengers(poCurrentBusStop, pBus);
             // go to state eStill if bus stop has no more passengers available
             if (!ppMission->PassengersAvailable(poCurrentBusStop))
+            {
+                std::deque<cBusStop*>* oRoute = &ppMission->GetRouteQueue();
+                // At the last bu stop the player is told that the mission is completed
+                // otherwise its the name of the next bus stop
+                if(oRoute->size() == 1)
+                    poInGameOverlay->SetNextStopName("Mission Completed");
+                else
+                {
+                    oRoute->pop_front();
+                    poInGameOverlay->SetNextStopName(oRoute->front()->psName);
+                }
                 pBus->oState = cState::eStill;
+            }
         }
     }
 }
@@ -169,6 +183,7 @@ bool cGameLogicHandler::LoadMission(string sKey, cScene* pScene)
     {
         ppMission->UnloadRouteBusStops();
         ResetBus(dynamic_cast<cBus*>(pScene->GetObjects()["bus"]));
+        ppMission->RefillActiveRouteQueue();
     }
 
     ppMission = pmpMissions[sKey];
@@ -178,7 +193,11 @@ bool cGameLogicHandler::LoadMission(string sKey, cScene* pScene)
         return false;
 
     std::deque<cBusStop*> oRoute = ppMission->GetRouteQueue();
-    int iRouteSize = oRoute.size();
+    auto iRouteSize = oRoute.size();
+
+    // Set Ingame overlay to first bus stop
+    poInGameOverlay->ShowMissionStatus();
+    poInGameOverlay->SetNextStopName(oRoute.front()->psName);
 
     // TODO probably need to make a global stack
     // Stack for all the passengers currently available
@@ -188,7 +207,7 @@ bool cGameLogicHandler::LoadMission(string sKey, cScene* pScene)
     }
 
     // Loop through all busStops on the route
-    for(uint i = 0; i < iRouteSize; i++)
+    for (uint i = 0; i < iRouteSize; i++)
     {
         // Check if busStops already have this behaviour
         if(!oRoute[i]->poEntityGroup->BehaviourExists(pScene->pcbSeperation))
@@ -258,4 +277,9 @@ bool cGameLogicHandler::LoadMission(string sKey, cScene* pScene)
     }
     pbMissionLoaded = true;
     return true;
+}
+
+void cGameLogicHandler::SetGameOverlay(cInGame *oGameOverlay)
+{
+    poInGameOverlay = oGameOverlay;
 }

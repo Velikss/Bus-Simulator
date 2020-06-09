@@ -16,6 +16,9 @@ public:
     {}
 
     void UpdateSpeed(float fSpeed);
+    void SetNextStopName(string sNextStop);
+    void ShowMissionStatus();
+    void HideMissionStatus();
 protected:
     void LoadTextures(cTextureHandler* pTextureHandler) override
     {
@@ -79,12 +82,7 @@ protected:
                       glm::vec3(0, 1, 0));
         oFPS->SetPosition({10, 10});
         pmpOverlay.push_back({"fps", oFPS});
-
-        ShowMission();
     }
-
-    void HideMission();
-    void ShowMission();
 
     void Tick() override
     {
@@ -96,18 +94,24 @@ protected:
     }
 };
 
-void cInGame::HideMission()
+void cInGame::HideMissionStatus()
 {
     GetElement("NextStopName")->Hide();
     GetElement("NextStop")->Hide();
     GetElement("MissionOverlay")->Hide();
 }
 
-void cInGame::ShowMission()
+void cInGame::ShowMissionStatus()
 {
     GetElement("NextStopName")->Show();
     GetElement("NextStop")->Show();
     GetElement("MissionOverlay")->Show();
+}
+
+void cInGame::SetNextStopName(string sNextStop)
+{
+    dynamic_cast<cTextElement*>(GetElement("NextStopName"))->UpdateText(sNextStop);
+    dynamic_cast<cTextElement*>(GetElement("NextStopName"))->CenterHorizontal();
 }
 
 void cInGame::UpdateSpeed(float fSpeed)

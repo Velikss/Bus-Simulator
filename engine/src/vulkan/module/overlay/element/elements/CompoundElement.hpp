@@ -53,7 +53,7 @@ void cCompoundElement::SetFocusHandler(iFocusHandler* pFocusHandler)
 
 uint cCompoundElement::GetChildCount()
 {
-    return papChildren.size();
+    return (uint)papChildren.size();
 }
 
 bool cCompoundElement::IsTextElement(uint uiIndex)

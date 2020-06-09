@@ -15,10 +15,12 @@ public:
 
 void cTabElement::SetVisible(bool bVisible)
 {
-    glm::vec2 tScale(bVisible ? 1 : 0);
     for (auto&[sName, pElement] : pmpElements)
     {
-        pElement->SetScale(tScale);
+        if(bVisible)
+            pElement->Show();
+        else
+            pElement->Hide();
     }
 }
 

@@ -122,7 +122,7 @@ void cMainMenu::HandleOnSubmit(cButton* poSender)
     if (!poJson["Multiplayer"].contains("PORT")) throw std::runtime_error("could not find server-port setting");
 
     string sPort = poJson["Multiplayer"]["PORT"];
-    ushort usPort = strtoul(sPort.c_str(), NULL, 0);
+    ushort usPort = (ushort)strtoul(sPort.c_str(), NULL, 0);
 
     ptConnectNetworkSettings.sAddress = cNetworkAbstractions::DNSLookup(poJson["Multiplayer"]["IP"]);
     ptConnectNetworkSettings.usPort = usPort;
@@ -172,7 +172,7 @@ void cMainMenu::HandleRegister(cButton* poSender)
     if (!poJson["Multiplayer"].contains("PORT")) throw std::runtime_error("could not find server-port setting");
 
     string sPort = poJson["Multiplayer"]["PORT"];
-    ushort usPort = strtoul(sPort.c_str(), NULL, 0);
+    ushort usPort = (ushort)strtoul(sPort.c_str(), NULL, 0);
 
     ptConnectNetworkSettings.sAddress = cNetworkAbstractions::DNSLookup(poJson["Multiplayer"]["IP"]);
     ptConnectNetworkSettings.usPort = usPort;

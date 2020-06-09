@@ -124,7 +124,7 @@ uint cFont::GetFontHeight(float fFontSize)
 {
     const uint firstChar = STB_FONT_arial_50_usascii_FIRST_CHAR;
     stb_fontchar& pData = ppFontData[(uint) 'o' - firstChar];
-    return pData.y1 * (fFontSize / 10);
+    return (uint)(pData.y1 * (fFontSize / 10));
 }
 
 struct tFontInfo

@@ -49,8 +49,8 @@ cMainMenuScene::Load(cTextureHandler* pTextureHandler,
     LoadObjects(pAudioHandler);
 
     poCamera->cameraPos = glm::vec3(3.3f, 1.75f, -1.8f);
-    poCamera->pitch = -4.3;
-    poCamera->yaw = -46.68;
+    poCamera->pitch = -4.3f;
+    poCamera->yaw = -46.68f;
 
     cScene::Load(pTextureHandler, nullptr, pLogicalDevice, pAudioHandler);
 }
@@ -183,7 +183,7 @@ void cMainMenuScene::LoadObjects(cAudioHandler* pAudioHandler)
 
 
     // Bus stations
-    pmpObjects["busStation1"] = new cBusStop(pmpMeshes["busStation"]);
+    pmpObjects["busStation1"] = new cBusStop(pmpMeshes["busStation"], "busStation");
     pmpObjects["busStation1"]->SetPosition(glm::vec3(8.603f, 0.15f, -11.0f));
 
     // Traffic lights
