@@ -14,6 +14,7 @@
 #include <entities/IPassengerHolder.hpp>
 #include <objects//cBusStop.hpp>
 #include <multiplayer/cMultiplayerHandler.hpp>
+#include <overlay/InGame.hpp>
 
 class cBusWorldScene : public cScene
 {
@@ -176,6 +177,11 @@ void cBusWorldScene::Update()
     dynamic_cast<cBus*>(pmpObjects["bus"])->Move();
 
     cScene::Update();
+    if(instanceof<cInGame>(ppOverlayProvider->GetActiveOverlayWindow()))
+    {
+        ((cInGame*)ppOverlayProvider->GetActiveOverlayWindow())->UpdateSpeed(dynamic_cast<cBus*>(pmpObjects["bus"])->pfCurrentSpeed);
+
+    }
     if (poMultiplayerHandler) poMultiplayerHandler->PushData();
 }
 
@@ -957,10 +963,11 @@ void cBusWorldScene::AfterLoad()
 {
     cScene::AfterLoad();
     if(poMultiplayerHandler) poMultiplayerHandler->AssignScene(this);
+    ppOverlayProvider->ActivateOverlayWindow("InGame");
 }
 
 void cBusWorldScene::SetBusSkin(const std::string& sBusSkin)
 {
     ENGINE_LOG(sBusSkin);
-        pmpObjects["bus"]->GetMesh()->SetTexture(pmpTextures[sBusSkin]);
+    pmpObjects["bus"]->GetMesh()->SetTexture(pmpTextures[sBusSkin]);
 }

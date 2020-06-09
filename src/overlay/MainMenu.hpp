@@ -142,7 +142,7 @@ void cMainMenu::HandleOnSubmit(cButton* poSender)
             ppGameManager->SwitchScene("BusWorld");
             (*pppoMultiplayerHandler)->StartMultiplayerSession();
             ((cBusWorldScene*)ppGameManager->GetScenes()["BusWorld"])->AssignMultiplayerHandler((*pppoMultiplayerHandler) );
-            std::cout << "entering multiplayer mode" << std::endl;
+            std::cout << "Entering multiplayer mode" << std::endl;
             return;
         }
     }

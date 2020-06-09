@@ -58,9 +58,13 @@ public:
     void Center();
     void CenterHorizontal();
     void CenterVertical();
+    void AlignBottom();
 
     virtual glm::mat4 GetMatrix(cWindow* pWindow, uint uiIndex);
     virtual glm::mat4 GetRawMatrix();
+
+    void Hide();
+    void Show();
 };
 
 cUIElement::~cUIElement()
@@ -204,4 +208,19 @@ void cUIElement::RemoveX(float fRemX)
 void cUIElement::RemoveY(float fRemY)
 {
     ptPosition.y -= fRemY;
+}
+
+void cUIElement::Hide()
+{
+    SetScale({0, 0});
+}
+
+void cUIElement::Show()
+{
+    SetScale({1, 1});
+}
+
+void cUIElement::AlignBottom()
+{
+    SetPosition({ptPosition.x, ((float)cWindow::puiHeight - ptInfo.uiHeight)});
 }

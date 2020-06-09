@@ -309,3 +309,14 @@ inline bool instanceof(const T* ptr)
 {
     return dynamic_cast<const Base*>(ptr) != nullptr;
 }
+
+#include <sstream>
+
+template <typename T>
+std::string to_string_with_precision(const T a_value, const int n = 6)
+{
+    std::ostringstream out;
+    out.precision(n);
+    out << std::setw(2) << std::setfill('0') << std::fixed << a_value;
+    return out.str();
+}

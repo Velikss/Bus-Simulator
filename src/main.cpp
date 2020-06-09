@@ -10,6 +10,7 @@
 #include <overlay/SettingsMenu.hpp>
 #include <overlay/MissionMenu.hpp>
 #include <scenes/MainMenuScene.hpp>
+#include <overlay/InGame.hpp>
 
 class cApplication : public cEngine
 {
@@ -56,6 +57,7 @@ protected:
         mOverlayWindows["BusMenu"] = new cBusMenu(this);
         mOverlayWindows["MissionMenu"] = new cMissionMenu(this, &ppGameLogicHandler);
         mOverlayWindows["Settings"] = new cSettingsMenu(this);
+        mOverlayWindows["InGame"] = new cInGame(this);
     }
 
     void InitialiseMissions()
