@@ -45,10 +45,8 @@ set(ENGINE_LIBRARIES ${_ENGINE_LIBRARIES} PARENT_SCOPE)
 
 set(Headers
         ${PROJECT_SOURCE_DIR}/src/pch.hpp
-        ${PROJECT_SOURCE_DIR}/src/vendor/tiny_obj_loader.h
-        ${PROJECT_SOURCE_DIR}/src/loaders/fileloader.hpp
-        ${PROJECT_SOURCE_DIR}/src/loaders/objectloader.hpp
-        ${PROJECT_SOURCE_DIR}/src/vendor/stb_image.h
+        ${PROJECT_SOURCE_DIR}/vendor/tiny_obj_loader.h
+        ${PROJECT_SOURCE_DIR}/vendor/stb_image.h
         ${PROJECT_SOURCE_DIR}/src/Engine.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/Window.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/VulkanInstance.hpp
@@ -101,11 +99,10 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/loop/TickTask.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/scene/LightObject.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/util/EngineLog.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/ViewportQuadGeometry.hpp src/vulkan/texture/TextureSampler.hpp
-        ${PROJECT_SOURCE_DIR}/src/vendor/tiny_obj_loader.h
-        ${PROJECT_SOURCE_DIR}/src/loaders/fileloader.hpp
-        ${PROJECT_SOURCE_DIR}/src/loaders/objectloader.hpp
-        ${PROJECT_SOURCE_DIR}/src/vendor/stb_image.h
+        ${PROJECT_SOURCE_DIR}/src/vulkan/geometry/ViewportQuadGeometry.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/texture/TextureSampler.hpp
+        ${PROJECT_SOURCE_DIR}/vendor/tiny_obj_loader.h
+        ${PROJECT_SOURCE_DIR}/vendor/stb_image.h
         ${PROJECT_SOURCE_DIR}/src/scripting/cScriptingEngine.hpp
         ${PROJECT_SOURCE_DIR}/src/scripting/functions/JavaScriptBaseFunctions.hpp
         ${PROJECT_SOURCE_DIR}/src/scripting/functions/JavaScriptEntityFunctions.hpp
@@ -138,7 +135,9 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/TabsElement.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/ComboBox.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/ValueSelector.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/CheckBox.hpp src/vulkan/SceneManager.hpp src/vulkan/util/Settings.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/CheckBox.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/SceneManager.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/util/Settings.hpp)
 
 include_directories(${_ENGINE_INCLUDE_DIRS})
 add_library(${This} STATIC ${PROJECT_SOURCE_DIR}/src/main.cpp ${Headers})
