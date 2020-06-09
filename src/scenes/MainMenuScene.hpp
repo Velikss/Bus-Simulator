@@ -223,6 +223,11 @@ void cMainMenuScene::LoadObjects(cAudioHandler* pAudioHandler)
     pmpObjects["bus"]->SetPosition(glm::vec3(12.5f, 0, -7.5f));
     pmpObjects["bus"]->SetRotation(glm::vec3(0.0f, 90.0, 0.0f));
     pmpObjects["bus"]->SetScale(glm::vec3(0.8, 0.8, 0.8));
+
+    // Light
+    pmpObjects["light"] = new cLightObject(pmpMeshes["building"], glm::vec3(1, 1, 0.3), 40);
+    pmpObjects["light"]->SetPosition(glm::vec3(12.5f, 10.0f, -7.5f));
+    pmpObjects["light"]->SetScale(glm::vec3(0));
 }
 
 void cMainMenuScene::HandleMouse(uint uiDeltaX, uint uiDeltaY)
