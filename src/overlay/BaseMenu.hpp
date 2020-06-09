@@ -15,8 +15,8 @@ protected:
 protected:
     virtual void LoadTextures(cTextureHandler* pTextureHandler) override
     {
-        pmpTextures["buttonTexture"] = pTextureHandler->LoadTextureFromFile("resources/textures/button.png");
-        pmpTextures["background"] = pTextureHandler->LoadTextureFromFile("resources/textures/background.png");
+        pmpTextures["buttonTexture"] = pTextureHandler->LoadFromFile("resources/textures/button.png");
+        pmpTextures["background"] = pTextureHandler->LoadFromFile("resources/textures/background.png");
     }
 
     virtual void ConstructElements() override

@@ -31,8 +31,8 @@ private:
 protected:
     void LoadTextures(cTextureHandler* pTextureHandler) override
     {
-        pmpTextures["roof"] = pTextureHandler->LoadTextureFromFile("resources/textures/roof.jpg");
-        pmpTextures["grey"] = pTextureHandler->LoadTextureFromFile("resources/textures/uvtemplate.bmp");
+        pmpTextures["roof"] = pTextureHandler->LoadFromFile("resources/textures/roof.jpg");
+        pmpTextures["grey"] = pTextureHandler->LoadFromFile("resources/textures/uvtemplate.bmp");
     }
 
     void ConstructElements() override

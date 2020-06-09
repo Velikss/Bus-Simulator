@@ -15,7 +15,7 @@ protected:
     void LoadTextures(cTextureHandler* pTextureHandler) override
     {
         cBaseMenu::LoadTextures(pTextureHandler);
-        pmpTextures["textbox"] = pTextureHandler->LoadTextureFromFile("resources/textures/textbox.png");
+        pmpTextures["textbox"] = pTextureHandler->LoadFromFile("resources/textures/textbox.png");
     }
 
     void ConstructElements() override

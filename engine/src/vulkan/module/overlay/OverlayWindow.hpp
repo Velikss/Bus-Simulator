@@ -56,9 +56,9 @@ cOverlayWindow::~cOverlayWindow()
 {
     delete ppUIManager;
 
-    for (auto oTexture : pmpTextures)
+    for (auto&[sName, pElement] : pmpOverlay)
     {
-        delete oTexture.second;
+        delete pElement;
     }
 }
 
@@ -184,8 +184,9 @@ void cOverlayWindow::HandleMouseButton(uint uiButton, double dXPos, double dYPos
 
 cUIElement* cOverlayWindow::GetElement(const string& sName)
 {
-    auto oElem = std::find_if( pmpOverlay.begin(), pmpOverlay.end(),
-                  [&](const std::pair<string, cUIElement*>& poElem){ return poElem.first == sName;} );
+    auto oElem = std::find_if(pmpOverlay.begin(), pmpOverlay.end(),
+                              [&](const std::pair<string, cUIElement*>& poElem)
+                              { return poElem.first == sName; });
     if (oElem != pmpOverlay.end())
         return oElem->second;
     else

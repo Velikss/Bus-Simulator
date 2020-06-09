@@ -177,10 +177,6 @@ void cScene::UnloadObjects()
     }
     pmpGeometries.clear();
 
-    for (auto oTexture : pmpTextures)
-    {
-        delete oTexture.second;
-    }
     pmpTextures.clear();
 }
 

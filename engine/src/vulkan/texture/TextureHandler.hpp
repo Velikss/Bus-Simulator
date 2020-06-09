@@ -3,8 +3,7 @@
 #include <pch.hpp>
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/texture/Texture.hpp>
-#include <util/Formatter.hpp>
-#include "TextureSampler.hpp"
+#include <vulkan/texture/TextureSampler.hpp>
 
 // Class for loading and managing textures
 class cTextureHandler
@@ -17,13 +16,17 @@ private:
     cTextureSampler* ppDefaultSampler;
     cTextureSampler* ppSkyboxSampler;
 
+    // Map with all loaded textures
+    // The key is the path to the texture
+    std::map<string, cTexture*> pmpTextures;
+
 public:
     cTextureHandler(cLogicalDevice* pLogicalDevice);
     ~cTextureHandler(void);
 
     // Load a texture from a file
-    cTexture* LoadTextureFromFile(const char* sFilePath, cTextureSampler* pSampler);
-    cTexture* LoadTextureFromFile(const char* sFilePath);
+    cTexture* LoadFromFile(const string& sFilePath, cTextureSampler* pSampler);
+    cTexture* LoadFromFile(const string& sFilePath);
 
     // Returns the texture sampler
     cTextureSampler* GetDefaultSampler();
@@ -49,40 +52,44 @@ cTextureHandler::cTextureHandler(cLogicalDevice* pLogicalDevice)
 
 cTextureHandler::~cTextureHandler(void)
 {
+    // Delete all the textures
+    for (auto&[sName, pTexture] : pmpTextures)
+    {
+        delete pTexture;
+    }
+
+    // Delete the texture samplers
     delete ppDefaultSampler;
     delete ppSkyboxSampler;
 }
 
-cTexture* cTextureHandler::LoadTextureFromFile(const char* sFilePath, cTextureSampler* pSampler)
+cTexture* cTextureHandler::LoadFromFile(const string& sFilePath, cTextureSampler* pSampler)
 {
-    // Load the pixel data and image size
-    int iTexWidth, iTexHeight;
-    stbi_uc* pcPixels = stbi_load(sFilePath, &iTexWidth, &iTexHeight, nullptr, STBI_rgb_alpha);
+    cTexture* pTexture;
 
-    // Make sure the texture was loaded correctly
-    if (pcPixels == nullptr)
+    // Try and find if this texture has already been loaded
+    auto tResult = pmpTextures.find(sFilePath);
+    if (tResult == pmpTextures.end())
     {
-        throw std::runtime_error(cFormatter() << "unable to load texture '" << sFilePath << "'");
+        // If not, create and load it
+        pTexture = new cTexture(ppLogicalDevice, sFilePath, pSampler);
+        pTexture->LoadIntoRAM();
+        pTexture->LoadIntoGPU();
+        pTexture->UnloadFromRAM();
+        pmpTextures[sFilePath] = pTexture;
+    }
+    else
+    {
+        // If it's already loaded, just grab the loaded texture
+        pTexture = tResult->second;
     }
 
-    // Check if the texture is valid
-    assert(iTexWidth > 0);
-    assert(iTexHeight > 0);
-
-    // Create a struct with information about the texture
-    tTextureInfo tTextureInfo = {};
-    tTextureInfo.uiWidth = iTexWidth;
-    tTextureInfo.uiHeight = iTexHeight;
-    tTextureInfo.uiSize = iTexWidth * iTexHeight * 4; // we're using RGBA so 4 byte per pixel //-V112
-    tTextureInfo.uiMipLevels = (uint) std::floor(std::log2(std::max(iTexWidth, iTexHeight))) + 1;
-
-    // Create the texture object and return it
-    return new cTexture(ppLogicalDevice, tTextureInfo, pcPixels, sFilePath, pSampler);
+    return pTexture;
 }
 
-cTexture* cTextureHandler::LoadTextureFromFile(const char* sFilePath)
+cTexture* cTextureHandler::LoadFromFile(const string& sFilePath)
 {
-    return LoadTextureFromFile(sFilePath, GetDefaultSampler());
+    return LoadFromFile(sFilePath, GetDefaultSampler());
 }
 
 cTextureSampler* cTextureHandler::GetDefaultSampler()

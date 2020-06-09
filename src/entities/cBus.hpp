@@ -42,6 +42,7 @@ public:
     float pfMinSteeringModifier = C_MIN_STEERING;
     int piPingTimeout = C_UNDEFINED;
     int piBusId = C_UNDEFINED;
+    bool pbDoorOpen = false;
 
     cState oState;
 
@@ -91,6 +92,9 @@ public:
 
     bool RemovePassenger(IPassenger *pPassenger) override;
 
+    void OpenDoors();
+
+    void CloseDoors();
 };
 
 void cBus::Move()
@@ -258,4 +262,17 @@ bool cBus::RemovePassenger(IPassenger *pPassenger)
 {
     poEntityGroup->RemoveEntity(pPassenger);
     return true;
+}
+
+void cBus::OpenDoors()
+{
+    if(pfCurrentSpeed == 0.0f)
+        pbDoorOpen = true;
+    else
+        pbDoorOpen = false;
+}
+
+void cBus::CloseDoors()
+{
+    pbDoorOpen = false;
 }
