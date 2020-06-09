@@ -203,7 +203,8 @@ void cBusWorldScene::LoadMissions()
     (*pGameLogicHandler)->pmpMissions["Mission1"]->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation5"]));
 
     (*pGameLogicHandler)->pmpMissions["Mission2"]->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation1"]));
-    (*pGameLogicHandler)->pmpMissions["Mission2"]->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation3"]));
+    (*pGameLogicHandler)->pmpMissions["Mission2"]->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation5"]));
+    (*pGameLogicHandler)->pmpMissions["Mission2"]->AddStop(dynamic_cast<cBusStop*>(pmpObjects["busStation4"]));
 }
 
 void cBusWorldScene::LoadBehaviours()
