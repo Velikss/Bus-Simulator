@@ -30,7 +30,10 @@ public:
     void AssignMultiplayerHandler(cMultiplayerHandler* pMultiplayerHandler);
     void ClearMultiplayerHandler();
 protected:
-    void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler) override;
+    void Load(cTextureHandler* pTextureHandler,
+              cGeometryHandler* pGeometryHandler,
+              cLogicalDevice* pLogicalDevice,
+              cAudioHandler* pAudioHandler) override;
     std::map<string, cTexture*> pmpBusTextures;
 private:
     cNetworkConnection::tNetworkInitializationSettings tConnectNetworkSettings;
@@ -51,7 +54,7 @@ public:
 
     void LoadTextures(cTextureHandler* pTextureHandler);
 
-    void LoadGeometries(cLogicalDevice* pLogicalDevice);
+    void LoadGeometries(cGeometryHandler* pGeometryHandler);
 
     void LoadMeshes();
 
@@ -73,13 +76,16 @@ public:
 
     cGameLogicHandler** pGameLogicHandler = nullptr;
 
-    void SetBusSkin(const string &sBusSkin);
+    void SetBusSkin(const string& sBusSkin);
 };
 
-void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler)
+void cBusWorldScene::Load(cTextureHandler* pTextureHandler,
+                          cGeometryHandler* pGeometryHandler,
+                          cLogicalDevice* pLogicalDevice,
+                          cAudioHandler* pAudioHandler)
 {
     LoadTextures(pTextureHandler);
-    LoadGeometries(pLogicalDevice);
+    LoadGeometries(pGeometryHandler);
     LoadMeshes();
     LoadObjects(pAudioHandler);
     LoadBehaviours();
@@ -87,7 +93,7 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLog
 
     cWindow::SetMouseLocked(true);
 
-    cScene::Load(pTextureHandler, pLogicalDevice, pAudioHandler);
+    cScene::Load(pTextureHandler, nullptr, pLogicalDevice, pAudioHandler);
 }
 
 void cBusWorldScene::Unload()
@@ -142,9 +148,9 @@ void cBusWorldScene::Update()
     if (!paKeys[GLFW_KEY_A] && !paKeys[GLFW_KEY_D])
         if (BusCentered) dynamic_cast<cBus*>(pmpObjects["bus"])->IdleSteering();
     if (paKeys[GLFW_KEY_A])
-        BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Steer(cDirection::Left) : poCamera->MoveLeft();
+        BusCentered ? dynamic_cast<cBus*>(pmpObjects["bus"])->Steer(cDirection::Left) : poCamera->MoveLeft();
     if (paKeys[GLFW_KEY_D])
-        BusCentered ? dynamic_cast<cBus *>(pmpObjects["bus"])->Steer(cDirection::Right) : poCamera->MoveRight();
+        BusCentered ? dynamic_cast<cBus*>(pmpObjects["bus"])->Steer(cDirection::Right) : poCamera->MoveRight();
     if (paKeys[GLFW_KEY_C])
     {
         BusCentered = false;
@@ -177,9 +183,10 @@ void cBusWorldScene::Update()
     dynamic_cast<cBus*>(pmpObjects["bus"])->Move();
 
     cScene::Update();
-    if(instanceof<cInGame>(ppOverlayProvider->GetActiveOverlayWindow()))
+    if (instanceof<cInGame>(ppOverlayProvider->GetActiveOverlayWindow()))
     {
-        ((cInGame*)ppOverlayProvider->GetActiveOverlayWindow())->UpdateSpeed(dynamic_cast<cBus*>(pmpObjects["bus"])->pfCurrentSpeed);
+        ((cInGame*) ppOverlayProvider->GetActiveOverlayWindow())->UpdateSpeed(
+                dynamic_cast<cBus*>(pmpObjects["bus"])->pfCurrentSpeed);
 
     }
     if (poMultiplayerHandler) poMultiplayerHandler->PushData();
@@ -189,15 +196,16 @@ void cBusWorldScene::HandleKey(uint uiKeyCode, uint uiAction)
 {
     cScene::HandleKey(uiKeyCode, uiAction);
     // Horn
-    if(uiAction == GLFW_PRESS && uiKeyCode == GLFW_KEY_E)
+    if (uiAction == GLFW_PRESS && uiKeyCode == GLFW_KEY_E)
     {
-        ppAudioHandler->PlaySound("resources/audio/horn1.wav", dynamic_cast<cBus *>(pmpObjects["bus"])->GetPosition(), 1.0f);
+        ppAudioHandler->PlaySound("resources/audio/horn1.wav", dynamic_cast<cBus*>(pmpObjects["bus"])->GetPosition(),
+                                  1.0f);
     }
     // Bus door
-    if(uiAction == GLFW_PRESS && uiKeyCode == GLFW_KEY_O)
+    if (uiAction == GLFW_PRESS && uiKeyCode == GLFW_KEY_O)
     {
         cBus* bus = dynamic_cast<cBus*>(pmpObjects["bus"]);
-        if(!bus->pbDoorOpen)
+        if (!bus->pbDoorOpen)
             bus->OpenDoors();
         else
             bus->CloseDoors();
@@ -269,9 +277,9 @@ void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
     pmpTextures["busStop"] = pTextureHandler->LoadFromFile("resources/textures/streetUtil/busStop.png");
     // buses
     std::string path = "resources/textures/buses";
-    for (const auto & entry : std::filesystem::directory_iterator(path))
+    for (const auto& entry : std::filesystem::directory_iterator(path))
     {
-        if(!entry.is_directory())
+        if (!entry.is_directory())
         {
 #if defined(LINUX)
             std::vector<std::string> soPathSplit = split(split(entry.path(), ".")[0], "/");
@@ -287,53 +295,51 @@ void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
     pmpTextures["passenger"] = pTextureHandler->LoadFromFile("resources/textures/penguin.png");
 }
 
-void cBusWorldScene::LoadGeometries(cLogicalDevice* pLogicalDevice)
+void cBusWorldScene::LoadGeometries(cGeometryHandler* pGeometryHandler)
 {
     // skybox
-    pmpGeometries["skybox"] = cGeometry::FromOBJFile("resources/geometries/skybox.obj", pLogicalDevice);
+    pmpGeometries["skybox"] = pGeometryHandler->LoadFromFile("resources/geometries/skybox.obj");
     // streets
-    pmpGeometries["road30-10"] = cGeometry::FromOBJFile("resources/geometries/streets/Road30-10.obj", pLogicalDevice);
-    pmpGeometries["cornerRoad"] = cGeometry::FromOBJFile("resources/geometries/streets/CornerRoad.obj", pLogicalDevice);
-    pmpGeometries["twoWayCrossing"] = cGeometry::FromOBJFile("resources/geometries/streets/TwoWayCrossing.obj",
-                                                             pLogicalDevice);
-    pmpGeometries["threeWayCrossing"] = cGeometry::FromOBJFile("resources/geometries/streets/ThreeWayCrossing.obj",
-                                                               pLogicalDevice);
-    pmpGeometries["fourWayCrossing"] = cGeometry::FromOBJFile("resources/geometries/streets/FourWayCrossing.obj",
-                                                              pLogicalDevice);
+    pmpGeometries["road30-10"] = pGeometryHandler->LoadFromFile("resources/geometries/streets/Road30-10.obj");
+    pmpGeometries["cornerRoad"] = pGeometryHandler->LoadFromFile("resources/geometries/streets/CornerRoad.obj");
+    pmpGeometries["twoWayCrossing"] = pGeometryHandler->LoadFromFile("resources/geometries/streets/TwoWayCrossing.obj");
+    pmpGeometries["threeWayCrossing"] = pGeometryHandler->LoadFromFile(
+            "resources/geometries/streets/ThreeWayCrossing.obj");
+    pmpGeometries["fourWayCrossing"] = pGeometryHandler->LoadFromFile(
+            "resources/geometries/streets/FourWayCrossing.obj");
     // walkways
-    pmpGeometries["walkways36-3WithCorners"] = cGeometry::FromOBJFile(
-            "resources/geometries/walkways/Walkway36-3WithCorners.obj", pLogicalDevice, 10, 10);
-    pmpGeometries["walkways30-3"] = cGeometry::FromOBJFile("resources/geometries/walkways/Walkway30-3.obj",
-                                                           pLogicalDevice, 10, 10);
-    pmpGeometries["walkways10-3"] = cGeometry::FromOBJFile("resources/geometries/walkways/Walkway10-3.obj",
-                                                           pLogicalDevice, 10, 10);
+    pmpGeometries["walkways36-3WithCorners"] = pGeometryHandler->LoadFromFile(
+            "resources/geometries/walkways/Walkway36-3WithCorners.obj", {10, 10});
+    pmpGeometries["walkways30-3"] = pGeometryHandler->LoadFromFile("resources/geometries/walkways/Walkway30-3.obj",
+                                                                   {10, 10});
+    pmpGeometries["walkways10-3"] = pGeometryHandler->LoadFromFile("resources/geometries/walkways/Walkway10-3.obj",
+                                                                   {10, 10});
     // streetUtil
-    pmpGeometries["busStation"] = cGeometry::FromOBJFile("resources/geometries/streetUtil/busStop.obj", pLogicalDevice);
-    pmpGeometries["trafficLight"] = cGeometry::FromOBJFile("resources/geometries/streetUtil/trafficLight.obj",
-                                                           pLogicalDevice);
+    pmpGeometries["busStation"] = pGeometryHandler->LoadFromFile("resources/geometries/streetUtil/busStop.obj");
+    pmpGeometries["trafficLight"] = pGeometryHandler->LoadFromFile("resources/geometries/streetUtil/trafficLight.obj");
     // streetDeco
 
     // buses
-    pmpGeometries["bus"] = cGeometry::FromOBJFile("resources/geometries/busses/SchoolBus.obj", pLogicalDevice);
+    pmpGeometries["bus"] = pGeometryHandler->LoadFromFile("resources/geometries/busses/SchoolBus.obj");
     // buildings
-    pmpGeometries["building"] = cGeometry::FromOBJFile("resources/geometries/buildingTest.obj", pLogicalDevice, 8, 8);
-    pmpGeometries["needleBuilding"] = cGeometry::FromOBJFile("resources/geometries/buildings/needleBuilding.obj",
-                                                             pLogicalDevice, 8, 8);
-    pmpGeometries["blockBuilding2"] = cGeometry::FromOBJFile("resources/geometries/buildings/blockBuilding2.obj",
-                                                             pLogicalDevice, 8, 8);
-    pmpGeometries["blockBuilding3"] = cGeometry::FromOBJFile("resources/geometries/buildings/blockBuilding3.obj",
-                                                             pLogicalDevice, 5, 5);
-    pmpGeometries["blockBuilding4"] = cGeometry::FromOBJFile("resources/geometries/buildings/blockBuilding4.obj",
-                                                             pLogicalDevice, 8, 8);
-    pmpGeometries["longSideBuilding1"] = cGeometry::FromOBJFile("resources/geometries/buildings/longSideBuilding1.obj",
-                                                             pLogicalDevice, 9, 9);
-    pmpGeometries["longSideBuilding2"] = cGeometry::FromOBJFile("resources/geometries/buildings/longSideBuilding2.obj",
-                                                                pLogicalDevice, 8, 8);
+    pmpGeometries["building"] = pGeometryHandler->LoadFromFile("resources/geometries/buildingTest.obj", {8, 8});
+    pmpGeometries["needleBuilding"] = pGeometryHandler->LoadFromFile(
+            "resources/geometries/buildings/needleBuilding.obj", {8, 8});
+    pmpGeometries["blockBuilding2"] = pGeometryHandler->LoadFromFile(
+            "resources/geometries/buildings/blockBuilding2.obj", {8, 8});
+    pmpGeometries["blockBuilding3"] = pGeometryHandler->LoadFromFile(
+            "resources/geometries/buildings/blockBuilding3.obj", {5, 5});
+    pmpGeometries["blockBuilding4"] = pGeometryHandler->LoadFromFile(
+            "resources/geometries/buildings/blockBuilding4.obj", {8, 8});
+    pmpGeometries["longSideBuilding1"] = pGeometryHandler->LoadFromFile(
+            "resources/geometries/buildings/longSideBuilding1.obj", {9, 9});
+    pmpGeometries["longSideBuilding2"] = pGeometryHandler->LoadFromFile(
+            "resources/geometries/buildings/longSideBuilding2.obj", {8, 8});
 
     // grass
-    pmpGeometries["grassField1"] = cGeometry::FromOBJFile("resources/geometries/grassField1.obj", pLogicalDevice, 8, 8);
+    pmpGeometries["grassField1"] = pGeometryHandler->LoadFromFile("resources/geometries/grassField1.obj", {8, 8});
     // penguin
-    pmpGeometries["passenger"] = cGeometry::FromOBJFile("resources/geometries/penguin.obj", pLogicalDevice);
+    pmpGeometries["passenger"] = pGeometryHandler->LoadFromFile("resources/geometries/penguin.obj");
 }
 
 void cBusWorldScene::LoadMeshes()
@@ -373,7 +379,7 @@ void cBusWorldScene::LoadMeshes()
     pmpMeshes["passenger"] = new cMesh(pmpGeometries["passenger"], pmpTextures["passenger"]);
 }
 
-void cBusWorldScene::LoadObjects(cAudioHandler *pAudioHandler)
+void cBusWorldScene::LoadObjects(cAudioHandler* pAudioHandler)
 {
     // skybox
     pmpObjects["skybox"] = new cBaseObject(pmpMeshes["skybox"]);
@@ -810,7 +816,8 @@ void cBusWorldScene::LoadObjects(cAudioHandler *pAudioHandler)
     pmpObjects["trafficLight3"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4f));
     pmpObjects["trafficLight3"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
     pmpObjects["trafficLight3"]->SetPosition(glm::vec3(46.0f, 0.15f, -12.0f));
-    ppTrafficController->AddGroup({pmpObjects["trafficLight1"], pmpObjects["trafficLight2"], pmpObjects["trafficLight3"]});
+    ppTrafficController->AddGroup(
+            {pmpObjects["trafficLight1"], pmpObjects["trafficLight2"], pmpObjects["trafficLight3"]});
 
     pmpObjects["trafficLight4"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4f));
     pmpObjects["trafficLight4"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
@@ -822,7 +829,8 @@ void cBusWorldScene::LoadObjects(cAudioHandler *pAudioHandler)
 
     pmpObjects["trafficLight6"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4f));
     pmpObjects["trafficLight6"]->SetPosition(glm::vec3(-16.0f, 0.15f, 2.0f));
-    ppTrafficController->AddGroup({pmpObjects["trafficLight4"], pmpObjects["trafficLight5"], pmpObjects["trafficLight6"]});
+    ppTrafficController->AddGroup(
+            {pmpObjects["trafficLight4"], pmpObjects["trafficLight5"], pmpObjects["trafficLight6"]});
 
     pmpObjects["trafficLight7"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4f));
     pmpObjects["trafficLight7"]->SetRotation(glm::vec3(0.0f, 270.0f, 0.0f));
@@ -835,7 +843,8 @@ void cBusWorldScene::LoadObjects(cAudioHandler *pAudioHandler)
     pmpObjects["trafficLight9"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4f));
     pmpObjects["trafficLight9"]->SetRotation(glm::vec3(0.0f, 90.0f, 0.0f));
     pmpObjects["trafficLight9"]->SetPosition(glm::vec3(-3.0f, 0.15f, -49.0f));
-    ppTrafficController->AddGroup({pmpObjects["trafficLight7"], pmpObjects["trafficLight8"], pmpObjects["trafficLight9"]});
+    ppTrafficController->AddGroup(
+            {pmpObjects["trafficLight7"], pmpObjects["trafficLight8"], pmpObjects["trafficLight9"]});
 
     pmpObjects["trafficLight10"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4f));
     pmpObjects["trafficLight10"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
@@ -847,7 +856,8 @@ void cBusWorldScene::LoadObjects(cAudioHandler *pAudioHandler)
 
     pmpObjects["trafficLight12"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4f));
     pmpObjects["trafficLight12"]->SetPosition(glm::vec3(34.0f, 0.15f, -48.0f));
-    ppTrafficController->AddGroup({pmpObjects["trafficLight10"], pmpObjects["trafficLight11"], pmpObjects["trafficLight12"]});
+    ppTrafficController->AddGroup(
+            {pmpObjects["trafficLight10"], pmpObjects["trafficLight11"], pmpObjects["trafficLight12"]});
 
     pmpObjects["trafficLight13"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4f));
     pmpObjects["trafficLight13"]->SetPosition(glm::vec3(84.0f, 0.15f, -48.0f));
@@ -859,7 +869,8 @@ void cBusWorldScene::LoadObjects(cAudioHandler *pAudioHandler)
     pmpObjects["trafficLight15"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4f));
     pmpObjects["trafficLight15"]->SetRotation(glm::vec3(0.0f, 90.0f, 0.0f));
     pmpObjects["trafficLight15"]->SetPosition(glm::vec3(97.0f, 0.15f, -49.0f));
-    ppTrafficController->AddGroup({pmpObjects["trafficLight13"], pmpObjects["trafficLight14"], pmpObjects["trafficLight15"]});
+    ppTrafficController->AddGroup(
+            {pmpObjects["trafficLight13"], pmpObjects["trafficLight14"], pmpObjects["trafficLight15"]});
 
     pmpObjects["trafficLight16"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4f));
     pmpObjects["trafficLight16"]->SetPosition(glm::vec3(-16.0f, 0.15f, -148.0f));
@@ -871,7 +882,8 @@ void cBusWorldScene::LoadObjects(cAudioHandler *pAudioHandler)
     pmpObjects["trafficLight18"] = new cBaseObject(pmpMeshes["trafficLight"], cCollider::UnitCollider(0.4f));
     pmpObjects["trafficLight18"]->SetRotation(glm::vec3(0.0f, 90.0f, 0.0f));
     pmpObjects["trafficLight18"]->SetPosition(glm::vec3(-3.0f, 0.15f, -149.0f));
-    ppTrafficController->AddGroup({pmpObjects["trafficLight16"], pmpObjects["trafficLight17"], pmpObjects["trafficLight18"]});
+    ppTrafficController->AddGroup(
+            {pmpObjects["trafficLight16"], pmpObjects["trafficLight17"], pmpObjects["trafficLight18"]});
 
     // Buildings
     pmpObjects["building1"] = new cBaseObject(pmpMeshes["building"], cCollider::UnitCollider(34));
@@ -895,17 +907,21 @@ void cBusWorldScene::LoadObjects(cAudioHandler *pAudioHandler)
     pmpObjects["blockBuilding4_1"] = new cBaseObject(pmpMeshes["blockBuilding4"], cCollider::RectangleCollider(16, 84));
     pmpObjects["blockBuilding4_1"]->SetPosition(glm::vec3(32.0f, 0.0f, -63.0f));
 
-    pmpObjects["longSideBuilding1_1"] = new cBaseObject(pmpMeshes["longSideBuilding1"], cCollider::RectangleCollider(240, 33));
+    pmpObjects["longSideBuilding1_1"] = new cBaseObject(pmpMeshes["longSideBuilding1"],
+                                                        cCollider::RectangleCollider(240, 33));
     pmpObjects["longSideBuilding1_1"]->SetPosition(glm::vec3(-155.0f, 0.0f, 36.0f));
 
-    pmpObjects["longSideBuilding1_2"] = new cBaseObject(pmpMeshes["longSideBuilding1"], cCollider::RectangleCollider(240, 33));
+    pmpObjects["longSideBuilding1_2"] = new cBaseObject(pmpMeshes["longSideBuilding1"],
+                                                        cCollider::RectangleCollider(240, 33));
     pmpObjects["longSideBuilding1_2"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
     pmpObjects["longSideBuilding1_2"]->SetPosition(glm::vec3(85.0f, 0.0f, -196.0f));
 
-    pmpObjects["longSideBuilding2_1"] = new cBaseObject(pmpMeshes["longSideBuilding2"], cCollider::RectangleCollider(34, 170));
+    pmpObjects["longSideBuilding2_1"] = new cBaseObject(pmpMeshes["longSideBuilding2"],
+                                                        cCollider::RectangleCollider(34, 170));
     pmpObjects["longSideBuilding2_1"]->SetPosition(glm::vec3(-202.0f, 0.0f, 5.0f));
 
-    pmpObjects["longSideBuilding2_2"] = new cBaseObject(pmpMeshes["longSideBuilding2"], cCollider::RectangleCollider(34, 170));
+    pmpObjects["longSideBuilding2_2"] = new cBaseObject(pmpMeshes["longSideBuilding2"],
+                                                        cCollider::RectangleCollider(34, 170));
     pmpObjects["longSideBuilding2_2"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
     pmpObjects["longSideBuilding2_2"]->SetPosition(glm::vec3(132.0f, 0.0f, -165.0f));
 
@@ -974,7 +990,7 @@ void cBusWorldScene::ClearMultiplayerHandler()
 void cBusWorldScene::AfterLoad()
 {
     cScene::AfterLoad();
-    if(poMultiplayerHandler) poMultiplayerHandler->AssignScene(this);
+    if (poMultiplayerHandler) poMultiplayerHandler->AssignScene(this);
     ppOverlayProvider->ActivateOverlayWindow("InGame");
 }
 

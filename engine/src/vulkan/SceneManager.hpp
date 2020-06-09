@@ -12,10 +12,14 @@ private:
 
     cLogicalDevice* ppLogicalDevice = nullptr;
     cTextureHandler* ppTextureHandler = nullptr;
+    cGeometryHandler* ppGeometryHandler = nullptr;
     cAudioHandler* ppAudioHandler = nullptr;
 
 public:
-    cSceneManager(cLogicalDevice* ppLogicalDevice, cTextureHandler* ppTextureHandler, cAudioHandler* ppAudioHandler);
+    cSceneManager(cLogicalDevice* ppLogicalDevice,
+                  cTextureHandler* ppTextureHandler,
+                  cGeometryHandler* pGeometryHandler,
+                  cAudioHandler* ppAudioHandler);
     void SwitchScene(const string& sName);
 
     std::map<string, cScene*>& GetScenes();
@@ -25,14 +29,17 @@ public:
 
 cSceneManager::cSceneManager(cLogicalDevice* pLogicalDevice,
                              cTextureHandler* pTextureHandler,
+                             cGeometryHandler* pGeometryHandler,
                              cAudioHandler* pAudioHandler)
 {
     assert(pLogicalDevice != nullptr);
     assert(pTextureHandler != nullptr);
+    assert(pGeometryHandler != nullptr);
     assert(pAudioHandler != nullptr);
 
     ppLogicalDevice = pLogicalDevice;
     ppTextureHandler = pTextureHandler;
+    ppGeometryHandler = pGeometryHandler;
     ppAudioHandler = pAudioHandler;
 }
 
@@ -57,7 +64,7 @@ void cSceneManager::SwitchScene(const string& sName)
 
     ENGINE_LOG("Loading new scene...");
     ppActiveScene = tResult->second;
-    ppActiveScene->Load(ppTextureHandler, ppLogicalDevice, ppAudioHandler);
+    ppActiveScene->Load(ppTextureHandler, ppGeometryHandler, ppLogicalDevice, ppAudioHandler);
 }
 
 std::map<string, cScene*>& cSceneManager::GetScenes()

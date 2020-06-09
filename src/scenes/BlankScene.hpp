@@ -15,9 +15,10 @@ public:
     }
 
 protected:
-    void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler) override
+    void Load(cTextureHandler* pTextureHandler, cGeometryHandler* pGeometryHandler, cLogicalDevice* pLogicalDevice,
+              cAudioHandler* pAudioHandler) override
     {
-        cScene::Load(pTextureHandler, pLogicalDevice, pAudioHandler);
+        cScene::Load(pTextureHandler, nullptr, pLogicalDevice, pAudioHandler);
     }
 
     void AfterLoad() override

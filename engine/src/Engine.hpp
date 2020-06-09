@@ -37,6 +37,7 @@
 #include <vulkan/SceneManager.hpp>
 #include <vulkan/util/Settings.hpp>
 #include <vulkan/util/Profiler.hpp>
+#include <vulkan/geometry/GeometryHandler.hpp>
 
 class cEngine : public iGameManager, public iInputHandler, public iCommandBufferHolder
 {
@@ -54,6 +55,7 @@ private:
     cSwapChain* ppSwapChain = nullptr;
     // Texture handler for loading and managing textures
     cTextureHandler* ppTextureHandler = nullptr;
+    cGeometryHandler* ppGeometryHandler = nullptr;
 
     // Render handler for handling frame drawing logic
     cRenderHandler* ppRenderHandler = nullptr;
@@ -256,6 +258,8 @@ void cEngine::InitVulkan(void)
     // Create the texture handler. This deals with loading, binding and sampling the textures
     ppTextureHandler = new cTextureHandler(ppLogicalDevice);
 
+    ppGeometryHandler = new cGeometryHandler(ppLogicalDevice);
+
     ENGINE_LOG("Preparing for rendering...");
 
     // Record a clear screen to the graphics command buffer
@@ -268,7 +272,7 @@ void cEngine::InitVulkan(void)
 void cEngine::InitEngine(void)
 {
     // Create the scene manager
-    ppSceneManager = new cSceneManager(ppLogicalDevice, ppTextureHandler, ppAudioHandler);
+    ppSceneManager = new cSceneManager(ppLogicalDevice, ppTextureHandler, ppGeometryHandler, ppAudioHandler);
 
     cSettings::Init();
 
@@ -489,6 +493,7 @@ void cEngine::Cleanup(void)
     delete ppRenderHandler;
     delete ppOverlayRenderModule;
     delete ppTextureHandler;
+    delete ppGeometryHandler;
     for (auto oBuffer : papCommandBuffers)
     {
         delete oBuffer;
