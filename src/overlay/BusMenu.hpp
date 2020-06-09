@@ -77,18 +77,16 @@ void cBusMenu::ConstructElements()
     oBusLabel->RemoveY(400);
     pmpOverlay.push_back({"oBusLabel", oBusLabel});
 
-    cButton* oLeftBus = new cButton({50, 75}, 0, pmpTextures["buttonTexture"], cOverlayRenderModule::FONT, 12,
+    cButton* oLeftBus = new cButton({75, 75}, 0, pmpTextures["button-left"], cOverlayRenderModule::FONT, 12,
                                     glm::vec3(0, 0, 0));
-    oLeftBus->SetLabel("<");
     oLeftBus->Center();
     oLeftBus->RemoveX(550);
     pmpOverlay.push_back({"oLeftBus", oLeftBus});
     std::function<void(cButton*)> OnPreviousBus = std::bind(&cBusMenu::PreviousBus, this, std::placeholders::_1);
     oLeftBus->ppaCallbacks.push_back(OnPreviousBus);
 
-    cButton* oRightBus = new cButton({50, 75}, 0, pmpTextures["buttonTexture"], cOverlayRenderModule::FONT, 12,
+    cButton* oRightBus = new cButton({75, 75}, 0, pmpTextures["button-right"], cOverlayRenderModule::FONT, 12,
                                      glm::vec3(0, 0, 0));
-    oRightBus->SetLabel(">");
     oRightBus->Center();
     oRightBus->AddX(550);
     pmpOverlay.push_back({"oRightBus", oRightBus});
