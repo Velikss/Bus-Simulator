@@ -68,9 +68,6 @@ public:
 
     bool BusCentered = false;
 
-    cEntityGroup entityGroup;
-    cEntityGroup entityGroup2;
-
     BusCamera* pBusCamera = new BusCamera;
     FirstPersonFlyCamera* pFirstPersonFlyCamera = new FirstPersonFlyCamera;
 
@@ -106,9 +103,6 @@ void cBusWorldScene::Unload()
     if (poMultiplayerHandler) delete poMultiplayerHandler;
     delete pGameLogicHandler;
 
-    entityGroup.ClearEntities();
-    entityGroup2.ClearEntities();
-
     cScene::Unload();
 }
 
@@ -125,20 +119,6 @@ void cBusWorldScene::Update()
         oPos -= (direction * C_ACTIVATION_FRONT_BUS);
         ppTrafficController->Update(oPos);
     }
-    entityGroup.UpdateEntities();
-
-    if (paKeys[GLFW_KEY_Q])
-        dynamic_cast<cEntity*>(pmpObjects["entity3"])->SetTarget( //-V522
-                dynamic_cast<cBus*>(pmpObjects["bus"])->GetDoorPosition()); //-V522
-    if (paKeys[GLFW_KEY_E])
-    {
-        for (auto& entity : *entityGroup.GetEntities())
-        {
-            dynamic_cast<cEntity*>(entity)->SetTarget(dynamic_cast<cBus*>(pmpObjects["bus"])->GetDoorPosition());
-        }
-    }
-    if (paKeys[GLFW_KEY_T])
-        dynamic_cast<cEntity*>(pmpObjects["entity"])->SetPosition(glm::vec3(5, 5, 5)); //-V522
     if (paKeys[GLFW_KEY_W])
         BusCentered ? dynamic_cast<cBus*>(pmpObjects["bus"])->Accelerate() : poCamera->Forward();
     if (paKeys[GLFW_KEY_S])
@@ -253,16 +233,6 @@ void cBusWorldScene::LoadBehaviours()
     pcbSeperation = new cBehaviourHandler("seperation");
     pcbCohesion = new cBehaviourHandler("cohesion");
     pcbSeeking = new cBehaviourHandler("seeking");
-
-    entityGroup.AddEntity(dynamic_cast<cEntity*>(pmpObjects["entity"]));
-    entityGroup.AddEntity(dynamic_cast<cEntity*>(pmpObjects["entity2"]));
-    entityGroup.AddEntity(dynamic_cast<cEntity*>(pmpObjects["entity3"]));
-    entityGroup.AddEntity(dynamic_cast<cEntity*>(pmpObjects["entity4"]));
-
-    entityGroup2 = entityGroup;
-    entityGroup.AddBehaviour(pcbSeperation);
-//    entityGroup.AddBehaviour(cbCohesion);
-    entityGroup.AddBehaviour(pcbSeeking);
 }
 
 void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
@@ -962,18 +932,6 @@ void cBusWorldScene::LoadObjects(cAudioHandler* pAudioHandler)
     pmpObjects["bus"]->SetScale(glm::vec3(0.8, 0.8, 0.8));
 
     // Entities
-    pmpObjects["entity"] = new IPassenger(pmpMeshes["passenger"]);
-    pmpObjects["entity"]->SetPosition(glm::vec3(10.0f, 0.15f, -11.0f));
-
-    pmpObjects["entity2"] = new IPassenger(pmpMeshes["passenger"]);
-    pmpObjects["entity2"]->SetPosition(glm::vec3(11.0f, 0.15f, -10.5f));
-
-    pmpObjects["entity3"] = new IPassenger(pmpMeshes["passenger"]);
-    pmpObjects["entity3"]->SetPosition(glm::vec3(14.0f, 0.15f, -11.0f));
-
-    pmpObjects["entity4"] = new IPassenger(pmpMeshes["passenger"]);
-    pmpObjects["entity4"]->SetPosition(glm::vec3(13.0f, 0.15f, -10.5f));
-
     for (uint i = 0; i < 11; i++)
     {
         string key = "passenger" + std::to_string(i);

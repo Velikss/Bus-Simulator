@@ -33,8 +33,8 @@ protected:
                                      cOverlayRenderModule::FONT, 5,
                                      glm::vec3(0, 0, 0));
         oExit->CenterHorizontal();
-        oExit->AddX(750);
-        oExit->AddY(110);
+        oExit->AddX(740);
+        oExit->AddY(120);
         oExit->ppaCallbacks.push_back([&] (cButton* poSender) -> void {
             ppGameManager->DeactivateOverlayWindow();
         });
