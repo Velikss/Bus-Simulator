@@ -16,6 +16,7 @@ public:
     {}
 
     void UpdateSpeed(float fSpeed);
+    void SetNextStopName(string sNextStop);
 protected:
     void LoadTextures(cTextureHandler* pTextureHandler) override
     {
@@ -108,6 +109,12 @@ void cInGame::ShowMission()
     GetElement("NextStopName")->Show();
     GetElement("NextStop")->Show();
     GetElement("MissionOverlay")->Show();
+}
+
+void cInGame::SetNextStopName(string sNextStop)
+{
+    dynamic_cast<cTextElement*>(GetElement("NextStopName"))->UpdateText(sNextStop);
+    dynamic_cast<cTextElement*>(GetElement("NextStopName"))->CenterHorizontal();
 }
 
 void cInGame::UpdateSpeed(float fSpeed)

@@ -44,6 +44,7 @@ void cSettingsMenu::LoadTextures(cTextureHandler* pTextureHandler)
     cBaseMenu::LoadTextures(pTextureHandler);
 
     pmpTextures["foreground"] = pTextureHandler->LoadFromFile("resources/textures/grey.jpg");
+    pmpTextures["unchecked"] = pTextureHandler->LoadFromFile("resources/textures/unchecked.png");
     pmpTextures["checked"] = pTextureHandler->LoadFromFile("resources/textures/checked.png");
 }
 
@@ -110,7 +111,7 @@ void cSettingsMenu::ConstructElements()
     pLightModeLabel->AddY(-200);
 
     ppFullscreen = new cCheckBox({75, 75},
-                                 pmpTextures["buttonTexture"],
+                                 pmpTextures["unchecked"],
                                  pmpTextures["checked"]);
     ppFullscreen->Center();
     ppFullscreen->AddX(-580);
@@ -142,20 +143,20 @@ void cSettingsMenu::ConstructElements()
     pAntiAliasingLabel->AddY(15);
 
     ppApplyButton = new cButton({400, 75}, 0,
-                                pmpTextures["buttonTexture"], tNormalFont);
+                                pmpTextures["buttonTexture-wide"], tNormalFont);
     ppApplyButton->SetLabel("Apply");
     ppApplyButton->ppaCallbacks.push_back(fHandleAction);
     ppApplyButton->Center();
     ppApplyButton->AddY(400);
-    ppApplyButton->AddX(-600);
+    ppApplyButton->AddX(-500);
 
     ppQuitButton = new cButton({400, 75}, 0,
-                               pmpTextures["buttonTexture"], tNormalFont);
+                               pmpTextures["buttonTexture-wide"], tNormalFont);
     ppQuitButton->SetLabel("Exit Game");
     ppQuitButton->ppaCallbacks.push_back(fHandleAction);
     ppQuitButton->Center();
     ppQuitButton->AddY(400);
-    ppQuitButton->AddX(600);
+    ppQuitButton->AddX(500);
 
     pmpOverlay.push_back({"resolution", ppResolution});
     pmpOverlay.push_back({"resolution_label", pResolutionLabel});

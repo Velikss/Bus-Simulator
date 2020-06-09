@@ -16,6 +16,10 @@ protected:
     virtual void LoadTextures(cTextureHandler* pTextureHandler) override
     {
         pmpTextures["buttonTexture"] = pTextureHandler->LoadFromFile("resources/textures/button.png");
+        pmpTextures["buttonTexture-wide"] = pTextureHandler->LoadFromFile("resources/textures/button-wide.png");
+        pmpTextures["button-exit"] = pTextureHandler->LoadFromFile("resources/textures/button-exit.png");
+        pmpTextures["button-left"] = pTextureHandler->LoadFromFile("resources/textures/button-left.png");
+        pmpTextures["button-right"] = pTextureHandler->LoadFromFile("resources/textures/button-right.png");
         pmpTextures["background"] = pTextureHandler->LoadFromFile("resources/textures/background.png");
     }
 
@@ -25,13 +29,12 @@ protected:
         oPanel->Center();
         pmpOverlay.push_back({"Background", oPanel});
 
-        cButton* oExit = new cButton({40, 40}, 0, pmpTextures["buttonTexture"],
+        cButton* oExit = new cButton({40, 40}, 0, pmpTextures["button-exit"],
                                      cOverlayRenderModule::FONT, 5,
                                      glm::vec3(0, 0, 0));
-        oExit->SetLabel("X");
         oExit->CenterHorizontal();
-        oExit->AddX(780);
-        oExit->AddY(100);
+        oExit->AddX(750);
+        oExit->AddY(110);
         oExit->ppaCallbacks.push_back([&] (cButton* poSender) -> void {
             ppGameManager->DeactivateOverlayWindow();
         });

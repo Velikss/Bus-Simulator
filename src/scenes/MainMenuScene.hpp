@@ -83,6 +83,7 @@ void cMainMenuScene::LoadTextures(cTextureHandler* pTextureHandler)
     pmpTextures["busStop"] = pTextureHandler->LoadFromFile("resources/textures/streetUtil/busStop.png");
     // buses
     pmpTextures["bus-yellow"] = pTextureHandler->LoadFromFile("resources/textures/buses/bus-yellow.png");
+    pTextureHandler->WaitForLoadComplete();
 }
 
 void cMainMenuScene::LoadGeometries(cGeometryHandler* pGeometryHandler)
@@ -182,7 +183,7 @@ void cMainMenuScene::LoadObjects(cAudioHandler* pAudioHandler)
 
 
     // Bus stations
-    pmpObjects["busStation1"] = new cBusStop(pmpMeshes["busStation"]);
+    pmpObjects["busStation1"] = new cBusStop(pmpMeshes["busStation"], "busStation");
     pmpObjects["busStation1"]->SetPosition(glm::vec3(8.603f, 0.15f, -11.0f));
 
     // Traffic lights

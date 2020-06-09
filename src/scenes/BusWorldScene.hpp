@@ -223,8 +223,6 @@ void cBusWorldScene::HandleKey(uint uiKeyCode, uint uiAction)
             bus->OpenDoors();
         else
             bus->CloseDoors();
-
-        std::cout << bus->pbDoorOpen << std::endl;
     }
 }
 
@@ -272,8 +270,7 @@ void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
     pmpTextures["roof"] = pTextureHandler->LoadFromFile("resources/textures/roof.jpg");
     pmpTextures["stoneHouse"] = pTextureHandler->LoadFromFile("resources/textures/stone.jpg");
     pmpTextures["grass"] = pTextureHandler->LoadFromFile("resources/textures/grass.jpg");
-    pmpTextures["skybox"] = pTextureHandler->LoadFromFile("resources/textures/skybox.jpg",
-                                                          pTextureHandler->GetSkyboxSampler());
+    pmpTextures["skybox"] = pTextureHandler->LoadFromFile("resources/textures/skybox.jpg");
     // buildings
     pmpTextures["building"] = pTextureHandler->LoadFromFile("resources/textures/buildings/building.jpg");
     pmpTextures["building2"] = pTextureHandler->LoadFromFile("resources/textures/buildings/building2.jpg");
@@ -307,6 +304,8 @@ void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
 
     // passengers
     pmpTextures["passenger"] = pTextureHandler->LoadFromFile("resources/textures/penguin.png");
+
+    pTextureHandler->WaitForLoadComplete();
 }
 
 void cBusWorldScene::LoadGeometries(cGeometryHandler* pGeometryHandler)
@@ -801,20 +800,20 @@ void cBusWorldScene::LoadObjects(cAudioHandler* pAudioHandler)
     pmpObjects["walkways10-3_30"]->SetPosition(glm::vec3(85.0f, 0.0f, -160.0f));
 
     // Bus stations
-    pmpObjects["busStation1"] = new cBusStop(pmpMeshes["busStation"]);
+    pmpObjects["busStation1"] = new cBusStop(pmpMeshes["busStation"], "busStation1");
     pmpObjects["busStation1"]->SetPosition(glm::vec3(8.603f, 0.15f, -11.0f));
 
-    pmpObjects["busStation2"] = new cBusStop(pmpMeshes["busStation"]);
+    pmpObjects["busStation2"] = new cBusStop(pmpMeshes["busStation"], "busStation2");
     pmpObjects["busStation2"]->SetPosition(glm::vec3(-140.0f, 0.15f, -11.0f));
 
-    pmpObjects["busStation3"] = new cBusStop(pmpMeshes["busStation"]);
+    pmpObjects["busStation3"] = new cBusStop(pmpMeshes["busStation"], "busStation3");
     pmpObjects["busStation3"]->SetPosition(glm::vec3(-16.0f, 0.15f, -97.0f));
     pmpObjects["busStation3"]->SetRotation(glm::vec3(0.0f, 90.0f, 0.0f));
 
-    pmpObjects["busStation4"] = new cBusStop(pmpMeshes["busStation"]);
+    pmpObjects["busStation4"] = new cBusStop(pmpMeshes["busStation"], "busStation4");
     pmpObjects["busStation4"]->SetPosition(glm::vec3(66.0f, 0.15f, -61.0f));
 
-    pmpObjects["busStation5"] = new cBusStop(pmpMeshes["busStation"]);
+    pmpObjects["busStation5"] = new cBusStop(pmpMeshes["busStation"], "busStation5");
     pmpObjects["busStation5"]->SetPosition(glm::vec3(40.0f, 0.15f, -149.0f));
     pmpObjects["busStation5"]->SetRotation(glm::vec3(0.0f, 180.0f, 0.0f));
 

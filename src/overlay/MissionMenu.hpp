@@ -85,18 +85,16 @@ void cMissionMenu::ConstructElements()
     pmpOverlay.push_back({"oMissionLabel", oBusLabel});
 
 
-    cButton* oLeftMission = new cButton({50, 75}, 0, pmpTextures["buttonTexture"], cOverlayRenderModule::FONT, 12,
+    cButton* oLeftMission = new cButton({75, 75}, 0, pmpTextures["button-left"], cOverlayRenderModule::FONT, 12,
                                         glm::vec3(0, 0, 0));
-    oLeftMission->SetLabel("<");
     oLeftMission->Center();
     oLeftMission->RemoveX(550);
     pmpOverlay.push_back({"oLeftMission", oLeftMission});
     std::function<void(cButton*)> OnPreviousBus = std::bind(&cMissionMenu::PreviousMission, this, std::placeholders::_1);
     oLeftMission->ppaCallbacks.push_back(OnPreviousBus);
 
-    cButton* oRightMission = new cButton({50, 75}, 0, pmpTextures["buttonTexture"], cOverlayRenderModule::FONT, 12,
+    cButton* oRightMission = new cButton({75, 75}, 0, pmpTextures["button-right"], cOverlayRenderModule::FONT, 12,
                                          glm::vec3(0, 0, 0));
-    oRightMission->SetLabel(">");
     oRightMission->Center();
     oRightMission->AddX(550);
     pmpOverlay.push_back({"oRightMission", oRightMission});
@@ -106,7 +104,7 @@ void cMissionMenu::ConstructElements()
     poMissionIconIterator->second->SetScale(glm::vec2(1, 1));
 
 
-    cButton* oSubmit = new cButton({400, 75}, 0, pmpTextures["buttonTexture"],
+    cButton* oSubmit = new cButton({400, 75}, 0, pmpTextures["buttonTexture-wide"],
                                    cOverlayRenderModule::FONT, 12,
                                    glm::vec3(0, 0, 0));
     oSubmit->SetLabel("Start mission");

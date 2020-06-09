@@ -40,7 +40,7 @@ public:
 
     // Methods for loading and unloading the texture
     void LoadIntoRAM();
-    void LoadIntoGPU();
+    void CopyIntoGPU();
     void UnloadFromRAM();
     void UnloadFromGPU();
 
@@ -124,7 +124,7 @@ void cTexture::LoadIntoRAM()
     ptTextureInfo.uiMipLevels = (uint) std::floor(std::log2(std::max(iTexWidth, iTexHeight))) + 1;
 }
 
-void cTexture::LoadIntoGPU()
+void cTexture::CopyIntoGPU()
 {
     assert(ppcPixels != nullptr);                   // pixel data must be loaded into RAM
     assert(poTextureImage == VK_NULL_HANDLE);       // image must not exist yet

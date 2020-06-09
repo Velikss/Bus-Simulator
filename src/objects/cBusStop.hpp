@@ -8,13 +8,13 @@
 class cBusStop : public cLightObject, public IPassengerHolder
 {
 public:
-    bool pbVisited;
+    string psName;
 
-    cBusStop(cMesh* mesh) : cLightObject(mesh, glm::vec3(1, 1, 0.2), 25,
+    cBusStop(cMesh* mesh, string sName) : cLightObject(mesh, glm::vec3(1, 1, 0.2), 25,
                                          cCollider::RectangleCollider(-0.8f, -0.8f, 2.8f, 0.8f))
     {
         poEntityGroup = new cEntityGroup;
-        pbVisited = false;
+        psName = sName;
     }
 
     bool AddPassenger(IPassenger* pPassenger) override;
