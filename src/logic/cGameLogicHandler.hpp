@@ -39,7 +39,10 @@ void cGameLogicHandler::Update(cBus* pBus)
 
         if (pBus->oState == cState::eStill) {
             if (pBus->pfCurrentSpeed > 0.0f)
+            {
                 pBus->oState = cState::eDriving;
+                pBus->CloseDoors();
+            }
         }
         if (pBus->oState == cState::eDriving) {
             if (pBus->pfCurrentSpeed == 0.0f) {
@@ -57,8 +60,13 @@ void cGameLogicHandler::Update(cBus* pBus)
             }
         }
         if (pBus->oState == cState::eUnloading) {
-            UnloadPassengers(poCurrentBusStop, pBus);
-            pBus->oState = cState::eLoading;
+            if(pBus->pbDoorOpen)
+            {
+                UnloadPassengers(poCurrentBusStop, pBus);
+                pBus->oState = cState::eLoading;
+            }
+            else if(pBus->pfCurrentSpeed > 0.0f)
+                pBus->oState = cState::eDriving;
         }
         if (pBus->oState == cState::eLoading) {
             LoadPassengers(poCurrentBusStop, pBus);
