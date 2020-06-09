@@ -96,9 +96,9 @@ void fSleep(int sleepMs)
 #define STB_IMAGE_IMPLEMENTATION
 #define TINYOBJLOADER_IMPLEMENTATION
 
-#include <vendor/stb_image.h>
-#include <vendor/stb_font_arial_50_usascii.inl>
-#include <vendor/tiny_obj_loader.h>
+#include "../engine/vendor/stb_image.h"
+#include "../engine/vendor/font/stb_font_arial_50_usascii.inl"
+#include "../engine/vendor/tiny_obj_loader.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>

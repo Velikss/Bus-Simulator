@@ -1,6 +1,6 @@
 #pragma once
 #include <pch.hpp>
-#include <vendor/tiny_obj_loader.h>
+#include "../../vendor/tiny_obj_loader.h"
 
 // Very, VERY simple OBJ loader.
 // Here is a short list of features a real function would provide : 
