@@ -396,7 +396,6 @@ void cEngine::MainLoop(void)
                 oOverlayWindow.second->Construct(ppTextureHandler, ppLogicalDevice,
                                                  this, ppOverlayRenderModule);
             }
-            ENGINE_LOG("Loaded " << pmOverlayWindows.size() << " overlay windows");
 
             ENGINE_LOG("Loading scene...");
 

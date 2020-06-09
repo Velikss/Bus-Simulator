@@ -349,7 +349,7 @@ void cWindow::SetMouseLocked(bool bLocked)
 void cWindow::RebuildSurface()
 {
     DestroyWindowSurface();
-    fSleep(100);
+    fSleep(200);
     if (pbFullscreen)
     {
         glfwSetWindowMonitor(ppWindow, glfwGetPrimaryMonitor(), 0, 0, puiWidth, puiHeight, puiRefreshRate);
@@ -359,7 +359,7 @@ void cWindow::RebuildSurface()
         glfwSetWindowMonitor(ppWindow, nullptr, puiWindowX, puiWindowY, puiWidth, puiHeight, puiRefreshRate);
     }
     glfwPollEvents();
-    fSleep(100);
+    fSleep(200);
     CreateWindowSurface(ppVulkanInstance);
     pbRequestRebuild = false;
 }

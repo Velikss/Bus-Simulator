@@ -52,7 +52,7 @@ cMainMenuScene::Load(cTextureHandler* pTextureHandler,
     poCamera->pitch = -4.3f;
     poCamera->yaw = -46.68f;
 
-    cScene::Load(pTextureHandler, nullptr, pLogicalDevice, pAudioHandler);
+    cScene::Load(pTextureHandler, pGeometryHandler, pLogicalDevice, pAudioHandler);
 }
 
 void cMainMenuScene::Unload()
@@ -83,7 +83,6 @@ void cMainMenuScene::LoadTextures(cTextureHandler* pTextureHandler)
     pmpTextures["busStop"] = pTextureHandler->LoadFromFile("resources/textures/streetUtil/busStop.png");
     // buses
     pmpTextures["bus-yellow"] = pTextureHandler->LoadFromFile("resources/textures/buses/bus-yellow.png");
-    pTextureHandler->WaitForLoadComplete();
 }
 
 void cMainMenuScene::LoadGeometries(cGeometryHandler* pGeometryHandler)

@@ -90,7 +90,7 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler,
 
     cWindow::SetMouseLocked(true);
 
-    cScene::Load(pTextureHandler, nullptr, pLogicalDevice, pAudioHandler);
+    cScene::Load(pTextureHandler, pGeometryHandler, pLogicalDevice, pAudioHandler);
 }
 
 void cBusWorldScene::Unload()
@@ -275,8 +275,6 @@ void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
 
     // passengers
     pmpTextures["passenger"] = pTextureHandler->LoadFromFile("resources/textures/penguin.png");
-
-    pTextureHandler->WaitForLoadComplete();
 }
 
 void cBusWorldScene::LoadGeometries(cGeometryHandler* pGeometryHandler)

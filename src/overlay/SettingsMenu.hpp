@@ -171,9 +171,10 @@ void cSettingsMenu::ConstructElements()
     pmpOverlay.push_back({"apply_button", ppApplyButton});
     pmpOverlay.push_back({"quit_button", ppQuitButton});
 
-    ((cButton*)GetElement("oExit"))->ppaCallbacks.push_back([&] (cButton* poSender) -> void {
-        ppGameManager->ActivateOverlayWindow("InGame");
-    });
+    ((cButton*) GetElement("oExit"))->ppaCallbacks.push_back([&](cButton* poSender) -> void
+                                                             {
+                                                                 ppGameManager->ActivateOverlayWindow("InGame");
+                                                             });
 }
 
 void cSettingsMenu::HandleAction(cUIElement* pButton)
@@ -182,26 +183,13 @@ void cSettingsMenu::HandleAction(cUIElement* pButton)
     if (pButton == ppApplyButton)
     {
         cWindow::SetFullscreen(ppFullscreen->IsChecked());
-        if (pbGammaChanged)
-        {
-            cLightingUniformHandler::pfGamma = ppGamma->GetValue();
-        }
-        if (pbLightModeChanged)
-        {
-            cLightingUniformHandler::peLightingMode = ppLightMode->GetSelected() == "High" ? FANCY_LIGHTING
-                                                                                           : FAST_LIGHTING;
-        }
-        if (pbAntiAliasingChanged)
-        {
-            tResolution& tResolution = cSettings::pmtResolutions[ppResolution->GetSelected()];
-            cSwapChain::peSampleCount = cSettings::pmeSampleCounts[ppAntiAliasing->GetSelected()];
-            cWindow::SetResolution(tResolution.puiWidth, tResolution.puiHeight);
-        }
-        else if (pbResolutionChanged && !ppFullscreen->IsChecked())
-        {
-            tResolution& tResolution = cSettings::pmtResolutions[ppResolution->GetSelected()];
-            cWindow::SetResolution(tResolution.puiWidth, tResolution.puiHeight);
-        }
+        cLightingUniformHandler::pfGamma = ppGamma->GetValue();
+        cLightingUniformHandler::peLightingMode = ppLightMode->GetSelected() == "High" ? FANCY_LIGHTING
+                                                                                       : FAST_LIGHTING;
+        cSwapChain::peSampleCount = cSettings::pmeSampleCounts[ppAntiAliasing->GetSelected()];
+        tResolution& tResolution = cSettings::pmtResolutions[ppResolution->GetSelected()];
+        cWindow::SetResolution(tResolution.puiWidth, tResolution.puiHeight);
+        cWindow::RequestRebuild();
     }
     else if (pButton == ppResolution)
     {

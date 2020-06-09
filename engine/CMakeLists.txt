@@ -137,7 +137,7 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/ValueSelector.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/module/overlay/element/elements/CheckBox.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/SceneManager.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/util/Settings.hpp src/vulkan/util/Profiler.hpp src/vulkan/geometry/GeometryHandler.hpp)
+        ${PROJECT_SOURCE_DIR}/src/vulkan/util/Settings.hpp src/vulkan/util/Profiler.hpp src/vulkan/geometry/GeometryHandler.hpp src/vulkan/util/AsyncLoader.hpp)
 
 include_directories(${_ENGINE_INCLUDE_DIRS})
 add_library(${This} STATIC ${PROJECT_SOURCE_DIR}/src/main.cpp ${Headers})

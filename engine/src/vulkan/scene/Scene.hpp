@@ -14,6 +14,7 @@
 #include <vulkan/AudioHandler.hpp>
 #include <vulkan/entities/cBehaviourHandler.hpp>
 #include <vulkan/geometry/GeometryHandler.hpp>
+#include <vulkan/util/Profiler.hpp>
 
 class cScene : public iInputHandler, public iTickTask
 {
@@ -103,24 +104,23 @@ void cScene::Load(cTextureHandler* pTextureHandler,
 {
     this->ppAudioHandler = pAudioHandler;
 
+    cProfiler::poInstance.StartTiming("SceneLoad");
+
     for (auto oTexture : pmpTextures)
     {
         assert(oTexture.second != nullptr);
     }
-    ENGINE_LOG("Loaded " << pmpTextures.size() << " textures");
 
     for (auto oGeometry : pmpGeometries)
     {
         assert(oGeometry.second != nullptr);
     }
-    ENGINE_LOG("Loaded " << pmpGeometries.size() << " geometries");
 
     for (auto oMesh : pmpMeshes)
     {
         assert(oMesh.second != nullptr);
         oMesh.second->Validate();
     }
-    ENGINE_LOG("Loaded " << pmpMeshes.size() << " meshes");
 
     for (auto oObject : pmpObjects)
     {
@@ -148,8 +148,17 @@ void cScene::Load(cTextureHandler* pTextureHandler,
 
         oObject.second->Setup(ppColliders);
     }
-    ENGINE_LOG("Loaded " << pmpObjects.size() << " objects, of which " << papMovableObjects.size()
-                         << " are movable and " << papLightObjects.size() << " are lights");
+
+    pTextureHandler->WaitForLoadComplete();
+    pGeometryHandler->WaitForLoadComplete();
+
+    ENGINE_LOG("Loaded "
+                       << pmpTextures.size() << " textures, "
+                       << pmpGeometries.size() << " geometries, "
+                       << pmpMeshes.size() << " meshes, and "
+                       << pmpObjects.size() << " objects, of which " << papMovableObjects.size()
+                       << " are movable and " << papLightObjects.size() << " are lights");
+    ENGINE_LOG("Scene load took " << cProfiler::poInstance.StopTiming("SceneLoad") << "ms");
 }
 
 void cScene::Unload()

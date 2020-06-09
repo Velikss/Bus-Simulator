@@ -38,7 +38,7 @@ public:
     ~cGeometry();
 
     virtual void LoadIntoRAM();
-    void LoadIntoGPU();
+    void CopyIntoGPU();
     void UnloadFromRAM();
     void UnloadFromGPU();
 
@@ -101,7 +101,7 @@ void cGeometry::LoadIntoRAM()
     }
 }
 
-void cGeometry::LoadIntoGPU()
+void cGeometry::CopyIntoGPU()
 {
     assert(ppLogicalDevice != nullptr);       // can't setup buffers on an non-existent device
     assert(poVertexBuffer == VK_NULL_HANDLE);

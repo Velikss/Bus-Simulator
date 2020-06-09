@@ -63,7 +63,7 @@ cViewportQuadGeometry::cViewportQuadGeometry(cLogicalDevice* pLogicalDevice)
     poVertexBuffer = VK_NULL_HANDLE;
 
     // Setup the buffers on the device and copy the data there
-    LoadIntoGPU();
+    CopyIntoGPU();
 
     // Clear the vertices and indices now that they've been loaded on the device
     patVertices.clear();

@@ -3,6 +3,7 @@
 #include <pch.hpp>
 #include <vulkan/vulkan.h>
 #include <vulkan/LogicalDevice.hpp>
+#include <mutex>
 
 // Helper class for using vulkan commands
 class cCommandHelper
@@ -10,6 +11,7 @@ class cCommandHelper
 public:
     // TODO: This should be moved from a static field to a separate class
     static VkCommandPool poCommandPool;
+    static std::mutex ptCommandPoolMutex;
 
     // Setup a command pool on a logical device
     static void SetupCommandPool(cLogicalDevice* pLogicalDevice);
@@ -21,6 +23,7 @@ public:
 };
 
 VkCommandPool cCommandHelper::poCommandPool = VK_NULL_HANDLE;
+std::mutex cCommandHelper::ptCommandPoolMutex;
 
 void cCommandHelper::SetupCommandPool(cLogicalDevice* pLogicalDevice)
 {
@@ -46,6 +49,8 @@ VkCommandBuffer cCommandHelper::BeginSingleTimeCommands(cLogicalDevice* pLogical
 {
     assert(pLogicalDevice != nullptr);          // logical device must exist
     assert(poCommandPool != VK_NULL_HANDLE);    // command pool has to be set up first
+
+    ptCommandPoolMutex.lock();
 
     // Struct with information about how the command buffer should be allocated
     VkCommandBufferAllocateInfo tAllocInfo = {};
@@ -91,4 +96,6 @@ void cCommandHelper::EndSingleTimeCommands(cLogicalDevice* pLogicalDevice, VkCom
 
     // Free the command buffer
     pLogicalDevice->FreeCommandBuffers(poCommandPool, 1, &oCommandBuffer);
+
+    ptCommandPoolMutex.unlock();
 }

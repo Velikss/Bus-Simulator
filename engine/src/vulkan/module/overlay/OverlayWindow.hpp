@@ -70,7 +70,6 @@ void cOverlayWindow::Construct(cTextureHandler* pTextureHandler,
     ppUIManager = new cUIManager(pLogicalDevice, pCommandBufferHolder, pCommandRecorder);
 
     LoadTextures(pTextureHandler);
-    pTextureHandler->WaitForLoadComplete();
     ConstructElements();
 
     for (auto&[sName, pElement] : pmpOverlay)

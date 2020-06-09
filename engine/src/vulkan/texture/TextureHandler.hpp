@@ -6,9 +6,11 @@
 #include <vulkan/texture/TextureSampler.hpp>
 #include <mutex>
 #include <condition_variable>
+#include <atomic>
+#include <vulkan/util/AsyncLoader.hpp>
 
 // Class for loading and managing textures
-class cTextureHandler
+class cTextureHandler : public cAsyncLoader<cTexture>
 {
 private:
     // Device where the textures and sampler are loaded
@@ -22,19 +24,6 @@ private:
     // The key is the path to the texture
     std::map<string, cTexture*> pmpTextures;
 
-    std::vector<std::thread*> papThreads;
-    bool pbLoaderRunning = true;
-
-    std::mutex ptLoadQueueMutex;
-    std::condition_variable ptLoadQueueVariable;
-    std::queue<cTexture*> papLoadQueue;
-
-    std::mutex ptCopyQueueMutex;
-    std::condition_variable ptCopyQueueVariable;
-    std::queue<cTexture*> papCopyQueue;
-
-    uint puiLoadingCount = 0;
-
 public:
     cTextureHandler(cLogicalDevice* pLogicalDevice);
     ~cTextureHandler(void);
@@ -43,17 +32,14 @@ public:
     cTexture* LoadFromFile(const string& sFilePath, cTextureSampler* pSampler);
     cTexture* LoadFromFile(const string& sFilePath);
 
-    void WaitForLoadComplete();
-
     // Returns the texture sampler
     cTextureSampler* GetDefaultSampler();
     cTextureSampler* GetSkyboxSampler();
-
-private:
-    void StartLoaderThread();
+protected:
+    void LoadCallback(cTexture* pObject) override;
 };
 
-cTextureHandler::cTextureHandler(cLogicalDevice* pLogicalDevice)
+cTextureHandler::cTextureHandler(cLogicalDevice* pLogicalDevice) : cAsyncLoader<cTexture>(4)
 {
     assert(pLogicalDevice != nullptr); // logical device must exist
 
@@ -69,65 +55,11 @@ cTextureHandler::cTextureHandler(cLogicalDevice* pLogicalDevice)
                                           VK_SAMPLER_ADDRESS_MODE_REPEAT,
                                           false);
 
-    for (uint uiIndex = 0; uiIndex < 4; uiIndex++)
-    {
-        papThreads.push_back(new std::thread(&cTextureHandler::StartLoaderThread, this));
-    }
-}
 
-void cTextureHandler::StartLoaderThread()
-{
-    while (pbLoaderRunning)
-    {
-        std::unique_lock<std::mutex> tLoadLock(ptLoadQueueMutex);
-        if (papLoadQueue.empty()) ptLoadQueueVariable.wait(tLoadLock);
-        if (!pbLoaderRunning) return;
-
-        cTexture* pTexture = papLoadQueue.front();
-        papLoadQueue.pop();
-
-        tLoadLock.unlock();
-
-        pTexture->LoadIntoRAM();
-
-        std::unique_lock<std::mutex> tCopyLock(ptCopyQueueMutex);
-        papCopyQueue.push(pTexture);
-        ptCopyQueueVariable.notify_one();
-    }
-}
-
-void cTextureHandler::WaitForLoadComplete()
-{
-    while (puiLoadingCount > 0)
-    {
-        std::unique_lock<std::mutex> tCopyLock(ptCopyQueueMutex);
-        if (papCopyQueue.empty()) ptCopyQueueVariable.wait(tCopyLock);
-        if (!pbLoaderRunning) return;
-
-        cTexture* pTexture = papCopyQueue.front();
-        papCopyQueue.pop();
-
-        tCopyLock.unlock();
-
-        pTexture->CopyIntoGPU();
-        pTexture->UnloadFromRAM();
-
-        puiLoadingCount--;
-    }
 }
 
 cTextureHandler::~cTextureHandler(void)
 {
-    // Set the loader running variable to false and notify all loader threads
-    pbLoaderRunning = false;
-    ptLoadQueueVariable.notify_all();
-
-    // Join all the threads to terminate them
-    for (std::thread* pThread : papThreads)
-    {
-        pThread->join();
-    }
-
     // Delete all the textures
     for (auto&[sName, pTexture] : pmpTextures)
     {
@@ -137,6 +69,13 @@ cTextureHandler::~cTextureHandler(void)
     // Delete the texture samplers
     delete ppDefaultSampler;
     delete ppSkyboxSampler;
+}
+
+void cTextureHandler::LoadCallback(cTexture* pObject)
+{
+    pObject->LoadIntoRAM();
+    pObject->CopyIntoGPU();
+    pObject->UnloadFromRAM();
 }
 
 cTexture* cTextureHandler::LoadFromFile(const string& sFilePath, cTextureSampler* pSampler)
@@ -149,21 +88,16 @@ cTexture* cTextureHandler::LoadFromFile(const string& sFilePath, cTextureSampler
     {
         // If not, create and load it
         pTexture = new cTexture(ppLogicalDevice, sFilePath, pSampler);
-
-        std::unique_lock<std::mutex> tLoadLock(ptLoadQueueMutex);
-        papLoadQueue.push(pTexture);
-        puiLoadingCount++;
-        ptLoadQueueVariable.notify_one();
-
         pmpTextures[sFilePath] = pTexture;
-
-        return pTexture;
+        Load(pTexture);
     }
     else
     {
         // If it's already loaded, just grab the loaded texture
-        return tResult->second;
+        pTexture = tResult->second;
     }
+
+    return pTexture;
 }
 
 cTexture* cTextureHandler::LoadFromFile(const string& sFilePath)
