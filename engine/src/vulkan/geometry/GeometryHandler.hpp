@@ -3,6 +3,7 @@
 #include <pch.hpp>
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/geometry/Geometry.hpp>
+#include <vulkan/util/AsyncLoader.hpp>
 
 class cGeometryHandler : public cAsyncLoader<cGeometry>
 {
@@ -17,6 +18,7 @@ public:
 
     cGeometry* LoadFromFile(const string& sFilePath, const glm::vec2& tUVScale);
     cGeometry* LoadFromFile(const string& sFilePath);
+
 protected:
     void LoadCallback(cGeometry* pObject) override;
 };
@@ -44,24 +46,21 @@ void cGeometryHandler::LoadCallback(cGeometry* pObject)
 
 cGeometry* cGeometryHandler::LoadFromFile(const string& sFilePath, const glm::vec2& tUVScale)
 {
-    cGeometry* pGeometry;
-
     // Try and find if this geometry has already been loaded
     auto tResult = pmpGeometries.find(sFilePath);
     if (tResult == pmpGeometries.end())
     {
         // If not, create and load it
-        pGeometry = new cGeometry(ppLogicalDevice, sFilePath, tUVScale);
+        cGeometry* pGeometry = new cGeometry(ppLogicalDevice, sFilePath, tUVScale);
         pmpGeometries[sFilePath] = pGeometry;
-        Load(pGeometry);
+        LoadAsync(pGeometry);
+        return pGeometry;
     }
     else
     {
         // If it's already loaded, just grab the loaded geometry
-        pGeometry = tResult->second;
+        return tResult->second;
     }
-
-    return pGeometry;
 }
 
 cGeometry* cGeometryHandler::LoadFromFile(const string& sFilePath)

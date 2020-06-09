@@ -131,22 +131,22 @@ void cMainMenu::HandleOnSubmit(cButton* poSender)
         ptConnectNetworkSettings.bUseSSL = poJson["Multiplayer"]["USESSL"];
 
     poJson.clear();
-    std::cout << "Connecting to: " << ptConnectNetworkSettings.sAddress << ":" << ptConnectNetworkSettings.usPort << ", SSL: " << (ptConnectNetworkSettings.bUseSSL ? "true" : "false") << std::endl;
+    ENGINE_LOG("Connecting to: " << ptConnectNetworkSettings.sAddress << ":" << ptConnectNetworkSettings.usPort << ", SSL: " << (ptConnectNetworkSettings.bUseSSL ? "true" : "false"));
     (*pppoMultiplayerHandler) = new cMultiplayerHandler(&ptConnectNetworkSettings);
     if((*pppoMultiplayerHandler)->Connect())
     {
         if ((*pppoMultiplayerHandler)->Login(poUserName->GetValue(), poPassword->GetValue()))
         {
-            std::cout << "Successfully logged in." << std::endl;
+            ENGINE_LOG("Successfully logged in.");
             ppGameManager->ActivateOverlayWindow("Loading");
             ppGameManager->SwitchScene("BusWorld");
             (*pppoMultiplayerHandler)->StartMultiplayerSession();
             ((cBusWorldScene*)ppGameManager->GetScenes()["BusWorld"])->AssignMultiplayerHandler((*pppoMultiplayerHandler) );
-            std::cout << "Entering multiplayer mode" << std::endl;
+            ENGINE_LOG("Entering multiplayer mode");
             return;
         }
     }
-    std::cout << "Failed to log in." << std::endl;
+    ENGINE_WARN("Failed to log in.");
     (*pppoMultiplayerHandler)->Disconnect();
     delete (*pppoMultiplayerHandler);
 }
@@ -155,7 +155,7 @@ void cMainMenu::HandleSinglePlayer(cButton* poSender)
 {
     ppGameManager->ActivateOverlayWindow("Loading");
     ppGameManager->SwitchScene("BusWorld");
-    std::cout << "entering singleplayer mode" << std::endl;
+    ENGINE_LOG("entering singleplayer mode");
 }
 
 void cMainMenu::HandleRegister(cButton* poSender)
@@ -178,17 +178,17 @@ void cMainMenu::HandleRegister(cButton* poSender)
     ptConnectNetworkSettings.usPort = usPort;
     ptConnectNetworkSettings.eMode = cNetworkConnection::cMode::eNonBlocking;
     poJson.clear();
-    std::cout << "Connecting to: " << ptConnectNetworkSettings.sAddress << ":" << ptConnectNetworkSettings.usPort << std::endl;
+    ENGINE_LOG("Connecting to: " << ptConnectNetworkSettings.sAddress << ":" << ptConnectNetworkSettings.usPort);
     (*pppoMultiplayerHandler) = new cMultiplayerHandler(&ptConnectNetworkSettings);
     if((*pppoMultiplayerHandler)->Connect())
     {
         if ((*pppoMultiplayerHandler)->RegisterUser(poUserName->GetValue(), poPassword->GetValue()))
         {
-            std::cout << "Successfully registered user." << std::endl;
+            ENGINE_LOG("Successfully registered user.");
             return;
         }
     }
-    std::cout << "Failed to register user." << std::endl;
+    ENGINE_WARN("Failed to register user.");
     (*pppoMultiplayerHandler)->Disconnect();
     delete (*pppoMultiplayerHandler);
 }

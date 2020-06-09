@@ -4,9 +4,6 @@
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/texture/Texture.hpp>
 #include <vulkan/texture/TextureSampler.hpp>
-#include <mutex>
-#include <condition_variable>
-#include <atomic>
 #include <vulkan/util/AsyncLoader.hpp>
 
 // Class for loading and managing textures
@@ -80,24 +77,21 @@ void cTextureHandler::LoadCallback(cTexture* pObject)
 
 cTexture* cTextureHandler::LoadFromFile(const string& sFilePath, cTextureSampler* pSampler)
 {
-    cTexture* pTexture;
-
     // Try and find if this texture has already been loaded
     auto tResult = pmpTextures.find(sFilePath);
     if (tResult == pmpTextures.end())
     {
         // If not, create and load it
-        pTexture = new cTexture(ppLogicalDevice, sFilePath, pSampler);
+        cTexture* pTexture = new cTexture(ppLogicalDevice, sFilePath, pSampler);
         pmpTextures[sFilePath] = pTexture;
-        Load(pTexture);
+        LoadAsync(pTexture);
+        return pTexture;
     }
     else
     {
         // If it's already loaded, just grab the loaded texture
-        pTexture = tResult->second;
+        return tResult->second;
     }
-
-    return pTexture;
 }
 
 cTexture* cTextureHandler::LoadFromFile(const string& sFilePath)
