@@ -444,13 +444,15 @@ void cEngine::MainLoop(void)
                 UpdateScene();
                 pbUpdateScene = false;
             }
-
-/*            // Handle mesh texture updates
-            cMRTUniformHandler* pUniformHandler = ((cMRTUniformHandler*) ppMRTRenderModule->GetUniformHandler());
-            if (pUniformHandler->UpdateUniformTextures(pScene))
+            else
             {
-                RecordCommandBuffers();
-            }*/
+                // Handle mesh texture updates
+                cMRTUniformHandler* pUniformHandler = ((cMRTUniformHandler*) ppMRTRenderModule->GetUniformHandler());
+                if (pUniformHandler->UpdateUniformTextures(pScene))
+                {
+                    RecordCommandBuffers();
+                }
+            }
         }
     }
 

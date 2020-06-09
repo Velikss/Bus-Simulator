@@ -113,6 +113,7 @@ void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevi
     for (auto oMesh : pmpMeshes)
     {
         assert(oMesh.second != nullptr);
+        oMesh.second->Validate();
     }
     ENGINE_LOG("Loaded " << pmpMeshes.size() << " meshes");
 
