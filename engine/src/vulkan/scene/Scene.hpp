@@ -13,6 +13,7 @@
 #include <vulkan/module/overlay/element/StaticElement.hpp>
 #include <vulkan/AudioHandler.hpp>
 #include <vulkan/entities/cBehaviourHandler.hpp>
+#include <vulkan/geometry/GeometryHandler.hpp>
 
 class cScene : public iInputHandler, public iTickTask
 {
@@ -62,6 +63,7 @@ public:
     bool ShouldQuit();
 
     virtual void Load(cTextureHandler* pTextureHandler,
+                      cGeometryHandler* pGeometryHandler,
                       cLogicalDevice* pLogicalDevice,
                       cAudioHandler* pAudioHandler = nullptr);
     virtual void Unload();
@@ -94,7 +96,10 @@ cScene::~cScene()
     ENGINE_LOG("Cleaned up scene");
 }
 
-void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler)
+void cScene::Load(cTextureHandler* pTextureHandler,
+                  cGeometryHandler* pGeometryHandler,
+                  cLogicalDevice* pLogicalDevice,
+                  cAudioHandler* pAudioHandler)
 {
     this->ppAudioHandler = pAudioHandler;
 
@@ -171,12 +176,7 @@ void cScene::UnloadObjects()
     }
     pmpMeshes.clear();
 
-    for (auto oGeometry : pmpGeometries)
-    {
-        delete oGeometry.second;
-    }
     pmpGeometries.clear();
-
     pmpTextures.clear();
 }
 

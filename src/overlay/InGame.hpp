@@ -19,8 +19,8 @@ public:
 protected:
     void LoadTextures(cTextureHandler* pTextureHandler)
     {
-        pmpTextures["overlay"] = pTextureHandler->LoadTextureFromFile("resources/textures/overlay.png");
-        pmpTextures["overlay-inv"] = pTextureHandler->LoadTextureFromFile("resources/textures/overlay-inv.png");
+        pmpTextures["overlay"] = pTextureHandler->LoadFromFile("resources/textures/overlay.png");
+        pmpTextures["overlay-inv"] = pTextureHandler->LoadFromFile("resources/textures/overlay-inv.png");
     }
 
     void ConstructElements() override

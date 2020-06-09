@@ -10,7 +10,8 @@ class cMainMenuScene : public cScene
     iGameManager* ppOverlayProvider;
 
 protected:
-    void Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler) override;
+    void Load(cTextureHandler* pTextureHandler, cGeometryHandler* pGeometryHandler, cLogicalDevice* pLogicalDevice,
+              cAudioHandler* pAudioHandler) override;
 
     void AfterLoad() override;
 
@@ -29,7 +30,7 @@ public:
 
     void LoadTextures(cTextureHandler* pTextureHandler);
 
-    void LoadGeometries(cLogicalDevice* pLogicalDevice);
+    void LoadGeometries(cGeometryHandler* pGeometryHandler);
 
     void LoadMeshes();
 
@@ -37,10 +38,13 @@ public:
 };
 
 void
-cMainMenuScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler)
+cMainMenuScene::Load(cTextureHandler* pTextureHandler,
+                     cGeometryHandler* pGeometryHandler,
+                     cLogicalDevice* pLogicalDevice,
+                     cAudioHandler* pAudioHandler)
 {
     LoadTextures(pTextureHandler);
-    LoadGeometries(pLogicalDevice);
+    LoadGeometries(pGeometryHandler);
     LoadMeshes();
     LoadObjects(pAudioHandler);
 
@@ -48,7 +52,7 @@ cMainMenuScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalD
     poCamera->pitch = -4.3;
     poCamera->yaw = -46.68;
 
-    cScene::Load(pTextureHandler, pLogicalDevice, pAudioHandler);
+    cScene::Load(pTextureHandler, nullptr, pLogicalDevice, pAudioHandler);
 }
 
 void cMainMenuScene::Unload()
@@ -81,34 +85,26 @@ void cMainMenuScene::LoadTextures(cTextureHandler* pTextureHandler)
     pmpTextures["bus-yellow"] = pTextureHandler->LoadFromFile("resources/textures/buses/bus-yellow.png");
 }
 
-void cMainMenuScene::LoadGeometries(cLogicalDevice* pLogicalDevice)
+void cMainMenuScene::LoadGeometries(cGeometryHandler* pGeometryHandler)
 {
     // streets
-    pmpGeometries["road30-10"] = cGeometry::FromOBJFile("resources/geometries/streets/Road30-10.obj", pLogicalDevice);
-    pmpGeometries["twoWayCrossing"] = cGeometry::FromOBJFile("resources/geometries/streets/TwoWayCrossing.obj",
-                                                             pLogicalDevice);
-    pmpGeometries["threeWayCrossing"] = cGeometry::FromOBJFile("resources/geometries/streets/ThreeWayCrossing.obj",
-                                                               pLogicalDevice);
-    pmpGeometries["fourWayCrossing"] = cGeometry::FromOBJFile("resources/geometries/streets/FourWayCrossing.obj",
-                                                              pLogicalDevice);
+    pmpGeometries["road30-10"] = pGeometryHandler->LoadFromFile("resources/geometries/streets/Road30-10.obj");
+    pmpGeometries["twoWayCrossing"] =  pGeometryHandler->LoadFromFile("resources/geometries/streets/TwoWayCrossing.obj");
+    pmpGeometries["threeWayCrossing"] =  pGeometryHandler->LoadFromFile("resources/geometries/streets/ThreeWayCrossing.obj");
+    pmpGeometries["fourWayCrossing"] =  pGeometryHandler->LoadFromFile("resources/geometries/streets/FourWayCrossing.obj");
     // walkways
-    pmpGeometries["walkways36-3WithCorners"] = cGeometry::FromOBJFile(
-            "resources/geometries/walkways/Walkway36-3WithCorners.obj", pLogicalDevice, 10, 10);
-    pmpGeometries["walkways30-3"] = cGeometry::FromOBJFile("resources/geometries/walkways/Walkway30-3.obj",
-                                                           pLogicalDevice, 10, 10);
-    pmpGeometries["walkways10-3"] = cGeometry::FromOBJFile("resources/geometries/walkways/Walkway10-3.obj",
-                                                           pLogicalDevice, 10, 10);
+    pmpGeometries["walkways36-3WithCorners"] =  pGeometryHandler->LoadFromFile("resources/geometries/walkways/Walkway36-3WithCorners.obj", {10, 10});
+    pmpGeometries["walkways30-3"] =  pGeometryHandler->LoadFromFile("resources/geometries/walkways/Walkway30-3.obj", {10, 10});
+    pmpGeometries["walkways10-3"] =  pGeometryHandler->LoadFromFile("resources/geometries/walkways/Walkway10-3.obj", {10, 10});
     // streetUtil
-    pmpGeometries["busStation"] = cGeometry::FromOBJFile("resources/geometries/streetUtil/busStop.obj", pLogicalDevice);
-    pmpGeometries["trafficLight"] = cGeometry::FromOBJFile("resources/geometries/streetUtil/trafficLight.obj",
-                                                           pLogicalDevice);
+    pmpGeometries["busStation"] =  pGeometryHandler->LoadFromFile("resources/geometries/streetUtil/busStop.obj");
+    pmpGeometries["trafficLight"] =  pGeometryHandler->LoadFromFile("resources/geometries/streetUtil/trafficLight.obj");
 
     // buses
-    pmpGeometries["bus"] = cGeometry::FromOBJFile("resources/geometries/busses/SchoolBus.obj", pLogicalDevice);
+    pmpGeometries["bus"] =  pGeometryHandler->LoadFromFile("resources/geometries/busses/SchoolBus.obj");
     // buildings
-    pmpGeometries["building"] = cGeometry::FromOBJFile("resources/geometries/buildingTest.obj", pLogicalDevice, 8, 8);
-    pmpGeometries["needleBuilding"] = cGeometry::FromOBJFile("resources/geometries/buildings/needleBuilding.obj",
-                                                             pLogicalDevice, 8, 8);
+    pmpGeometries["building"] =  pGeometryHandler->LoadFromFile("resources/geometries/buildingTest.obj", {8, 8});
+    pmpGeometries["needleBuilding"] =  pGeometryHandler->LoadFromFile("resources/geometries/buildings/needleBuilding.obj", {8, 8});
 }
 
 void cMainMenuScene::LoadMeshes()

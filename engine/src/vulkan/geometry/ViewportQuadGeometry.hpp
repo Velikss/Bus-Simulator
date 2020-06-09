@@ -10,6 +10,7 @@ public:
 
     static void Init(cLogicalDevice* pLogicalDevice);
     static void Destroy(cLogicalDevice* pLogicalDevice);
+    void LoadIntoRAM() override;
 
 private:
     cViewportQuadGeometry(cLogicalDevice* pLogicalDevice);
@@ -31,6 +32,7 @@ void cViewportQuadGeometry::Destroy(cLogicalDevice* pLogicalDevice)
 }
 
 cViewportQuadGeometry::cViewportQuadGeometry(cLogicalDevice* pLogicalDevice)
+        : cGeometry(pLogicalDevice, "internal/viewport_quad", glm::vec2(0))
 {
     // Four vertices at the corners of the viewport
     patVertices.emplace_back(CreateVertex(
@@ -57,12 +59,19 @@ cViewportQuadGeometry::cViewportQuadGeometry(cLogicalDevice* pLogicalDevice)
     puiVertexCount = (uint) patVertices.size();
     puiIndexCount = (uint) paiIndices.size();
 
+    poIndexBuffer = VK_NULL_HANDLE;
+    poVertexBuffer = VK_NULL_HANDLE;
+
     // Setup the buffers on the device and copy the data there
-    CopyToDevice(pLogicalDevice);
+    LoadIntoGPU();
 
     // Clear the vertices and indices now that they've been loaded on the device
     patVertices.clear();
     paiIndices.clear();
+}
+
+void cViewportQuadGeometry::LoadIntoRAM()
+{
 }
 
 Vertex cViewportQuadGeometry::CreateVertex(glm::vec3 tPosition, glm::vec2 tTextureCoord)
