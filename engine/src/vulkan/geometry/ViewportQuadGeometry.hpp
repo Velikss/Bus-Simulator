@@ -9,6 +9,7 @@ public:
     static cViewportQuadGeometry* GEOMETRY;
 
     static void Init(cLogicalDevice* pLogicalDevice);
+    static void Destroy(cLogicalDevice* pLogicalDevice);
 
 private:
     cViewportQuadGeometry(cLogicalDevice* pLogicalDevice);
@@ -21,6 +22,12 @@ cViewportQuadGeometry* cViewportQuadGeometry::GEOMETRY;
 void cViewportQuadGeometry::Init(cLogicalDevice* pLogicalDevice)
 {
     GEOMETRY = new cViewportQuadGeometry(pLogicalDevice);
+}
+
+void cViewportQuadGeometry::Destroy(cLogicalDevice* pLogicalDevice)
+{
+    delete GEOMETRY;
+    GEOMETRY = nullptr;
 }
 
 cViewportQuadGeometry::cViewportQuadGeometry(cLogicalDevice* pLogicalDevice)

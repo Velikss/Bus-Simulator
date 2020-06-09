@@ -1,5 +1,7 @@
 #pragma once
 
+//#define UNLOCK_CURSOR
+
 #include <pch.hpp>
 #include <GLFW/glfw3.h>
 #include <vulkan/VulkanInstance.hpp>
@@ -339,7 +341,9 @@ void cWindow::RequestRebuild()
 
 void cWindow::SetMouseLocked(bool bLocked)
 {
+#ifndef UNLOCK_CURSOR
     glfwSetInputMode(poInstance->ppWindow, GLFW_CURSOR, bLocked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+#endif
 }
 
 void cWindow::RebuildSurface()

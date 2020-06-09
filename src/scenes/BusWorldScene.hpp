@@ -281,7 +281,6 @@ void cBusWorldScene::LoadGeometries(cLogicalDevice* pLogicalDevice)
                                                                pLogicalDevice);
     pmpGeometries["fourWayCrossing"] = cGeometry::FromOBJFile("resources/geometries/streets/FourWayCrossing.obj",
                                                               pLogicalDevice);
-    pmpGeometries["cornerRoad"] = cGeometry::FromOBJFile("resources/geometries/streets/CornerRoad.obj", pLogicalDevice);
     // walkways
     pmpGeometries["walkways36-3WithCorners"] = cGeometry::FromOBJFile(
             "resources/geometries/walkways/Walkway36-3WithCorners.obj", pLogicalDevice, 10, 10);
