@@ -16,6 +16,8 @@ private:
     cTextureSampler* ppDefaultSampler;
     cTextureSampler* ppSkyboxSampler;
 
+    // Map with all loaded textures
+    // The key is the path to the texture
     std::map<string, cTexture*> pmpTextures;
 
 public:
@@ -50,11 +52,13 @@ cTextureHandler::cTextureHandler(cLogicalDevice* pLogicalDevice)
 
 cTextureHandler::~cTextureHandler(void)
 {
+    // Delete all the textures
     for (auto&[sName, pTexture] : pmpTextures)
     {
         delete pTexture;
     }
 
+    // Delete the texture samplers
     delete ppDefaultSampler;
     delete ppSkyboxSampler;
 }
@@ -62,9 +66,12 @@ cTextureHandler::~cTextureHandler(void)
 cTexture* cTextureHandler::LoadFromFile(const string& sFilePath, cTextureSampler* pSampler)
 {
     cTexture* pTexture;
+
+    // Try and find if this texture has already been loaded
     auto tResult = pmpTextures.find(sFilePath);
     if (tResult == pmpTextures.end())
     {
+        // If not, create and load it
         pTexture = new cTexture(ppLogicalDevice, sFilePath, pSampler);
         pTexture->LoadIntoRAM();
         pTexture->LoadIntoGPU();
@@ -73,6 +80,7 @@ cTexture* cTextureHandler::LoadFromFile(const string& sFilePath, cTextureSampler
     }
     else
     {
+        // If it's already loaded, just grab the loaded texture
         pTexture = tResult->second;
     }
 

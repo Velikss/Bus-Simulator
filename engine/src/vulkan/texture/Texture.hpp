@@ -15,21 +15,22 @@ private:
     // Logical device where this texture is loaded
     cLogicalDevice* ppLogicalDevice;
 
+    // Path to the texture file on disk
     string psFilePath;
 
     // Information about this texture
     tTextureInfo ptTextureInfo;
 
+    // Pointer to the pixel data in RAM
     stbi_uc* ppcPixels = nullptr;
 
-    // Texture image, memory and image view
+    // Texture image, memory and image view handles
     VkImage poTextureImage = VK_NULL_HANDLE;
     VkDeviceMemory poTextureImageMemory = VK_NULL_HANDLE;
     VkImageView poTextureImageView = VK_NULL_HANDLE;
 
+    // Sampler to use for this texture
     cTextureSampler* ppSampler;
-
-    bool pbLoaded = false;
 
 public:
     cTexture(cLogicalDevice* pLogicalDevice,
@@ -37,18 +38,17 @@ public:
              cTextureSampler* pSampler);
     ~cTexture();
 
+    // Methods for loading and unloading the texture
     void LoadIntoRAM();
     void LoadIntoGPU();
     void UnloadFromRAM();
     void UnloadFromGPU();
 
-    bool IsLoaded();
-
     // Returns the information about this texture
     tTextureInfo GetTextureInfo();
     // Returns the image view for this texture
     VkImageView& GetView();
-
+    // Returns the sampler to use for this texture
     VkSampler& GetSampler();
 };
 
@@ -56,9 +56,9 @@ cTexture::cTexture(cLogicalDevice* pLogicalDevice,
                    const string& sFilePath,
                    cTextureSampler* pSampler)
 {
-    assert(pLogicalDevice != nullptr);                              // logical device must exist
-    assert(sFilePath.length() > 0);                                 // file path must have a value
-    assert(pSampler != nullptr);                                    // sampler must exist
+    assert(pLogicalDevice != nullptr); // logical device must exist
+    assert(sFilePath.length() > 0);    // file path must have a value
+    assert(pSampler != nullptr);       // sampler must exist
 
     // Store the logical device and texture info
     ppLogicalDevice = pLogicalDevice;
@@ -68,10 +68,13 @@ cTexture::cTexture(cLogicalDevice* pLogicalDevice,
 
 cTexture::~cTexture()
 {
+    // If pixel data is loaded in RAM, unload it
     if (ppcPixels != nullptr)
     {
         UnloadFromRAM();
     }
+
+    // If the image is loaded on the GPU, unload it
     if (poTextureImage != VK_NULL_HANDLE)
     {
         UnloadFromGPU();
@@ -97,8 +100,8 @@ VkSampler& cTexture::GetSampler()
 
 void cTexture::LoadIntoRAM()
 {
-    assert(psFilePath.length() > 0);
-    assert(ppcPixels == nullptr);
+    assert(psFilePath.length() > 0); // file path must have a value
+    assert(ppcPixels == nullptr);    // pixel data must not be loaded in RAM yet
 
     // Load the pixel data and image size
     int iTexWidth, iTexHeight;
@@ -110,7 +113,7 @@ void cTexture::LoadIntoRAM()
         throw std::runtime_error(cFormatter() << "unable to load texture '" << psFilePath << "'");
     }
 
-    // Check if the texture is valid
+    // Check if the texture has a valid width and height
     assert(iTexWidth > 0);
     assert(iTexHeight > 0);
 
@@ -123,10 +126,10 @@ void cTexture::LoadIntoRAM()
 
 void cTexture::LoadIntoGPU()
 {
-    assert(ppcPixels != nullptr);
-    assert(poTextureImage == VK_NULL_HANDLE);
-    assert(poTextureImageMemory == VK_NULL_HANDLE);
-    assert(poTextureImageView == VK_NULL_HANDLE);
+    assert(ppcPixels != nullptr);                   // pixel data must be loaded into RAM
+    assert(poTextureImage == VK_NULL_HANDLE);       // image must not exist yet
+    assert(poTextureImageMemory == VK_NULL_HANDLE); // image memory must not exist yet
+    assert(poTextureImageView == VK_NULL_HANDLE);   // image view must not exist yet
 
     // Create the image
     // We want to use the SRGB format and optimal tiling
@@ -135,6 +138,9 @@ void cTexture::LoadIntoGPU()
                               VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                               VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                               poTextureImage, poTextureImageMemory, ppLogicalDevice);
+
+    assert(poTextureImage != VK_NULL_HANDLE);       // image must be loaded
+    assert(poTextureImageMemory != VK_NULL_HANDLE); // image memory must be loaded
 
     // Copy the texture (pixels) to the created image
     cTextureHelper::CopyTextureToImage(ppLogicalDevice, ppcPixels, ptTextureInfo, poTextureImage);
@@ -145,7 +151,7 @@ void cTexture::LoadIntoGPU()
                                   ppLogicalDevice, &poTextureImageView,
                                   VK_IMAGE_ASPECT_COLOR_BIT);
 
-    pbLoaded = true;
+    assert(poTextureImageView != VK_NULL_HANDLE); // image view must be loaded
 
     ENGINE_LOG("Loaded texture " << psFilePath
                                  << " (" << ptTextureInfo.uiWidth << "x" << ptTextureInfo.uiHeight << ")");
@@ -153,7 +159,7 @@ void cTexture::LoadIntoGPU()
 
 void cTexture::UnloadFromRAM()
 {
-    assert(ppcPixels != nullptr);
+    assert(ppcPixels != nullptr); // pixel data must be loaded into RAM
 
     stbi_image_free(ppcPixels);
     ppcPixels = nullptr;
@@ -161,9 +167,9 @@ void cTexture::UnloadFromRAM()
 
 void cTexture::UnloadFromGPU()
 {
-    assert(poTextureImage != VK_NULL_HANDLE);
-    assert(poTextureImageMemory != VK_NULL_HANDLE);
-    assert(poTextureImageView != VK_NULL_HANDLE);
+    assert(poTextureImage != VK_NULL_HANDLE);       // image must exist
+    assert(poTextureImageMemory != VK_NULL_HANDLE); // image memory must exist
+    assert(poTextureImageView != VK_NULL_HANDLE);   // image view must exist
 
     // Destroy the image view and image, and free the image memory
     vkDestroyImageView(ppLogicalDevice->GetDevice(), poTextureImageView, nullptr);
@@ -173,9 +179,4 @@ void cTexture::UnloadFromGPU()
     poTextureImage = VK_NULL_HANDLE;
     poTextureImageMemory = VK_NULL_HANDLE;
     poTextureImageView = VK_NULL_HANDLE;
-}
-
-bool cTexture::IsLoaded()
-{
-    return pbLoaded;
 }
