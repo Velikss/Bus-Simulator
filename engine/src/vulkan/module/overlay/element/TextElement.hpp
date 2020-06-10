@@ -40,7 +40,9 @@ public:
 void cTextElement::OnLoadVertices()
 {
     ptInfo.uiWidth = GetTextWidth(psText, ppFont, pfFontSize);
-    ptInfo.uiHeight = ppFont->GetFontHeight(pfFontSize);
+    uint uiLineCount = 1;
+    for (char c : psText) if (c == '\n') uiLineCount++;
+    ptInfo.uiHeight = ppFont->GetFontHeight(pfFontSize) * uiLineCount;
 }
 
 VkDeviceSize cTextElement::GetMemorySize(uint uiIndex)
