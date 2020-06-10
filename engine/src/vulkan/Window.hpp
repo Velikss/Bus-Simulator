@@ -345,6 +345,8 @@ void cWindow::RequestRebuild()
 void cWindow::SetMouseLocked(bool bLocked)
 {
 #ifndef UNLOCK_CURSOR
+    glfwSetInputMode(poInstance->ppWindow, GLFW_CURSOR, !bLocked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+    fSleep(10);
     glfwSetInputMode(poInstance->ppWindow, GLFW_CURSOR, bLocked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 #endif
 }
