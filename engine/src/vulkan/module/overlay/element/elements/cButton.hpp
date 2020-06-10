@@ -7,25 +7,28 @@
 class cButton : public cLabeledElement, public iInputHandler
 {
 protected:
+
+    cTexture* ppTextureWhenClicked;
     cClickableElement* ppClickable = nullptr;
 
     virtual void HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction) override;
 public:
     std::vector<std::function<void(cButton*)>> ppaCallbacks;
-    cButton(tElementInfo tSize, uint uiPadding, cTexture* pTexture, cFont* pFont, float fFontSize, glm::vec3 tTextColor);
-    cButton(tElementInfo tSize, uint uiPadding, cTexture* pTexture, const tFontInfo& tFont);
+    cButton(tElementInfo tSize, uint uiPadding, cTexture* pTexture, cTexture* pTextureWhenClicked, cFont* pFont, float fFontSize, glm::vec3 tTextColor);
+    cButton(tElementInfo tSize, uint uiPadding, cTexture* pTexture, cTexture* pTextureWhenClicked, const tFontInfo& tFont);
 };
 
-cButton::cButton(tElementInfo tSize, uint uiPadding, cTexture* pTexture, cFont* pFont, float fFontSize, glm::vec3 tTextColor)
+cButton::cButton(tElementInfo tSize, uint uiPadding, cTexture* pTexture, cTexture* pTextureWhenClicked, cFont* pFont, float fFontSize, glm::vec3 tTextColor)
                                  : cLabeledElement(tSize, uiPadding, pTexture, pFont, fFontSize, tTextColor)
 {
+    ppTextureWhenClicked = pTextureWhenClicked;
     ppClickable = new cSimpleButton(tSize, pTexture);
     AddChild(ppClickable);
     AddLabelLayer();
 }
 
-cButton::cButton(tElementInfo tSize, uint uiPadding, cTexture* pTexture, const tFontInfo& tFont)
-        : cButton(tSize, uiPadding, pTexture, tFont.ppFont, tFont.pfFontSize, tFont.ptFontColor)
+cButton::cButton(tElementInfo tSize, uint uiPadding, cTexture* pTexture, cTexture* pTextureWhenClicked, const tFontInfo& tFont)
+        : cButton(tSize, uiPadding, pTexture, pTextureWhenClicked, tFont.ppFont, tFont.pfFontSize, tFont.ptFontColor)
 {
 }
 

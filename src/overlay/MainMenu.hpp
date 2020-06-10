@@ -58,7 +58,7 @@ protected:
         oPassword->AddY(80);
         pmpOverlay.push_back({"oPassword", oPassword});
 
-        cButton* oSubmit = new cButton({400, 75}, 0, pmpTextures["buttonTexture-wide"],
+        cButton* oSubmit = new cButton({400, 75}, 0, pmpTextures["button-wide"], pmpTextures["button-wide-clicked"],
                                        cOverlayRenderModule::FONT, 10,
                                        glm::vec3(0,0,0));
         oSubmit->SetLabel("Login");
@@ -68,7 +68,7 @@ protected:
         oSubmit->ppaCallbacks.push_back(OnSubmitHandler);
         pmpOverlay.push_back({"oSubmit", oSubmit});
 
-        cButton* oRegister = new cButton({400, 75}, 0, pmpTextures["buttonTexture-wide"],
+        cButton* oRegister = new cButton({400, 75}, 0, pmpTextures["button-wide"], pmpTextures["button-wide-clicked"],
                                        cOverlayRenderModule::FONT, 10,
                                        glm::vec3(0,0,0));
         oRegister->SetLabel("Register");
@@ -78,7 +78,7 @@ protected:
         oRegister->ppaCallbacks.push_back(OnRegisterHandler);
         pmpOverlay.push_back({"oRegister", oRegister});
 
-        cButton* oSinglePlayer = new cButton({400, 75}, 0, pmpTextures["buttonTexture-wide"],
+        cButton* oSinglePlayer = new cButton({400, 75}, 0, pmpTextures["button-wide"], pmpTextures["button-wide-clicked"],
                                        cOverlayRenderModule::FONT, 10,
                                        glm::vec3(0,0,0));
         oSinglePlayer->SetLabel("Singleplayer");
