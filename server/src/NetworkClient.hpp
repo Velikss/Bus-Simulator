@@ -49,21 +49,45 @@ public:
         this->OnDisconnect = OnDisconnect;
     }
 
-	virtual bool Connect();
+	virtual bool Connect(long lTimeOut = 5);
 
 private:
     virtual void OnRecieveLoop();
 };
 
-bool cNetworkClient::Connect()
+bool cNetworkClient::Connect(long lTimeOut)
 {
-    cNetworkAbstractions::SetBlocking(poSock, true);
+    cNetworkAbstractions::SetBlocking(poSock, false);
 
-    if (connect(poSock, (const sockaddr *) &ptAddress, sizeof(ptAddress)) != 0) //-V106
+    connect(poSock, (const sockaddr *) &ptAddress, sizeof(ptAddress));
+    fd_set fdset;
+    struct timeval tv;
+    FD_ZERO(&fdset);
+    FD_SET(poSock, &fdset);
+    tv.tv_sec = lTimeOut;             /* 10 second timeout */
+    tv.tv_usec = 0;
+
+    if (select(poSock + 1, NULL, &fdset, NULL, &tv) == 1)
+    {
+        int err = cNetworkAbstractions::GetLastError(poSock);
+        if (err == 0)
+            std::cout << "connected with success." << std::endl;
+        else
+        {
+            std::cout << "connection failed with err: " << err << std::endl;
+            return false;
+        }
+    }
+    else
+    {
+        std::cout << "could not connect." << std::endl;
         return false;
+    }
 
     if (pptNetworkSettings->bUseSSL)
     {
+        cNetworkAbstractions::SetBlocking(poSock, true);
+
         ppConnectionSSL = SSL_new(ppSSLContext);
         SSL_set_fd(ppConnectionSSL, poSock);
 
@@ -71,7 +95,7 @@ bool cNetworkClient::Connect()
         if (iReturn <= 0) return false;
     }
 
-    if (pptNetworkSettings->eMode != cNetworkConnection::cMode::eBlocking) cNetworkAbstractions::SetBlocking(poSock, false);
+    cNetworkAbstractions::SetBlocking(poSock, (pptNetworkSettings->eMode == cNetworkConnection::cMode::eBlocking));
 
     if(OnConnect) OnConnect(this);
     paThreads.insert({"OnRecieveLoop", std::thread(&cNetworkClient::OnRecieveLoop, this) });
