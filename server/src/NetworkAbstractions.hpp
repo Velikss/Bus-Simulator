@@ -53,6 +53,7 @@ public:
     static void NetInit();
     static void NetShutdown();
     static void SetBlocking(NET_SOCK oSock, bool bBlocking = true);
+    static int GetLastError(NET_SOCK oSock);
     static cConnectionStatus IsConnected(NET_SOCK oSock, bool bBlocking);
     static cConnectionStatus IsConnectedSSL(SSL* pSSL, bool bBlocking);
     static string DNSLookup(const string& sDomain);
@@ -85,9 +86,10 @@ void cNetworkAbstractions::SetBlocking(NET_SOCK oSock, bool bBlocking)
 {
 #if defined(WINDOWS)
     u_long ulArgument = (bBlocking) ? 0 : 1;
-    ioctlsocket(oSock, FIONBIO, &ulArgument); //-V106
+    if(ioctlsocket(oSock, FIONBIO, &ulArgument) != 0)
+        throw std::runtime_error("setting (non-)blocking failed");
 #else
-      const int flags = fcntl(oSock, F_GETFL, 0);
+    const int flags = fcntl(oSock, F_GETFL, 0);
     fcntl(oSock, F_SETFL, bBlocking ? flags ^ O_NONBLOCK : flags | O_NONBLOCK);
 #endif
 }
@@ -116,8 +118,10 @@ cNetworkAbstractions::cConnectionStatus cNetworkAbstractions::IsConnected(NET_SO
     int err = WSAGetLastError();
     if (err == WSAECONNRESET)
         return cNetworkAbstractions::cConnectionStatus::eDISCONNECTED;
-#else
+#elif defined(LINUX)
     if (size == 0) return cNetworkAbstractions::cConnectionStatus::eDISCONNECTED;
+#else
+#error Unsupported platform.
 #endif
     else if (size > 0) return cNetworkAbstractions::cConnectionStatus::eAVAILABLE;
     else return cNetworkAbstractions::cConnectionStatus::eCONNECTED;
@@ -164,4 +168,18 @@ cNetworkAbstractions::cConnectionStatus cNetworkAbstractions::IsConnectedSSL(SSL
         return cNetworkAbstractions::cConnectionStatus::eCONNECTED;
     else
         return cNetworkAbstractions::cConnectionStatus::eDISCONNECTED;
+}
+
+int cNetworkAbstractions::GetLastError(NET_SOCK oSock)
+{
+#if defined(LINUX)
+    int so_error;
+    socklen_t len = sizeof so_error;
+    getsockopt(oSock, SOL_SOCKET, SO_ERROR, &so_error, &len);
+    return so_error;
+#elif defined(WINDOWS)
+    return WSAGetLastError();
+#else
+#error Unsupported platform.
+#endif
 }
