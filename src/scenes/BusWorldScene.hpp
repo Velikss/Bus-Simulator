@@ -308,7 +308,7 @@ void cBusWorldScene::LoadGeometries(cGeometryHandler* pGeometryHandler)
     pmpGeometries["needleBuilding"] = pGeometryHandler->LoadFromFile(
             "resources/geometries/buildings/needleBuilding.obj", {20, 20});
     pmpGeometries["blockBuilding2"] = pGeometryHandler->LoadFromFile(
-            "resources/geometries/buildings/blockBuilding2.obj", {8, 8});
+            "resources/geometries/buildings/blockBuilding2.obj", {10, 10});
     pmpGeometries["blockBuilding3"] = pGeometryHandler->LoadFromFile(
             "resources/geometries/buildings/blockBuilding3.obj", {5, 5});
     pmpGeometries["blockBuilding4"] = pGeometryHandler->LoadFromFile(
@@ -316,7 +316,7 @@ void cBusWorldScene::LoadGeometries(cGeometryHandler* pGeometryHandler)
     pmpGeometries["longSideBuilding1"] = pGeometryHandler->LoadFromFile(
             "resources/geometries/buildings/longSideBuilding1.obj", {20, 20});
     pmpGeometries["longSideBuilding2"] = pGeometryHandler->LoadFromFile(
-            "resources/geometries/buildings/longSideBuilding2.obj", {9, 9});
+            "resources/geometries/buildings/longSideBuilding2.obj", {11, 12});
 
     // grass
     pmpGeometries["grassField1"] = pGeometryHandler->LoadFromFile("resources/geometries/grassField1.obj", {8, 8});

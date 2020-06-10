@@ -60,7 +60,7 @@ void cSettingsMenu::ConstructElements()
 
     ppResolution = new cComboBox({300, 50}, tNormalFont,
                                  pmpTextures["foreground"],
-                                 pmpTextures["buttonTexture"]);
+                                 pmpTextures["button"]);
     for (auto&[sName, tResolution] : cSettings::pmtResolutions)
     {
         ppResolution->AddOption(sName);
@@ -79,7 +79,7 @@ void cSettingsMenu::ConstructElements()
 
     ppGamma = new cValueSelector({300, 50}, tNormalFont,
                                  pmpTextures["foreground"],
-                                 pmpTextures["buttonTexture"],
+                                 pmpTextures["button"],
                                  0.5f, 2.5f, 0.1f);
     ppGamma->SetValue(cLightingUniformHandler::pfGamma);
     ppGamma->pafCallbacks.push_back(fHandleAction);
@@ -95,7 +95,7 @@ void cSettingsMenu::ConstructElements()
 
     ppLightMode = new cComboBox({300, 50}, tNormalFont,
                                 pmpTextures["foreground"],
-                                pmpTextures["buttonTexture"]);
+                                pmpTextures["button"]);
     ppLightMode->AddOption("Medium");
     ppLightMode->AddOption("High");
     ppLightMode->SetSelected("High");
@@ -125,7 +125,7 @@ void cSettingsMenu::ConstructElements()
 
     ppAntiAliasing = new cComboBox({300, 50}, tNormalFont,
                                    pmpTextures["foreground"],
-                                   pmpTextures["buttonTexture"]);
+                                   pmpTextures["button"]);
     ppAntiAliasing->AddOption("Off");
     ppAntiAliasing->AddOption("2x");
     ppAntiAliasing->AddOption("4x");
@@ -143,7 +143,7 @@ void cSettingsMenu::ConstructElements()
     pAntiAliasingLabel->AddY(15);
 
     ppApplyButton = new cButton({400, 75}, 0,
-                                pmpTextures["buttonTexture-wide"], tNormalFont);
+                                pmpTextures["button-wide"], pmpTextures["button-wide-clicked"], tNormalFont);
     ppApplyButton->SetLabel("Apply");
     ppApplyButton->ppaCallbacks.push_back(fHandleAction);
     ppApplyButton->Center();
@@ -151,7 +151,7 @@ void cSettingsMenu::ConstructElements()
     ppApplyButton->AddX(-500);
 
     ppQuitButton = new cButton({400, 75}, 0,
-                               pmpTextures["buttonTexture-wide"], tNormalFont);
+                               pmpTextures["button-wide"], pmpTextures["button-wide-clicked"], tNormalFont);
     ppQuitButton->SetLabel("Exit Game");
     ppQuitButton->ppaCallbacks.push_back(fHandleAction);
     ppQuitButton->Center();

@@ -15,11 +15,16 @@ protected:
 protected:
     virtual void LoadTextures(cTextureHandler* pTextureHandler) override
     {
-        pmpTextures["buttonTexture"] = pTextureHandler->LoadFromFile("resources/textures/button.png");
-        pmpTextures["buttonTexture-wide"] = pTextureHandler->LoadFromFile("resources/textures/button-wide.png");
+        pmpTextures["button"] = pTextureHandler->LoadFromFile("resources/textures/button.png");
+        pmpTextures["button-wide"] = pTextureHandler->LoadFromFile("resources/textures/button-wide.png");
         pmpTextures["button-exit"] = pTextureHandler->LoadFromFile("resources/textures/button-exit.png");
         pmpTextures["button-left"] = pTextureHandler->LoadFromFile("resources/textures/button-left.png");
         pmpTextures["button-right"] = pTextureHandler->LoadFromFile("resources/textures/button-right.png");
+        pmpTextures["button-clicked"] = pTextureHandler->LoadFromFile("resources/textures/button-clicked.png");
+        pmpTextures["button-wide-clicked"] = pTextureHandler->LoadFromFile("resources/textures/button-wide-clicked.png");
+        pmpTextures["button-exit-clicked"] = pTextureHandler->LoadFromFile("resources/textures/button-exit-clicked.png");
+        pmpTextures["button-left-clicked"] = pTextureHandler->LoadFromFile("resources/textures/button-left-clicked.png");
+        pmpTextures["button-right-clicked"] = pTextureHandler->LoadFromFile("resources/textures/button-right-clicked.png");
         pmpTextures["background"] = pTextureHandler->LoadFromFile("resources/textures/background.png");
     }
 
@@ -29,7 +34,7 @@ protected:
         oPanel->Center();
         pmpOverlay.push_back({"Background", oPanel});
 
-        cButton* oExit = new cButton({40, 40}, 0, pmpTextures["button-exit"],
+        cButton* oExit = new cButton({40, 40}, 0, pmpTextures["button-exit"], pmpTextures["button-exit-clicked"],
                                      cOverlayRenderModule::FONT, 5,
                                      glm::vec3(0, 0, 0));
         oExit->CenterHorizontal();
