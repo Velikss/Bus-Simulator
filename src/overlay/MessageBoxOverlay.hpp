@@ -121,6 +121,7 @@ void cMessageBoxOverlay::HandleMouseButton(uint uiButton, double dXPos, double d
     if (cCollisionHelper::CollidesWithPoint(oOk->GetScreenEstate(), oClickPoint) && iAction == GLFW_PRESS)
     {
         oOk->Click();
+        pbMovingWindow = false;
     }
 }
 

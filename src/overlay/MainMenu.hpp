@@ -175,8 +175,6 @@ void cMainMenu::HandleOnSubmit(cButton* poSender)
                                                    [&](cButton* pSender) -> void
                                                    {
                                                        ppGameManager->ActivateOverlayWindow("MainMenu");
-                                                       poUserName->SetValue("");
-                                                       poPassword->SetValue("");
                                                    });
                         }
                         else
@@ -253,8 +251,6 @@ void cMainMenu::HandleRegister(cButton* poSender)
                                                    [&](cButton* pSender) -> void
                                                    {
                                                        ppGameManager->ActivateOverlayWindow("MainMenu");
-                                                       poUserName->SetValue("");
-                                                       poPassword->SetValue("");
                                                    });
                             else
                                 poMessageBox->Show("Failed to register the user, maybe it is in use?", "Multiplayer",
@@ -262,8 +258,6 @@ void cMainMenu::HandleRegister(cButton* poSender)
                                                    [&](cButton* pSender) -> void
                                                    {
                                                        ppGameManager->ActivateOverlayWindow("MainMenu");
-                                                       poUserName->SetValue("");
-                                                       poPassword->SetValue("");
                                                    });
                         }
                         else
