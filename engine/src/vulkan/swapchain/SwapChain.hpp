@@ -456,6 +456,8 @@ void cSwapChain::AcquireNextImage(int64 ulTimeout,
         else if (err == VK_ERROR_OUT_OF_DATE_KHR)
         {
             ENGINE_LOG("out of date");
+            cWindow::HandleMinimize();
+            *pImageIndex = UINT32_MAX;
         }
         else
         {

@@ -24,6 +24,7 @@ void cSettings::Init()
 {
     pmtResolutions["3840x2160"] = {3840, 2160};
     pmtResolutions["2560x1440"] = {2560, 1440};
+    pmtResolutions["2560x1080"] = {2560, 1080};
     pmtResolutions["2048x1536"] = {2048, 1536};
     pmtResolutions["1920x1440"] = {1920, 1440};
     pmtResolutions["1920x1080"] = {1920, 1080};
