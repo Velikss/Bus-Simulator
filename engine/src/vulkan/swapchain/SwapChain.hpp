@@ -23,7 +23,7 @@ struct tOffScreenBuffer
     VkSampler poSampler; // TODO: This probably doesn't belong here
 };
 
-struct tOverlayBuffer
+struct tFrameBuffer
 {
     tFrameBufferAttachment ptColorAttachment;
 
@@ -34,19 +34,22 @@ class cSwapChain
 {
 private:
     cLogicalDevice* ppLogicalDevice;
+    cWindow* ppWindow;
 
     std::vector<VkImage> paoSwapChainImages;
     std::vector<VkImageView> paoSwapChainImageViews;
     std::vector<VkFramebuffer> paoSwapChainFramebuffers;
 
     tOffScreenBuffer ptOffScreenBuffer;
-    tOverlayBuffer ptOverlayBuffer;
+    tFrameBuffer ptOverlayBuffer;
 
 public:
     VkSwapchainKHR poSwapChain; // TODO: Remove public access
 
     VkExtent2D ptSwapChainExtent;
     VkFormat peSwapChainImageFormat;
+
+    static VkSampleCountFlagBits peSampleCount;
 
     cSwapChain(cLogicalDevice* pLogicalDevice,
                cWindow* pWindow);
@@ -70,6 +73,8 @@ public:
                           VkFence& oFence,
                           uint* puiImageIndex);
 
+    void RebuildSwapChain();
+
 private:
     VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& atAvailableFormats);
     VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& atAvailablePresentModes);
@@ -86,11 +91,16 @@ private:
 
     void CreateSwapChain(cWindow* pWindow);
     void CreateImageViews(void);
+
+    void Cleanup();
 };
+
+VkSampleCountFlagBits cSwapChain::peSampleCount = VK_SAMPLE_COUNT_4_BIT;
 
 cSwapChain::cSwapChain(cLogicalDevice* pLogicalDevice, cWindow* pWindow)
 {
     ppLogicalDevice = pLogicalDevice;
+    ppWindow = pWindow;
 
     CreateSwapChain(pWindow);
     CreateImageViews();
@@ -98,41 +108,7 @@ cSwapChain::cSwapChain(cLogicalDevice* pLogicalDevice, cWindow* pWindow)
 
 cSwapChain::~cSwapChain()
 {
-    VkDevice& oDevice = ppLogicalDevice->GetDevice(); // TODO: Use internal cLogicalDevice methods
-
-    std::array<tFrameBufferAttachment*, 6> aptAttachments = {
-            &ptOffScreenBuffer.ptPositionAttachment,
-            &ptOffScreenBuffer.ptNormalsAttachment,
-            &ptOffScreenBuffer.ptAlbedoAttachment,
-            &ptOffScreenBuffer.ptDepthAttachment,
-            &ptOffScreenBuffer.ptMaterialAttachment,
-            &ptOverlayBuffer.ptColorAttachment
-    };
-    for (tFrameBufferAttachment* pAttachment : aptAttachments)
-    {
-        vkDestroyImageView(oDevice, pAttachment->oView, nullptr);
-        vkDestroyImage(oDevice, pAttachment->oImage, nullptr);
-        ppLogicalDevice->FreeMemory(pAttachment->oMemory, nullptr);
-    }
-
-    ppLogicalDevice->DestroySampler(ptOffScreenBuffer.poSampler, nullptr);
-
-    // Destroy all the framebuffers
-    for (VkFramebuffer framebuffer : paoSwapChainFramebuffers)
-    {
-        vkDestroyFramebuffer(oDevice, framebuffer, nullptr);
-    }
-    vkDestroyFramebuffer(oDevice, ptOffScreenBuffer.poFramebuffer, nullptr);
-    vkDestroyFramebuffer(oDevice, ptOverlayBuffer.poFramebuffer, nullptr);
-
-    // Destroy all the image views
-    for (VkImageView imageView : paoSwapChainImageViews)
-    {
-        vkDestroyImageView(oDevice, imageView, nullptr);
-    }
-
-    // Destroy the swap chain
-    vkDestroySwapchainKHR(ppLogicalDevice->GetDevice(), poSwapChain, nullptr);
+    Cleanup();
 }
 
 VkSurfaceFormatKHR cSwapChain::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& atAvailableFormats)
@@ -168,24 +144,16 @@ VkPresentModeKHR cSwapChain::ChooseSwapPresentMode(const std::vector<VkPresentMo
 
 VkExtent2D cSwapChain::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& tCapabilities, cWindow* pWindow)
 {
-    if (tCapabilities.currentExtent.width != UINT32_MAX)
-    {
-        // By default the window manager sets currentExtent to the exact window resolution, so we can use that
-        return tCapabilities.currentExtent;
-    }
-    else
-    {
-        // If currentExtent is not present, use our window size clamped to the bounds of the capabilities
+    // Use our window size clamped to the bounds of the capabilities
 
-        VkExtent2D actualExtent = {WIDTH, HEIGHT};
+    VkExtent2D actualExtent = {cWindow::puiWidth, cWindow::puiHeight};
 
-        actualExtent.width = std::max(tCapabilities.minImageExtent.width,
-                                      std::min(tCapabilities.maxImageExtent.width, actualExtent.width));
-        actualExtent.height = std::max(tCapabilities.minImageExtent.height,
-                                       std::min(tCapabilities.maxImageExtent.height, actualExtent.height));
+    actualExtent.width = std::max(tCapabilities.minImageExtent.width,
+                                  std::min(tCapabilities.maxImageExtent.width, actualExtent.width));
+    actualExtent.height = std::max(tCapabilities.minImageExtent.height,
+                                   std::min(tCapabilities.maxImageExtent.height, actualExtent.height));
 
-        return actualExtent;
-    }
+    return actualExtent;
 }
 
 uint cSwapChain::ChooseSwapImageCount(const VkSurfaceCapabilitiesKHR& tCapabilities)
@@ -230,13 +198,16 @@ VkSwapchainCreateInfoKHR cSwapChain::GetSwapChainCreateInfo(VkSurfaceFormatKHR& 
     tQueueFamilyIndices indices = pPhysicalDevice->FindQueueFamilies();
     uint queueFamilyIndices[] = {indices.oulGraphicsFamily.value(), indices.oulPresentFamily.value()};
 
-    if (indices.oulGraphicsFamily != indices.oulPresentFamily)
+    if (indices.oulGraphicsFamily.value() != indices.oulPresentFamily.value())
     {
         // If the graphics queue family isn't the same as the presentation queue family
         // we want to ue concurrent mode and set the indices
         tCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
         tCreateInfo.queueFamilyIndexCount = 2;
         tCreateInfo.pQueueFamilyIndices = queueFamilyIndices;
+
+        ENGINE_LOG("Running queues in concurrent mode ["
+                           << queueFamilyIndices[0] << ", " << queueFamilyIndices[1] << "]");
     }
     else
     {
@@ -245,6 +216,8 @@ VkSwapchainCreateInfoKHR cSwapChain::GetSwapChainCreateInfo(VkSurfaceFormatKHR& 
         tCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
         tCreateInfo.queueFamilyIndexCount = 0; // Optional
         tCreateInfo.pQueueFamilyIndices = nullptr; // Optional
+
+        ENGINE_LOG("Running queue in exclusive mode [" << queueFamilyIndices[0] << "]");
     }
 
     // Here we can define a transform that should be applied to the images
@@ -300,6 +273,8 @@ void cSwapChain::CreateSwapChain(cWindow* pWindow)
     vkGetSwapchainImagesKHR(oDevice, poSwapChain, &uiImageCount, nullptr);
     paoSwapChainImages.resize(uiImageCount);
     vkGetSwapchainImagesKHR(oDevice, poSwapChain, &uiImageCount, paoSwapChainImages.data());
+
+    ENGINE_LOG("Created swap chain with " << uiImageCount << " images");
 }
 
 void cSwapChain::CreateImageViews(void)
@@ -364,7 +339,7 @@ void cSwapChain::CreateFramebuffers(VkRenderPass& oFinalRenderPass,
     tFramebufferInfo.pNext = NULL;
     tFramebufferInfo.renderPass = oOffScreenRenderPass;
     tFramebufferInfo.pAttachments = atAttachments.data();
-    tFramebufferInfo.attachmentCount = atAttachments.size();
+    tFramebufferInfo.attachmentCount = (uint) atAttachments.size();
     tFramebufferInfo.width = ptSwapChainExtent.width;
     tFramebufferInfo.height = ptSwapChainExtent.height;
     tFramebufferInfo.layers = 1;
@@ -398,19 +373,24 @@ void cSwapChain::CreateResources(void) // TODO: This might belong somewhere else
 {
     VkFormat eDepthFormat = cImageHelper::FindDepthFormat();
     cSwapChainHelper::CreateAttachment(eDepthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-                                       &ptOffScreenBuffer.ptDepthAttachment, ppLogicalDevice, ptSwapChainExtent);
+                                       &ptOffScreenBuffer.ptDepthAttachment, ppLogicalDevice, ptSwapChainExtent,
+                                       peSampleCount);
 
     cSwapChainHelper::CreateAttachment(VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-                                       &ptOffScreenBuffer.ptPositionAttachment, ppLogicalDevice, ptSwapChainExtent);
+                                       &ptOffScreenBuffer.ptPositionAttachment, ppLogicalDevice, ptSwapChainExtent,
+                                       peSampleCount);
 
     cSwapChainHelper::CreateAttachment(VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-                                       &ptOffScreenBuffer.ptNormalsAttachment, ppLogicalDevice, ptSwapChainExtent);
+                                       &ptOffScreenBuffer.ptNormalsAttachment, ppLogicalDevice, ptSwapChainExtent,
+                                       peSampleCount);
 
     cSwapChainHelper::CreateAttachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-                                       &ptOffScreenBuffer.ptAlbedoAttachment, ppLogicalDevice, ptSwapChainExtent);
+                                       &ptOffScreenBuffer.ptAlbedoAttachment, ppLogicalDevice, ptSwapChainExtent,
+                                       peSampleCount);
 
     cSwapChainHelper::CreateAttachment(VK_FORMAT_R8G8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-                                       &ptOffScreenBuffer.ptMaterialAttachment, ppLogicalDevice, ptSwapChainExtent);
+                                       &ptOffScreenBuffer.ptMaterialAttachment, ppLogicalDevice, ptSwapChainExtent,
+                                       peSampleCount);
 
     cSwapChainHelper::CreateAttachment(VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
                                        &ptOverlayBuffer.ptColorAttachment, ppLogicalDevice, ptSwapChainExtent);
@@ -434,11 +414,13 @@ void cSwapChain::CreateResources(void) // TODO: This might belong somewhere else
     {
         throw std::runtime_error("failed to create offscreen sampler!");
     }
+
+    ENGINE_LOG("Render target resources loaded");
 }
 
 uint cSwapChain::GetFramebufferSize(void)
 {
-    return paoSwapChainFramebuffers.size();
+    return (uint) paoSwapChainFramebuffers.size();
 }
 
 VkFramebuffer& cSwapChain::GetFramebuffer(uint index)
@@ -451,7 +433,86 @@ void cSwapChain::AcquireNextImage(int64 ulTimeout,
                                   VkFence& oFence,
                                   uint* pImageIndex)
 {
-    vkAcquireNextImageKHR(ppLogicalDevice->GetDevice(), poSwapChain, ulTimeout, oSemaphore, oFence, pImageIndex);
+    uint err = vkAcquireNextImageKHR(ppLogicalDevice->GetDevice(), poSwapChain, ulTimeout, oSemaphore, oFence,
+                                     pImageIndex);
+    if (err != VK_SUCCESS)
+    {
+        if (err == VK_ERROR_SURFACE_LOST_KHR)
+        {
+            ENGINE_LOG("surface lost");
+        }
+        else if (err == VK_ERROR_DEVICE_LOST)
+        {
+            ENGINE_LOG("device lost");
+        }
+        else if (err == VK_ERROR_OUT_OF_DEVICE_MEMORY)
+        {
+            ENGINE_LOG("out of device memory");
+        }
+        else if (err == VK_ERROR_OUT_OF_HOST_MEMORY)
+        {
+            ENGINE_LOG("out of host memory");
+        }
+        else if (err == VK_ERROR_OUT_OF_DATE_KHR)
+        {
+            ENGINE_LOG("out of date");
+            cWindow::HandleMinimize();
+            *pImageIndex = UINT32_MAX;
+        }
+        else
+        {
+            ENGINE_LOG(err);
+        }
+    }
+}
+
+void cSwapChain::RebuildSwapChain()
+{
+    Cleanup();
+    ppWindow->RebuildSurface();
+    CreateSwapChain(ppWindow);
+    CreateImageViews();
+    CreateResources();
+}
+
+void cSwapChain::Cleanup()
+{
+    VkDevice& oDevice = ppLogicalDevice->GetDevice(); // TODO: Use internal cLogicalDevice methods
+
+    std::array<tFrameBufferAttachment*, 6> aptAttachments = {
+            &ptOffScreenBuffer.ptPositionAttachment,
+            &ptOffScreenBuffer.ptNormalsAttachment,
+            &ptOffScreenBuffer.ptAlbedoAttachment,
+            &ptOffScreenBuffer.ptDepthAttachment,
+            &ptOffScreenBuffer.ptMaterialAttachment,
+            &ptOverlayBuffer.ptColorAttachment
+    };
+    for (tFrameBufferAttachment* pAttachment : aptAttachments)
+    {
+        vkDestroyImageView(oDevice, pAttachment->oView, nullptr);
+        vkDestroyImage(oDevice, pAttachment->oImage, nullptr);
+        ppLogicalDevice->FreeMemory(pAttachment->oMemory, nullptr);
+    }
+
+    ppLogicalDevice->DestroySampler(ptOffScreenBuffer.poSampler, nullptr);
+
+    // Destroy all the framebuffers
+    for (VkFramebuffer framebuffer : paoSwapChainFramebuffers)
+    {
+        vkDestroyFramebuffer(oDevice, framebuffer, nullptr);
+    }
+    vkDestroyFramebuffer(oDevice, ptOffScreenBuffer.poFramebuffer, nullptr);
+    vkDestroyFramebuffer(oDevice, ptOverlayBuffer.poFramebuffer, nullptr);
+
+    // Destroy all the image views
+    for (VkImageView imageView : paoSwapChainImageViews)
+    {
+        vkDestroyImageView(oDevice, imageView, nullptr);
+    }
+
+    // Destroy the swap chain
+    vkDestroySwapchainKHR(ppLogicalDevice->GetDevice(), poSwapChain, nullptr);
+    poSwapChain = VK_NULL_HANDLE;
 }
 
 tFrameBufferAttachment& cSwapChain::GetAttachment(uint uiIndex)

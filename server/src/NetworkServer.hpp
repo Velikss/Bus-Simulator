@@ -35,13 +35,11 @@ public:
     void Stop()
     {
         pbShutdown = true;
-	    if(!pbDestroyed)
-        {
-            for (auto&[name, t] : paThreads)
-                if (t.joinable())
-                    t.join();
-            CloseConnection();
-        }
+        for (auto&[name, t] : paThreads)
+            if (t.joinable())
+                t.join();
+        CloseConnection();
+        paThreads.clear();
     }
 
 	~cNetworkServer()
@@ -76,7 +74,7 @@ cNetworkConnection *cNetworkServer::AcceptConnection(bool bBlockingSocket) const
     sockaddr_in tClientAddr = {};
     socklen_t iClientAddrLength = sizeof(tClientAddr);
 
-    const NET_SOCK oSock = accept(poSock, (struct sockaddr *) &tClientAddr,
+    const NET_SOCK oSock = (NET_SOCK) accept(poSock, (struct sockaddr *) &tClientAddr,
                                   &iClientAddrLength);
 
     if (oSock < 1) return nullptr;
@@ -146,7 +144,7 @@ void cNetworkServer::OnRecieveLoop()
 {
     while (!pbShutdown)
     {
-        for (uint i = 0; i < paConnections.size(); i++)
+        for (uint i = 0; i < (uint)paConnections.size(); i++)
         {
             auto status = paConnections[i]->Status();
             if (status == cNetworkAbstractions::cConnectionStatus::eAVAILABLE)

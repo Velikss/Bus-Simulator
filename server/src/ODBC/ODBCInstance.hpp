@@ -67,7 +67,7 @@ namespace dt
         std::stringstream ss;
         ss << std::setw(2) << std::setfill('0') << tTimeStamp.day << "-";
         ss << std::setw(2) << std::setfill('0') << tTimeStamp.month << "-";
-        ss << std::setw(4) << std::setfill('0') << tTimeStamp.year << " "; //-V112
+        ss << std::setw(4) << std::setfill('0') << tTimeStamp.year << " ";
         ss << std::setw(2) << std::setfill('0') << tTimeStamp.hour << ":";
         ss << std::setw(2) << std::setfill('0') << tTimeStamp.minute << ":";
         ss << std::setw(2) << std::setfill('0') << tTimeStamp.second;
@@ -179,7 +179,7 @@ class cODBCInstance
             SQLHANDLE handle,
             SQLSMALLINT type)
     {
-        SQLINTEGER i = 0;
+        SQLSMALLINT i = 0;
         SQLINTEGER native;
         SQLCHAR state[7];
         SQLCHAR text[256];
@@ -246,6 +246,7 @@ bool cODBCInstance::Connect(string sConnectionString)
     }
     catch (std::exception& ex)
     {
+        std::cout << ex.what() << std::endl;
         Disconnect();
         return false;
     }
@@ -265,6 +266,7 @@ bool cODBCInstance::Disconnect()
         }
         catch (std::exception& ex)
         {
+            std::cout << ex.what() << std::endl;
             std::cout << "failed disconnect." << std::endl;
         }
 
@@ -376,7 +378,7 @@ bool cODBCInstance::Fetch(string sQuery, std::vector<SQLROW>* aRows)
                     ((char*)vValueBuffer)[tColumnDef.uiSize - 1] = '\0';
                 }
                 else
-                    memset(vValueBuffer, ' ', tColumnDef.uiSize); //-V575
+                    memset(vValueBuffer, ' ', tColumnDef.uiSize);
                 SQLLEN sLen = 0;
                 auto result = SQLGetData(stmt, tColumnDef.sIndex, tColumnDef.sType, vValueBuffer, tColumnDef.uiSize, &sLen);
                 if (result != SQL_SUCCESS && result != SQL_SUCCESS_WITH_INFO)
@@ -394,6 +396,7 @@ bool cODBCInstance::Fetch(string sQuery, std::vector<SQLROW>* aRows)
     }
     catch (std::exception& ex)
     {
+        std::cout << ex.what() << std::endl;
         extract_error("Fetch: ", stmt, SQL_HANDLE_STMT);
         SQLFreeHandle(SQL_HANDLE_STMT, stmt);
         return false;
@@ -433,6 +436,7 @@ bool cODBCInstance::Exec(string sQuery, SQLLEN* puiAffected)
     }
     catch (std::exception& ex)
     {
+        std::cout << ex.what() << std::endl;
         extract_error("Execute: ", stmt, SQL_HANDLE_STMT);
         SQLFreeHandle(SQL_HANDLE_STMT, stmt);
         return false;

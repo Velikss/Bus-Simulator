@@ -5,6 +5,9 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <openssl/ossl_typ.h>
+#include <openssl/ssl.h>
+
 #pragma comment(lib, "Ws2_32.lib")
 typedef int NET_SOCK;
 #define NET_INVALID_SOCKET_ID INVALID_SOCKET
@@ -19,6 +22,9 @@ typedef int NET_SOCK;
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <openssl/ossl_typ.h>
+#include <openssl/ssl.h>
+
 typedef int NET_SOCK;
 #define NET_INVALID_SOCKET_ID (-1)
 #define NET_SOCKET_ERROR      (-1)
@@ -47,9 +53,11 @@ public:
     static void NetInit();
     static void NetShutdown();
     static void SetBlocking(NET_SOCK oSock, bool bBlocking = true);
+    static int GetLastError(NET_SOCK oSock);
     static cConnectionStatus IsConnected(NET_SOCK oSock, bool bBlocking);
-    static string DNSLookup(string sDomain);
-    static string DNSReverseLookup(string sIp);
+    static cConnectionStatus IsConnectedSSL(SSL* pSSL, bool bBlocking);
+    static string DNSLookup(const string& sDomain);
+    static string DNSReverseLookup(const string& sIp);
     static int CloseSocket(NET_SOCK & oSock);
 };
 
@@ -78,9 +86,10 @@ void cNetworkAbstractions::SetBlocking(NET_SOCK oSock, bool bBlocking)
 {
 #if defined(WINDOWS)
     u_long ulArgument = (bBlocking) ? 0 : 1;
-    ioctlsocket(oSock, FIONBIO, &ulArgument);
+    if(ioctlsocket(oSock, FIONBIO, &ulArgument) != 0)
+        throw std::runtime_error("setting (non-)blocking failed");
 #else
-      const int flags = fcntl(oSock, F_GETFL, 0);
+    const int flags = fcntl(oSock, F_GETFL, 0);
     fcntl(oSock, F_SETFL, bBlocking ? flags ^ O_NONBLOCK : flags | O_NONBLOCK);
 #endif
 }
@@ -97,7 +106,7 @@ int cNetworkAbstractions::CloseSocket(NET_SOCK & oSock)
     iResult = close(oSock);
 #endif
 
-    oSock = NET_INVALID_SOCKET_ID;
+    oSock = (NET_SOCK) NET_INVALID_SOCKET_ID;
     return iResult;
 }
 
@@ -109,14 +118,16 @@ cNetworkAbstractions::cConnectionStatus cNetworkAbstractions::IsConnected(NET_SO
     int err = WSAGetLastError();
     if (err == WSAECONNRESET)
         return cNetworkAbstractions::cConnectionStatus::eDISCONNECTED;
-#else
+#elif defined(LINUX)
     if (size == 0) return cNetworkAbstractions::cConnectionStatus::eDISCONNECTED;
+#else
+#error Unsupported platform.
 #endif
     else if (size > 0) return cNetworkAbstractions::cConnectionStatus::eAVAILABLE;
     else return cNetworkAbstractions::cConnectionStatus::eCONNECTED;
 }
 
-string cNetworkAbstractions::DNSLookup(string sDomain)
+string cNetworkAbstractions::DNSLookup(const string& sDomain)
 {
     if (!pbInit) NetInit();
     addrinfo *result;
@@ -125,7 +136,7 @@ string cNetworkAbstractions::DNSLookup(string sDomain)
     return string(inet_ntoa(((sockaddr_in*)result->ai_addr)->sin_addr));
 }
 
-string cNetworkAbstractions::DNSReverseLookup(string sIp)
+string cNetworkAbstractions::DNSReverseLookup(const string& sIp)
 {
     sockaddr_in saGNI;
     char hostname[MAX_HOSTNAME];
@@ -142,4 +153,33 @@ string cNetworkAbstractions::DNSReverseLookup(string sIp)
                            NI_MAXHOST, servInfo, NI_MAXSERV, NI_NUMERICSERV) != 0)
         return "";
     return string(hostname);
+}
+
+cNetworkAbstractions::cConnectionStatus cNetworkAbstractions::IsConnectedSSL(SSL* pSSL, bool bBlocking)
+{
+    char pBuffer;
+    size_t uiRead = 0;
+    int iStatus = SSL_peek_ex(pSSL, &pBuffer, 1, &uiRead);
+    if (iStatus == SSL_ERROR_WANT_READ)
+        return cNetworkAbstractions::cConnectionStatus::eCONNECTED;
+    else if (iStatus == 1 && uiRead == 1)
+        return cNetworkAbstractions::cConnectionStatus::eAVAILABLE;
+    else if (iStatus == 0)
+        return cNetworkAbstractions::cConnectionStatus::eCONNECTED;
+    else
+        return cNetworkAbstractions::cConnectionStatus::eDISCONNECTED;
+}
+
+int cNetworkAbstractions::GetLastError(NET_SOCK oSock)
+{
+#if defined(LINUX)
+    int so_error;
+    socklen_t len = sizeof so_error;
+    getsockopt(oSock, SOL_SOCKET, SO_ERROR, &so_error, &len);
+    return so_error;
+#elif defined(WINDOWS)
+    return WSAGetLastError();
+#else
+#error Unsupported platform.
+#endif
 }

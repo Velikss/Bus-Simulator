@@ -6,3 +6,4 @@ build-vs/
 build/
 googletest/
 *.spv
+cmake-build-release/*

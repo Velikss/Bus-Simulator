@@ -1,0 +1,32 @@
+{
+    "GameServer": {
+      "IP": "0.0.0.0",
+      "PORT": "14001",
+      "USESSL": true,
+      "SSL-CERT": "test.cert",
+      "SSL-KEY": "test.key",
+      "DB-DRIVER": "MariaDB ODBC 3.1 Driver",
+      "DB-DATABASE": "Game",
+      "DB-IP": "192.168.178.187",
+      "DB-USR": "root",
+      "DB-PWD": "hiddenhand",
+      "SSO-IP": "127.0.0.1",
+      "SSO-PORT": "14000",
+      "ID": "d69849fd-78ad-4c68-a941-1aacc8bcccb1"
+    },
+    "SSOServer": {
+      "IP": "0.0.0.0",
+      "PORT": "14000",
+      "USESSL": true,
+      "SSL-CERT": "test.cert",
+      "SSL-KEY": "test.key",
+      "DB-DRIVER": "MariaDB ODBC 3.1 Driver",
+      "DB-DATABASE": "SSO",
+      "DB-IP": "192.168.178.187",
+      "DB-USR": "root",
+      "DB-PWD": "hiddenhand",
+      "IDS": [
+        "d69849fd-78ad-4c68-a941-1aacc8bcccb1"
+      ]
+    }
+  }

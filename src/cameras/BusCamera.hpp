@@ -49,9 +49,9 @@ public:
 
     void MovePivotX(float fMultiplier)
     {
-        glm::vec3 direction(sin(glm::radians(cameraPivotObject->GetRotation().y)), 0, cos(glm::radians(
+        glm::vec3 tDirection(sin(glm::radians(cameraPivotObject->GetRotation().y)), 0, cos(glm::radians(
                 cameraPivotObject->GetRotation().y)));
-        cameraPivotPos -= (direction * fMultiplier);
+        cameraPivotPos -= (tDirection * fMultiplier);
     }
 
     void MovePivotY(float fMultiplier)
@@ -80,10 +80,10 @@ public:
     }
 
     // is the end op the passthrough from the mouse input.
-    void LookMouseDiff(int x, int y)
+    void LookMouseDiff(double dDeltaX, double dDeltaY)
     {
-        yaw -= mouseSpeed * x;
-        pitch -= mouseSpeed * y;
+        yaw -= mouseSpeed * dDeltaX;
+        pitch -= mouseSpeed * dDeltaY;
         // no flipping to the other side
         if (pitch < -80)
             pitch = -80;

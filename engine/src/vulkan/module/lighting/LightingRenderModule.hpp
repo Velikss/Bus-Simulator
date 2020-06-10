@@ -31,7 +31,7 @@ cLightingRenderModule::cLightingRenderModule(cLogicalDevice* pLogicalDevice,
 
 cLightingRenderModule::~cLightingRenderModule()
 {
-    delete cViewportQuadGeometry::GEOMETRY;
+    cViewportQuadGeometry::Destroy(ppLogicalDevice);
 }
 
 void cLightingRenderModule::CreateUniformHandler()

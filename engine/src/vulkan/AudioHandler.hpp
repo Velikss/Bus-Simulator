@@ -1,6 +1,6 @@
 #pragma once
 
-#define MAX_AUDIO_CHANNELS 32
+#define MAX_AUDIO_CHANNELS 64
 
 #include <pch.hpp>
 #include <fmod.hpp>
@@ -33,6 +33,7 @@ private:
     // Positions of the active channels
     PositionMap pmPositions;
 
+    // Camera properties
     const FMOD_VECTOR ptCameraUp = {0, 1, 0};
     FMOD_VECTOR ptCameraForward = {0, 0, 1};
     FMOD_VECTOR ptCameraPos = {0, 0, 0};
@@ -81,6 +82,8 @@ cAudioHandler::cAudioHandler()
     FMOD::System_Create(&ppSystem);
     ppSystem->init(MAX_AUDIO_CHANNELS, FMOD_INIT_NORMAL, nullptr);
     ppSystem->set3DSettings(1.0, 2, 1.0);
+
+    ENGINE_LOG("Audio handler ready");
 }
 
 cAudioHandler::~cAudioHandler()
@@ -95,7 +98,7 @@ cAudioHandler::~cAudioHandler()
     ppSystem->release();
 }
 
-void cAudioHandler::SetCamera(Camera **pCamera)
+void cAudioHandler::SetCamera(Camera** pCamera)
 {
     assert(pCamera != nullptr);
 
@@ -113,8 +116,10 @@ void cAudioHandler::Update()
 
         bool bIsPlaying = false;
         pChannel->isPlaying(&bIsPlaying);
+        FMOD_MODE eCurrMode;
+        pChannel->getMode(&eCurrMode);
         // If the channel is no longer playing, add it to the list of stopped channels
-        if (!bIsPlaying)
+        if (!bIsPlaying && !(eCurrMode & FMOD_LOOP_NORMAL))
         {
             aStoppedChannels.push_back(oChannel.first);
         }
@@ -126,15 +131,20 @@ void cAudioHandler::Update()
         pmChannels.erase(uiChannelId);
     }
 
-    // Update the listener position
-    ptCameraPos = GLMToFMODVec((*ppCamera)->cameraPos);
+    // We can only update 3D attributes if we have an active camera
+    if (ppCamera != nullptr)
+    {
+        // Update the listener position
+        ptCameraPos = GLMToFMODVec((*ppCamera)->cameraPos);
 
-    // Update the listener direction
-    glm::vec3 tDirection = glm::normalize((*ppCamera)->cameraFront * glm::vec3(-1, 0, -1));
-    ptCameraForward = GLMToFMODVec(tDirection);
+        // Update the listener direction
+        static const glm::vec3 tDirectionTransform(-1, 0, -1);
+        glm::vec3 tDirection = glm::normalize((*ppCamera)->cameraFront * tDirectionTransform);
+        ptCameraForward = GLMToFMODVec(tDirection);
 
-    // Update the 3D listener attributes
-    ppSystem->set3DListenerAttributes(0, &ptCameraPos, nullptr, &ptCameraForward, &ptCameraUp);
+        // Update the 3D listener attributes
+        ppSystem->set3DListenerAttributes(0, &ptCameraPos, nullptr, &ptCameraForward, &ptCameraUp);
+    }
 
     // Call the audio system update
     ppSystem->update();

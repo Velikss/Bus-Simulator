@@ -12,43 +12,46 @@ class cRenderHandler
 private:
     const uint uiMAX_FRAMES_IN_FLIGHT = 1;
 
-    cLogicalDevice* ppLogicalDevice;
-    cSwapChain* ppSwapChain;
-    cCommandBuffer** ppCommandBuffers;
-    uint puiCommandBufferCount;
+    cLogicalDevice* ppLogicalDevice = nullptr;
+    cSwapChain* ppSwapChain = nullptr;
+    cCommandBuffer** ppCommandBuffers = nullptr;
     iUniformHandler** ppUniformHandlers = nullptr;
-    uint puiUniformHandlerCount;
 
+    uint puiUniformHandlerCount;
     std::vector<VkSemaphore> aoImageAvailableSemaphores;
     std::vector<VkSemaphore> aoMRTFinishedSemaphores;
     std::vector<VkSemaphore> aoRenderFinishedSemaphores;
+
     std::vector<VkFence> aoInFlightFences;
 
     uint uiCurrentFrame = 0;
 
+    bool pbFenceWait = true;
+
 public:
     cRenderHandler(cLogicalDevice* pLogicalDevice,
                    cSwapChain* pSwapChain,
-                   cCommandBuffer** pCommandBuffers,
-                   uint uiCommandBufferCount);
+                   cCommandBuffer** pCommandBuffers);
     ~cRenderHandler(void);
 
     void CreateSemaphores(void);
 
-    void DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandler, cCommandBuffer* pCommandBuffer);
+    void DrawFrame(cScene* pScene);
 
     void SetUniformHandlers(iUniformHandler** pUniformHandlers, uint uiUniformHandlerCount);
 };
 
 cRenderHandler::cRenderHandler(cLogicalDevice* pLogicalDevice,
                                cSwapChain* pSwapChain,
-                               cCommandBuffer** pCommandBuffers,
-                               uint uiCommandBufferCount)
+                               cCommandBuffer** pCommandBuffers)
 {
+    assert(pLogicalDevice != nullptr);
+    assert(pSwapChain != nullptr);
+    assert(pCommandBuffers != nullptr);
+
     ppLogicalDevice = pLogicalDevice;
     ppSwapChain = pSwapChain;
     ppCommandBuffers = pCommandBuffers;
-    puiCommandBufferCount = uiCommandBufferCount;
 
     CreateSemaphores();
 }
@@ -97,39 +100,26 @@ void cRenderHandler::CreateSemaphores()
     }
 }
 
-void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandler, cCommandBuffer* pCommandBuffer)
+void cRenderHandler::DrawFrame(cScene* pScene)
 {
-#ifdef ENABLE_FPS_COUNT
-    static auto startTime = std::chrono::high_resolution_clock::now();
-    static uint frameCount = 0;
+    static VkFence oNullFence = VK_NULL_HANDLE;
 
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
-    frameCount++;
-    if (time >= 1)
+    if (pbFenceWait)
     {
-        ENGINE_LOG(frameCount << " fps");
-        assert(pTextHandler != nullptr);
-
-        //pTextHandler->UpdateText(cFormatter() << frameCount << " fps");
-
-        /*ppLogicalDevice->WaitUntilIdle(); // TODO: This should be optimized, use two command buffers and swap them
-        pCommandBuffer->RecordBuffers(pTextHandler->GetCommandRecorder());*/
-        startTime = currentTime;
-        frameCount = 0;
+        // Wait for the fence of the current frame and reset it to the unsignalled state
+        ppLogicalDevice->WaitForFences(1, &aoInFlightFences[uiCurrentFrame], VK_TRUE, UINT64_MAX);
+        ppLogicalDevice->ResetFences(1, &aoInFlightFences[uiCurrentFrame]);
+        pbFenceWait = false;
     }
-#endif
-
-    // Wait for the fence of the current frame and reset it to the unsignalled state
-    ppLogicalDevice->WaitForFences(1, &aoInFlightFences[uiCurrentFrame], VK_TRUE, UINT64_MAX);
-    ppLogicalDevice->ResetFences(1, &aoInFlightFences[uiCurrentFrame]);
 
     // Acquire the next image from the swap chain
     uint uiImageIndex;
-    VkFence oAqcuireFence = VK_NULL_HANDLE;
-    ppSwapChain->AcquireNextImage(UINT64_MAX, aoImageAvailableSemaphores[uiCurrentFrame], oAqcuireFence, &uiImageIndex);
+    ppSwapChain->AcquireNextImage(UINT64_MAX, aoImageAvailableSemaphores[uiCurrentFrame],
+                                  oNullFence, &uiImageIndex);
 
+    if (uiImageIndex == UINT32_MAX) return;
+
+    // If we have a loaded scene, update all the uniform handlers
     if (pScene != nullptr)
     {
         for (uint i = 0; i < puiUniformHandlerCount; i++)
@@ -162,8 +152,7 @@ void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandle
     tSubmitInfo.pSignalSemaphores = &aoMRTFinishedSemaphores[uiCurrentFrame];
 
     // Submit the command buffer to the queue
-    VkFence oFence = VK_NULL_HANDLE;
-    if (!ppLogicalDevice->GraphicsQueueSubmit(1, &tSubmitInfo, oFence))
+    if (!ppLogicalDevice->GraphicsQueueSubmit(1, &tSubmitInfo, oNullFence))
     {
         throw std::runtime_error("failed to submit draw command buffer!");
     }
@@ -184,6 +173,7 @@ void cRenderHandler::DrawFrame(cScene* pScene, cOverlayRenderModule* pTextHandle
     {
         throw std::runtime_error("failed to submit draw command buffer!");
     }
+    pbFenceWait = true;
 
     // Struct with information for submitting the image for presentation
     VkPresentInfoKHR tPresentInfo = {};

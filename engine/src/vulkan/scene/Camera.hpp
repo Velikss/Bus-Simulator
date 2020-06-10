@@ -9,9 +9,9 @@ The camera class, it is however FP based and should have its own sub-class in a 
 class Camera
 {
 public:
-    float fFoV = 45.0;
-    float fZNear = 0.1;
-    float fZFar = 800.0;
+    float fFoV = 45.0f;
+    float fZNear = 0.1f;
+    float fZFar = 800.0f;
 
     glm::vec3 cameraPos = glm::vec3(2.0f, 7.0f, 2.0f);
     glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -22,12 +22,14 @@ public:
     float yaw = 0;
     float pitch = 0;
 
-    const float cameraSpeed = 0.05f;
+    const float cameraSpeed = 0.3f;
     const float cameraSpeedLook = 1.0f;
     float mouseSpeed = 0.07f;
 
     glm::mat4 view = glm::mat4(1.0f);
 public:
+    virtual ~Camera();
+
     float cameraHeight = 1.75f;
 
     bool lockHeight = true;
@@ -39,6 +41,8 @@ public:
     cBaseObject* cameraPivotObject;
     glm::vec3 cameraPivotPos;
     glm::vec3 cameraPivotChanges;
+
+    virtual void Reset();
 
     virtual void Forward() = 0;
     virtual void BackWard() = 0;
@@ -53,7 +57,7 @@ public:
     virtual void LookLeft() = 0;
     virtual void LookRight() = 0;
     // is the end op the passthrough from the mouse input.
-    virtual void LookMouseDiff(int x, int y) = 0;
+    virtual void LookMouseDiff(double dDeltaX, double dDeltaY) = 0;
     // process the commits to the pv.
     virtual void LookMouseWheelDiff(float x, float y) = 0;
     virtual void ProcessUpdates() = 0;
@@ -68,6 +72,15 @@ public:
     virtual float GetYaw() = 0;
     virtual void SetYaw(float yaw) = 0;
 };
+
+Camera::~Camera()
+{
+}
+
+void Camera::Reset()
+{
+    cameraPivotObject = nullptr;
+}
 
 class FirstPersonFlyCamera : public Camera
 {
@@ -141,10 +154,10 @@ public:
     }
 
     // is the end op the passthrough from the mouse input.
-    void LookMouseDiff(int x, int y)
+    void LookMouseDiff(double dDeltaX, double dDeltaY)
     {
-        yaw += mouseSpeed * x;
-        pitch -= mouseSpeed * y;
+        yaw += mouseSpeed * dDeltaX;
+        pitch -= mouseSpeed * dDeltaY;
         // no flipping to the other side
         if (pitch < -80)
             pitch = -80;

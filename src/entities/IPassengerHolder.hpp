@@ -6,6 +6,8 @@
 class IPassengerHolder
 {
 public:
-    virtual bool AddPassenger(IPassenger* passenger) = 0;
-    virtual bool RemovePassenger(IPassenger* passenger) = 0;
+    cEntityGroup* poEntityGroup = nullptr;
+
+    virtual bool AddPassenger(IPassenger* pPassenger) = 0;
+    virtual bool RemovePassenger(IPassenger* pPassenger) = 0;
 };

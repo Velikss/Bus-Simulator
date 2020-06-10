@@ -26,11 +26,22 @@ struct tLightsInfo
 {
     glm::vec4 tViewPos;
     float fAmbientLight;
+    float fGamma;
+    uint uiLightingMode;
     uint uiLightsCount;
+};
+
+enum eLightingMode
+{
+    FAST_LIGHTING, FANCY_LIGHTING
 };
 
 class cLightingUniformHandler : public iUniformHandler
 {
+public:
+    static float pfGamma;
+    static eLightingMode peLightingMode;
+
 private:
     cLogicalDevice* ppLogicalDevice;
     cSwapChain* ppSwapChain;
@@ -59,12 +70,17 @@ public:
     void CmdBindDescriptorSets(VkCommandBuffer& commandBuffer,
                                VkPipelineLayout& oPipelineLayout,
                                uint uiIndex) override;
+    void RebuildUniforms() override;
 
 private:
     void CreateUniformBuffers(cScene* pScene);
     void CreateDescriptorPool();
     void CreateDescriptorSets(cTextureHandler* pTextureHandler, cScene* pScene);
+    void Cleanup();
 };
+
+float cLightingUniformHandler::pfGamma = 1.9f;
+eLightingMode cLightingUniformHandler::peLightingMode = FANCY_LIGHTING;
 
 cLightingUniformHandler::cLightingUniformHandler(cLogicalDevice* pLogicalDevice,
                                                  cSwapChain* pSwapChain)
@@ -112,7 +128,7 @@ cLightingUniformHandler::cLightingUniformHandler(cLogicalDevice* pLogicalDevice,
 
     VkDescriptorSetLayoutCreateInfo tCameraLayoutInfo = {};
     tCameraLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    tCameraLayoutInfo.bindingCount = atLayoutBindings.size();
+    tCameraLayoutInfo.bindingCount = (uint) atLayoutBindings.size();
     tCameraLayoutInfo.pBindings = atLayoutBindings.data();
 
     if (!pLogicalDevice->CreateDescriptorSetLayout(&tCameraLayoutInfo, nullptr, &poDescriptorSetLayout))
@@ -125,10 +141,7 @@ cLightingUniformHandler::~cLightingUniformHandler()
 {
     ppLogicalDevice->DestroyDescriptorSetLayout(poDescriptorSetLayout, nullptr);
 
-    ppLogicalDevice->DestroyBuffer(poUniformBuffer, nullptr);
-    ppLogicalDevice->FreeMemory(poUniformBufferMemory, nullptr);
-
-    ppLogicalDevice->DestroyDescriptorPool(poDescriptorPool, nullptr);
+    Cleanup();
 }
 
 void cLightingUniformHandler::SetupUniformBuffers(cTextureHandler* pTextureHandler,
@@ -151,8 +164,8 @@ void cLightingUniformHandler::CreateUniformBuffers(cScene* pScene)
     }
 
     // The code below assumes that tLightsInfo is less than or
-    // equal to 32 bytes, and tLight is exactly 32 bytes.
-    static_assert(sizeof(tLightsInfo) <= 32, "Alignment code needs to be updated when tLightsInfo changes");
+    // equal to 48 bytes, and tLight is exactly 32 bytes.
+    static_assert(sizeof(tLightsInfo) <= 48, "Alignment code needs to be updated when tLightsInfo changes");
     static_assert(sizeof(tLight) == 32, "Alignment code needs to be updated when tLight changes");
 
     puiLightsMemorySize = 32 + (sizeof(tLight) * puiLightsCount);
@@ -181,6 +194,8 @@ void cLightingUniformHandler::UpdateUniformBuffers(cScene* pScene)
     tLightsInfo.uiLightsCount = puiLightsCount;
     tLightsInfo.tViewPos = glm::vec4(pCamera->GetPosition(), 0.0f);
     tLightsInfo.fAmbientLight = pScene->pfAmbientLight;
+    tLightsInfo.fGamma = pfGamma;
+    tLightsInfo.uiLightingMode = peLightingMode;
 
     // Loop over all the objects in the scene. If the object is a
     //  light, add it to the list of lights
@@ -194,8 +209,8 @@ void cLightingUniformHandler::UpdateUniformBuffers(cScene* pScene)
     }
 
     // The code below assumes that tLightsInfo is less than or
-    // equal to 32 bytes, and tLight is exactly 32 bytes.
-    static_assert(sizeof(tLightsInfo) <= 32, "Alignment code needs to be updated when tLightsInfo changes");
+    // equal to 48 bytes, and tLight is exactly 32 bytes.
+    static_assert(sizeof(tLightsInfo) <= 48, "Alignment code needs to be updated when tLightsInfo changes");
     static_assert(sizeof(tLight) == 32, "Alignment code needs to be updated when tLight changes");
 
     // Copy the data to memory
@@ -204,7 +219,7 @@ void cLightingUniformHandler::UpdateUniformBuffers(cScene* pScene)
                                0, reinterpret_cast<void**>(&pMappedMemory));
     {
         memcpy(pMappedMemory, &tLightsInfo, sizeof(tLightsInfo));
-        memcpy(pMappedMemory + 32, &atLights[0], puiLightsMemorySize - 32);
+        if (atLights.size() > 0) memcpy(pMappedMemory + 64, &atLights[0], puiLightsMemorySize - 64);
     }
     ppLogicalDevice->UnmapMemory(poUniformBufferMemory);
 
@@ -224,7 +239,7 @@ void cLightingUniformHandler::CreateDescriptorPool()
 
     VkDescriptorPoolCreateInfo tPoolInfo = {};
     tPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    tPoolInfo.poolSizeCount = atPoolSizes.size();
+    tPoolInfo.poolSizeCount = (uint) atPoolSizes.size();
     tPoolInfo.pPoolSizes = atPoolSizes.data();
 
     tPoolInfo.maxSets = 6;
@@ -329,7 +344,7 @@ void cLightingUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHand
     atDescriptorWrites[5].descriptorCount = 1;
     atDescriptorWrites[5].pImageInfo = &tOverlayInfo;
 
-    ppLogicalDevice->UpdateDescriptorSets(atDescriptorWrites.size(), atDescriptorWrites.data(),
+    ppLogicalDevice->UpdateDescriptorSets((uint) atDescriptorWrites.size(), atDescriptorWrites.data(),
                                           0, nullptr);
 }
 
@@ -352,4 +367,17 @@ void cLightingUniformHandler::CmdBindDescriptorSets(VkCommandBuffer& commandBuff
                             oPipelineLayout, 0,
                             1, &poDescriptorSet,
                             0, nullptr);
+}
+
+void cLightingUniformHandler::RebuildUniforms()
+{
+    Cleanup();
+}
+
+void cLightingUniformHandler::Cleanup()
+{
+    ppLogicalDevice->DestroyBuffer(poUniformBuffer, nullptr);
+    ppLogicalDevice->FreeMemory(poUniformBufferMemory, nullptr);
+
+    ppLogicalDevice->DestroyDescriptorPool(poDescriptorPool, nullptr);
 }

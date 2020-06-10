@@ -100,7 +100,7 @@ void cMRTPipeline::CreatePipeline(cSwapChain* pSwapChain,
     tVertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     tVertexInputInfo.vertexBindingDescriptionCount = 1;
     tVertexInputInfo.pVertexBindingDescriptions = &atBindingDescription;
-    tVertexInputInfo.vertexAttributeDescriptionCount = atAttributeDescriptions.size();
+    tVertexInputInfo.vertexAttributeDescriptionCount = (uint) atAttributeDescriptions.size();
     tVertexInputInfo.pVertexAttributeDescriptions = atAttributeDescriptions.data();
 
     // Struct with information about the kind of geometry we want to draw
@@ -114,10 +114,10 @@ void cMRTPipeline::CreatePipeline(cSwapChain* pSwapChain,
     VkPipelineMultisampleStateCreateInfo tMultisampling = {};
     tMultisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     tMultisampling.sampleShadingEnable = VK_FALSE;
-    tMultisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+    tMultisampling.rasterizationSamples = cSwapChain::peSampleCount;
     tMultisampling.minSampleShading = 1.0f;
     tMultisampling.pSampleMask = nullptr;
-    tMultisampling.alphaToCoverageEnable = VK_FALSE;
+    tMultisampling.alphaToCoverageEnable = VK_TRUE;
     tMultisampling.alphaToOneEnable = VK_FALSE;
 
     std::array<VkPipelineColorBlendAttachmentState, 4> atBlendAttachments;
@@ -164,7 +164,7 @@ void cMRTPipeline::CreatePipeline(cSwapChain* pSwapChain,
     VkPipelineColorBlendStateCreateInfo tColorBlending = {};
     tColorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     tColorBlending.logicOpEnable = VK_FALSE;
-    tColorBlending.attachmentCount = atBlendAttachments.size();
+    tColorBlending.attachmentCount = (uint) atBlendAttachments.size();
     tColorBlending.pAttachments = atBlendAttachments.data();
 
     // Struct with information for creating the graphics pipeline

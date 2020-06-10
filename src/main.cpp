@@ -2,12 +2,23 @@
 #include <iostream>
 #include <Engine.hpp>
 #include <scenes/BusWorldScene.hpp>
+#include <overlay/TestOverlay.hpp>
+#include <overlay/MainMenu.hpp>
+#include <overlay/LoadingOverlay.hpp>
+#include <overlay/BusMenu.hpp>
+#include <overlay/SettingsMenu.hpp>
+#include <overlay/MissionMenu.hpp>
+#include <scenes/MainMenuScene.hpp>
+#include <overlay/MessageBoxOverlay.hpp>
 
 class cApplication : public cEngine
 {
+    cMultiplayerHandler* ppMultiplayerHandler = nullptr;
+    cGameLogicHandler* ppGameLogicHandler = nullptr;
 public:
     cApplication() : cEngine("Bus Simulator")
     {
+        InitialiseMissions();
     }
 
 protected:
@@ -29,9 +40,32 @@ protected:
         shaders.push_back("resources/shaders/compiled/text.frag.spv");
     }
 
-    void LoadScene(cScene** pScene) override
+    void SetupScenes(std::map<string, cScene*>& mScenes, string* sInitialScene) override
     {
-        *pScene = new cBusWorldScene();
+        mScenes["MainMenu"] = new cMainMenuScene(this);
+        mScenes["BusWorld"] = new cBusWorldScene(this, &ppGameLogicHandler);
+
+        *sInitialScene = "MainMenu";
+    }
+
+    void LoadOverlayWindows(std::map<string, cOverlayWindow*>& mOverlayWindows) override
+    {
+        mOverlayWindows["MessageBox"] = new cMessageBoxOverlay(this);
+        mOverlayWindows["MainMenu"] = new cMainMenu(this, &ppMultiplayerHandler);
+        mOverlayWindows["Test"] = new cTestOverlay(this);
+        mOverlayWindows["Loading"] = new cLoadingOverlay();
+        mOverlayWindows["BusMenu"] = new cBusMenu(this);
+        mOverlayWindows["MissionMenu"] = new cMissionMenu(this, &ppGameLogicHandler);
+        mOverlayWindows["Settings"] = new cSettingsMenu(this);
+        mOverlayWindows["InGame"] = new cInGame(this);
+        ppGameLogicHandler->SetGameOverlay(dynamic_cast<cInGame*>(mOverlayWindows["InGame"]));
+    }
+
+    void InitialiseMissions()
+    {
+        ppGameLogicHandler = new cGameLogicHandler();
+        ppGameLogicHandler->pmpMissions["Mission1"] = std::make_shared<cMissionHandler>();
+        ppGameLogicHandler->pmpMissions["Mission2"] = std::make_shared<cMissionHandler>();
     }
 };
 

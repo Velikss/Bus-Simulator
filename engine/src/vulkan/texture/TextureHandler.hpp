@@ -3,34 +3,40 @@
 #include <pch.hpp>
 #include <vulkan/LogicalDevice.hpp>
 #include <vulkan/texture/Texture.hpp>
-#include <util/Formatter.hpp>
-#include "TextureSampler.hpp"
+#include <vulkan/texture/TextureSampler.hpp>
+#include <vulkan/util/AsyncLoader.hpp>
 
 // Class for loading and managing textures
-class cTextureHandler
+class cTextureHandler : public cAsyncLoader<cTexture>
 {
 private:
     // Device where the textures and sampler are loaded
-    cLogicalDevice* ppLogicalDevice;
+    cLogicalDevice* ppLogicalDevice = nullptr;
 
     // Texture sampler
-    cTextureSampler* ppDefaultSampler;
-    cTextureSampler* ppSkyboxSampler;
+    cTextureSampler* ppDefaultSampler = nullptr;
+    cTextureSampler* ppSkyboxSampler = nullptr;
+
+    // Map with all loaded textures
+    // The key is the path to the texture
+    std::map<string, cTexture*> pmpTextures;
 
 public:
     cTextureHandler(cLogicalDevice* pLogicalDevice);
     ~cTextureHandler(void);
 
     // Load a texture from a file
-    cTexture* LoadTextureFromFile(const char* sFilePath, cTextureSampler* pSampler);
-    cTexture* LoadTextureFromFile(const char* sFilePath);
+    cTexture* LoadFromFile(const string& sFilePath, cTextureSampler* pSampler);
+    cTexture* LoadFromFile(const string& sFilePath);
 
     // Returns the texture sampler
     cTextureSampler* GetDefaultSampler();
     cTextureSampler* GetSkyboxSampler();
+protected:
+    void LoadCallback(cTexture* pObject) override;
 };
 
-cTextureHandler::cTextureHandler(cLogicalDevice* pLogicalDevice)
+cTextureHandler::cTextureHandler(cLogicalDevice* pLogicalDevice) : cAsyncLoader<cTexture>(4)
 {
     assert(pLogicalDevice != nullptr); // logical device must exist
 
@@ -45,44 +51,52 @@ cTextureHandler::cTextureHandler(cLogicalDevice* pLogicalDevice)
                                           VK_FILTER_NEAREST,
                                           VK_SAMPLER_ADDRESS_MODE_REPEAT,
                                           false);
+
+
 }
 
 cTextureHandler::~cTextureHandler(void)
 {
+    // Delete all the textures
+    for (auto&[sName, pTexture] : pmpTextures)
+    {
+        delete pTexture;
+    }
+
+    // Delete the texture samplers
     delete ppDefaultSampler;
     delete ppSkyboxSampler;
 }
 
-cTexture* cTextureHandler::LoadTextureFromFile(const char* sFilePath, cTextureSampler* pSampler)
+void cTextureHandler::LoadCallback(cTexture* pObject)
 {
-    // Load the pixel data and image size
-    int iTexWidth, iTexHeight;
-    stbi_uc* pcPixels = stbi_load(sFilePath, &iTexWidth, &iTexHeight, nullptr, STBI_rgb_alpha);
-
-    // Make sure the texture was loaded correctly
-    if (pcPixels == nullptr)
-    {
-        throw std::runtime_error(cFormatter() << "unable to load texture '" << sFilePath << "'");
-    }
-
-    // Check if the texture is valid
-    assert(iTexWidth > 0);
-    assert(iTexHeight > 0);
-
-    // Create a struct with information about the texture
-    tTextureInfo tTextureInfo = {};
-    tTextureInfo.uiWidth = iTexWidth;
-    tTextureInfo.uiHeight = iTexHeight;
-    tTextureInfo.uiSize = iTexWidth * iTexHeight * 4; // we're using RGBA so 4 byte per pixel
-    tTextureInfo.uiMipLevels = std::floor(std::log2(std::max(iTexWidth, iTexHeight))) + 1;
-
-    // Create the texture object and return it
-    return new cTexture(ppLogicalDevice, tTextureInfo, pcPixels, sFilePath, pSampler);
+    pObject->LoadIntoRAM();
+    pObject->CopyIntoGPU();
+    pObject->UnloadFromRAM();
 }
 
-cTexture* cTextureHandler::LoadTextureFromFile(const char* sFilePath)
+cTexture* cTextureHandler::LoadFromFile(const string& sFilePath, cTextureSampler* pSampler)
 {
-    return LoadTextureFromFile(sFilePath, GetDefaultSampler());
+    // Try and find if this texture has already been loaded
+    auto tResult = pmpTextures.find(sFilePath);
+    if (tResult == pmpTextures.end())
+    {
+        // If not, create and load it
+        cTexture* pTexture = new cTexture(ppLogicalDevice, sFilePath, pSampler);
+        pmpTextures[sFilePath] = pTexture;
+        LoadAsync(pTexture);
+        return pTexture;
+    }
+    else
+    {
+        // If it's already loaded, just grab the loaded texture
+        return tResult->second;
+    }
+}
+
+cTexture* cTextureHandler::LoadFromFile(const string& sFilePath)
+{
+    return LoadFromFile(sFilePath, GetDefaultSampler());
 }
 
 cTextureSampler* cTextureHandler::GetDefaultSampler()

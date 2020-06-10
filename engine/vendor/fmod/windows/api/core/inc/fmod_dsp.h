@@ -286,6 +286,7 @@ typedef struct FMOD_DSP_STATE_FUNCTIONS
 
 struct FMOD_DSP_STATE
 {
+
     void                     *instance;
     void                     *plugindata;
     FMOD_CHANNELMASK          channelmask;

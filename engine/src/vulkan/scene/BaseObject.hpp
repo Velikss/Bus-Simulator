@@ -48,7 +48,9 @@ public:
 
     bool SetRotation(const glm::vec3 poRotation);
     bool SetPosition(const glm::vec3 poPosition);
+    bool SetPosition(float x, float z);
     bool SetScale(const glm::vec3 poScale);
+    glm::vec3 GetScale();
     glm::vec3 GetPosition();
     glm::vec3 GetRotation();
     bool RotateLeft(float fAngleDiff);
@@ -131,6 +133,11 @@ bool cBaseObject::SetPosition(const glm::vec3 oPosition)
     if (pbStatic || !pbLoaded || ppCollider == nullptr) poModelMatrix = CalculateModelMatrix(poPosition, poScale, poRotation);
 
     return true;
+}
+
+glm::vec3 cBaseObject::GetScale()
+{
+    return poScale;
 }
 
 bool cBaseObject::SetScale(const glm::vec3 oScale)
@@ -281,6 +288,30 @@ void cBaseObject::Setup(cColliderSet* pColliders)
 cCollider* cBaseObject::GetCollider()
 {
     return ppCollider;
+}
+
+bool cBaseObject::SetPosition(float x, float z)
+{
+    // If the object is static and has been loaded, position can't be changed
+    if (pbStatic && pbLoaded) return false;
+
+    // If the object is not static, is loaded and has a collider, handle collisions
+    if (!pbStatic && pbLoaded && ppCollider != nullptr)
+    {
+        ppCollider->ptWorldPosition = poPosition;
+        glm::vec3 oPosition = {x, poPosition.y, z};
+        glm::mat4 tMatrix = CalculateModelMatrix(oPosition, poScale, poRotation);
+        if (HandleCollision(tMatrix)) return false;
+    }
+
+    // Update the position
+    poPosition.x = x;
+    poPosition.z = z;
+
+    // If the object is static or has not been loaded, set the new matrix directly
+    if (pbStatic || !pbLoaded || ppCollider == nullptr) poModelMatrix = CalculateModelMatrix(poPosition, poScale, poRotation);
+
+    return true;
 }
 
 typedef cBaseObject cModel;

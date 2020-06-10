@@ -8,7 +8,7 @@
 class cScriptingEngine
 {
 public:
-    duk_context *ppoContext;
+    duk_context* ppoContext;
 
     cScriptingEngine()
     {
@@ -29,11 +29,11 @@ public:
 
     void Init();
 
-    void RegisterFunction(duk_c_function fnfunc, duk_idx_t iArgs, const char *psKey);
+    void RegisterFunction(duk_c_function fnfunc, duk_idx_t iArgs, const char* psKey);
 
-    bool CompileJavaScriptFile(const char *psFilename);
+    bool CompileJavaScriptFile(const char* psFilename);
 
-    bool RunJavaScriptFunction(const char *psFunctionName, void *pArga, void *pArgb);
+    bool RunJavaScriptFunction(const char* psFunctionName, void* pArga, void* pArgb);
 
 };
 
@@ -47,13 +47,13 @@ void cScriptingEngine::Init()
     duk_put_global_string(ppoContext, "println");
 }
 
-void cScriptingEngine::RegisterFunction(duk_c_function fnFunc, duk_idx_t iArgs, const char *psKey)
+void cScriptingEngine::RegisterFunction(duk_c_function fnFunc, duk_idx_t iArgs, const char* psKey)
 {
     duk_push_c_function(ppoContext, fnFunc, iArgs);
     duk_put_global_string(ppoContext, psKey);
 }
 
-bool cScriptingEngine::CompileJavaScriptFile(const char *psFilename)
+bool cScriptingEngine::CompileJavaScriptFile(const char* psFilename)
 {
     bool bSucces = false;
 
@@ -72,12 +72,13 @@ bool cScriptingEngine::CompileJavaScriptFile(const char *psFilename)
     {
         // Error during compiling
         ENGINE_WARN("Scripting compile failed (" << psFilename << ")");
-        std::cout << duk_safe_to_string(ppoContext, -1);
+        ENGINE_WARN(duk_safe_to_string(ppoContext, -1));
     }
     else
     {
         // No error so code can be evaluated
-        if(duk_pcall(ppoContext, 0) == DUK_EXEC_SUCCESS) {
+        if (duk_pcall(ppoContext, 0) == DUK_EXEC_SUCCESS)
+        {
             bSucces = true;
         }
     }
@@ -86,7 +87,7 @@ bool cScriptingEngine::CompileJavaScriptFile(const char *psFilename)
     return bSucces;
 }
 
-bool cScriptingEngine::RunJavaScriptFunction(const char *psFunctionName, void *pArga = nullptr, void *pArgb = nullptr)
+bool cScriptingEngine::RunJavaScriptFunction(const char* psFunctionName, void* pArga = nullptr, void* pArgb = nullptr)
 {
     bool bReturnVal = true;
 
@@ -103,7 +104,8 @@ bool cScriptingEngine::RunJavaScriptFunction(const char *psFunctionName, void *p
         {
             // An error occurred - display a stack trace
             duk_get_prop_string(ppoContext, -1, "stack");
-            std::cout << duk_safe_to_string(ppoContext, -1) << std::endl;
+            ENGINE_WARN(duk_safe_to_string(ppoContext, -1));
+            bReturnVal = false;
         }
         else
         {

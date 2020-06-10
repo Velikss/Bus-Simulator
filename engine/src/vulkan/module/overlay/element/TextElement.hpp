@@ -1,63 +1,141 @@
 #pragma once
 
-#define MAX_CHARACTER_COUNT 512
+#define MAX_CHARACTER_COUNT 256
 
 #include <pch.hpp>
 #include <vulkan/module/overlay/element/StaticElement.hpp>
 #include <vulkan/module/overlay/text/Font.hpp>
 
-class cTextElement : public cStaticElement
+class cTextElement : public cUIElement
 {
 private:
-    int puiNumLetters = 0;
-
-    VkDeviceSize pulBufferSize;
-
     string psText = "";
+    uint puiNumLetters = 0;
 
     float pfFontSize = 3.0f;
     cFont* ppFont = nullptr;
     glm::vec3 ptColor;
-    static bool pbInValidated;
+    uint puiWidth;
+
 public:
-    cTextElement(const tElementInfo& tInfo, cTexture* pTexture, cLogicalDevice* pLogicalDevice);
-    void LoadVertices() override;
+    void OnLoadVertices() override;
+    VkDeviceSize GetMemorySize(uint uiIndex) override;
+    void InitializeMemory(void* pMemory, uint uiIndex) override;
+    uint GetVertexCount(uint uiIndex) override;
+
+    VkImageView& GetImageView(uint uiIndex) override;
+    VkSampler& GetImageSampler(uint uiIndex) override;
 
     void SetFont(float fFontSize, cFont* pFont, glm::vec3 tColor);
-    void UpdateText(string sText);
-    VkImageView& GetImageView() override;
-    VkSampler& GetImageSampler() override;
-    uint GetVertexCount() override;
-    glm::vec3 GetColor();
-    static bool Invalidated();
-    static void Validate();
-    static void Invalidate();
-private:
-    void CopyToDevice() override;
+    void SetFont(const tFontInfo& tFont);
+    void UpdateText(const string& sText);
 
+    uint GetChildCount() override;
+    bool IsTextElement(uint uiIndex) override;
+    glm::vec3 GetColor(uint uiIndex) override;
+
+    static uint GetTextWidth(string sString, cFont* pFont, float fFontSize);
 };
 
-bool cTextElement::pbInValidated = true;
-
-cTextElement::cTextElement(const tElementInfo& tInfo, cTexture* pTexture, cLogicalDevice* pLogicalDevice)
-        : cStaticElement(tInfo, pTexture, pLogicalDevice)
+void cTextElement::OnLoadVertices()
 {
-    // Create a buffer for the text data
-    pulBufferSize = MAX_CHARACTER_COUNT * 4 * sizeof(tVertex2D);
-    assert(pulBufferSize > 0); // must be enough room for at least one character
-    cBufferHelper::CreateBuffer(pLogicalDevice, pulBufferSize,
-                                VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                                poVertexBuffer, poVertexBufferMemory);
+    ptInfo.uiWidth = GetTextWidth(psText, ppFont, pfFontSize);
+    uint uiLineCount = 1;
+    for (char c : psText) if (c == '\n') uiLineCount++;
+    ptInfo.uiHeight = ppFont->GetFontHeight(pfFontSize) * uiLineCount;
 }
 
-void cTextElement::LoadVertices()
+VkDeviceSize cTextElement::GetMemorySize(uint uiIndex)
 {
-    UpdateText(psText);
+    return MAX_CHARACTER_COUNT * 4 * sizeof(tVertex2D);
 }
 
-void cTextElement::CopyToDevice()
+void cTextElement::InitializeMemory(void* pMemory, uint uiIndex)
 {
+    const uint firstChar = STB_FONT_arial_50_usascii_FIRST_CHAR;
+
+    // Calculate text size
+    const float charW = pfFontSize / 10;
+    const float charH = pfFontSize / 10;
+
+    // Map the memory for the text buffer to a pointer
+    tVertex2D* pMapped = reinterpret_cast<tVertex2D*>(pMemory);
+
+    assert(pMapped != nullptr);
+
+    float x = 0;
+    float y = 0;
+
+    puiNumLetters = 0;
+
+    // Generate a uv mapped quad per char in the new text
+    for (auto letter : psText)
+    {
+        if (letter == '\n')
+        {
+            y += charH * 50;
+            x = 0;
+            continue;
+        }
+
+        stb_fontchar* charData = &ppFont->ppFontData[(uint) letter - firstChar];
+
+        pMapped->pos.x = (x + (float) charData->x0 * charW);
+        pMapped->pos.y = (y + (float) charData->y0 * charH);
+        pMapped->texCoord.x = charData->s0;
+        pMapped->texCoord.y = charData->t0;
+        pMapped++;
+
+        pMapped->pos.x = (x + (float) charData->x0 * charW);
+        pMapped->pos.y = (y + (float) charData->y1 * charH);
+        pMapped->texCoord.x = charData->s0;
+        pMapped->texCoord.y = charData->t1;
+        pMapped++;
+
+        pMapped->pos.x = (x + (float) charData->x1 * charW);
+        pMapped->pos.y = (y + (float) charData->y1 * charH);
+        pMapped->texCoord.x = charData->s1;
+        pMapped->texCoord.y = charData->t1;
+        pMapped++;
+
+        pMapped->pos.x = (x + (float) charData->x0 * charW);
+        pMapped->pos.y = (y + (float) charData->y0 * charH);
+        pMapped->texCoord.x = charData->s0;
+        pMapped->texCoord.y = charData->t0;
+        pMapped++;
+
+        pMapped->pos.x = (x + (float) charData->x1 * charW);
+        pMapped->pos.y = (y + (float) charData->y1 * charH);
+        pMapped->texCoord.x = charData->s1;
+        pMapped->texCoord.y = charData->t1;
+        pMapped++;
+
+        pMapped->pos.x = (x + (float) charData->x1 * charW);
+        pMapped->pos.y = (y + (float) charData->y0 * charH);
+        pMapped->texCoord.x = charData->s1;
+        pMapped->texCoord.y = charData->t0;
+        pMapped++;
+
+        x += charData->advance * charW;
+        puiNumLetters++;
+    }
+
+    puiWidth = ((uint) x) + 1;
+}
+
+uint cTextElement::GetVertexCount(uint uiIndex)
+{
+    return puiNumLetters * 6;
+}
+
+VkImageView& cTextElement::GetImageView(uint uiIndex)
+{
+    return ppFont->poFontImageView;
+}
+
+VkSampler& cTextElement::GetImageSampler(uint uiIndex)
+{
+    return ppFont->poFontImageSampler;
 }
 
 void cTextElement::SetFont(float fFontSize, cFont* pFont, glm::vec3 tColor)
@@ -68,112 +146,62 @@ void cTextElement::SetFont(float fFontSize, cFont* pFont, glm::vec3 tColor)
     pfFontSize = fFontSize;
     ppFont = pFont;
     ptColor = tColor;
+
+    ptInfo.uiWidth = GetTextWidth(psText, ppFont, pfFontSize);
+    ptInfo.uiHeight = ppFont->GetFontHeight(pfFontSize);
 }
 
-void cTextElement::UpdateText(string sText)
+void cTextElement::SetFont(const tFontInfo& tFont)
+{
+    SetFont(tFont.pfFontSize, tFont.ppFont, tFont.ptFontColor);
+}
+
+void cTextElement::UpdateText(const string& sText)
 {
     assert(ppFont != nullptr);
-
     psText = sText;
-
-    assert(sText.size() <= MAX_CHARACTER_COUNT);
-
-    float x = 0;
-    float y = 0;
-
-    const uint firstChar = STB_FONT_arial_50_usascii_FIRST_CHAR;
-
-    // Calculate text size
-    const float charW = pfFontSize / 10;
-    const float charH = pfFontSize / 10;
-
-    // Calculate text width
-    float textWidth = 0;
-    for (auto letter : sText)
-    {
-        stb_fontchar* charData = &ppFont->ppFontData[(uint) letter - firstChar];
-        textWidth += charData->advance * charW;
-    }
-
-    puiNumLetters = 0;
-
-    // Map the memory for the text buffer to a pointer
-    tVertex2D* mapped;
-    ppLogicalDevice->MapMemory(poVertexBufferMemory, 0, pulBufferSize, 0, (void**) &mapped);
-
-    assert(mapped != nullptr);
-
-    // Generate a uv mapped quad per char in the new text
-    for (auto letter : sText)
-    {
-        stb_fontchar* charData = &ppFont->ppFontData[(uint) letter - firstChar];
-
-        mapped->pos.x = (x + (float) charData->x0 * charW);
-        mapped->pos.y = (y + (float) charData->y0 * charH);
-        mapped->texCoord.x = charData->s0;
-        mapped->texCoord.y = charData->t0;
-        mapped++;
-
-        mapped->pos.x = (x + (float) charData->x1 * charW);
-        mapped->pos.y = (y + (float) charData->y0 * charH);
-        mapped->texCoord.x = charData->s1;
-        mapped->texCoord.y = charData->t0;
-        mapped++;
-
-        mapped->pos.x = (x + (float) charData->x0 * charW);
-        mapped->pos.y = (y + (float) charData->y1 * charH);
-        mapped->texCoord.x = charData->s0;
-        mapped->texCoord.y = charData->t1;
-        mapped++;
-
-        mapped->pos.x = (x + (float) charData->x1 * charW);
-        mapped->pos.y = (y + (float) charData->y1 * charH);
-        mapped->texCoord.x = charData->s1;
-        mapped->texCoord.y = charData->t1;
-        mapped++;
-
-        x += charData->advance * charW;
-
-        puiNumLetters++;
-    }
-
-    // Unmap the memory again
-    ppLogicalDevice->UnmapMemory(poVertexBufferMemory);
-
+    auto oSubStrings = split(sText, "\n");
+    ptInfo.uiWidth = 0;
+    uint uiTemp = 0;
+    for(auto& oEntry : oSubStrings)
+        if ((uiTemp = GetTextWidth(oEntry, ppFont, pfFontSize)) > ptInfo.uiWidth)
+            ptInfo.uiWidth = uiTemp;
+    uint uiLineCount = 1;
+    for (char c : psText) if (c == '\n') uiLineCount++;
+    ptInfo.uiHeight = ppFont->GetFontHeight(pfFontSize) * uiLineCount;
     Invalidate();
 }
 
-uint cTextElement::GetVertexCount()
+uint cTextElement::GetChildCount()
 {
-    return puiNumLetters * 4;
+    return 1;
 }
 
-VkImageView& cTextElement::GetImageView()
+bool cTextElement::IsTextElement(uint uiIndex)
 {
-    return ppFont->poFontImageView;
+    return true;
 }
 
-VkSampler& cTextElement::GetImageSampler()
-{
-    return ppFont->poFontImageSampler;
-}
-
-glm::vec3 cTextElement::GetColor()
+glm::vec3 cTextElement::GetColor(uint uiIndex)
 {
     return ptColor;
 }
 
-bool cTextElement::Invalidated()
+uint cTextElement::GetTextWidth(string sString, cFont* pFont, float fFontSize)
 {
-    return pbInValidated;
-}
+    const uint firstChar = STB_FONT_arial_50_usascii_FIRST_CHAR;
 
-void cTextElement::Invalidate()
-{
-    pbInValidated = true;
-}
+    // Calculate character size
+    const float charW = fFontSize / 10;
 
-void cTextElement::Validate()
-{
-    pbInValidated = false;
+    // Calculate text width
+    float fTextWidth = 0;
+    for (auto letter : sString)
+    {
+        if (letter == '\n') break;
+        stb_fontchar* charData = &pFont->ppFontData[(uint) letter - firstChar];
+        fTextWidth += charData->advance * charW;
+    }
+
+    return ((uint) fTextWidth) + 1;
 }

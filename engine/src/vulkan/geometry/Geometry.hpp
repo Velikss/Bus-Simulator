@@ -18,24 +18,29 @@ protected:
     uint puiVertexCount;
     uint puiIndexCount;
 
+    glm::vec2 ptUVScale;
+
     // Device where this geometry is loaded
     cLogicalDevice* ppLogicalDevice;
 
+    string psFilePath;
+
     // Buffer and memory handles for the vertices and indices
-    VkBuffer poVertexBuffer;
-    VkDeviceMemory poVertexBufferMemory;
-    VkBuffer poIndexBuffer;
-    VkDeviceMemory poIndexBufferMemory;
+    VkBuffer poVertexBuffer = VK_NULL_HANDLE;
+    VkDeviceMemory poVertexBufferMemory = VK_NULL_HANDLE;
+    VkBuffer poIndexBuffer = VK_NULL_HANDLE;
+    VkDeviceMemory poIndexBufferMemory = VK_NULL_HANDLE;
 
 public:
-    // Create a new Geometry from an OBJ file
-    static cGeometry* FromOBJFile(const char* sFilePath,
-                                  cLogicalDevice* pLogicalDevice,
-                                  float fXUVScale = 1.0f,
-                                  float fYUVScale = 1.0f);
-
-    // Cleans up the buffers and frees the memory on the device which is used for this geometry
+    cGeometry(cLogicalDevice* pLogicalDevice,
+              const string& sFilePath,
+              const glm::vec2& tUVScale);
     ~cGeometry();
+
+    virtual void LoadIntoRAM();
+    void CopyIntoGPU();
+    void UnloadFromRAM();
+    void UnloadFromGPU();
 
     // Returns the amount of indices in this geometry
     uint GetIndexCount();
@@ -44,56 +49,63 @@ public:
     void CmdBindVertexBuffer(VkCommandBuffer& oCommandBuffer);
     // Add a command to the command buffer which binds the index buffer
     void CmdBindIndexBuffer(VkCommandBuffer& oCommandBuffer);
-
-protected:
-    // Setup buffers for the vertices and indices on the device and copy the data to them
-    void CopyToDevice(cLogicalDevice* pLogicalDevice);
 };
 
-cGeometry* cGeometry::FromOBJFile(const char* sFilePath,
-                                  cLogicalDevice* pLogicalDevice,
-                                  float fXUVScale, float fYUVScale)
+cGeometry::cGeometry(cLogicalDevice* pLogicalDevice,
+                     const string& sFilePath,
+                     const glm::vec2& tUVScale)
 {
-    cGeometry* pGeometry = new cGeometry();
+    assert(pLogicalDevice != nullptr);
+    assert(sFilePath.length() > 0);
 
-    // Load the model into the vertices and indices lists
-    cModelHelper::LoadModel(sFilePath, pGeometry->patVertices, pGeometry->paiIndices);
-
-    // Get the amount of vertices and indices
-    pGeometry->puiVertexCount = pGeometry->patVertices.size();
-    pGeometry->puiIndexCount = pGeometry->paiIndices.size();
-
-    assert(pGeometry->puiVertexCount > 0);  // there should be vertices
-    assert(pGeometry->puiIndexCount > 0);   // there should be indices
-
-    // If a custom UV scale is specified, rescale the UV's
-    if (fXUVScale != 1.0f || fYUVScale != 1.0f)
-    {
-        for (Vertex& tVertex : pGeometry->patVertices)
-        {
-            tVertex.texCoord.x *= fXUVScale;
-            tVertex.texCoord.y *= fYUVScale;
-        }
-    }
-
-    // Setup the buffers on the device and copy the data there
-    pGeometry->CopyToDevice(pLogicalDevice);
-
-    // Clear the vertices and indices now that they've been loaded on the device
-    pGeometry->patVertices.clear();
-    pGeometry->paiIndices.clear();
-
-    ENGINE_LOG("Loaded Geometry " << sFilePath << " with " << pGeometry->puiVertexCount << " vertices");
-
-    return pGeometry;
+    ppLogicalDevice = pLogicalDevice;
+    psFilePath = sFilePath;
+    ptUVScale = tUVScale;
 }
 
-void cGeometry::CopyToDevice(cLogicalDevice* pLogicalDevice)
+cGeometry::~cGeometry()
 {
-    assert(pLogicalDevice != nullptr);  // can't setup buffers on an non-existent device
+    if (patVertices.size() > 0)
+    {
+        UnloadFromRAM();
+    }
+    if (poVertexBuffer != VK_NULL_HANDLE)
+    {
+        UnloadFromGPU();
+    }
+}
 
-    // Store the logical device so we can clean up the buffers in the destructor
-    ppLogicalDevice = pLogicalDevice;
+void cGeometry::LoadIntoRAM()
+{
+    assert(patVertices.size() == 0);
+    assert(paiIndices.size() == 0);
+
+    // Load the model into the vertices and indices lists
+    cModelHelper::LoadModel(psFilePath.c_str(), patVertices, paiIndices);
+
+    // Get the amount of vertices and indices
+    puiVertexCount = (uint) patVertices.size();
+    puiIndexCount = (uint) paiIndices.size();
+
+    assert(puiVertexCount > 0);  // there should be vertices
+    assert(puiIndexCount > 0);   // there should be indices
+
+    // If a custom UV scale is specified, rescale the UV's
+    if (ptUVScale.x != 1.0f || ptUVScale.y != 1.0f)
+    {
+        for (Vertex& tVertex : patVertices)
+        {
+            tVertex.texCoord.x *= ptUVScale.x;
+            tVertex.texCoord.y *= ptUVScale.y;
+        }
+    }
+}
+
+void cGeometry::CopyIntoGPU()
+{
+    assert(ppLogicalDevice != nullptr);       // can't setup buffers on an non-existent device
+    assert(poVertexBuffer == VK_NULL_HANDLE);
+    assert(poIndexBuffer == VK_NULL_HANDLE);
 
     // Create and setup the vertex buffer
     VkDeviceSize ulVertexBufferSize = sizeof(patVertices[0]) * patVertices.size();
@@ -108,17 +120,38 @@ void cGeometry::CopyToDevice(cLogicalDevice* pLogicalDevice)
                                    VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
                                    paiIndices.data(), ulIndexBufferSize,
                                    poIndexBuffer, poIndexBufferMemory);
+
+    ENGINE_LOG("Loaded geometry " << psFilePath
+                                  << " (" << paiIndices.size() / 3 << " triangles)");
 }
 
-cGeometry::~cGeometry()
+void cGeometry::UnloadFromRAM()
 {
+    assert(patVertices.size() > 0);
+    assert(paiIndices.size() > 0);
+
+    patVertices.resize(0);
+    paiIndices.resize(0);
+}
+
+void cGeometry::UnloadFromGPU()
+{
+    assert(poVertexBuffer != VK_NULL_HANDLE);
+    assert(poIndexBuffer != VK_NULL_HANDLE);
+
     // Destroy and free the index buffer
     ppLogicalDevice->DestroyBuffer(poIndexBuffer, nullptr);
     ppLogicalDevice->FreeMemory(poIndexBufferMemory, nullptr);
 
+    poIndexBuffer = VK_NULL_HANDLE;
+    poIndexBufferMemory = VK_NULL_HANDLE;
+
     // Destroy and free the vertex buffer
     ppLogicalDevice->DestroyBuffer(poVertexBuffer, nullptr);
     ppLogicalDevice->FreeMemory(poVertexBufferMemory, nullptr);
+
+    poVertexBuffer = VK_NULL_HANDLE;
+    poVertexBufferMemory = VK_NULL_HANDLE;
 }
 
 uint cGeometry::GetIndexCount(void)

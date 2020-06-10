@@ -1,20 +1,22 @@
 #pragma once
 #include <pch.hpp>
-#include <server/src/NetworkClient.hpp>
-#include <server/src/Http/HTTP.hpp>
+#include <NetworkClient.hpp>
+#include <Http/HTTP.hpp>
 
 using namespace cHttp;
 
 class cSSOClient : public cNetworkClient
 {
+protected:
+    bool pbConnectionAcitve = false;
     string psSessionKey = "";
 public:
     cSSOClient(tNetworkInitializationSettings* ptSettings) : cNetworkClient(ptSettings)
     {
     }
-
-    bool Login(const string& sLoginName, const string& sPassword, size_t uiTimeOut = 300);
-    bool Logout();
+    virtual void Disconnect();
+    virtual bool Login(const string& sLoginName, const string& sPassword, size_t uiTimeOut = 300);
+    virtual bool Logout();
     bool SendRequest(cRequest &oRequest, cResponse& oResponse, int uiTimeOut = 300);
 };
 
@@ -34,9 +36,11 @@ bool cSSOClient::Login(const string &sLoginName, const string &sPassword, size_t
     oRequest.SetResource("/sso/session/request");
     oRequest.SetHeaders(aHeaders);
 
-    if(!SendRequest(oRequest, oResponse)) return false;
+    if(!SendRequest(oRequest, oResponse, -1)) return false;
     psSessionKey = oResponse.GetHeader("session-key");
-    return oResponse.GetResponseCode() == 200;
+    if(oResponse.GetResponseCode() == 200)
+        pbConnectionAcitve = true;
+    return pbConnectionAcitve;
 }
 
 bool cSSOClient::Logout()
@@ -54,7 +58,8 @@ bool cSSOClient::Logout()
     oRequest.SetHeaders(aHeaders);
 
     SendRequest(oRequest, oResponse, -1);
-    psSessionKey = "";
+    psSessionKey.clear();
+    pbConnectionAcitve = false;
     return oResponse.GetResponseCode() == 200;
 }
 
@@ -62,6 +67,12 @@ bool cSSOClient::SendRequest(cRequest &oRequest, cResponse& oResponse, int uiTim
 {
     oRequest.SetHeader("session-key" , psSessionKey);
     string sRequest = oRequest.Serialize();
-    SendBytes((const byte*)sRequest.c_str(), sRequest.size());
+    SendBytes((const byte*)sRequest.c_str(), (int) sRequest.size());
     return RecieveResponse(this, oResponse, uiTimeOut);
+}
+
+void cSSOClient::Disconnect()
+{
+    cNetworkClient::Disconnect();
+    this->pbConnectionAcitve = false;
 }

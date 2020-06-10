@@ -15,6 +15,8 @@ public:
     virtual uint GetDescriptorSetLayoutCount(void) = 0;
     virtual VkDescriptorSetLayout* GetDescriptorSetLayouts(void) = 0;
 
+    virtual void RebuildUniforms() = 0;
+
     virtual void CmdBindDescriptorSets(VkCommandBuffer& commandBuffer,
                                        VkPipelineLayout& oPipelineLayout,
                                        uint uiIndex) = 0;

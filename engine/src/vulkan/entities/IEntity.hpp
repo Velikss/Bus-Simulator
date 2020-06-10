@@ -6,7 +6,7 @@
 class IBaseEntity : public cBaseObject
 {
 public:
-    IBaseEntity(cMesh *mesh) : cBaseObject(mesh, nullptr, false)
+    IBaseEntity(cMesh* mesh) : cBaseObject(mesh, nullptr, false)
     {
 
     }
@@ -15,7 +15,7 @@ public:
 class IEntity : public IBaseEntity
 {
 public:
-    IEntity(cMesh *mesh) : IBaseEntity(mesh)
+    IEntity(cMesh* mesh) : IBaseEntity(mesh)
     {
 
     }
@@ -48,8 +48,8 @@ public:
 
     }
 
-    virtual void GetEntityList(std::vector<IEntity *> **entities) = 0;
+    virtual void GetEntityList(std::vector<IEntity*>** entities) = 0;
 
-    virtual std::vector<IBaseEntity *>* GetEntities() = 0;
+    virtual std::vector<IBaseEntity*>* GetEntities() = 0;
 };
 

@@ -12,6 +12,9 @@
 #include <vulkan/geometry/ViewportQuadGeometry.hpp>
 #include <vulkan/module/overlay/element/StaticElement.hpp>
 #include <vulkan/AudioHandler.hpp>
+#include <vulkan/entities/cBehaviourHandler.hpp>
+#include <vulkan/geometry/GeometryHandler.hpp>
+#include <vulkan/util/Profiler.hpp>
 
 class cScene : public iInputHandler, public iTickTask
 {
@@ -27,8 +30,6 @@ protected:
 
     std::map<string, cBaseObject*> pmpObjects;
 
-    std::map<string, cStaticElement*> pmpOverlay;
-
     bool paKeys[GLFW_KEY_LAST] = {false};
 
     cColliderSet* ppColliders = new cColliderSet();
@@ -40,8 +41,11 @@ private:
     std::vector<cLightObject*> papLightObjects;
 
 public:
-    glm::vec3 textColor = glm::vec3(0, 1, 0);
-    float pfAmbientLight = 0.2;
+    float pfAmbientLight = 0.3f;
+
+    cBehaviourHandler* pcbSeperation = nullptr;
+    cBehaviourHandler* pcbCohesion = nullptr;
+    cBehaviourHandler* pcbSeeking = nullptr;
 
     cScene();
     virtual ~cScene();
@@ -51,10 +55,8 @@ public:
 
     uint GetObjectCount();
     std::map<string, cBaseObject*>& GetObjects();
-    std::map<string, cMesh*>& GetMeshes();
     std::vector<cBaseObject*>& GetMovableObjects();
     std::vector<cLightObject*>& GetLightObjects();
-    std::map<string, cStaticElement*> GetOverlay();
 
     Camera& GetCamera();
     Camera** GetCameraRef();
@@ -62,14 +64,21 @@ public:
     bool ShouldQuit();
 
     virtual void Load(cTextureHandler* pTextureHandler,
+                      cGeometryHandler* pGeometryHandler,
                       cLogicalDevice* pLogicalDevice,
                       cAudioHandler* pAudioHandler = nullptr);
+    virtual void Unload();
+    void UnloadObjects();
 
-    void HandleMouse(uint uiDeltaX, uint uiDeltaY) override;
+    void HandleMouse(double dDeltaX, double dDeltaY) override;
     void HandleKey(uint uiKeyCode, uint uiAction) override;
     void HandleScroll(double dOffsetX, double dOffsetY) override;
     void HandleCharacter(char cCharacter) override;
 
+    virtual void OnInputDisable();
+    void HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction) override;
+
+    virtual void AfterLoad();
 protected:
     void Quit();
 };
@@ -81,36 +90,35 @@ cScene::cScene()
 cScene::~cScene()
 {
     delete ppColliders;
+    delete poCamera;
 
-    for (auto oObject : pmpObjects)
-    {
-        delete oObject.second;
-    }
+    UnloadObjects();
 
-    for (auto oMesh : pmpMeshes)
+    ENGINE_LOG("Cleaned up scene");
+}
+
+void cScene::Load(cTextureHandler* pTextureHandler,
+                  cGeometryHandler* pGeometryHandler,
+                  cLogicalDevice* pLogicalDevice,
+                  cAudioHandler* pAudioHandler)
+{
+    this->ppAudioHandler = pAudioHandler;
+
+    for (auto oTexture : pmpTextures)
     {
-        delete oMesh.second;
+        assert(oTexture.second != nullptr);
     }
 
     for (auto oGeometry : pmpGeometries)
     {
-        delete oGeometry.second;
+        assert(oGeometry.second != nullptr);
     }
 
-    for (auto oTexture : pmpTextures)
+    for (auto oMesh : pmpMeshes)
     {
-        delete oTexture.second;
+        assert(oMesh.second != nullptr);
+        oMesh.second->Validate();
     }
-
-    for (auto oElement : pmpOverlay)
-    {
-        delete oElement.second;
-    }
-}
-
-void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevice, cAudioHandler* pAudioHandler)
-{
-    this->ppAudioHandler = pAudioHandler;
 
     for (auto oObject : pmpObjects)
     {
@@ -139,26 +147,43 @@ void cScene::Load(cTextureHandler* pTextureHandler, cLogicalDevice* pLogicalDevi
         oObject.second->Setup(ppColliders);
     }
 
+    pTextureHandler->WaitForLoadComplete();
+    pGeometryHandler->WaitForLoadComplete();
+
+    ENGINE_LOG("Loaded "
+                       << pmpTextures.size() << " textures, "
+                       << pmpGeometries.size() << " geometries, "
+                       << pmpMeshes.size() << " meshes, and "
+                       << pmpObjects.size() << " objects, of which " << papMovableObjects.size()
+                       << " are movable and " << papLightObjects.size() << " are lights");
+}
+
+void cScene::Unload()
+{
+    UnloadObjects();
+
+    papLightObjects.clear();
+    papMovableObjects.clear();
+    ppColliders->papColliders.clear();
+    poCamera->Reset();
+}
+
+void cScene::UnloadObjects()
+{
+    for (auto oObject : pmpObjects)
+    {
+        delete oObject.second;
+    }
+    pmpObjects.clear();
+
     for (auto oMesh : pmpMeshes)
     {
-        assert(oMesh.second != nullptr);
+        delete oMesh.second;
     }
+    pmpMeshes.clear();
 
-    for (auto oGeometry : pmpGeometries)
-    {
-        assert(oGeometry.second != nullptr);
-    }
-
-    for (auto oTexture : pmpTextures)
-    {
-        assert(oTexture.second != nullptr);
-    }
-
-    for (auto oElement : pmpOverlay)
-    {
-        assert(oElement.second != nullptr);
-        oElement.second->LoadVertices();
-    }
+    pmpGeometries.clear();
+    pmpTextures.clear();
 }
 
 void cScene::Tick()
@@ -173,17 +198,12 @@ void cScene::Update()
 
 uint cScene::GetObjectCount()
 {
-    return pmpObjects.size();
+    return (uint) pmpObjects.size();
 }
 
 std::map<string, cBaseObject*>& cScene::GetObjects()
 {
     return pmpObjects;
-}
-
-std::map<string, cMesh*>& cScene::GetMeshes()
-{
-    return pmpMeshes;
 }
 
 std::vector<cBaseObject*>& cScene::GetMovableObjects()
@@ -194,11 +214,6 @@ std::vector<cBaseObject*>& cScene::GetMovableObjects()
 std::vector<cLightObject*>& cScene::GetLightObjects()
 {
     return papLightObjects;
-}
-
-std::map<string, cStaticElement*> cScene::GetOverlay()
-{
-    return pmpOverlay;
 }
 
 Camera& cScene::GetCamera()
@@ -216,14 +231,14 @@ bool cScene::ShouldQuit()
     return bQuit;
 }
 
-void cScene::HandleMouse(uint uiDeltaX, uint uiDeltaY)
+void cScene::HandleMouse(double dDeltaX, double dDeltaY)
 {
-    poCamera->LookMouseDiff(uiDeltaX, uiDeltaY);
+    poCamera->LookMouseDiff(dDeltaX, dDeltaY);
 }
 
 void cScene::HandleKey(uint uiKeyCode, uint uiAction)
 {
-    if (uiKeyCode != 0)
+    if (uiKeyCode != 0 && uiKeyCode < GLFW_KEY_LAST)
     {
         if (uiAction == GLFW_PRESS) paKeys[uiKeyCode] = true;
         if (uiAction == GLFW_RELEASE) paKeys[uiKeyCode] = false;
@@ -240,7 +255,24 @@ void cScene::HandleCharacter(char cCharacter)
 
 }
 
-Camera **cScene::GetCameraRef()
+void cScene::HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction)
+{
+
+}
+
+Camera** cScene::GetCameraRef()
 {
     return &poCamera;
+}
+
+void cScene::OnInputDisable()
+{
+    for (uint uiIndex = 0; uiIndex < sizeof(paKeys) / sizeof(paKeys[0]); uiIndex++)
+    {
+        paKeys[uiIndex] = false;
+    }
+}
+
+void cScene::AfterLoad()
+{
 }

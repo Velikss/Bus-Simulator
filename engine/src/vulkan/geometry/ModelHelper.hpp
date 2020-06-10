@@ -85,7 +85,7 @@ void cModelHelper::LoadModel(const char* sFilePath, std::vector<Vertex>& atVerti
                 assert(uiVertexCount <= UINT32_MAX); // we cannot have more than UINT32_MAX vertices
 
                 // Add the vertex
-                mUniqueVertices[tVertex] = uiVertexCount;
+                mUniqueVertices[tVertex] = (uint) uiVertexCount;
                 atVertices.push_back(tVertex);
 
             }

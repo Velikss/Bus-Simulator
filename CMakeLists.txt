@@ -8,6 +8,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -luuid")
 
+add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+
 enable_testing()
 
 add_subdirectory(server)
@@ -15,13 +17,15 @@ add_subdirectory(engine)
 
 set(Headers
     ${PROJECT_SOURCE_DIR}/src/pch.hpp
-)
+        src/overlay/MainMenu.hpp engine/src/vulkan/module/overlay/element/elements/cButton.hpp engine/src/vulkan/module/overlay/element/elements/LabeledElement.hpp src/scenes/BlankScene.hpp src/overlay/BaseMenu.hpp src/overlay/LoadingOverlay.hpp
+        src/overlay/MissionMenu.hpp
+        src/logic/TrafficLightController.hpp src/overlay/SettingsMenu.hpp src/overlay/InGame.hpp src/overlay/MessageBoxOverlay.hpp)
 set(Sources
     ${PROJECT_SOURCE_DIR}/src/main.cpp
 )
 
-include_directories(${PROJECT_SOURCE_DIR}/src)
-add_executable(${This} ${Sources} ${Headers})
+include_directories(${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/server/src ${PROJECT_SOURCE_DIR}/server/vendor)
+add_executable(${This} ${Sources} ${Headers} src/overlay/TestOverlay.hpp)
 target_link_libraries(${This} engine)
 
 IF (WIN32)

@@ -6,67 +6,67 @@
 class cEntityGroup : public IEntityGroup
 {
 private:
-    std::vector<cEntity *> poEntities;
-    std::vector<cBehaviourHandler *> paBehaviourHandlers;
+    std::vector<cEntity*> poEntities;
+    std::vector<cBehaviourHandler*> paBehaviourHandlers;
 public:
     cEntityGroup() : IEntityGroup()
     {
 
     }
 
-    void AddEntity(cEntity *pEntity);
+    void AddEntity(cEntity* pEntity);
 
-    void RemoveEntity(cEntity *pEntity);
+    void RemoveEntity(cEntity* pEntity);
 
-    std::vector<IBaseEntity *>* GetEntities();
+    std::vector<IBaseEntity*>* GetEntities() override;
 
-    void AddBehaviour(cBehaviourHandler *&poBehaviour);
+    void AddBehaviour(cBehaviourHandler*& poBehaviour);
 
-    void RemoveBehaviour(cBehaviourHandler *poBehaviour);
+    void RemoveBehaviour(cBehaviourHandler* poBehaviour);
 
     void UpdateEntities();
 
-    void GetEntityList(std::vector<IEntity *> **entities) override;
+    void GetEntityList(std::vector<IEntity*>** entities) override;
 
     bool BehaviourExists(cBehaviourHandler* cbBehaviour);
 
     void ClearEntities();
 };
 
-void cEntityGroup::AddEntity(cEntity *pEntity)
+void cEntityGroup::AddEntity(cEntity* pEntity)
 {
     poEntities.push_back(pEntity);
 }
 
-void cEntityGroup::RemoveEntity(cEntity *pEntity)
+void cEntityGroup::RemoveEntity(cEntity* pEntity)
 {
     poEntities.erase(std::remove(poEntities.begin(), poEntities.end(), pEntity));
 }
 
-std::vector<IBaseEntity *>* cEntityGroup::GetEntities()
+std::vector<IBaseEntity*>* cEntityGroup::GetEntities()
 {
-    return reinterpret_cast<std::vector<IBaseEntity *> *>(&poEntities);
+    return reinterpret_cast<std::vector<IBaseEntity*>*>(&poEntities);
 }
 
-void cEntityGroup::GetEntityList(std::vector<IEntity *> **entities)
+void cEntityGroup::GetEntityList(std::vector<IEntity*>** entities)
 {
-    *entities = reinterpret_cast<std::vector<IEntity *> *>(&poEntities);
+    *entities = reinterpret_cast<std::vector<IEntity*>*>(&poEntities);
 }
 
-void cEntityGroup::AddBehaviour(cBehaviourHandler *&poBehaviour)
+void cEntityGroup::AddBehaviour(cBehaviourHandler*& poBehaviour)
 {
     paBehaviourHandlers.push_back(poBehaviour);
 }
 
-void cEntityGroup::RemoveBehaviour(cBehaviourHandler *poBehaviour)
+void cEntityGroup::RemoveBehaviour(cBehaviourHandler* poBehaviour)
 {
     paBehaviourHandlers.erase(std::remove(paBehaviourHandlers.begin(), paBehaviourHandlers.end(), poBehaviour));
 }
 
 bool cEntityGroup::BehaviourExists(cBehaviourHandler* cbBehaviour)
 {
-    std::vector<cBehaviourHandler *>::iterator it;
-    it = find (paBehaviourHandlers.begin(), paBehaviourHandlers.end(), cbBehaviour);
+    std::vector<cBehaviourHandler*>::iterator it;
+    it = find(paBehaviourHandlers.begin(), paBehaviourHandlers.end(), cbBehaviour);
     if (it != paBehaviourHandlers.end())
         return true;
     else
@@ -80,12 +80,12 @@ void cEntityGroup::ClearEntities()
 
 void cEntityGroup::UpdateEntities()
 {
-    if(!paBehaviourHandlers.empty())
+    if (!paBehaviourHandlers.empty())
     {
-        for (auto &entity : poEntities)
+        for (auto& entity : poEntities)
         {
             entity->SetSteeringForce(glm::vec2(0, 0));
-            for (auto &cBehaviourHandler : paBehaviourHandlers)
+            for (auto& cBehaviourHandler : paBehaviourHandlers)
             {
                 cBehaviourHandler->Update(entity, this);
             }

@@ -20,10 +20,12 @@ private:
 
     // Tasks to run every tick
     std::vector<iTickTask*> papTasks;
-    std::mutex poTasksMutex;
+    std::vector<iTickTask*> papStagingTasks;
+    bool pbTasksInvalid = false;
 
     // If false, the loop will terminate
-    bool pbRunning;
+    bool pbRunning = true;
+    bool pbPaused = false;
 
 public:
     // Destroys all the tasks inside this loop
@@ -34,9 +36,12 @@ public:
 
     // Add a task to run every tick
     void AddTask(iTickTask* pTask);
+    void RemoveTask(iTickTask* pTask);
 
     // Stop this GameLoop
     void Stop();
+
+    void SetPaused(bool bPaused);
 
 private:
     // Main loop handling the timing
@@ -61,15 +66,33 @@ void cGameLoop::operator()()
 
 void cGameLoop::AddTask(iTickTask* pTask)
 {
-    // Lock the mutex before adding the task
-    poTasksMutex.lock();
-    papTasks.push_back(pTask);
-    poTasksMutex.unlock();
+    papStagingTasks.push_back(pTask);
+    pbTasksInvalid = true;
+
+    ENGINE_LOG("Added new task to game loop");
+}
+
+void cGameLoop::RemoveTask(iTickTask* pTask)
+{
+    for (auto it = papStagingTasks.begin(); it < papStagingTasks.end(); it++)
+    {
+        if (*it == pTask)
+        {
+            papStagingTasks.erase(it);
+            pbTasksInvalid = true;
+            break;
+        }
+    }
 }
 
 void cGameLoop::Stop()
 {
     pbRunning = false;
+}
+
+void cGameLoop::SetPaused(bool bPaused)
+{
+    pbPaused = bPaused;
 }
 
 void cGameLoop::MainLoop()
@@ -80,6 +103,8 @@ void cGameLoop::MainLoop()
     // tPrev is the time when the last tick started
     time_point tPrev = tNext - tPERIOD;
 
+    ENGINE_LOG("Game loop started");
+
     while (pbRunning)
     {
         // Run tick time checks
@@ -87,13 +112,28 @@ void cGameLoop::MainLoop()
         CheckTickTime(tPrev, tNow);
         tPrev = tNow;
 
-        // Run all the tick tasks
-        Tick();
+        if (!pbPaused)
+        {
+            // Run all the tick tasks
+            Tick();
+        }
+
+        if (pbTasksInvalid)
+        {
+            papTasks.clear();
+            for (iTickTask* pTask : papStagingTasks)
+            {
+                papTasks.push_back(pTask);
+            }
+            pbTasksInvalid = false;
+        }
 
         // The next tick should start PERIOD milliseconds after the last one
         tNext += tPERIOD;
         std::this_thread::sleep_until(tNext);
     }
+
+    ENGINE_LOG("Game loop stopped");
 }
 
 void cGameLoop::CheckTickTime(time_point<steady_clock> tPrev, time_point<steady_clock> tNow)
@@ -101,7 +141,7 @@ void cGameLoop::CheckTickTime(time_point<steady_clock> tPrev, time_point<steady_
     const uint uiPERIOD_COUNT = tPERIOD.count();
 
     // Calculate the time this tick took
-    uint uiTickTime = round<milliseconds>(tNow - tPrev).count();
+    uint uiTickTime = (uint) round<milliseconds>(tNow - tPrev).count();
 
     // If the time exceeds a threshold, print a warning
     if (uiTickTime > uiPERIOD_COUNT && uiTickTime - uiPERIOD_COUNT > 2)
@@ -113,18 +153,9 @@ void cGameLoop::CheckTickTime(time_point<steady_clock> tPrev, time_point<steady_
 
 void cGameLoop::Tick()
 {
-    // Try locking the mutex if it's available, otherwise print a warning message
-    if (poTasksMutex.try_lock())
+    // Run all the tick tasks
+    for (iTickTask* pTask : papTasks)
     {
-        // Run all the tick tasks
-        for (iTickTask* pTask : papTasks)
-        {
-            pTask->Tick();
-        }
-        poTasksMutex.unlock();
-    }
-    else
-    {
-        ENGINE_WARN("Skipped a tick because tasks are locked");
+        pTask->Tick();
     }
 }

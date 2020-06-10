@@ -1,5 +1,7 @@
 #pragma once
 #include <pch.hpp>
+#include <server/src/Uri.hpp>
+#include <server/src/SSO/SsoHelper.hpp>
 #include <server/src/NetworkServer.hpp>
 #include <server/src/NetworkClient.hpp>
 
@@ -19,7 +21,7 @@ public:
     {
     }
 
-    bool ConnectToSSOServer(const string& sUuid, const string& sIp, const unsigned short& usPort);
+    bool ConnectToSSOServer(const string& sUuid, const string& sIp, const unsigned short& usPort, bool bUseSSL = true);
     SSO_STATUS HandleSession(cNetworkConnection* pConnection, cRequest & oRequest);
     void WhiteListConnection(cNetworkConnection* pConnection)
     {
@@ -39,7 +41,7 @@ public:
         return paIgnoredConnections.find(pConnection) != paIgnoredConnections.end();
     }
 private:
-    bool SessionExists(string sSessionKey, cNetworkConnection* pConnection)
+    bool SessionExists(const string& sSessionKey, cNetworkConnection* pConnection)
     {
         if (paIgnoredConnections.find(pConnection) != paIgnoredConnections.end())
             return true;
@@ -68,7 +70,7 @@ private:
         oRequest.SetHeaders(aHeaders);
 
         string sRequest = oRequest.Serialize();
-        poSSOClient->SendBytes((byte*)sRequest.c_str(), sRequest.size());
+        poSSOClient->SendBytes((byte*)sRequest.c_str(), (int) sRequest.size());
 
         return cHttp::RecieveResponse(poSSOClient.get(), oAwnser, 250);
     }
@@ -93,7 +95,7 @@ void cSSOService::_OnConnect(cNetworkConnection *pConnection)
     oRequest.SetHeaders(aHeaders);
 
     string sRequest = oRequest.Serialize();
-    poSSOClient->SendBytes((byte*)sRequest.c_str(), sRequest.size());
+    poSSOClient->SendBytes((byte*)sRequest.c_str(), (int) sRequest.size());
 
     cResponse oResponse;
     RecieveResponse(pConnection, oResponse);
@@ -113,9 +115,11 @@ void cSSOService::_OnDisconnect(cNetworkConnection *pConnection)
 
 SSO_STATUS cSSOService::HandleSession(cNetworkConnection *pConnection, cRequest & oRequest)
 {
+    if (IsWhiteListed(pConnection)) return C_SSO_OK;
+
     using namespace cHttp;
     cResponse oClientAwnser;
-    if (!cHttp::RecieveRequest(pConnection, oRequest)) return false;
+    if (!cHttp::RecieveRequest(pConnection, oRequest)) return C_SSO_ERR;
     cUri oUri = cUri::ParseFromRequest(oRequest.GetResource());
     const string sSessionKey = oRequest.GetHeader("session-key");
 
@@ -123,7 +127,7 @@ SSO_STATUS cSSOService::HandleSession(cNetworkConnection *pConnection, cRequest 
     {
         oClientAwnser.SetResponseCode(404);
         string sBuffer = oClientAwnser.Serialize();
-        pConnection->SendBytes((byte*)sBuffer.c_str(), sBuffer.size());
+        pConnection->SendBytes((byte*)sBuffer.c_str(), (int) sBuffer.size());
         return C_SSO_DISCONNECT;
     }
 
@@ -131,7 +135,7 @@ SSO_STATUS cSSOService::HandleSession(cNetworkConnection *pConnection, cRequest 
     {
         oRequest.SetHeader("client-ip", pConnection->GetConnectionString());
         string sBuffer = oRequest.Serialize();
-        poSSOClient->SendBytes((byte*)sBuffer.c_str(), sBuffer.size());
+        poSSOClient->SendBytes((byte*)sBuffer.c_str(), (int) sBuffer.size());
         cResponse oResponse;
         cHttp::RecieveResponse(poSSOClient.get(), oResponse, -1);
 
@@ -141,19 +145,19 @@ SSO_STATUS cSSOService::HandleSession(cNetworkConnection *pConnection, cRequest 
             {
                 paSessions.insert({oResponse.GetHeader("session-key"), pConnection});
                 string sResponseBuffer = oResponse.Serialize();
-                pConnection->SendBytes((byte*)sResponseBuffer.c_str(), sResponseBuffer.size());
+                pConnection->SendBytes((byte*)sResponseBuffer.c_str(), (int) sResponseBuffer.size());
                 return C_SSO_LOGIN_OK;
             }
             if (oUri.pasPath[1] == "session" && oUri.pasPath[2] == "destroy")
             {
                 paSessions.erase(oResponse.GetHeader("session-key"));
                 string sResponseBuffer = oResponse.Serialize();
-                pConnection->SendBytes((byte*)sResponseBuffer.c_str(), sResponseBuffer.size());
-                return C_SSO_LOGIN_OK;
+                pConnection->SendBytes((byte*)sResponseBuffer.c_str(), (int) sResponseBuffer.size());
+                return C_SSO_NOHANDLE;
             }
         }
         string sResponseBuffer = oResponse.Serialize();
-        pConnection->SendBytes((byte*)sResponseBuffer.c_str(), sResponseBuffer.size());
+        pConnection->SendBytes((byte*)sResponseBuffer.c_str(), (int) sResponseBuffer.size());
 
         return C_SSO_NOHANDLE;
     }
@@ -173,7 +177,7 @@ SSO_STATUS cSSOService::HandleSession(cNetworkConnection *pConnection, cRequest 
         else
         {
             string sBuffer = oAwnser.Serialize();
-            pConnection->SendBytes((byte*)sBuffer.c_str(), sBuffer.size());
+            pConnection->SendBytes((byte*)sBuffer.c_str(), (int) sBuffer.size());
         }
         return C_SSO_NOHANDLE;
     }
@@ -181,7 +185,7 @@ SSO_STATUS cSSOService::HandleSession(cNetworkConnection *pConnection, cRequest 
     return C_SSO_OK;
 }
 
-bool cSSOService::ConnectToSSOServer(const string &sUuid, const string &sIp, const unsigned short &usPort)
+bool cSSOService::ConnectToSSOServer(const string &sUuid, const string &sIp, const unsigned short &usPort, bool bUseSSL)
 {
     psSSOUuid = sUuid;
 
@@ -191,6 +195,7 @@ bool cSSOService::ConnectToSSOServer(const string &sUuid, const string &sIp, con
     pttSSOClientSettings->eIPVersion = cNetworkConnection::cIPVersion::eV4;
     pttSSOClientSettings->eConnectionType = cNetworkConnection::cConnectionType::eTCP;
     pttSSOClientSettings->eMode = cNetworkConnection::cMode::eNonBlocking;
+    pttSSOClientSettings->bUseSSL = bUseSSL;
 
     poSSOClient = std::make_shared<cNetworkClient>(pttSSOClientSettings.get());
 
