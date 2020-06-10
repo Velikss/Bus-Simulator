@@ -160,7 +160,15 @@ void cTextElement::UpdateText(const string& sText)
 {
     assert(ppFont != nullptr);
     psText = sText;
-    ptInfo.uiWidth = GetTextWidth(psText, ppFont, pfFontSize);
+    auto oSubStrings = split(sText, "\n");
+    ptInfo.uiWidth = 0;
+    uint uiTemp = 0;
+    for(auto& oEntry : oSubStrings)
+        if ((uiTemp = GetTextWidth(oEntry, ppFont, pfFontSize)) > ptInfo.uiWidth)
+            ptInfo.uiWidth = uiTemp;
+    uint uiLineCount = 1;
+    for (char c : psText) if (c == '\n') uiLineCount++;
+    ptInfo.uiHeight = ppFont->GetFontHeight(pfFontSize) * uiLineCount;
     Invalidate();
 }
 

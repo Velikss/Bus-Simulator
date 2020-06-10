@@ -15,6 +15,8 @@ public:
     cStaticElement* ppForeground = nullptr;
     cButton(tElementInfo tSize, uint uiPadding, cTexture* pTexture, cTexture* pTextureWhenClicked, cFont* pFont, float fFontSize, glm::vec3 tTextColor);
     cButton(tElementInfo tSize, uint uiPadding, cTexture* pTexture, cTexture* pTextureWhenClicked, const tFontInfo& tFont);
+
+    void Click();
 };
 
 cButton::cButton(tElementInfo tSize, uint uiPadding, cTexture* pTexture, cTexture* pTextureWhenClicked, cFont* pFont, float fFontSize, glm::vec3 tTextColor)
@@ -42,9 +44,13 @@ void cButton::HandleMouseButton(uint uiButton, double dXPos, double dYPos, int i
         ppFocusHandler->SetFocussedElement(this);
     }
 
-    if(ppClickable->DidClick(tClick) && iAction == GLFW_RELEASE) {
-        for(auto& oEventHandler : ppaCallbacks)
-            oEventHandler(this);
-        ppForeground->Hide();
-    }
+    if(ppClickable->DidClick(tClick) && iAction == GLFW_RELEASE)
+        Click();
+}
+
+void cButton::Click()
+{
+    for(auto& oEventHandler : ppaCallbacks)
+        oEventHandler(this);
+    ppForeground->Hide();
 }
