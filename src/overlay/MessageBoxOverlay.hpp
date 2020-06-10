@@ -63,7 +63,6 @@ protected:
     }
 
     void HandleMouse(double dDeltaX, double dDeltaY) override;
-    void HandleCharacter(char cCharacter) override;
     void HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction) override;
 
     void OnOpen() override
@@ -77,15 +76,17 @@ protected:
     }
     void Update();
 public:
-    void Show(const string& sMessage, const string& sTitle = "", cButtonComposition eButtons = cButtonComposition::eNone);
+    void Show(const string& sMessage, const string& sTitle = "", cButtonComposition eButtons = cButtonComposition::eNone, std::function<void(cButton*)> fButton1Click = {});
     void Close();
 };
 
-void cMessageBoxOverlay::Show(const string& sMessage, const string& sTitle, cButtonComposition eButtons)
+void cMessageBoxOverlay::Show(const string& sMessage, const string& sTitle, cButtonComposition eButtons, std::function<void(cButton*)> fButton1Click)
 {
     cTextElement* oTitle = (cTextElement*)GetElement("Title");
     cTextElement* oText = (cTextElement*)GetElement("Text");
     cButton* oOk = (cButton*)GetElement("Ok");
+    oOk->ppaCallbacks.clear();
+    oOk->ppaCallbacks.push_back(fButton1Click);
 
     oTitle->UpdateText(sTitle);
     oText->UpdateText(sMessage);
@@ -105,21 +106,22 @@ void cMessageBoxOverlay::Close()
 
 void cMessageBoxOverlay::HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction)
 {
+    auto oClickPoint = glm::vec2{dXPos, dYPos};
     if (iAction == GLFW_PRESS)
     {
         cUIElement* oWindow = GetElement("Background");
         //TODO: collison excl. sub-components.
-        if (cCollisionHelper::CollidesWithPoint(oWindow->GetScreenEstate(), {dXPos, dYPos}))
+        if (cCollisionHelper::CollidesWithPoint(oWindow->GetScreenEstate(), oClickPoint))
             pbMovingWindow = true;
     }
     else
         pbMovingWindow = false;
-    cOverlayWindow::HandleMouseButton(uiButton, dXPos, dYPos, iAction);
-}
 
-void cMessageBoxOverlay::HandleCharacter(char cCharacter)
-{
-    cOverlayWindow::HandleCharacter(cCharacter);
+    cButton* oOk = (cButton*)GetElement("Ok");
+    if (cCollisionHelper::CollidesWithPoint(oOk->GetScreenEstate(), oClickPoint) && iAction == GLFW_PRESS)
+    {
+        oOk->Click();
+    }
 }
 
 void cMessageBoxOverlay::HandleMouse(double dDeltaX, double dDeltaY)
@@ -150,6 +152,7 @@ void cMessageBoxOverlay::Update()
 
     uint uiMaxWidth = (oTextSize.uiWidth > oTitleSize.uiWidth ? oTextSize.uiWidth : oTitleSize.uiWidth)
                       + 20;
+    if(uiMaxWidth < oOkSize.uiWidth) uiMaxWidth = oOkSize.uiWidth;
     uint uiMaxHeight = oTextSize.uiHeight + oTitleSize.uiHeight + ((oOkSize.uiHeight > 0) ? oOkSize.uiHeight + 20 : 0)
                       + 25;
     oWindow->SetScale({(uiMaxWidth / 100.0f), (uiMaxHeight / 100.0f)});

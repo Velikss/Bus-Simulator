@@ -112,47 +112,83 @@ public:
 
 void cMainMenu::HandleOnSubmit(cButton* poSender)
 {
-    cTextBoxElement* poUserName = (cTextBoxElement*)GetElement("oUserName");
-    cPasswordTextBox* poPassword = (cPasswordTextBox*)GetElement("oPassword");
+    new std::thread([&]() -> void
+                    {
+                        cTextBoxElement* poUserName = (cTextBoxElement*) GetElement("oUserName");
+                        cPasswordTextBox* poPassword = (cPasswordTextBox*) GetElement("oPassword");
 
-    poJson = {};
-    std::ifstream oConfigStream("./config.json");
-    if (!oConfigStream.is_open()) throw std::runtime_error("could not find config.");
-    oConfigStream >> poJson;
-    oConfigStream.close();
-    if (!poJson.contains("Multiplayer")) throw std::runtime_error("could not find multiplayer settings");
-    if (!poJson["Multiplayer"].contains("IP")) throw std::runtime_error("could not find server-ip setting");
-    if (!poJson["Multiplayer"].contains("PORT")) throw std::runtime_error("could not find server-port setting");
+                        if (poUserName->GetValue().size() == 0 || poPassword->GetValue().size() == 0)
+                        {
+                            poMessageBox->Show("Please fill in all the fields.", "Multiplayer",
+                                               cMessageBoxOverlay::cButtonComposition::eOk,
+                                               [&](cButton* pSender) -> void
+                                               {
+                                                   ppGameManager->ActivateOverlayWindow("MainMenu");
+                                               });
+                            return;
+                        }
 
-    string sPort = poJson["Multiplayer"]["PORT"];
-    ushort usPort = (ushort)strtoul(sPort.c_str(), NULL, 0);
+                        poJson = {};
+                        std::ifstream oConfigStream("./config.json");
+                        if (!oConfigStream.is_open()) throw std::runtime_error("could not find config.");
+                        oConfigStream >> poJson;
+                        oConfigStream.close();
+                        if (!poJson.contains("Multiplayer"))
+                            throw std::runtime_error("could not find multiplayer settings");
+                        if (!poJson["Multiplayer"].contains("IP"))
+                            throw std::runtime_error("could not find server-ip setting");
+                        if (!poJson["Multiplayer"].contains("PORT"))
+                            throw std::runtime_error("could not find server-port setting");
 
-    ptConnectNetworkSettings.sAddress = cNetworkAbstractions::DNSLookup(poJson["Multiplayer"]["IP"]);
-    ptConnectNetworkSettings.usPort = usPort;
-    ptConnectNetworkSettings.eMode = cNetworkConnection::cMode::eNonBlocking;
-    if (poJson["Multiplayer"].contains("USESSL"))
-        ptConnectNetworkSettings.bUseSSL = poJson["Multiplayer"]["USESSL"];
+                        string sPort = poJson["Multiplayer"]["PORT"];
+                        ushort usPort = (ushort) strtoul(sPort.c_str(), NULL, 0);
 
-    poJson.clear();
-    ENGINE_LOG("Connecting to: " << ptConnectNetworkSettings.sAddress << ":" << ptConnectNetworkSettings.usPort << ", SSL: " << (ptConnectNetworkSettings.bUseSSL ? "true" : "false"));
-    (*pppoMultiplayerHandler) = new cMultiplayerHandler(&ptConnectNetworkSettings);
-    if((*pppoMultiplayerHandler)->Connect(0))
-    {
-        if ((*pppoMultiplayerHandler)->Login(poUserName->GetValue(), poPassword->GetValue()))
-        {
-            ENGINE_LOG("Successfully logged in.");
-            ppGameManager->ActivateOverlayWindow("Loading");
-            ppGameManager->SwitchScene("BusWorld");
-            (*pppoMultiplayerHandler)->StartMultiplayerSession();
-            ((cBusWorldScene*)ppGameManager->GetScenes()["BusWorld"])->AssignMultiplayerHandler((*pppoMultiplayerHandler) );
-            ENGINE_LOG("Entering multiplayer mode");
-            return;
-        }
-    }
-    poMessageBox->Show("hallo ik ben bram", "Title", cMessageBoxOverlay::cButtonComposition::eOk);
-    ENGINE_WARN("Failed to log in.");
-    (*pppoMultiplayerHandler)->Disconnect();
-    delete (*pppoMultiplayerHandler);
+                        ptConnectNetworkSettings.sAddress = cNetworkAbstractions::DNSLookup(
+                                poJson["Multiplayer"]["IP"]);
+                        ptConnectNetworkSettings.usPort = usPort;
+                        ptConnectNetworkSettings.eMode = cNetworkConnection::cMode::eNonBlocking;
+                        if (poJson["Multiplayer"].contains("USESSL"))
+                            ptConnectNetworkSettings.bUseSSL = poJson["Multiplayer"]["USESSL"];
+
+                        poJson.clear();
+                        ENGINE_LOG("Connecting to: " << ptConnectNetworkSettings.sAddress << ":"
+                                                     << ptConnectNetworkSettings.usPort << ", SSL: "
+                                                     << (ptConnectNetworkSettings.bUseSSL ? "true" : "false"));
+                        (*pppoMultiplayerHandler) = new cMultiplayerHandler(&ptConnectNetworkSettings);
+                        poMessageBox->Show("Connecting...", "Multiplayer");
+                        if ((*pppoMultiplayerHandler)->Connect(5))
+                        {
+                            poMessageBox->Show("Logging in...", "Multiplayer");
+                            if ((*pppoMultiplayerHandler)->Login(poUserName->GetValue(), poPassword->GetValue()))
+                            {
+                                ppGameManager->ActivateOverlayWindow("Loading");
+                                ppGameManager->SwitchScene("BusWorld");
+                                (*pppoMultiplayerHandler)->StartMultiplayerSession();
+                                ((cBusWorldScene*) ppGameManager->GetScenes()["BusWorld"])->AssignMultiplayerHandler(
+                                        (*pppoMultiplayerHandler));
+                                ENGINE_LOG("Entering multiplayer mode");
+                                return;
+                            }
+                            else
+                                poMessageBox->Show("Failed to log in,\nAre you using the correct credentials",
+                                                   "Multiplayer", cMessageBoxOverlay::cButtonComposition::eOk,
+                                                   [&](cButton* pSender) -> void
+                                                   {
+                                                       ppGameManager->ActivateOverlayWindow("MainMenu");
+                                                       poUserName->SetValue("");
+                                                       poPassword->SetValue("");
+                                                   });
+                        }
+                        else
+                            poMessageBox->Show("Failed to connect, the server may be offline?", "Multiplayer",
+                                               cMessageBoxOverlay::cButtonComposition::eOk,
+                                               [&](cButton* pSender) -> void
+                                               {
+                                                   ppGameManager->ActivateOverlayWindow("MainMenu");
+                                               });
+                        (*pppoMultiplayerHandler)->Disconnect();
+                        delete (*pppoMultiplayerHandler);
+                    });
 }
 
 void cMainMenu::HandleSinglePlayer(cButton* poSender)
@@ -164,35 +200,82 @@ void cMainMenu::HandleSinglePlayer(cButton* poSender)
 
 void cMainMenu::HandleRegister(cButton* poSender)
 {
-    cTextBoxElement* poUserName = (cTextBoxElement*)GetElement("oUserName");
-    cPasswordTextBox* poPassword = (cPasswordTextBox*)GetElement("oPassword");
-    poJson = {};
-    std::ifstream oConfigStream("./config.json");
-    if (!oConfigStream.is_open()) throw std::runtime_error("could not find config.");
-    oConfigStream >> poJson;
-    oConfigStream.close();
-    if (!poJson.contains("Multiplayer")) throw std::runtime_error("could not find multiplayer settings");
-    if (!poJson["Multiplayer"].contains("IP")) throw std::runtime_error("could not find server-ip setting");
-    if (!poJson["Multiplayer"].contains("PORT")) throw std::runtime_error("could not find server-port setting");
+    new std::thread([&]() -> void
+                    {
+                        cTextBoxElement* poUserName = (cTextBoxElement*) GetElement("oUserName");
+                        cPasswordTextBox* poPassword = (cPasswordTextBox*) GetElement("oPassword");
 
-    string sPort = poJson["Multiplayer"]["PORT"];
-    ushort usPort = (ushort)strtoul(sPort.c_str(), NULL, 0);
+                        if (poUserName->GetValue().size() == 0 || poPassword->GetValue().size() == 0)
+                        {
+                            poMessageBox->Show("Please fill in all the fields.", "Multiplayer",
+                                               cMessageBoxOverlay::cButtonComposition::eOk,
+                                               [&](cButton* pSender) -> void
+                                               {
+                                                   ppGameManager->ActivateOverlayWindow("MainMenu");
+                                               });
+                            return;
+                        }
 
-    ptConnectNetworkSettings.sAddress = cNetworkAbstractions::DNSLookup(poJson["Multiplayer"]["IP"]);
-    ptConnectNetworkSettings.usPort = usPort;
-    ptConnectNetworkSettings.eMode = cNetworkConnection::cMode::eNonBlocking;
-    poJson.clear();
-    ENGINE_LOG("Connecting to: " << ptConnectNetworkSettings.sAddress << ":" << ptConnectNetworkSettings.usPort);
-    (*pppoMultiplayerHandler) = new cMultiplayerHandler(&ptConnectNetworkSettings);
-    if((*pppoMultiplayerHandler)->Connect())
-    {
-        if ((*pppoMultiplayerHandler)->RegisterUser(poUserName->GetValue(), poPassword->GetValue()))
-        {
-            ENGINE_LOG("Successfully registered user.");
-            return;
-        }
-    }
-    ENGINE_WARN("Failed to register user.");
-    (*pppoMultiplayerHandler)->Disconnect();
-    delete (*pppoMultiplayerHandler);
+                        poJson = {};
+                        std::ifstream oConfigStream("./config.json");
+                        if (!oConfigStream.is_open()) throw std::runtime_error("could not find config.");
+                        oConfigStream >> poJson;
+                        oConfigStream.close();
+                        if (!poJson.contains("Multiplayer"))
+                            throw std::runtime_error("could not find multiplayer settings");
+                        if (!poJson["Multiplayer"].contains("IP"))
+                            throw std::runtime_error("could not find server-ip setting");
+                        if (!poJson["Multiplayer"].contains("PORT"))
+                            throw std::runtime_error("could not find server-port setting");
+
+                        string sPort = poJson["Multiplayer"]["PORT"];
+                        ushort usPort = (ushort) strtoul(sPort.c_str(), NULL, 0);
+
+                        ptConnectNetworkSettings.sAddress = cNetworkAbstractions::DNSLookup(
+                                poJson["Multiplayer"]["IP"]);
+                        ptConnectNetworkSettings.usPort = usPort;
+                        ptConnectNetworkSettings.eMode = cNetworkConnection::cMode::eNonBlocking;
+                        if (poJson["Multiplayer"].contains("USESSL"))
+                            ptConnectNetworkSettings.bUseSSL = poJson["Multiplayer"]["USESSL"];
+
+                        poJson.clear();
+                        ENGINE_LOG("Connecting to: " << ptConnectNetworkSettings.sAddress << ":"
+                                                     << ptConnectNetworkSettings.usPort << ", SSL: "
+                                                     << (ptConnectNetworkSettings.bUseSSL ? "true" : "false"));
+                        (*pppoMultiplayerHandler) = new cMultiplayerHandler(&ptConnectNetworkSettings);
+                        poMessageBox->Show("Connecting...", "Multiplayer");
+                        if ((*pppoMultiplayerHandler)->Connect(5))
+                        {
+                            poMessageBox->Show("Registering...", "Multiplayer");
+                            if ((*pppoMultiplayerHandler)->RegisterUser(poUserName->GetValue(), poPassword->GetValue()))
+                                poMessageBox->Show("Successfully registered.", "Multiplayer",
+                                                   cMessageBoxOverlay::cButtonComposition::eOk,
+                                                   [&](cButton* pSender) -> void
+                                                   {
+                                                       ppGameManager->ActivateOverlayWindow("MainMenu");
+                                                       poUserName->SetValue("");
+                                                       poPassword->SetValue("");
+                                                   });
+                            else
+                                poMessageBox->Show("Failed to register the user, maybe it is in use?", "Multiplayer",
+                                                   cMessageBoxOverlay::cButtonComposition::eOk,
+                                                   [&](cButton* pSender) -> void
+                                                   {
+                                                       ppGameManager->ActivateOverlayWindow("MainMenu");
+                                                       poUserName->SetValue("");
+                                                       poPassword->SetValue("");
+                                                   });
+                        }
+                        else
+                        {
+                            poMessageBox->Show("Failed to connect, the server may be offline?", "Multiplayer",
+                                               cMessageBoxOverlay::cButtonComposition::eOk,
+                                               [&](cButton* pSender) -> void
+                                               {
+                                                   ppGameManager->ActivateOverlayWindow("MainMenu");
+                                               });
+                        }
+                        (*pppoMultiplayerHandler)->Disconnect();
+                        delete (*pppoMultiplayerHandler);
+                    });
 }
