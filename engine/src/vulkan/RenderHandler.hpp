@@ -26,6 +26,8 @@ private:
 
     uint uiCurrentFrame = 0;
 
+    bool pbFenceWait = true;
+
 public:
     cRenderHandler(cLogicalDevice* pLogicalDevice,
                    cSwapChain* pSwapChain,
@@ -102,14 +104,20 @@ void cRenderHandler::DrawFrame(cScene* pScene)
 {
     static VkFence oNullFence = VK_NULL_HANDLE;
 
-    // Wait for the fence of the current frame and reset it to the unsignalled state
-    ppLogicalDevice->WaitForFences(1, &aoInFlightFences[uiCurrentFrame], VK_TRUE, UINT64_MAX); //-V108
-    ppLogicalDevice->ResetFences(1, &aoInFlightFences[uiCurrentFrame]); //-V108
+    if (pbFenceWait)
+    {
+        // Wait for the fence of the current frame and reset it to the unsignalled state
+        ppLogicalDevice->WaitForFences(1, &aoInFlightFences[uiCurrentFrame], VK_TRUE, UINT64_MAX); //-V108
+        ppLogicalDevice->ResetFences(1, &aoInFlightFences[uiCurrentFrame]); //-V108
+        pbFenceWait = false;
+    }
 
     // Acquire the next image from the swap chain
     uint uiImageIndex;
     ppSwapChain->AcquireNextImage(UINT64_MAX, aoImageAvailableSemaphores[uiCurrentFrame],
                                   oNullFence, &uiImageIndex); //-V108
+
+    if (uiImageIndex == UINT32_MAX) return;
 
     // If we have a loaded scene, update all the uniform handlers
     if (pScene != nullptr)
@@ -165,6 +173,7 @@ void cRenderHandler::DrawFrame(cScene* pScene)
     {
         throw std::runtime_error("failed to submit draw command buffer!");
     }
+    pbFenceWait = true;
 
     // Struct with information for submitting the image for presentation
     VkPresentInfoKHR tPresentInfo = {};

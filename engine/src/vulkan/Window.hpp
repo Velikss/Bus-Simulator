@@ -25,8 +25,8 @@ private:
 
     uint puiWindowWidth;
     uint puiWindowHeight;
-    int puiWindowX;
-    int puiWindowY;
+    int puiWindowX = 0;
+    int puiWindowY = 0;
 
     bool pbRequestRebuild = false;
     bool pbFullscreen = false;
@@ -67,6 +67,7 @@ public:
     static void SetFullscreen(bool bFullscreen);
     static void SetMouseLocked(bool bLocked);
     static void RequestRebuild();
+    static void HandleMinimize();
     void RebuildSurface();
 
 private:
@@ -124,6 +125,8 @@ void cWindow::CreateGLWindow()
     glfwSetScrollCallback(ppWindow, scrollCallback);
     glfwSetCharCallback(ppWindow, characterCallback);
     glfwSetMouseButtonCallback(ppWindow, mouseButtonCallback);
+
+    glfwGetWindowPos(poInstance->ppWindow, &poInstance->puiWindowX, &poInstance->puiWindowY);
 }
 
 bool cWindow::CreateWindowSurface(cVulkanInstance* pVulkanInstance)
@@ -348,6 +351,7 @@ void cWindow::SetMouseLocked(bool bLocked)
 
 void cWindow::RebuildSurface()
 {
+    ENGINE_LOG(puiWidth << "x" << puiHeight << "@" << puiWindowX << "," << puiWindowY);
     DestroyWindowSurface();
     fSleep(200);
     if (pbFullscreen)
@@ -362,4 +366,15 @@ void cWindow::RebuildSurface()
     fSleep(200);
     CreateWindowSurface(ppVulkanInstance);
     pbRequestRebuild = false;
+}
+
+void cWindow::HandleMinimize()
+{
+    int width = 0, height = 0;
+    glfwGetFramebufferSize(poInstance->ppWindow, &width, &height);
+    while (width == 0 || height == 0) {
+        glfwGetFramebufferSize(poInstance->ppWindow, &width, &height);
+        glfwWaitEvents();
+    }
+    RequestRebuild();
 }
