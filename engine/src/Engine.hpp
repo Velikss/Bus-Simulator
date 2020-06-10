@@ -183,6 +183,8 @@ void cEngine::Run()
 
 void cEngine::InitWindow(void)
 {
+    ENGINE_LOG("Creating window...");
+
     // Create the window and set us as the input handler
     ppWindow = new cWindow(psAppName);
     ppWindow->CreateGLWindow();

@@ -108,7 +108,7 @@ void cOverlayPipeline::CreatePipeline(cSwapChain* pSwapChain,
     // Struct with information about the kind of geometry we want to draw
     VkPipelineInputAssemblyStateCreateInfo tInputAssemblyInfo = {};
     tInputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    tInputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+    tInputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     tInputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
 
     // Struct with information to configure multisampling
@@ -171,7 +171,7 @@ void cOverlayPipeline::CreatePipeline(cSwapChain* pSwapChain,
     tViewportState.pScissors = &tScissors;
 
     VkPipelineRasterizationStateCreateInfo tRasterizer =
-            cPipelineHelper::GetRasterizerCreateInfo(VK_FRONT_FACE_CLOCKWISE);
+            cPipelineHelper::GetRasterizerCreateInfo(VK_FRONT_FACE_COUNTER_CLOCKWISE);
 
     // Set the configuration for all the fixed-function stages we defined earlier
     pipelineInfo.pVertexInputState = &tVertexInputInfo;
