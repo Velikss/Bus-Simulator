@@ -78,7 +78,7 @@ void cTextElement::InitializeMemory(void* pMemory, uint uiIndex)
             continue;
         }
 
-        stb_fontchar* charData = &ppFont->ppFontData[(uint) letter - firstChar]; //-V108
+        stb_fontchar* charData = &ppFont->ppFontData[(uint) letter - firstChar];
 
         pMapped->pos.x = (x + (float) charData->x0 * charW);
         pMapped->pos.y = (y + (float) charData->y0 * charH);
@@ -199,7 +199,7 @@ uint cTextElement::GetTextWidth(string sString, cFont* pFont, float fFontSize)
     for (auto letter : sString)
     {
         if (letter == '\n') break;
-        stb_fontchar* charData = &pFont->ppFontData[(uint) letter - firstChar]; //-V108
+        stb_fontchar* charData = &pFont->ppFontData[(uint) letter - firstChar];
         fTextWidth += charData->advance * charW;
     }
 

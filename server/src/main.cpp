@@ -20,7 +20,7 @@ int main()
     cNetworkConnection::tNetworkInitializationSettings tGameServerSettings = {};
 
     tSSOServerSettings.sAddress = "127.0.0.1";
-    tSSOServerSettings.usPort = 14001; //-V525
+    tSSOServerSettings.usPort = 14001;
     tSSOServerSettings.eMode = cNetworkConnection::cMode::eNonBlocking;
     if(oJson.contains("SSOServer"))
     {

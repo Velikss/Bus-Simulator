@@ -75,7 +75,7 @@ private:
     void Cleanup();
 };
 
-cMRTUniformHandler::cMRTUniformHandler(cLogicalDevice* pLogicalDevice, //-V730
+cMRTUniformHandler::cMRTUniformHandler(cLogicalDevice* pLogicalDevice,
                                        cSwapChain* pSwapChain)
 {
     ppLogicalDevice = pLogicalDevice;
@@ -161,14 +161,14 @@ void cMRTUniformHandler::CreateUniformBuffers(cScene* pScene)
     uint uiCount = pScene->GetObjectCount();
 
     // Create a buffer for every object in the scene
-    paoObjectUniformBuffers.resize(uiCount); //-V106
-    paoObjectUniformBuffersMemory.resize(uiCount); //-V106
+    paoObjectUniformBuffers.resize(uiCount);
+    paoObjectUniformBuffersMemory.resize(uiCount);
     for (uint i = 0; i < uiCount; i++)
     {
         cBufferHelper::CreateBuffer(ppLogicalDevice, bufferSize,
                                     VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                                    paoObjectUniformBuffers[i], paoObjectUniformBuffersMemory[i]); //-V108
+                                    paoObjectUniformBuffers[i], paoObjectUniformBuffersMemory[i]);
     }
 
     cBufferHelper::CreateBuffer(ppLogicalDevice, sizeof(tCameraUniformData),
@@ -192,7 +192,7 @@ void cMRTUniformHandler::CreateUniformBuffers(cScene* pScene)
         tObjectData.tModel = oObject.second->GetModelMatrix();
 
         // Copy the data to memory
-        CopyToDeviceMemory(paoObjectUniformBuffersMemory[uiIndex++], &tObjectData, sizeof(tObjectData)); //-V108
+        CopyToDeviceMemory(paoObjectUniformBuffersMemory[uiIndex++], &tObjectData, sizeof(tObjectData));
     }
 }
 
@@ -239,7 +239,7 @@ void cMRTUniformHandler::UpdateUniformBuffers(cScene* pScene)
 
         // Copy the data to memory
         CopyToDeviceMemory(paoObjectUniformBuffersMemory[oObject->puiUniformIndex], &tObjectData,
-                           sizeof(tObjectData)); //-V108
+                           sizeof(tObjectData));
     }
 
 #ifdef ENGINE_TIMING_DEBUG
@@ -277,7 +277,7 @@ void cMRTUniformHandler::CopyToDeviceMemory(VkDeviceMemory& oDeviceMemory, void*
     void* pMappedMemory;
     ppLogicalDevice->MapMemory(oDeviceMemory, 0, uiDataSize, 0, &pMappedMemory);
     {
-        memcpy(pMappedMemory, pData, uiDataSize); //-V106
+        memcpy(pMappedMemory, pData, uiDataSize);
     }
     ppLogicalDevice->UnmapMemory(oDeviceMemory);
 }
@@ -323,7 +323,7 @@ void cMRTUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, 
         tAllocInfo.descriptorSetCount = (uint) paoObjectUniformBuffers.size();
         tAllocInfo.pSetLayouts = aoLayouts.data();
 
-        poObjectDescriptorSets.resize((uint) paoObjectUniformBuffers.size()); //-V106 //-V220
+        poObjectDescriptorSets.resize((uint) paoObjectUniformBuffers.size());
         if (!ppLogicalDevice->AllocateDescriptorSets(&tAllocInfo, poObjectDescriptorSets.data()))
         {
             throw std::runtime_error("failed to allocate descriptor sets!");
@@ -334,7 +334,7 @@ void cMRTUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, 
     for (auto oObject : pScene->GetObjects())
     {
         VkDescriptorBufferInfo tBufferInfo = {};
-        tBufferInfo.buffer = paoObjectUniformBuffers[uiIndex]; //-V108
+        tBufferInfo.buffer = paoObjectUniformBuffers[uiIndex];
         tBufferInfo.offset = 0;
         tBufferInfo.range = sizeof(tObjectUniformData);
 
@@ -353,7 +353,7 @@ void cMRTUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, 
         std::array<VkWriteDescriptorSet, 3> atDescriptorWrites = {};
 
         atDescriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        atDescriptorWrites[0].dstSet = poObjectDescriptorSets[uiIndex]; //-V108
+        atDescriptorWrites[0].dstSet = poObjectDescriptorSets[uiIndex];
         atDescriptorWrites[0].dstBinding = 0;
         atDescriptorWrites[0].dstArrayElement = 0;
         atDescriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -361,7 +361,7 @@ void cMRTUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, 
         atDescriptorWrites[0].pBufferInfo = &tBufferInfo;
 
         atDescriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        atDescriptorWrites[1].dstSet = poObjectDescriptorSets[uiIndex]; //-V108
+        atDescriptorWrites[1].dstSet = poObjectDescriptorSets[uiIndex];
         atDescriptorWrites[1].dstBinding = 1;
         atDescriptorWrites[1].dstArrayElement = 0;
         atDescriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -369,7 +369,7 @@ void cMRTUniformHandler::CreateDescriptorSets(cTextureHandler* pTextureHandler, 
         atDescriptorWrites[1].pImageInfo = &tImageInfo;
 
         atDescriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        atDescriptorWrites[2].dstSet = poObjectDescriptorSets[uiIndex]; //-V108
+        atDescriptorWrites[2].dstSet = poObjectDescriptorSets[uiIndex];
         atDescriptorWrites[2].dstBinding = 2;
         atDescriptorWrites[2].dstArrayElement = 0;
         atDescriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -450,7 +450,7 @@ void cMRTUniformHandler::CmdBindDescriptorSets(VkCommandBuffer& commandBuffer,
                                                VkPipelineLayout& oPipelineLayout,
                                                uint uiIndex)
 {
-    paoCurrentDescriptorSets[0] = poObjectDescriptorSets[uiIndex]; //-V108
+    paoCurrentDescriptorSets[0] = poObjectDescriptorSets[uiIndex];
     paoCurrentDescriptorSets[1] = poCameraDescriptorSet;
     vkCmdBindDescriptorSets(commandBuffer,
                             VK_PIPELINE_BIND_POINT_GRAPHICS,

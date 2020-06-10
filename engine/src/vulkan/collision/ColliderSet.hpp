@@ -13,7 +13,7 @@ public:
     bool Collides(cCollider* pCollider, const glm::mat4& tColliderMatrix);
 };
 
-bool cColliderSet::Collides(cCollider* pCollider, const glm::mat4& tColliderMatrix) //-V669
+bool cColliderSet::Collides(cCollider* pCollider, const glm::mat4& tColliderMatrix)
 {
     // The base distance is the size of the collider plus some padding
     uint uiBaseDist = pCollider->GetSize() + COLLIDER_PADDING;

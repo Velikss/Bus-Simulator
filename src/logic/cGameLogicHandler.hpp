@@ -202,7 +202,7 @@ bool cGameLogicHandler::LoadMission(string sKey, cScene* pScene)
     // TODO probably need to make a global stack
     // Stack for all the passengers currently available
     std::stack<int> oPassengersQueue;
-    for (auto& num : {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}) { //-V112
+    for (auto& num : {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}) {
         oPassengersQueue.push(num);
     }
 

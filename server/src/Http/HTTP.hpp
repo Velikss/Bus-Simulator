@@ -211,7 +211,7 @@ namespace cHttp
         {
             return this->peVersion;
         }
-        void SetVersion(const cVersion &eVersion) //-V669
+        void SetVersion(const cVersion &eVersion)
         {
             this->peVersion = eVersion;
         }
@@ -247,8 +247,8 @@ namespace cHttp
         {
             size_t lBodyBegin = 0;
             long iContentLength = GetContentLengthOfString(sMessage, oMessage, lBodyBegin);
-            oMessage.SetMissingContent(sMessage.size() - (lBodyBegin + 4 + iContentLength)); //-V112 //-V104
-            oMessage.SetBody(string(sMessage, lBodyBegin, iContentLength)); //-V106
+            oMessage.SetMissingContent(sMessage.size() - (lBodyBegin + 4 + iContentLength));
+            oMessage.SetBody(string(sMessage, lBodyBegin, iContentLength));
         }
 
         size_t &GetMetaLength()
@@ -295,7 +295,7 @@ namespace cHttp
             string sBodySplit = C_LINE_END + C_LINE_END;
             size_t lBodyBegin = sRequest.find(sBodySplit);
 
-            oRequest.piMetaLength = lBodyBegin + 4; //-V112
+            oRequest.piMetaLength = lBodyBegin + 4;
 
             std::string sMeta(sRequest.data(), lBodyBegin);
             std::vector<string> aLines = split((string)sMeta, C_LINE_END);
@@ -315,7 +315,7 @@ namespace cHttp
             oRequest.SetHeaders(aHeaders);
             oRequest.SetVersion(eVersion);
             long lContentLength = GetContentLengthOfString(sRequest, oRequest, lBodyBegin);
-            oRequest.SetMissingContent(sRequest.size() - (lBodyBegin + lContentLength + 4)); //-V112 //-V104
+            oRequest.SetMissingContent(sRequest.size() - (lBodyBegin + lContentLength + 4));
         }
 
         static cRequest Deserialize(const std::string_view & sRequest)
@@ -355,7 +355,7 @@ namespace cHttp
             string sBodySplit = C_LINE_END + C_LINE_END;
             size_t lBodyBegin = sRequest.find(sBodySplit);
 
-            oResponse.piMetaLength = lBodyBegin + 4; //-V112
+            oResponse.piMetaLength = lBodyBegin + 4;
 
             std::string sMeta(sRequest.data(), lBodyBegin);
             std::vector<string> aLines = split((string)sMeta, C_LINE_END);
@@ -373,7 +373,7 @@ namespace cHttp
                 aHeaders.emplace_back(cHeader::Deserialize(aLines[i]));
 
             long lContentLength = GetContentLengthOfString(sRequest, oResponse, lBodyBegin);
-            oResponse.SetMissingContent(sRequest.size() - (lBodyBegin + lContentLength + 4)); //-V112 //-V104
+            oResponse.SetMissingContent(sRequest.size() - (lBodyBegin + lContentLength + 4));
 
             oResponse.SetResponseCode(usResponseCode);
             oResponse.SetHeaders(aHeaders);
@@ -401,12 +401,12 @@ namespace cHttp
         if (!pConnection->Available()) return false;
 
         byte* aBytes = new byte[8192];
-        size_t size = pConnection->ReceiveBytes(aBytes, 8192); //-V101
+        size_t size = pConnection->ReceiveBytes(aBytes, 8192);
         std::string_view sBytes((const char*)aBytes, size);
         cHttp::cRequest::DeserializeMeta(sBytes, oRequest);
 
         int iContentLength = std::atoi(oRequest.GetHeader("content-length").c_str());
-        size_t iRequestLength = iContentLength + oRequest.GetMetaLength(); //-V104
+        size_t iRequestLength = iContentLength + oRequest.GetMetaLength();
         if (iRequestLength >= 8192)
         {
             byte* aNewBuffer = new byte[iRequestLength];
@@ -439,12 +439,12 @@ namespace cHttp
             return false;
 
         byte* aBytes = new byte[8192];
-        size_t size = pConnection->ReceiveBytes(aBytes, 8192); //-V101
+        size_t size = pConnection->ReceiveBytes(aBytes, 8192);
         std::string_view sBytes((const char*)aBytes, size);
         cHttp::cResponse::DeserializeMeta(sBytes, oResponse);
 
         int iContentLength = std::atoi(oResponse.GetHeader("content-length").c_str());
-        size_t iRequestLength = iContentLength + oResponse.GetMetaLength(); //-V104
+        size_t iRequestLength = iContentLength + oResponse.GetMetaLength();
         if (iRequestLength >= 8192)
         {
             byte* aNewBuffer = new byte[iRequestLength];

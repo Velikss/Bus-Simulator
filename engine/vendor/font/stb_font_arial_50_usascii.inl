@@ -918,18 +918,18 @@ static void stb_font_arial_50_usascii(stb_fontchar font[STB_FONT_arial_50_usasci
     int i,j;
     if (data != 0) {
         unsigned int *bits = stb__arial_50_usascii_pixels;
-        unsigned int bitpack = *bits++, numbits = 32; //-V112
+        unsigned int bitpack = *bits++, numbits = 32;
         for (i=0; i < STB_FONT_arial_50_usascii_BITMAP_WIDTH*height; ++i)
             data[0][i] = 0;  // zero entire bitmap
         for (j=1; j < STB_FONT_arial_50_usascii_BITMAP_HEIGHT-1; ++j) {
             for (i=1; i < STB_FONT_arial_50_usascii_BITMAP_WIDTH-1; ++i) {
                 unsigned int value;
-                if (numbits==0) bitpack = *bits++, numbits=32; //-V112
+                if (numbits==0) bitpack = *bits++, numbits=32;
                 value = bitpack & 1;
                 bitpack >>= 1, --numbits;
                 if (value) {
-                    if (numbits < 3) bitpack = *bits++, numbits = 32; //-V112
-                    data[j][i] = (bitpack & 7) * 0x20 + 0x1f; //-V112
+                    if (numbits < 3) bitpack = *bits++, numbits = 32;
+                    data[j][i] = (bitpack & 7) * 0x20 + 0x1f;
                     bitpack >>= 3, numbits -= 3;
                 } else {
                     data[j][i] = 0;

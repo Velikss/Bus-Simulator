@@ -67,7 +67,7 @@ namespace dt
         std::stringstream ss;
         ss << std::setw(2) << std::setfill('0') << tTimeStamp.day << "-";
         ss << std::setw(2) << std::setfill('0') << tTimeStamp.month << "-";
-        ss << std::setw(4) << std::setfill('0') << tTimeStamp.year << " "; //-V112
+        ss << std::setw(4) << std::setfill('0') << tTimeStamp.year << " ";
         ss << std::setw(2) << std::setfill('0') << tTimeStamp.hour << ":";
         ss << std::setw(2) << std::setfill('0') << tTimeStamp.minute << ":";
         ss << std::setw(2) << std::setfill('0') << tTimeStamp.second;
@@ -110,7 +110,7 @@ public:
     bool GetValueInteger(SQLINTEGER* piValue)
     {
         if(psType != SQL_INTEGER) return false;
-        *piValue = *(SQLINTEGER*)pvValue; //-V206
+        *piValue = *(SQLINTEGER*)pvValue;
         return true;
     }
 
@@ -132,7 +132,7 @@ public:
             sValue = dt::to_string(*ptTimeStamp);
         }
         else if (psType == SQL_INTEGER)
-            sValue = std::to_string(*(long*)pvValue); //-V206
+            sValue = std::to_string(*(long*)pvValue);
         else
             sValue = string((const char*)pvValue, puiLen);
         return true;
@@ -150,7 +150,7 @@ public:
         switch (psType)
         {
             case SQL_INTEGER:
-                delete (SQLINTEGER *) pvValue; //-V206
+                delete (SQLINTEGER *) pvValue;
                 break;
             case SQL_CHAR:
                 delete[] (SQLCHAR *) pvValue;
@@ -225,7 +225,7 @@ bool cODBCInstance::Connect(string sConnectionString)
 
     /* Set the ODBC version to version 3 (the highest version) */
     SQLSetEnvAttr( henv, SQL_ATTR_ODBC_VERSION,
-                   (void *)SQL_OV_ODBC3, 0 ); //-V566
+                   (void *)SQL_OV_ODBC3, 0 );
 
     /* Allocate the connection handle. */
     SQLAllocHandle( SQL_HANDLE_DBC, henv, &hdbc );
@@ -320,7 +320,7 @@ bool cODBCInstance::Fetch(string sQuery, std::vector<SQLROW>* aRows)
             SQLSMALLINT columnType = SQL_UNKNOWN_TYPE;
 
             if (SQL_SUCCESS !=
-                SQLDescribeCol(stmt, i, (SQLCHAR *) &caName, sizeof(caName), &iNameLength, &columnType, //-V206
+                SQLDescribeCol(stmt, i, (SQLCHAR *) &caName, sizeof(caName), &iNameLength, &columnType,
                                &columnLength, nullptr, nullptr))
             {
                 SQLFreeHandle(SQL_HANDLE_STMT, stmt);
@@ -374,11 +374,11 @@ bool cODBCInstance::Fetch(string sQuery, std::vector<SQLROW>* aRows)
                 void* vValueBuffer = malloc(tColumnDef.uiSize);
                 if (tColumnDef.sType == SQL_CHAR)
                 {
-                    memset(vValueBuffer, ' ', tColumnDef.uiSize - 1); //-V575
+                    memset(vValueBuffer, ' ', tColumnDef.uiSize - 1);
                     ((char*)vValueBuffer)[tColumnDef.uiSize - 1] = '\0';
                 }
                 else
-                    memset(vValueBuffer, ' ', tColumnDef.uiSize); //-V575
+                    memset(vValueBuffer, ' ', tColumnDef.uiSize);
                 SQLLEN sLen = 0;
                 auto result = SQLGetData(stmt, tColumnDef.sIndex, tColumnDef.sType, vValueBuffer, tColumnDef.uiSize, &sLen);
                 if (result != SQL_SUCCESS && result != SQL_SUCCESS_WITH_INFO)

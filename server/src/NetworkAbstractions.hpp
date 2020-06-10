@@ -99,8 +99,8 @@ int cNetworkAbstractions::CloseSocket(NET_SOCK & oSock)
     int iResult = -1;
 
 #ifdef _WIN32
-    iResult = shutdown(oSock, SD_BOTH); //-V106
-    iResult = closesocket(oSock); //-V106 //-V519
+    iResult = shutdown(oSock, SD_BOTH);
+    iResult = closesocket(oSock);
 #else
     iResult = shutdown(oSock, SHUT_RDWR);
     iResult = close(oSock);
@@ -113,7 +113,7 @@ int cNetworkAbstractions::CloseSocket(NET_SOCK & oSock)
 cNetworkAbstractions::cConnectionStatus cNetworkAbstractions::IsConnected(NET_SOCK oSock, bool bBlocking)
 {
     char pBuffer;
-    int size = recv(oSock, &pBuffer, 1, MSG_PEEK); //-V106
+    int size = recv(oSock, &pBuffer, 1, MSG_PEEK);
 #if defined(WINDOWS)
     int err = WSAGetLastError();
     if (err == WSAECONNRESET)
@@ -127,7 +127,7 @@ cNetworkAbstractions::cConnectionStatus cNetworkAbstractions::IsConnected(NET_SO
     else return cNetworkAbstractions::cConnectionStatus::eCONNECTED;
 }
 
-string cNetworkAbstractions::DNSLookup(const string& sDomain) //-V813
+string cNetworkAbstractions::DNSLookup(const string& sDomain)
 {
     if (!pbInit) NetInit();
     addrinfo *result;
@@ -136,7 +136,7 @@ string cNetworkAbstractions::DNSLookup(const string& sDomain) //-V813
     return string(inet_ntoa(((sockaddr_in*)result->ai_addr)->sin_addr));
 }
 
-string cNetworkAbstractions::DNSReverseLookup(const string& sIp) //-V813
+string cNetworkAbstractions::DNSReverseLookup(const string& sIp)
 {
     sockaddr_in saGNI;
     char hostname[MAX_HOSTNAME];
@@ -159,7 +159,7 @@ cNetworkAbstractions::cConnectionStatus cNetworkAbstractions::IsConnectedSSL(SSL
 {
     char pBuffer;
     size_t uiRead = 0;
-    int iStatus = SSL_peek_ex(pSSL, &pBuffer, 1, &uiRead); //-V106
+    int iStatus = SSL_peek_ex(pSSL, &pBuffer, 1, &uiRead);
     if (iStatus == SSL_ERROR_WANT_READ)
         return cNetworkAbstractions::cConnectionStatus::eCONNECTED;
     else if (iStatus == 1 && uiRead == 1)

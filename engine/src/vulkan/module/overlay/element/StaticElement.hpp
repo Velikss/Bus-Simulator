@@ -28,7 +28,7 @@ public:
     void SetSize(uint uiWidth, uint uiHeight);
 };
 
-cStaticElement::cStaticElement(tElementInfo tInfo, cTexture* pTexture) //-V730
+cStaticElement::cStaticElement(tElementInfo tInfo, cTexture* pTexture)
 {
     assert(pTexture != nullptr);
 

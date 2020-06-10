@@ -131,15 +131,15 @@ bool cGameServer::HandleGameConnection(cNetworkConnection* pConnection)
     int iRecievedContent = 0;
     if (!nGameConnectionHelper::RecieveData(pConnection, paBuffer, iRecievedContent))
         return false;
-    for(uint i = 0; i < paConnections.size(); i++) //-V104
-        if (paConnections[i] != pConnection && IsWhiteListed(paConnections[i])) //-V108
+    for(uint i = 0; i < paConnections.size(); i++)
+        if (paConnections[i] != pConnection && IsWhiteListed(paConnections[i]))
         {
-            if (!nGameConnectionHelper::SendData(paConnections[i], &(paBuffer[0]), iRecievedContent)) //-V108
+            if (!nGameConnectionHelper::SendData(paConnections[i], &(paBuffer[0]), iRecievedContent))
             {
-                std::cout << "failed sending to " << paConnections[i]->GetConnectionString() << ", error: " << paConnections[i]->piFailures << std::endl;; //-V108
-                if (paConnections[i]->piFailures++ >= 5) //-V108
+                std::cout << "failed sending to " << paConnections[i]->GetConnectionString() << ", error: " << paConnections[i]->piFailures << std::endl;;
+                if (paConnections[i]->piFailures++ >= 5)
                 {
-                    std::cout << "terminated connection " << paConnections[i]->GetConnectionString() << std::endl;; //-V108
+                    std::cout << "terminated connection " << paConnections[i]->GetConnectionString() << std::endl;;
                     RemoveConnectionAt(i);
                 }
             }

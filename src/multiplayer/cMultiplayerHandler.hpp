@@ -157,7 +157,7 @@ bool cMultiplayerHandler::OnRecieve(cNetworkConnection* pConnection)
     for (auto& object : pmsBusIds)
     {
         auto bus = dynamic_cast<cBus*>(aObjects[object.second]);
-        bus->piPingTimeout++; //-V522
+        bus->piPingTimeout++;
         if (bus->piPingTimeout > 50)
         {
             paAvailableBusses.push(bus->piBusId);

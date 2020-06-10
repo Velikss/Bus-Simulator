@@ -97,7 +97,7 @@ private:
 
 VkSampleCountFlagBits cSwapChain::peSampleCount = VK_SAMPLE_COUNT_4_BIT;
 
-cSwapChain::cSwapChain(cLogicalDevice* pLogicalDevice, cWindow* pWindow) //-V730
+cSwapChain::cSwapChain(cLogicalDevice* pLogicalDevice, cWindow* pWindow)
 {
     ppLogicalDevice = pLogicalDevice;
     ppWindow = pWindow;
@@ -271,7 +271,7 @@ void cSwapChain::CreateSwapChain(cWindow* pWindow)
 
     // Get the swap chain image handles
     vkGetSwapchainImagesKHR(oDevice, poSwapChain, &uiImageCount, nullptr);
-    paoSwapChainImages.resize(uiImageCount); //-V106
+    paoSwapChainImages.resize(uiImageCount);
     vkGetSwapchainImagesKHR(oDevice, poSwapChain, &uiImageCount, paoSwapChainImages.data());
 
     ENGINE_LOG("Created swap chain with " << uiImageCount << " images");
@@ -425,7 +425,7 @@ uint cSwapChain::GetFramebufferSize(void)
 
 VkFramebuffer& cSwapChain::GetFramebuffer(uint index)
 {
-    return paoSwapChainFramebuffers[index]; //-V108
+    return paoSwapChainFramebuffers[index];
 }
 
 void cSwapChain::AcquireNextImage(int64 ulTimeout,

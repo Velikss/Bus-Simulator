@@ -120,7 +120,7 @@ void cTexture::LoadIntoRAM()
     // Fill the struct with information about the texture
     ptTextureInfo.uiWidth = iTexWidth;
     ptTextureInfo.uiHeight = iTexHeight;
-    ptTextureInfo.uiSize = iTexWidth * iTexHeight * 4; // we're using RGBA so 4 byte per pixel //-V112
+    ptTextureInfo.uiSize = iTexWidth * iTexHeight * 4; // we're using RGBA so 4 byte per pixel
     ptTextureInfo.uiMipLevels = (uint) std::floor(std::log2(std::max(iTexWidth, iTexHeight))) + 1;
 }
 

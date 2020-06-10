@@ -117,7 +117,7 @@ public:
             iResult = SSL_write(ppConnectionSSL, pBuffer, iNumBytes);
         else
 #if defined(WINDOWS)
-            iResult = send(poSock, (char *) pBuffer, iNumBytes, 0); //-V106
+            iResult = send(poSock, (char *) pBuffer, iNumBytes, 0);
 #else
             iResult = send(poSock, (char *) pBuffer, iNumBytes, MSG_NOSIGNAL);
 #endif
@@ -131,7 +131,7 @@ public:
         if(ppConnectionSSL)
             iResult = SSL_read(ppConnectionSSL, (char*) pBuffer, iNumBytes);
         else
-            iResult = recv(poSock, (char*)pBuffer, iNumBytes, 0); //-V106
+            iResult = recv(poSock, (char*)pBuffer, iNumBytes, 0);
         return iResult;
     }
 
@@ -163,7 +163,7 @@ void cNetworkConnection::CloseConnection()
 {
     if (!pbDestroyed)
     {
-        if (poSock != NET_INVALID_SOCKET_ID) //-V104
+        if (poSock != NET_INVALID_SOCKET_ID)
         {
             if (cNetworkAbstractions::CloseSocket(poSock) != 0)
                 throw std::runtime_error("could not close socket");

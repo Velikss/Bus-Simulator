@@ -13,7 +13,7 @@ TEST(ScriptingTests, CheckIfCoordinatesChangeAfterSeperationUpdate)
 
     cEntity en2(nullptr);
     en2.SetPosition(glm::vec3(11.1f, 0, 17.1f));
-    en2.SetMaxSpeed(10.0f); //-V525
+    en2.SetMaxSpeed(10.0f);
     cEntity en3(nullptr);
     en3.SetPosition(glm::vec3(12.1f, 0, 177.1f));
     en3.SetMaxSpeed(10.0f);

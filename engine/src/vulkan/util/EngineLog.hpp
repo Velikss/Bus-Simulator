@@ -12,12 +12,12 @@ using namespace std::chrono;
 #define CURRENT_CLASS_NAME (&typeid(*this).name()[3])
 
 #ifdef ENGINE_ENABLE_LOG
-#define ENGINE_LOG(message) (std::cout << "[" << TIME_SINCE_START << "] [" << GetCurrentFileName(__FILE__) << "]: " << message << std::endl) //-V1003
+#define ENGINE_LOG(message) (std::cout << "[" << TIME_SINCE_START << "] [" << GetCurrentFileName(__FILE__) << "]: " << message << std::endl)
 #else
 #define ENGINE_LOG(message) (void())
 #endif
 
-#define ENGINE_WARN(message) (ENGINE_LOG("[WARNING] " << message)) //-V1003
+#define ENGINE_WARN(message) (ENGINE_LOG("[WARNING] " << message))
 
 steady_clock::time_point tEngineStartTime = steady_clock::now();
 

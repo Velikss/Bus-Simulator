@@ -7,7 +7,7 @@
 #include <vulkan/renderpass/RenderPass.hpp>
 #include <vulkan/uniform/UniformHandler.hpp>
 
-class cRenderPipeline //-V730
+class cRenderPipeline
 {
 protected:
     VkPipelineLayout poPipelineLayout = VK_NULL_HANDLE;

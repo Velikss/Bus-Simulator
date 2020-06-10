@@ -86,7 +86,7 @@ cVulkanInstance::cVulkanInstance(void)
     }
     else
     {
-        tCreateInfo.enabledLayerCount = 0; //-V1048
+        tCreateInfo.enabledLayerCount = 0;
     }
 
     // Create the Vulkan instance, and throw an error on failure

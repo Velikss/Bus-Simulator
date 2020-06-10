@@ -236,7 +236,7 @@ tSwapChainSupportDetails cPhysicalDevice::QuerySwapChainSupport(VkPhysicalDevice
     vkGetPhysicalDeviceSurfaceFormatsKHR(oDevice, oSurface, &uiFormatCount, nullptr);
     if (uiFormatCount != 0)
     {
-        tDetails.atFormats.resize(uiFormatCount); //-V106
+        tDetails.atFormats.resize(uiFormatCount);
         vkGetPhysicalDeviceSurfaceFormatsKHR(oDevice, oSurface, &uiFormatCount, tDetails.atFormats.data());
     }
 
@@ -245,7 +245,7 @@ tSwapChainSupportDetails cPhysicalDevice::QuerySwapChainSupport(VkPhysicalDevice
     vkGetPhysicalDeviceSurfacePresentModesKHR(oDevice, oSurface, &presentModeCount, nullptr);
     if (presentModeCount != 0)
     {
-        tDetails.atPresentModes.resize(presentModeCount); //-V106
+        tDetails.atPresentModes.resize(presentModeCount);
         vkGetPhysicalDeviceSurfacePresentModesKHR(oDevice, oSurface, &presentModeCount, tDetails.atPresentModes.data());
     }
 
@@ -315,7 +315,7 @@ void cPhysicalDevice::GetPhysicalMemoryProperties(VkPhysicalDeviceMemoryProperti
     vkGetPhysicalDeviceMemoryProperties(poPhysicalDevice, pMemoryProperties);
 }
 
-void cPhysicalDevice::GetDeviceFormatProperties(const VkFormat& oFormat, VkFormatProperties* pFormatProperties) //-V669
+void cPhysicalDevice::GetDeviceFormatProperties(const VkFormat& oFormat, VkFormatProperties* pFormatProperties)
 {
     vkGetPhysicalDeviceFormatProperties(poPhysicalDevice, oFormat, pFormatProperties);
 }

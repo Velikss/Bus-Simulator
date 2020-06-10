@@ -74,7 +74,7 @@ struct FMOD_CODEC_WAVEFORMAT
 };
 
 struct FMOD_CODEC_STATE
-{ //-V802
+{
     int                          numsubsounds;
     FMOD_CODEC_WAVEFORMAT       *waveformat;
     void                        *plugindata;

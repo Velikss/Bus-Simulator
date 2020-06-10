@@ -157,10 +157,10 @@ void cOverlayUniformHandler::Cleanup()
     ppLogicalDevice->DestroyBuffer(poBuffer, nullptr);
     ppLogicalDevice->FreeMemory(poBufferMemory, nullptr);
 
-    for (uint uiIndex = 0; uiIndex < paoElementUniformBuffers.size(); uiIndex++) //-V104
+    for (uint uiIndex = 0; uiIndex < paoElementUniformBuffers.size(); uiIndex++)
     {
-        ppLogicalDevice->DestroyBuffer(paoElementUniformBuffers[uiIndex], nullptr); //-V108
-        ppLogicalDevice->FreeMemory(paoElementUniformBuffersMemory[uiIndex], nullptr); //-V108
+        ppLogicalDevice->DestroyBuffer(paoElementUniformBuffers[uiIndex], nullptr);
+        ppLogicalDevice->FreeMemory(paoElementUniformBuffersMemory[uiIndex], nullptr);
     }
 
     ENGINE_LOG("Cleaned up allocated memory for overlay");
@@ -393,7 +393,7 @@ void cOverlayUniformHandler::CopyToDeviceMemory(VkDeviceMemory& oDeviceMemory, v
     void* pMappedMemory;
     ppLogicalDevice->MapMemory(oDeviceMemory, 0, uiDataSize, 0, &pMappedMemory);
     {
-        memcpy(pMappedMemory, pData, uiDataSize); //-V106
+        memcpy(pMappedMemory, pData, uiDataSize);
     }
     ppLogicalDevice->UnmapMemory(oDeviceMemory);
 }
@@ -413,7 +413,7 @@ void cOverlayUniformHandler::CmdBindDescriptorSets(VkCommandBuffer& commandBuffe
                                                    uint uiIndex)
 {
     paoCurrentDescriptorSets[0] = poDescriptorSet;
-    paoCurrentDescriptorSets[1] = paoElementDescriptorSets[uiIndex]; //-V108
+    paoCurrentDescriptorSets[1] = paoElementDescriptorSets[uiIndex];
     vkCmdBindDescriptorSets(commandBuffer,
                             VK_PIPELINE_BIND_POINT_GRAPHICS,
                             oPipelineLayout, 0,

@@ -41,7 +41,7 @@ public:
     void SetUniformHandlers(iUniformHandler** pUniformHandlers, uint uiUniformHandlerCount);
 };
 
-cRenderHandler::cRenderHandler(cLogicalDevice* pLogicalDevice, //-V730
+cRenderHandler::cRenderHandler(cLogicalDevice* pLogicalDevice,
                                cSwapChain* pSwapChain,
                                cCommandBuffer** pCommandBuffers)
 {
@@ -61,10 +61,10 @@ cRenderHandler::~cRenderHandler()
     VkDevice& oDevice = ppLogicalDevice->GetDevice();
     for (uint i = 0; i < uiMAX_FRAMES_IN_FLIGHT; i++)
     {
-        vkDestroySemaphore(oDevice, aoRenderFinishedSemaphores[i], nullptr); //-V108
-        vkDestroySemaphore(oDevice, aoMRTFinishedSemaphores[i], nullptr); //-V108
-        vkDestroySemaphore(oDevice, aoImageAvailableSemaphores[i], nullptr); //-V108
-        vkDestroyFence(oDevice, aoInFlightFences[i], nullptr); //-V108
+        vkDestroySemaphore(oDevice, aoRenderFinishedSemaphores[i], nullptr);
+        vkDestroySemaphore(oDevice, aoMRTFinishedSemaphores[i], nullptr);
+        vkDestroySemaphore(oDevice, aoImageAvailableSemaphores[i], nullptr);
+        vkDestroyFence(oDevice, aoInFlightFences[i], nullptr);
     }
 }
 
@@ -73,10 +73,10 @@ void cRenderHandler::CreateSemaphores()
     VkDevice& oDevice = ppLogicalDevice->GetDevice();
 
     // Resize all the semaphore & fence lists to the max amount of frames in flight
-    aoImageAvailableSemaphores.resize(uiMAX_FRAMES_IN_FLIGHT); //-V106
-    aoMRTFinishedSemaphores.resize(uiMAX_FRAMES_IN_FLIGHT); //-V106
-    aoRenderFinishedSemaphores.resize(uiMAX_FRAMES_IN_FLIGHT); //-V106
-    aoInFlightFences.resize(uiMAX_FRAMES_IN_FLIGHT); //-V106
+    aoImageAvailableSemaphores.resize(uiMAX_FRAMES_IN_FLIGHT);
+    aoMRTFinishedSemaphores.resize(uiMAX_FRAMES_IN_FLIGHT);
+    aoRenderFinishedSemaphores.resize(uiMAX_FRAMES_IN_FLIGHT);
+    aoInFlightFences.resize(uiMAX_FRAMES_IN_FLIGHT);
 
     // Struct with information about the semaphores
     VkSemaphoreCreateInfo tSemaphoreInfo = {};
@@ -90,10 +90,10 @@ void cRenderHandler::CreateSemaphores()
     for (uint i = 0; i < uiMAX_FRAMES_IN_FLIGHT; i++)
     {
         // For every frame, create the two semaphores and the fence
-        if (vkCreateSemaphore(oDevice, &tSemaphoreInfo, nullptr, &aoImageAvailableSemaphores[i]) != VK_SUCCESS ||//-V108
-            vkCreateSemaphore(oDevice, &tSemaphoreInfo, nullptr, &aoMRTFinishedSemaphores[i]) != VK_SUCCESS || //-V108
-            vkCreateSemaphore(oDevice, &tSemaphoreInfo, nullptr, &aoRenderFinishedSemaphores[i]) != VK_SUCCESS ||//-V108
-            vkCreateFence(oDevice, &tFenceInfo, nullptr, &aoInFlightFences[i]) != VK_SUCCESS) //-V108
+        if (vkCreateSemaphore(oDevice, &tSemaphoreInfo, nullptr, &aoImageAvailableSemaphores[i]) != VK_SUCCESS ||
+            vkCreateSemaphore(oDevice, &tSemaphoreInfo, nullptr, &aoMRTFinishedSemaphores[i]) != VK_SUCCESS ||
+            vkCreateSemaphore(oDevice, &tSemaphoreInfo, nullptr, &aoRenderFinishedSemaphores[i]) != VK_SUCCESS ||
+            vkCreateFence(oDevice, &tFenceInfo, nullptr, &aoInFlightFences[i]) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create semaphores for a frame!");
         }
@@ -107,15 +107,15 @@ void cRenderHandler::DrawFrame(cScene* pScene)
     if (pbFenceWait)
     {
         // Wait for the fence of the current frame and reset it to the unsignalled state
-        ppLogicalDevice->WaitForFences(1, &aoInFlightFences[uiCurrentFrame], VK_TRUE, UINT64_MAX); //-V108
-        ppLogicalDevice->ResetFences(1, &aoInFlightFences[uiCurrentFrame]); //-V108
+        ppLogicalDevice->WaitForFences(1, &aoInFlightFences[uiCurrentFrame], VK_TRUE, UINT64_MAX);
+        ppLogicalDevice->ResetFences(1, &aoInFlightFences[uiCurrentFrame]);
         pbFenceWait = false;
     }
 
     // Acquire the next image from the swap chain
     uint uiImageIndex;
     ppSwapChain->AcquireNextImage(UINT64_MAX, aoImageAvailableSemaphores[uiCurrentFrame],
-                                  oNullFence, &uiImageIndex); //-V108
+                                  oNullFence, &uiImageIndex);
 
     if (uiImageIndex == UINT32_MAX) return;
 
@@ -124,7 +124,7 @@ void cRenderHandler::DrawFrame(cScene* pScene)
     {
         for (uint i = 0; i < puiUniformHandlerCount; i++)
         {
-            ppUniformHandlers[i]->UpdateUniformBuffers(pScene); //-V108
+            ppUniformHandlers[i]->UpdateUniformBuffers(pScene);
         }
     }
 
@@ -135,7 +135,7 @@ void cRenderHandler::DrawFrame(cScene* pScene)
     // Specifies which semaphores to wait on and in which stage(s) of the pipeline to wait
     VkPipelineStageFlags aeWaitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     tSubmitInfo.waitSemaphoreCount = 1;
-    tSubmitInfo.pWaitSemaphores = &aoImageAvailableSemaphores[uiCurrentFrame]; //-V108
+    tSubmitInfo.pWaitSemaphores = &aoImageAvailableSemaphores[uiCurrentFrame];
     tSubmitInfo.pWaitDstStageMask = aeWaitStages;
 
     // Specify which command buffers to submit
@@ -149,7 +149,7 @@ void cRenderHandler::DrawFrame(cScene* pScene)
 
     // Specify which semaphores to signal once the command buffer(s) finish
     tSubmitInfo.signalSemaphoreCount = 1;
-    tSubmitInfo.pSignalSemaphores = &aoMRTFinishedSemaphores[uiCurrentFrame]; //-V108
+    tSubmitInfo.pSignalSemaphores = &aoMRTFinishedSemaphores[uiCurrentFrame];
 
     // Submit the command buffer to the queue
     if (!ppLogicalDevice->GraphicsQueueSubmit(1, &tSubmitInfo, oNullFence))
@@ -158,7 +158,7 @@ void cRenderHandler::DrawFrame(cScene* pScene)
     }
 
     // Specifies which semaphores to wait on
-    tSubmitInfo.pWaitSemaphores = &aoMRTFinishedSemaphores[uiCurrentFrame]; //-V108
+    tSubmitInfo.pWaitSemaphores = &aoMRTFinishedSemaphores[uiCurrentFrame];
 
     // Specify which command buffers to submit
     tSubmitInfo.commandBufferCount = 1;
@@ -166,10 +166,10 @@ void cRenderHandler::DrawFrame(cScene* pScene)
 
     // Specify which semaphores to signal once the command buffer(s) finish
     tSubmitInfo.signalSemaphoreCount = 1;
-    tSubmitInfo.pSignalSemaphores = &aoRenderFinishedSemaphores[uiCurrentFrame]; //-V108
+    tSubmitInfo.pSignalSemaphores = &aoRenderFinishedSemaphores[uiCurrentFrame];
 
     // Submit the command buffer to the queue
-    if (!ppLogicalDevice->GraphicsQueueSubmit(1, &tSubmitInfo, aoInFlightFences[uiCurrentFrame])) //-V108
+    if (!ppLogicalDevice->GraphicsQueueSubmit(1, &tSubmitInfo, aoInFlightFences[uiCurrentFrame]))
     {
         throw std::runtime_error("failed to submit draw command buffer!");
     }
@@ -181,7 +181,7 @@ void cRenderHandler::DrawFrame(cScene* pScene)
 
     // Specify which semaphores to wait on before presenting
     tPresentInfo.waitSemaphoreCount = 1;
-    tPresentInfo.pWaitSemaphores = &aoRenderFinishedSemaphores[uiCurrentFrame]; //-V108
+    tPresentInfo.pWaitSemaphores = &aoRenderFinishedSemaphores[uiCurrentFrame];
 
     // Specify the swap chains and the index of the image for each swap chain
     VkSwapchainKHR swapChains[] = {ppSwapChain->poSwapChain};

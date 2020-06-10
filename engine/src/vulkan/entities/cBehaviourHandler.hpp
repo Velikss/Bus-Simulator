@@ -13,7 +13,7 @@ protected:
     static cDirectoryWatcher* ppoDirectoryWatcher;
     std::string psBehaviourName;
 public:
-    cBehaviourHandler(const std::string& sBehaviourName) //-V818
+    cBehaviourHandler(const std::string& sBehaviourName)
     {
         if (poBehaviours.find(sBehaviourName) == poBehaviours.end())
         {
@@ -123,9 +123,9 @@ void cBehaviourHandler::OnFileChanged(const std::string& sFilePath, cDirectoryWa
 {
     std::vector<std::string> sFileName = split(split(sFilePath, ".")[0], "/");
 
-    switch (eFileStatus) //-V719
+    switch (eFileStatus)
     {
-        case cDirectoryWatcher::FileStatus::created: //-V813
+        case cDirectoryWatcher::FileStatus::created:
         {
             AddBehaviour(sFileName.back(), sFilePath);
             ENGINE_LOG("Added behaviour script (" << sFilePath << ")");

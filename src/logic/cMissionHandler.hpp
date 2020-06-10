@@ -39,7 +39,7 @@ void cMissionHandler::UnloadBusStop(cBusStop* oBusStop)
 {
     std::vector<IEntity*>* entities;
     oBusStop->poEntityGroup->GetEntityList(&entities);
-    for (int i = 0; i < oBusStop->poEntityGroup->GetEntities()->size(); i++) //-V104
+    for (int i = 0; i < oBusStop->poEntityGroup->GetEntities()->size(); i++)
     {
         (*entities)[i]->SetPosition(C_DEFAULT_PASSENGER_LOCATION);
         (*entities)[i]->pbVisible = false;

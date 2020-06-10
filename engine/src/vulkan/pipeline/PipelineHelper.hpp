@@ -22,7 +22,7 @@ VkShaderModule cPipelineHelper::CreateShaderModule(const std::vector<char>& asCo
 
     // Put the code into the struct
     createInfo.codeSize = asCode.size();
-    createInfo.pCode = reinterpret_cast<const uint*>(asCode.data()); //-V206
+    createInfo.pCode = reinterpret_cast<const uint*>(asCode.data());
 
     // Create the shader module
     VkShaderModule shaderModule;

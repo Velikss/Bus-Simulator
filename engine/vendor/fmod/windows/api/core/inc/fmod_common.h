@@ -599,7 +599,7 @@ typedef float       (F_CALL *FMOD_3D_ROLLOFF_CALLBACK)      (FMOD_CHANNELCONTROL
     FMOD structs
 */
 struct FMOD_ASYNCREADINFO
-{ //-V802
+{
     void                     *handle;
     unsigned int              offset;
     unsigned int              sizebytes;
@@ -640,7 +640,7 @@ typedef struct FMOD_PLUGINLIST
 } FMOD_PLUGINLIST;
 
 typedef struct FMOD_ADVANCEDSETTINGS
-{ //-V802
+{
     int                 cbSize;
     int                 maxMPEGCodecs;
     int                 maxADPCMCodecs;

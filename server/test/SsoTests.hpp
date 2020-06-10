@@ -46,7 +46,7 @@ TEST(SSOTests, SetupSSOServer)
 {
     ptSSOServerSettings = std::make_shared<cNetworkConnection::tNetworkInitializationSettings>();
     ptSSOServerSettings->sAddress = "127.0.0.1";
-    ptSSOServerSettings->usPort = 14001; //-V525
+    ptSSOServerSettings->usPort = 14001;
     ptSSOServerSettings->eIPVersion = cNetworkConnection::cIPVersion::eV4;
     ptSSOServerSettings->eConnectionType = cNetworkConnection::cConnectionType::eTCP;
     ptSSOServerSettings->eMode = cNetworkConnection::cMode::eNonBlocking;

@@ -943,7 +943,7 @@ void cBusWorldScene::LoadObjects(cAudioHandler* pAudioHandler)
         string key = "multiplayer_bus_" + std::to_string(i);
         pmpObjects[key] = new cBus(pAudioHandler, pmpMeshes["bus"]);
         pmpObjects[key]->SetScale(glm::vec3(0));
-        dynamic_cast<cBus*>(pmpObjects[key])->piBusId = i; //-V522
+        dynamic_cast<cBus*>(pmpObjects[key])->piBusId = i;
     }
 }
 
