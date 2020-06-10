@@ -4,6 +4,14 @@
 #include <chrono>
 #include <vulkan/util/EngineLog.hpp>
 
+#ifndef NDEBUG
+#define START_TIMING(name) (cProfiler::poInstance.StartTiming(name))
+#define STOP_TIMING(name) (cProfiler::poInstance.StopTiming(name))
+#else
+#define START_TIMING(name) (void())
+#define STOP_TIMING(name) (void())
+#endif
+
 using namespace std::chrono;
 
 typedef time_point<steady_clock, nanoseconds> tTimePoint;
@@ -28,8 +36,10 @@ public:
     uint GetFramesPerSecond();
     float GetFrameTime();
 
+#ifndef NDEBUG
     void StartTiming(const string& sName);
     uint StopTiming(const string& sName);
+#endif
 };
 
 cProfiler cProfiler::poInstance;
@@ -64,6 +74,7 @@ float cProfiler::GetFrameTime()
     return 1000.0f / float(puiFramesPerSecond);
 }
 
+#ifndef NDEBUG
 void cProfiler::StartTiming(const string& sName)
 {
     pmtTimings[sName] = steady_clock::now();
@@ -75,3 +86,4 @@ uint cProfiler::StopTiming(const string& sName)
     pmtTimings.erase(sName);
     return duration;
 }
+#endif

@@ -36,7 +36,7 @@ public:
     cUIManager* GetUIManager();
 
     bool ShouldQuit();
-    void HandleMouse(uint uiDeltaX, uint uiDeltaY) override;
+    void HandleMouse(double dDeltaX, double dDeltaY) override;
     void HandleKey(uint uiKeyCode, uint uiAction) override;
     void HandleScroll(double dOffsetX, double dOffsetY) override;
     void HandleCharacter(char cCharacter) override;
@@ -122,14 +122,14 @@ cFocussable* cOverlayWindow::GetFocussedElement()
     return ppFocussedElement;
 }
 
-void cOverlayWindow::HandleMouse(uint uiDeltaX, uint uiDeltaY)
+void cOverlayWindow::HandleMouse(double dDeltaX, double dDeltaY)
 {
     for (auto&[sName, pElement] : pmpOverlay)
     {
         iInputHandler* pInputHandler = dynamic_cast<iInputHandler*>(pElement);
         if (pInputHandler != nullptr)
         {
-            pInputHandler->HandleMouse(uiDeltaX, uiDeltaY);
+            pInputHandler->HandleMouse(dDeltaX, dDeltaY);
         }
     }
 }

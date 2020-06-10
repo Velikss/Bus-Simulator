@@ -57,7 +57,7 @@ public:
     virtual void LookLeft() = 0;
     virtual void LookRight() = 0;
     // is the end op the passthrough from the mouse input.
-    virtual void LookMouseDiff(int x, int y) = 0;
+    virtual void LookMouseDiff(double dDeltaX, double dDeltaY) = 0;
     // process the commits to the pv.
     virtual void LookMouseWheelDiff(float x, float y) = 0;
     virtual void ProcessUpdates() = 0;
@@ -154,10 +154,10 @@ public:
     }
 
     // is the end op the passthrough from the mouse input.
-    void LookMouseDiff(int x, int y)
+    void LookMouseDiff(double dDeltaX, double dDeltaY)
     {
-        yaw += mouseSpeed * x;
-        pitch -= mouseSpeed * y;
+        yaw += mouseSpeed * dDeltaX;
+        pitch -= mouseSpeed * dDeltaY;
         // no flipping to the other side
         if (pitch < -80)
             pitch = -80;

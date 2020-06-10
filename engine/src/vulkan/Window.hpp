@@ -241,7 +241,7 @@ void cWindow::HandleGamepad(uint uiJoystickId)
 void cWindow::mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY)
 {
     static bool bFirstMouse = true;
-    static double uiLastX = puiWidth, uiLastY = puiHeight;
+    static double dLastX = puiWidth, dLastY = puiHeight;
 
     if (poInstance == nullptr || poInstance->ppInputHandler == nullptr) return;
 
@@ -249,26 +249,26 @@ void cWindow::mouseCallback(GLFWwindow* pWindow, double dPosX, double dPosY)
     // the last position to the current
     if (bFirstMouse)
     {
-        uiLastX = dPosX;
-        uiLastY = dPosY;
+        dLastX = dPosX;
+        dLastY = dPosY;
         bFirstMouse = false;
     }
 
     // Calculate the delta between the last and current position
-    double uiDeltaX = dPosX - uiLastX;
-    double uiDeltaY = dPosY - uiLastY;
+    double dDeltaX = dPosX - dLastX;
+    double dDeltaY = dPosY - dLastY;
 
     // Set the last position to the current
-    uiLastX = dPosX;
-    uiLastY = dPosY;
+    dLastX = dPosX;
+    dLastY = dPosY;
 
     // Apply a sensitivity factor
     const float fSensitivity = 2.5f;
-    uiDeltaX *= fSensitivity;
-    uiDeltaY *= fSensitivity;
+    dDeltaX *= fSensitivity;
+    dDeltaY *= fSensitivity;
 
     // Pass the delta X and Y on to the input handler
-    poInstance->ppInputHandler->HandleMouse((uint) uiDeltaX, (uint) uiDeltaY);
+    poInstance->ppInputHandler->HandleMouse(dDeltaX, dDeltaY);
 }
 
 void cWindow::keyCallback(GLFWwindow* pWindow, int iKey, int iScanCode, int iAction, int iMods)

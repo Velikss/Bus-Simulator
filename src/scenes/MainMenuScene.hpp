@@ -17,7 +17,7 @@ protected:
 
     void Unload() override;
 
-    void HandleMouse(uint uiDeltaX, uint uiDeltaY) override;
+    void HandleMouse(double dDeltaX, double dDeltaY) override;
 public:
     cMainMenuScene(iGameManager* pOverlayProvider)
     {
@@ -227,6 +227,6 @@ void cMainMenuScene::LoadObjects(cAudioHandler* pAudioHandler)
     pmpObjects["light"]->SetScale(glm::vec3(0));
 }
 
-void cMainMenuScene::HandleMouse(uint uiDeltaX, uint uiDeltaY)
+void cMainMenuScene::HandleMouse(double dDeltaX, double dDeltaY)
 {
 }

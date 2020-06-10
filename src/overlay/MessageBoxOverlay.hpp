@@ -38,7 +38,7 @@ protected:
         return true;
     }
 
-    void HandleMouse(uint uiDeltaX, uint uiDeltaY) override;
+    void HandleMouse(double dDeltaX, double dDeltaY) override;
     void HandleCharacter(char cCharacter) override;
     void HandleMouseButton(uint uiButton, double dXPos, double dYPos, int iAction) override;
 
@@ -86,15 +86,15 @@ void cMessageBoxOverlay::HandleCharacter(char cCharacter)
     cOverlayWindow::HandleCharacter(cCharacter);
 }
 
-void cMessageBoxOverlay::HandleMouse(uint uiDeltaX, uint uiDeltaY)
+void cMessageBoxOverlay::HandleMouse(double dDeltaX, double dDeltaY)
 {
     if(pbMovingWindow)
     {
         //auto oDiffPosition = glm::vec2{uiDeltaX, uiDeltaY} - oWindow->GetPosition();
         cUIElement* oWindow = GetElement("Background");
         auto oPosition = oWindow->GetPosition();
-        oPosition.x += uiDeltaX;
-        oPosition.y += uiDeltaY;
+        oPosition.x += dDeltaX;
+        oPosition.y += dDeltaY;
         oWindow->SetPosition(oPosition);
     }
 }

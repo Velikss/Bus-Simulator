@@ -124,7 +124,7 @@ public:
     cCommandBuffer** GetCommandBuffers() override;
 
     // Input handling
-    void HandleMouse(uint uiDeltaX, uint uiDeltaY) override;
+    void HandleMouse(double dDeltaX, double dDeltaY) override;
     void HandleKey(uint uiKeyCode, uint uiAction) override;
     void HandleScroll(double dOffsetX, double dOffsetY) override;
     void HandleCharacter(char cCharacter) override;
@@ -200,6 +200,7 @@ void cEngine::InitAudio(void)
 void cEngine::InitVulkan(void)
 {
     ENGINE_LOG("Initializing engine...");
+    START_TIMING("EnginePreInit");
 
     // Create the Vulkan instance
     ppVulkanInstance = new cVulkanInstance();
@@ -284,7 +285,7 @@ void cEngine::InitEngine(void)
     ppGameLoop = new cGameLoop();
     ppGameThread = new std::thread(std::ref(*ppGameLoop));
 
-    ENGINE_LOG("Engine initialized");
+    ENGINE_LOG("Engine initialized (took " << STOP_TIMING("EnginePreInit") << "ms)");
 }
 
 void cEngine::ActivateOverlayWindow(const string& sName)
@@ -390,6 +391,7 @@ void cEngine::MainLoop(void)
         if (!pbInitialized)
         {
             ENGINE_LOG("Loading overlay windows...");
+            START_TIMING("EngineLoad");
 
             // Load the overlay windows
             LoadOverlayWindows(pmOverlayWindows);
@@ -427,7 +429,7 @@ void cEngine::MainLoop(void)
             // Pass the camera reference to the audio handler
             ppAudioHandler->SetCamera(pScene->GetCameraRef());
 
-            ENGINE_LOG("Scene loaded, adding tick task...");
+            ENGINE_LOG("Scene loaded (took " << STOP_TIMING("EngineLoad") << "ms), adding tick task...");
             pScene->AfterLoad();
             ppGameLoop->AddTask(pScene);
 
@@ -657,15 +659,15 @@ std::map<string, cScene*>& cEngine::GetScenes()
     return ppSceneManager->GetScenes();
 }
 
-void cEngine::HandleMouse(uint uiDeltaX, uint uiDeltaY)
+void cEngine::HandleMouse(double dDeltaX, double dDeltaY)
 {
     if (ppActiveOverlayWindow != nullptr && ppActiveOverlayWindow->ShouldHandleInput())
     {
-        ppActiveOverlayWindow->HandleMouse(uiDeltaX, uiDeltaY);
+        ppActiveOverlayWindow->HandleMouse(dDeltaX, dDeltaY);
     }
     else if (ppSceneManager->GetActiveScene() != nullptr)
     {
-        ppSceneManager->GetActiveScene()->HandleMouse(uiDeltaX, uiDeltaY);
+        ppSceneManager->GetActiveScene()->HandleMouse(dDeltaX, dDeltaY);
     }
 }
 

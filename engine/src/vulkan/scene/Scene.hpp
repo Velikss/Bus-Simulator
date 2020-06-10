@@ -70,7 +70,7 @@ public:
     virtual void Unload();
     void UnloadObjects();
 
-    void HandleMouse(uint uiDeltaX, uint uiDeltaY) override;
+    void HandleMouse(double dDeltaX, double dDeltaY) override;
     void HandleKey(uint uiKeyCode, uint uiAction) override;
     void HandleScroll(double dOffsetX, double dOffsetY) override;
     void HandleCharacter(char cCharacter) override;
@@ -103,8 +103,6 @@ void cScene::Load(cTextureHandler* pTextureHandler,
                   cAudioHandler* pAudioHandler)
 {
     this->ppAudioHandler = pAudioHandler;
-
-    cProfiler::poInstance.StartTiming("SceneLoad");
 
     for (auto oTexture : pmpTextures)
     {
@@ -158,7 +156,6 @@ void cScene::Load(cTextureHandler* pTextureHandler,
                        << pmpMeshes.size() << " meshes, and "
                        << pmpObjects.size() << " objects, of which " << papMovableObjects.size()
                        << " are movable and " << papLightObjects.size() << " are lights");
-    ENGINE_LOG("Scene load took " << cProfiler::poInstance.StopTiming("SceneLoad") << "ms");
 }
 
 void cScene::Unload()
@@ -234,9 +231,9 @@ bool cScene::ShouldQuit()
     return bQuit;
 }
 
-void cScene::HandleMouse(uint uiDeltaX, uint uiDeltaY)
+void cScene::HandleMouse(double dDeltaX, double dDeltaY)
 {
-    poCamera->LookMouseDiff(uiDeltaX, uiDeltaY);
+    poCamera->LookMouseDiff(dDeltaX, dDeltaY);
 }
 
 void cScene::HandleKey(uint uiKeyCode, uint uiAction)
