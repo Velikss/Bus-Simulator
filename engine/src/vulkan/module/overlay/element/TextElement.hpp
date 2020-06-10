@@ -56,61 +56,74 @@ void cTextElement::InitializeMemory(void* pMemory, uint uiIndex)
     const float charW = pfFontSize / 10;
     const float charH = pfFontSize / 10;
 
-    // Calculate text width
-    float textWidth = 0;
-    for (auto letter : psText)
-    {
-        stb_fontchar* charData = &ppFont->ppFontData[(uint) letter - firstChar]; //-V108
-        textWidth += charData->advance * charW;
-    }
-
     // Map the memory for the text buffer to a pointer
     tVertex2D* pMapped = reinterpret_cast<tVertex2D*>(pMemory);
 
     assert(pMapped != nullptr);
 
     float x = 0;
+    float y = 0;
+
+    puiNumLetters = 0;
 
     // Generate a uv mapped quad per char in the new text
     for (auto letter : psText)
     {
+        if (letter == '\n')
+        {
+            y += charH * 50;
+            x = 0;
+            continue;
+        }
+
         stb_fontchar* charData = &ppFont->ppFontData[(uint) letter - firstChar]; //-V108
 
         pMapped->pos.x = (x + (float) charData->x0 * charW);
-        pMapped->pos.y = (0 + (float) charData->y0 * charH);
+        pMapped->pos.y = (y + (float) charData->y0 * charH);
         pMapped->texCoord.x = charData->s0;
-        pMapped->texCoord.y = charData->t0;
-        pMapped++;
-
-        pMapped->pos.x = (x + (float) charData->x1 * charW);
-        pMapped->pos.y = (0 + (float) charData->y0 * charH);
-        pMapped->texCoord.x = charData->s1;
         pMapped->texCoord.y = charData->t0;
         pMapped++;
 
         pMapped->pos.x = (x + (float) charData->x0 * charW);
-        pMapped->pos.y = (0 + (float) charData->y1 * charH);
+        pMapped->pos.y = (y + (float) charData->y1 * charH);
         pMapped->texCoord.x = charData->s0;
         pMapped->texCoord.y = charData->t1;
         pMapped++;
 
         pMapped->pos.x = (x + (float) charData->x1 * charW);
-        pMapped->pos.y = (0 + (float) charData->y1 * charH);
+        pMapped->pos.y = (y + (float) charData->y1 * charH);
         pMapped->texCoord.x = charData->s1;
         pMapped->texCoord.y = charData->t1;
         pMapped++;
 
+        pMapped->pos.x = (x + (float) charData->x0 * charW);
+        pMapped->pos.y = (y + (float) charData->y0 * charH);
+        pMapped->texCoord.x = charData->s0;
+        pMapped->texCoord.y = charData->t0;
+        pMapped++;
+
+        pMapped->pos.x = (x + (float) charData->x1 * charW);
+        pMapped->pos.y = (y + (float) charData->y1 * charH);
+        pMapped->texCoord.x = charData->s1;
+        pMapped->texCoord.y = charData->t1;
+        pMapped++;
+
+        pMapped->pos.x = (x + (float) charData->x1 * charW);
+        pMapped->pos.y = (y + (float) charData->y0 * charH);
+        pMapped->texCoord.x = charData->s1;
+        pMapped->texCoord.y = charData->t0;
+        pMapped++;
+
         x += charData->advance * charW;
+        puiNumLetters++;
     }
 
     puiWidth = ((uint) x) + 1;
-
-    puiNumLetters = (uint)psText.length();
 }
 
 uint cTextElement::GetVertexCount(uint uiIndex)
 {
-    return puiNumLetters * 4;
+    return puiNumLetters * 6;
 }
 
 VkImageView& cTextElement::GetImageView(uint uiIndex)
@@ -175,6 +188,7 @@ uint cTextElement::GetTextWidth(string sString, cFont* pFont, float fFontSize)
     float fTextWidth = 0;
     for (auto letter : sString)
     {
+        if (letter == '\n') break;
         stb_fontchar* charData = &pFont->ppFontData[(uint) letter - firstChar]; //-V108
         fTextWidth += charData->advance * charW;
     }
