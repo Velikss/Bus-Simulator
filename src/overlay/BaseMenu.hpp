@@ -20,11 +20,11 @@ protected:
         pmpTextures["button-exit"] = pTextureHandler->LoadFromFile("resources/textures/button-exit.png");
         pmpTextures["button-left"] = pTextureHandler->LoadFromFile("resources/textures/button-left.png");
         pmpTextures["button-right"] = pTextureHandler->LoadFromFile("resources/textures/button-right.png");
-        pmpTextures["button-clicked"] = pTextureHandler->LoadFromFile("resources/textures/button.png");
-        pmpTextures["button-wide-clicked"] = pTextureHandler->LoadFromFile("resources/textures/button-wide.png");
-        pmpTextures["button-exit-clicked"] = pTextureHandler->LoadFromFile("resources/textures/button-exit.png");
-        pmpTextures["button-left-clicked"] = pTextureHandler->LoadFromFile("resources/textures/button-left.png");
-        pmpTextures["button-right-clicked"] = pTextureHandler->LoadFromFile("resources/textures/button-right.png");
+        pmpTextures["button-clicked"] = pTextureHandler->LoadFromFile("resources/textures/button-clicked.png");
+        pmpTextures["button-wide-clicked"] = pTextureHandler->LoadFromFile("resources/textures/button-wide-clicked.png");
+        pmpTextures["button-exit-clicked"] = pTextureHandler->LoadFromFile("resources/textures/button-exit-clicked.png");
+        pmpTextures["button-left-clicked"] = pTextureHandler->LoadFromFile("resources/textures/button-left-clicked.png");
+        pmpTextures["button-right-clicked"] = pTextureHandler->LoadFromFile("resources/textures/button-right-clicked.png");
         pmpTextures["background"] = pTextureHandler->LoadFromFile("resources/textures/background.png");
     }
 
