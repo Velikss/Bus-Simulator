@@ -46,6 +46,7 @@ void cSettingsMenu::LoadTextures(cTextureHandler* pTextureHandler)
     pmpTextures["foreground"] = pTextureHandler->LoadFromFile("resources/textures/grey.jpg");
     pmpTextures["unchecked"] = pTextureHandler->LoadFromFile("resources/textures/unchecked.png");
     pmpTextures["checked"] = pTextureHandler->LoadFromFile("resources/textures/checked.png");
+    pmpTextures["button-left-lowres"] = pTextureHandler->LoadFromFile("resources/textures/button-left-lowres.png");
 }
 
 void cSettingsMenu::ConstructElements()
@@ -60,7 +61,7 @@ void cSettingsMenu::ConstructElements()
 
     ppResolution = new cComboBox({300, 50}, tNormalFont,
                                  pmpTextures["foreground"],
-                                 pmpTextures["button"]);
+                                 pmpTextures["button-left-lowres"]);
     for (auto&[sName, tResolution] : cSettings::pmtResolutions)
     {
         ppResolution->AddOption(sName);
@@ -79,7 +80,7 @@ void cSettingsMenu::ConstructElements()
 
     ppGamma = new cValueSelector({300, 50}, tNormalFont,
                                  pmpTextures["foreground"],
-                                 pmpTextures["button"],
+                                 pmpTextures["button-left-lowres"],
                                  0.5f, 2.5f, 0.1f);
     ppGamma->SetValue(cLightingUniformHandler::pfGamma);
     ppGamma->pafCallbacks.push_back(fHandleAction);
@@ -95,7 +96,7 @@ void cSettingsMenu::ConstructElements()
 
     ppLightMode = new cComboBox({300, 50}, tNormalFont,
                                 pmpTextures["foreground"],
-                                pmpTextures["button"]);
+                                pmpTextures["button-left-lowres"]);
     ppLightMode->AddOption("Medium");
     ppLightMode->AddOption("High");
     ppLightMode->SetSelected("High");
@@ -125,7 +126,7 @@ void cSettingsMenu::ConstructElements()
 
     ppAntiAliasing = new cComboBox({300, 50}, tNormalFont,
                                    pmpTextures["foreground"],
-                                   pmpTextures["button"]);
+                                   pmpTextures["button-left-lowres"]);
     ppAntiAliasing->AddOption("Off");
     ppAntiAliasing->AddOption("2x");
     ppAntiAliasing->AddOption("4x");
