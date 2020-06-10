@@ -45,7 +45,7 @@ protected:
                              glm::vec3(1,1,1));
         pmpOverlay.emplace_back("Text", oTextLabel);
 
-        cButton* oOk = new cButton({100, 30}, 0, pmpTextures["buttonTexture"], cOverlayRenderModule::FONT, 5,
+        cButton* oOk = new cButton({100, 30}, 0, pmpTextures["buttonTexture"], pmpTextures["buttonTexture"], cOverlayRenderModule::FONT, 5,
                                    glm::vec3(0, 0, 0));
         oOk->SetLabel("Ok");
         pmpOverlay.emplace_back("Ok", oOk);
