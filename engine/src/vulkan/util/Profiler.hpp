@@ -71,7 +71,7 @@ void cProfiler::StartTiming(const string& sName)
 
 uint cProfiler::StopTiming(const string& sName)
 {
-    uint duration = duration_cast<milliseconds>(steady_clock::now() - pmtTimings[sName]).count();
+    uint duration = (uint)(duration_cast<milliseconds>(steady_clock::now() - pmtTimings[sName]).count());
     pmtTimings.erase(sName);
     return duration;
 }
