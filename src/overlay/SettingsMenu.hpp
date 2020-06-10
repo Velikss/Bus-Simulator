@@ -79,7 +79,7 @@ void cSettingsMenu::ConstructElements()
 
     ppGamma = new cValueSelector({300, 50}, tNormalFont,
                                  pmpTextures["foreground"],
-                                 pmpTextures["button"],
+                                 pmpTextures["button-left"],
                                  0.5f, 2.5f, 0.1f);
     ppGamma->SetValue(cLightingUniformHandler::pfGamma);
     ppGamma->pafCallbacks.push_back(fHandleAction);
