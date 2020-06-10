@@ -29,6 +29,7 @@ public:
     virtual uint GetChildCount() = 0;
     virtual bool IsTextElement(uint uiIndex) = 0;
     virtual glm::vec3 GetColor(uint uiIndex) = 0;
+    virtual tRectangle GetScreenEstate();
 
     virtual void OnPreLoad();
     virtual void OnLoadVertices() = 0;
@@ -223,4 +224,19 @@ void cUIElement::Show()
 void cUIElement::AlignBottom()
 {
     SetPosition({ptPosition.x, ((float)cWindow::puiHeight - ptInfo.uiHeight)});
+}
+
+tRectangle cUIElement::GetScreenEstate()
+{
+    auto oPosition = GetPosition();
+    auto oSize = GetSize();
+    tRectangle oWindowCollision = {};
+    oWindowCollision.aVertices[0] = oPosition;
+    oPosition.y += oSize.uiHeight;
+    oWindowCollision.aVertices[1] = oPosition;
+    oPosition.x += oSize.uiWidth;
+    oWindowCollision.aVertices[2] = oPosition;
+    oPosition.y -= oSize.uiHeight;
+    oWindowCollision.aVertices[3] = oPosition;
+    return oWindowCollision;
 }

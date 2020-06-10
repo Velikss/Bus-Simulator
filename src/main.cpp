@@ -9,6 +9,7 @@
 #include <overlay/SettingsMenu.hpp>
 #include <overlay/MissionMenu.hpp>
 #include <scenes/MainMenuScene.hpp>
+#include <overlay/MessageBoxOverlay.hpp>
 
 class cApplication : public cEngine
 {
@@ -49,6 +50,7 @@ protected:
 
     void LoadOverlayWindows(std::map<string, cOverlayWindow*>& mOverlayWindows) override
     {
+        mOverlayWindows["MessageBox"] = new cMessageBoxOverlay(this);
         mOverlayWindows["MainMenu"] = new cMainMenu(this, &ppMultiplayerHandler);
         mOverlayWindows["Test"] = new cTestOverlay(this);
         mOverlayWindows["Loading"] = new cLoadingOverlay();

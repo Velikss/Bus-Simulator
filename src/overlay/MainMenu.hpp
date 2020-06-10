@@ -5,12 +5,14 @@
 #include <vulkan/module/overlay/element/elements/TextBoxElement.hpp>
 #include <vulkan/module/overlay/element/elements/PasswordTextBox.hpp>
 #include <Json.hpp>
+#include <overlay/MessageBoxOverlay.hpp>
 
 class cMainMenu : public cBaseMenu
 {
     cMultiplayerHandler** pppoMultiplayerHandler = nullptr;
     cNetworkConnection::tNetworkInitializationSettings ptConnectNetworkSettings = {};
     nlohmann::json poJson;
+    cMessageBoxOverlay* poMessageBox = nullptr;
 protected:
     void LoadTextures(cTextureHandler* pTextureHandler) override
     {
@@ -95,6 +97,7 @@ public:
     cMainMenu(iGameManager* pOverlayProvider, cMultiplayerHandler** ppMultiplayerHandler) : cBaseMenu(pOverlayProvider)
     {
         pppoMultiplayerHandler = ppMultiplayerHandler;
+        poMessageBox = (cMessageBoxOverlay*) ppGameManager->GetOverlayByName("MessageBox");
     }
 
     void HandleOnSubmit(cButton* poSender);
@@ -133,7 +136,7 @@ void cMainMenu::HandleOnSubmit(cButton* poSender)
     poJson.clear();
     ENGINE_LOG("Connecting to: " << ptConnectNetworkSettings.sAddress << ":" << ptConnectNetworkSettings.usPort << ", SSL: " << (ptConnectNetworkSettings.bUseSSL ? "true" : "false"));
     (*pppoMultiplayerHandler) = new cMultiplayerHandler(&ptConnectNetworkSettings);
-    if((*pppoMultiplayerHandler)->Connect())
+    if((*pppoMultiplayerHandler)->Connect(0))
     {
         if ((*pppoMultiplayerHandler)->Login(poUserName->GetValue(), poPassword->GetValue()))
         {
@@ -146,6 +149,7 @@ void cMainMenu::HandleOnSubmit(cButton* poSender)
             return;
         }
     }
+    poMessageBox->Show("hallo");
     ENGINE_WARN("Failed to log in.");
     (*pppoMultiplayerHandler)->Disconnect();
     delete (*pppoMultiplayerHandler);

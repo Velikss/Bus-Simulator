@@ -69,20 +69,11 @@ bool cNetworkClient::Connect(long lTimeOut)
 
     if (select(poSock + 1, NULL, &fdset, NULL, &tv) == 1)
     {
-        int err = cNetworkAbstractions::GetLastError(poSock);
-        if (err == 0)
-            std::cout << "connected with success." << std::endl;
-        else
-        {
-            std::cout << "connection failed with err: " << err << std::endl;
+        if (cNetworkAbstractions::GetLastError(poSock) != 0)
             return false;
-        }
     }
     else
-    {
-        std::cout << "could not connect." << std::endl;
         return false;
-    }
 
     if (pptNetworkSettings->bUseSSL)
     {

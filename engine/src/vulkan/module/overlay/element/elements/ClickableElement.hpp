@@ -22,9 +22,7 @@ bool cClickableElement::DidClick(glm::vec2 tClickPos)
 {
     for (tRectangle& tRegion : patClickableRegions)
     {
-        glm::mat4 tMatrix = GetRawMatrix();
-        tRectangle tTransformed = cCollisionHelper::TransformRectangle(tRegion, tMatrix, false);
-        if (cCollisionHelper::CollidesWithPoint(tTransformed, tClickPos))
+        if (cCollisionHelper::CollidesWithPoint(GetScreenEstate(), tClickPos))
         {
             return true;
         }

@@ -108,6 +108,8 @@ public:
     cOverlayWindow* GetActiveOverlayWindow() override;
     // Request a certain overlay window to be activated
     void ActivateOverlayWindow(const string& sName) override;
+    // Activates by pointer.
+    void ActivateOverlayWindow(cOverlayWindow* pWindow) override;
     // Returns overlay by name
     cOverlayWindow* GetOverlayByName(const string& sName) override;
     // Request the active overlay window to be deactivated
@@ -720,4 +722,20 @@ cOverlayWindow* cEngine::GetOverlayByName(const string& sName)
     auto tResult = pmOverlayWindows.find(sName);
     if (tResult == pmOverlayWindows.end()) return nullptr;
     return tResult->second;
+}
+
+void cEngine::ActivateOverlayWindow(cOverlayWindow* pWindow)
+{
+    // If there currently is an overlay window active, remove it's tick task
+    if (ppActiveOverlayWindow != nullptr)
+    {
+        ppActiveOverlayWindow->OnClose();
+        ppGameLoop->RemoveTask(ppActiveOverlayWindow);
+    }
+    // Add a tick task for the new overlay window
+    ppGameLoop->AddTask(pWindow);
+
+    // Request an overlay window change
+    ppRequestedOverlayWindow = pWindow;
+    pbUpdateOverlayWindow = true;
 }
