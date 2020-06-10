@@ -149,7 +149,7 @@ void cMainMenu::HandleOnSubmit(cButton* poSender)
             return;
         }
     }
-    poMessageBox->Show("hallo");
+    poMessageBox->Show("hallo ik ben bram", "Title", cMessageBoxOverlay::cButtonComposition::eOk);
     ENGINE_WARN("Failed to log in.");
     (*pppoMultiplayerHandler)->Disconnect();
     delete (*pppoMultiplayerHandler);

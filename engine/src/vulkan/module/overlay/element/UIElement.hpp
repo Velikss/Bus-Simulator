@@ -198,7 +198,11 @@ void cUIElement::Center()
 
 tElementInfo cUIElement::GetSize()
 {
-    return ptInfo;
+    auto oScale = ptScale;
+    auto oSize = ptInfo;
+    oSize.uiWidth *= ptScale.x;
+    oSize.uiHeight *= ptScale.y;
+    return oSize;
 }
 
 void cUIElement::RemoveX(float fRemX)
