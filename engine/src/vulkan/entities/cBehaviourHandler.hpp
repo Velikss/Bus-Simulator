@@ -31,7 +31,7 @@ public:
 
     virtual void Update(cBaseObject* oEntity, IEntityGroup* oEntityGroup = nullptr);
 
-    static void OnFileChanged(const string& sFilePath, cDirectoryWatcher::FileStatus eFileStatus);
+    static void OnFileChanged(const string& sFilePath, cDirectoryWatcher::cFileStatus eFileStatus);
 };
 
 cDirectoryWatcher* cBehaviourHandler::ppoDirectoryWatcher = nullptr;
@@ -48,7 +48,7 @@ void cBehaviourHandler::Init()
 
         (std::thread([&]
                      {
-                         std::function<void(std::string, cDirectoryWatcher::FileStatus)> _OnFileChanged = std::bind(
+                         std::function < void(std::string, cDirectoryWatcher::cFileStatus) > _OnFileChanged = std::bind(
                                  &cBehaviourHandler::OnFileChanged, std::placeholders::_1, std::placeholders::_2);
                          ppoDirectoryWatcher->Start(_OnFileChanged);
                      })).detach();
@@ -119,19 +119,19 @@ void cBehaviourHandler::Update(cBaseObject* oEntity, IEntityGroup* oEntityGroup)
 /*
  * Runs if the directory watcher detects changes. Will add behaviours, recompile existing behaviours and remove them if that's the case.
  */
-void cBehaviourHandler::OnFileChanged(const std::string& sFilePath, cDirectoryWatcher::FileStatus eFileStatus)
+void cBehaviourHandler::OnFileChanged(const std::string& sFilePath, cDirectoryWatcher::cFileStatus eFileStatus)
 {
     std::vector<std::string> sFileName = split(split(sFilePath, ".")[0], "/");
 
     switch (eFileStatus)
     {
-        case cDirectoryWatcher::FileStatus::created:
+        case cDirectoryWatcher::cFileStatus::created:
         {
             AddBehaviour(sFileName.back(), sFilePath);
             ENGINE_LOG("Added behaviour script (" << sFilePath << ")");
             break;
         }
-        case cDirectoryWatcher::FileStatus::modified:
+        case cDirectoryWatcher::cFileStatus::modified:
         {
             // Create the script engine
             std::shared_ptr<cScriptingEngine> poTempBehaviourEngine = std::make_shared<cScriptingEngine>();
