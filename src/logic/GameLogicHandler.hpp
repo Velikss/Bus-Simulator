@@ -1,10 +1,10 @@
 #pragma once
 
 #include <pch.hpp>
-#include <vulkan/entities/cEntity.hpp>
+#include <vulkan/entities/Entity.hpp>
 #include <vulkan/scene/Scene.hpp>
-#include <entities/cBus.hpp>
-#include <logic/cMissionHandler.hpp>
+#include <entities/Bus.hpp>
+#include <logic/MissionHandler.hpp>
 #include <overlay/InGame.hpp>
 
 const float C_PASSENGER_ENTER_DISTANCE = 1.5f;

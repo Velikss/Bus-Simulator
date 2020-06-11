@@ -1,7 +1,7 @@
 #pragma once
 #include <pch.hpp>
 #include <gtest/gtest.h>
-#include <scripting/cScriptingEngine.hpp>
+#include <scripting/ScriptingEngine.hpp>
 
 TEST(ScriptingTests, TestEngineCompilesWrongFilePath)
 {

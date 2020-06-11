@@ -1,8 +1,8 @@
 #pragma once
 #include <pch.hpp>
 #include <gtest/gtest.h>
-#include <vulkan/entities/cBehaviourHandler.hpp>
-#include <vulkan/entities/cEntityGroup.hpp>
+#include <vulkan/entities/BehaviourHandler.hpp>
+#include <vulkan/entities/EntityGroup.hpp>
 
 TEST(ScriptingTests, CheckIfCoordinatesChangeAfterSeperationUpdate)
 {

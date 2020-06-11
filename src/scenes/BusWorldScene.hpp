@@ -3,17 +3,17 @@
 #include <pch.hpp>
 #include <cameras/BusCamera.hpp>
 #include <vulkan/scene/Scene.hpp>
-#include <vulkan/entities/cEntity.hpp>
-#include <vulkan/entities/cEntityGroup.hpp>
+#include <vulkan/entities/Entity.hpp>
+#include <vulkan/entities/EntityGroup.hpp>
 #include <vulkan/module/overlay/element/TextElement.hpp>
 #include <vulkan/AudioHandler.hpp>
-#include <logic/cGameLogicHandler.hpp>
+#include <logic/GameLogicHandler.hpp>
 #include <logic/TrafficLightController.hpp>
-#include <entities/cBus.hpp>
-#include <entities/cPassenger.hpp>
+#include <entities/Bus.hpp>
+#include <entities/Passenger.hpp>
 #include <entities/IPassengerHolder.hpp>
-#include <objects//cBusStop.hpp>
-#include <multiplayer/cMultiplayerHandler.hpp>
+#include <objects//BusStop.hpp>
+#include <multiplayer/MultiplayerHandler.hpp>
 #include <overlay/InGame.hpp>
 
 class cBusWorldScene : public cScene

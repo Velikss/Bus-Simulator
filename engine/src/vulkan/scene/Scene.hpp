@@ -12,7 +12,7 @@
 #include <vulkan/geometry/ViewportQuadGeometry.hpp>
 #include <vulkan/module/overlay/element/StaticElement.hpp>
 #include <vulkan/AudioHandler.hpp>
-#include <vulkan/entities/cBehaviourHandler.hpp>
+#include <vulkan/entities/BehaviourHandler.hpp>
 #include <vulkan/geometry/GeometryHandler.hpp>
 #include <vulkan/util/Profiler.hpp>
 

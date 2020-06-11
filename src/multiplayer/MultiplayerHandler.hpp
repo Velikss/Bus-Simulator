@@ -1,7 +1,7 @@
 #pragma once
 
 #include <pch.hpp>
-#include <entities/cBus.hpp>
+#include <entities/Bus.hpp>
 #include <StdUuid.hpp>
 #include <GameServer/GameConnectionHelper.hpp>
 #include <SSO/SsoClient.hpp>

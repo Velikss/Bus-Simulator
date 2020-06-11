@@ -2,7 +2,7 @@
 
 #include <pch.hpp>
 #include <vulkan/scene/BaseObject.hpp>
-#include <vulkan/entities/cEntityGroup.hpp>
+#include <vulkan/entities/EntityGroup.hpp>
 #include <entities/IPassengerHolder.hpp>
 
 const float C_EMPTY_FLOAT = 0.0f;

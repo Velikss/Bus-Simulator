@@ -2,7 +2,7 @@
 
 #include <pch.hpp>
 #include <filesystem>
-#include <scripting/cScriptingEngine.hpp>
+#include <scripting/ScriptingEngine.hpp>
 #include <scripting/functions/JavaScriptEntityFunctions.hpp>
 #include <vulkan/util/DirectoryWatcher.hpp>
 

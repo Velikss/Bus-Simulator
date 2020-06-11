@@ -2,7 +2,7 @@
 
 #include <pch.hpp>
 #include <vulkan/scene/BaseObject.hpp>
-#include <objects/cBusStop.hpp>
+#include <objects/BusStop.hpp>
 
 
 class cPassenger : public IPassenger

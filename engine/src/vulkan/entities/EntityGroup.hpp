@@ -1,7 +1,7 @@
 #pragma once
 
 #include <pch.hpp>
-#include <vulkan/entities/cEntity.hpp>
+#include <vulkan/entities/Entity.hpp>
 
 class cEntityGroup : public IEntityGroup
 {
