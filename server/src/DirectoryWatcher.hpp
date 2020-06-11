@@ -16,7 +16,7 @@ class cDirectoryWatcher
     bool pbRunning = true;
     bool pbClosable = false;
 public:
-    enum class FileStatus
+    enum class cFileStatus
     {
         created, modified, erased
     };
@@ -30,16 +30,16 @@ public:
 
     void AddFile(const std::string &sFilePath);
 
-    void Start(const std::function<void(std::string, FileStatus)> &pReferencedFunction);
+    void Start(const std::function<void(std::string, cFileStatus)> &pReferencedFunction);
 
     void Stop();
 
     void RemoveFile(const string &sFilePath);
 
-    void OnFileChanged(string sFileName, FileStatus eFileStatus);
+    void OnFileChanged(string sFileName, cFileStatus eFileStatus);
 };
 
-void cDirectoryWatcher::Start(const std::function<void(std::string, FileStatus)> &pReferencedFunction)
+void cDirectoryWatcher::Start(const std::function<void(std::string, cFileStatus)> &pReferencedFunction)
 {
     while (pbRunning)
     {
@@ -52,7 +52,7 @@ void cDirectoryWatcher::Start(const std::function<void(std::string, FileStatus)>
         {
             if (!std::filesystem::exists(tPath->first))
             {
-                pReferencedFunction(tPath->first, FileStatus::erased);
+                pReferencedFunction(tPath->first, cFileStatus::erased);
                 tPath = patPaths.erase(tPath);
             } else
                 tPath++;
@@ -68,13 +68,13 @@ void cDirectoryWatcher::Start(const std::function<void(std::string, FileStatus)>
                 if (patPaths.find(tFile.path().string()) == patPaths.end())
                 {
                     patPaths[tFile.path().string()] = tLastWriteTime;
-                    pReferencedFunction(tFile.path().string(), FileStatus::created);
+                    pReferencedFunction(tFile.path().string(), cFileStatus::created);
                 } else
                 {
                     if (patPaths[tFile.path().string()] != tLastWriteTime)
                     {
                         patPaths[tFile.path().string()] = tLastWriteTime;
-                        pReferencedFunction(tFile.path().string(), FileStatus::modified);
+                        pReferencedFunction(tFile.path().string(), cFileStatus::modified);
                     }
                 }
             }

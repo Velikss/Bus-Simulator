@@ -16,7 +16,7 @@ class cDirectoryWatcher
     bool pbRunning = true;
     bool pbClosable = false;
 public:
-    enum class FileStatus
+    enum class cFileStatus
     {
         created, modified, erased
     };
@@ -30,16 +30,16 @@ public:
 
     void AddFile(const std::string& sFilePath);
 
-    void Start(const std::function<void(std::string, FileStatus)>& pReferencedFunction);
+    void Start(const std::function<void(std::string, cFileStatus)>& pReferencedFunction);
 
     void Stop();
 
     void RemoveFile(const string& sFilePath);
 
-    void OnFileChanged(string sFileName, FileStatus eFileStatus);
+    void OnFileChanged(string sFileName, cFileStatus eFileStatus);
 };
 
-void cDirectoryWatcher::Start(const std::function<void(std::string, FileStatus)>& pReferencedFunction)
+void cDirectoryWatcher::Start(const std::function<void(std::string, cFileStatus)>& pReferencedFunction)
 {
     while (pbRunning)
     {
@@ -52,7 +52,7 @@ void cDirectoryWatcher::Start(const std::function<void(std::string, FileStatus)>
         {
             if (!std::filesystem::exists(tPath->first))
             {
-                pReferencedFunction(tPath->first, FileStatus::erased);
+                pReferencedFunction(tPath->first, cFileStatus::erased);
                 tPath = patPaths.erase(tPath);
             }
             else
@@ -70,14 +70,14 @@ void cDirectoryWatcher::Start(const std::function<void(std::string, FileStatus)>
                 if (patPaths.find(sFilePath) == patPaths.end())
                 {
                     patPaths[sFilePath] = tLastWriteTime;
-                    pReferencedFunction(sFilePath, FileStatus::created);
+                    pReferencedFunction(sFilePath, cFileStatus::created);
                 }
                 else
                 {
                     if (patPaths[sFilePath] != tLastWriteTime)
                     {
                         patPaths[sFilePath] = tLastWriteTime;
-                        pReferencedFunction(sFilePath, FileStatus::modified);
+                        pReferencedFunction(sFilePath, cFileStatus::modified);
                     }
                 }
             }
