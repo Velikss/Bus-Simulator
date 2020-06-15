@@ -65,6 +65,7 @@ public:
     void Unload() override;
 
     void LoadBehaviours();
+    void LoadCamera();
 
     bool BusCentered = false;
 
@@ -87,6 +88,7 @@ void cBusWorldScene::Load(cTextureHandler* pTextureHandler,
     LoadObjects(pAudioHandler);
     LoadBehaviours();
     LoadMissions();
+    LoadCamera();
 
     cWindow::SetMouseLocked(true);
 
@@ -131,23 +133,8 @@ void cBusWorldScene::Update()
         BusCentered ? dynamic_cast<cBus*>(pmpObjects["bus"])->Steer(cDirection::Left) : poCamera->MoveLeft();
     if (paKeys[GLFW_KEY_D])
         BusCentered ? dynamic_cast<cBus*>(pmpObjects["bus"])->Steer(cDirection::Right) : poCamera->MoveRight();
-    if (paKeys[GLFW_KEY_C])
-    {
-        BusCentered = false;
-        poCamera = pFirstPersonFlyCamera;
-    }
 
-    if (paKeys[GLFW_KEY_B])
-    {
-        BusCentered = true;
-        poCamera = pBusCamera;
-        poCamera->cameraPivotObject = pmpObjects["bus"];
-        poCamera->cameraPivotPos = pmpObjects["bus"]->GetPosition();
-        poCamera->cameraHeight = 10.0f;
-        poCamera->cameraPivotChanges = glm::vec3(2.0f, 0.5f, 0.0f);
-    }
-
-    // temporary flight controls
+    // up & down controls
     if (paKeys[GLFW_KEY_SPACE])
         poCamera->MoveUp();
     if (paKeys[GLFW_KEY_LEFT_SHIFT])
@@ -239,6 +226,16 @@ void cBusWorldScene::LoadBehaviours()
     pcbSeperation = new cBehaviourHandler("seperation");
     pcbCohesion = new cBehaviourHandler("cohesion");
     pcbSeeking = new cBehaviourHandler("seeking");
+}
+
+void cBusWorldScene::LoadCamera()
+{
+    BusCentered = true;
+    poCamera = pBusCamera;
+    poCamera->cameraPivotObject = pmpObjects["bus"];
+    poCamera->cameraPivotPos = pmpObjects["bus"]->GetPosition();
+    poCamera->cameraHeight = 10.0f;
+    poCamera->cameraPivotChanges = glm::vec3(2.0f, 0.5f, 0.0f);
 }
 
 void cBusWorldScene::LoadTextures(cTextureHandler* pTextureHandler)
