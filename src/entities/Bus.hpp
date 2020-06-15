@@ -48,8 +48,6 @@ public:
 
     cAudioHandler *ppAudioHandler;
     int piEngineChannel;
-    int piEngineAccelChannel;
-    int piEngineDecelChannel;
     int piIdleChannel;
 
     cBus(cAudioHandler *pAudioHandler, cMesh *mesh) : cBaseObject(mesh,
