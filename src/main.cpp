@@ -10,6 +10,7 @@
 #include <overlay/MissionMenu.hpp>
 #include <scenes/MainMenuScene.hpp>
 #include <overlay/MessageBoxOverlay.hpp>
+#include <Windows.h>
 
 class cApplication : public cEngine
 {
@@ -71,6 +72,7 @@ protected:
 
 int main(int argc, char** argv)
 {
+    ::ShowWindow(::GetConsoleWindow(), SW_HIDE);
     cApplication oGame;
 
     try
