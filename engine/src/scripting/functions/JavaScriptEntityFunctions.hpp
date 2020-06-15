@@ -2,7 +2,7 @@
 
 #include <pch.hpp>
 #include <duktape.h>
-#include <vulkan/entities/IEntity.hpp>
+#include <vulkan/entities/BaseEntity.hpp>
 
 /*
  * This namespace contains all duktape functions related to game entities, these functions are registered as javascript functions in cBehaviourHandler
@@ -51,14 +51,14 @@ namespace JavaScriptEntityFunctions
         IEntity *poEntity = static_cast<IEntity *>(p);
 
         // Push coordinates to stack, first we'll push an empty array.
-        duk_idx_t ArrayIndex;
-        ArrayIndex = duk_push_array(poContext);
+        duk_idx_t iIndex;
+        iIndex = duk_push_array(poContext);
 
         // Then we will fill the array with the X Y coordinates of the entity's target. (we take Z as Y position because vec3 is used in BaseObject)
         duk_push_number(poContext, (double)poEntity->GetTarget().x);
-        duk_put_prop_index(poContext, ArrayIndex, 0);
+        duk_put_prop_index(poContext, iIndex, 0);
         duk_push_number(poContext, (double)poEntity->GetTarget().z);
-        duk_put_prop_index(poContext, ArrayIndex, 1);
+        duk_put_prop_index(poContext, iIndex, 1);
 
         return 1;
     }
@@ -78,9 +78,9 @@ namespace JavaScriptEntityFunctions
         IEntity *poEntity = static_cast<IEntity *>(p);
 
         // Get speed and push to the duk stack
-        float speed = poEntity->GetMaxSpeed();
+        float fSpeed = poEntity->GetMaxSpeed();
 
-        duk_push_number(poContext, speed);
+        duk_push_number(poContext, fSpeed);
 
         return 1;
     }
@@ -100,16 +100,16 @@ namespace JavaScriptEntityFunctions
         IEntity *poEntity = static_cast<IEntity *>(p);
 
         // Push coordinates to stack, first we'll push an empty array
-        duk_idx_t ArrayIndex;
-        ArrayIndex = duk_push_array(poContext);
+        duk_idx_t iIndex;
+        iIndex = duk_push_array(poContext);
 
         // Get Velocity and push the values to the array
-        glm::vec2 velocity = poEntity->GetVelocity();
+        glm::vec2 oVelocity = poEntity->GetVelocity();
 
-        duk_push_int(poContext, velocity[0]);
-        duk_put_prop_index(poContext, ArrayIndex, 0);
-        duk_push_int(poContext, velocity[1]);
-        duk_put_prop_index(poContext, ArrayIndex, 1);
+        duk_push_int(poContext, oVelocity[0]);
+        duk_put_prop_index(poContext, iIndex, 0);
+        duk_push_int(poContext, oVelocity[1]);
+        duk_put_prop_index(poContext, iIndex, 1);
 
         return 1;
     }
@@ -129,10 +129,10 @@ namespace JavaScriptEntityFunctions
         IEntity *poEntity = static_cast<IEntity *>(p);
 
         // Get velocity from stack
-        glm::vec2 velocity(duk_to_number(poContext, -2), duk_to_number(poContext, -1));
+        glm::vec2 oVelocity(duk_to_number(poContext, -2), duk_to_number(poContext, -1));
 
         // Set velocity to entity
-        poEntity->SetVelocity(velocity);
+        poEntity->SetVelocity(oVelocity);
 
         return 0;
     }
@@ -152,17 +152,17 @@ namespace JavaScriptEntityFunctions
         IEntityGroup *poEntityGroup = static_cast<IEntityGroup *>(p);
 
         // Push coordinates to stack, first we'll push an empty array
-        duk_idx_t ArrayIndex;
-        ArrayIndex = duk_push_array(poContext);
+        duk_idx_t iIndex;
+        iIndex = duk_push_array(poContext);
 
         // Fill the array with pointers to the group members
-        std::vector<IEntity *> *entities;
-        poEntityGroup->GetEntityList(&entities);
+        std::vector<IEntity *> *poEntities;
+        poEntityGroup->GetEntityList(&poEntities);
 
         for (int i = 0; i < poEntityGroup->GetEntities()->size(); i++)
         {
-            duk_push_pointer(poContext, (*entities)[i]);
-            duk_put_prop_index(poContext, ArrayIndex, i);
+            duk_push_pointer(poContext, (*poEntities)[i]);
+            duk_put_prop_index(poContext, iIndex, i);
         }
 
         return 1;
@@ -186,11 +186,11 @@ namespace JavaScriptEntityFunctions
         float fXvalue = (float) duk_to_number(poContext, -2);
         float fYvalue = (float) duk_to_number(poContext, -1);
 
-        glm::vec2 SteeringForce(fXvalue, fYvalue);
+        glm::vec2 oSteeringForce(fXvalue, fYvalue);
 
         // Set velocity to entity
-        if (!isnan(SteeringForce.x) && !isnan(SteeringForce.y))
-            poEntity->AppendSteeringForce(SteeringForce);
+        if (!isnan(oSteeringForce.x) && !isnan(oSteeringForce.y))
+            poEntity->AppendSteeringForce(oSteeringForce);
         else
             ENGINE_WARN("Behaviour script returned NaN! " << duk_to_number(poContext, -2) << " & "
                                                           << duk_to_number(poContext, -1));

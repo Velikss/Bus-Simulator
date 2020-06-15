@@ -5,7 +5,7 @@
 #include <vulkan/module/overlay/element/StaticElement.hpp>
 #include <vulkan/module/overlay/element/TextElement.hpp>
 #include <vulkan/module/overlay/OverlayRenderModule.hpp>
-#include <vulkan/module/overlay/element/elements/cButton.hpp>
+#include <vulkan/module/overlay/element/elements/Button.hpp>
 
 class cBaseMenu : public cOverlayWindow
 {

@@ -29,7 +29,7 @@ public:
 
     void Init();
 
-    void RegisterFunction(duk_c_function fnfunc, duk_idx_t iArgs, const char* psKey);
+    void RegisterFunction(duk_c_function fnFunc, duk_idx_t iArgs, const char* psKey);
 
     bool CompileJavaScriptFile(const char* psFilename);
 

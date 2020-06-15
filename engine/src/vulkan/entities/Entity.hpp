@@ -1,8 +1,8 @@
 #pragma once
 
 #include <pch.hpp>
-#include <vulkan/entities/cBehaviourHandler.hpp>
-#include <vulkan/entities/IEntity.hpp>
+#include <vulkan/entities/BehaviourHandler.hpp>
+#include <vulkan/entities/BaseEntity.hpp>
 
 class cEntity : public IEntity
 {

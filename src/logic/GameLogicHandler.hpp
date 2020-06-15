@@ -1,10 +1,10 @@
 #pragma once
 
 #include <pch.hpp>
-#include <vulkan/entities/cEntity.hpp>
+#include <vulkan/entities/Entity.hpp>
 #include <vulkan/scene/Scene.hpp>
-#include <entities/cBus.hpp>
-#include <logic/cMissionHandler.hpp>
+#include <entities/Bus.hpp>
+#include <logic/MissionHandler.hpp>
 #include <overlay/InGame.hpp>
 
 const float C_PASSENGER_ENTER_DISTANCE = 1.5f;
@@ -27,6 +27,7 @@ public:
     void UnloadPassengers(cBusStop* oBusStop, cBus* pBus);
     void ResetBus(cBus* pBus);
     void SetGameOverlay(cInGame* oGameOverlay);
+    void SetDoorIcon(bool bDoor);
 };
 
 void cGameLogicHandler::Update(cBus* pBus)
@@ -41,6 +42,7 @@ void cGameLogicHandler::Update(cBus* pBus)
             {
                 pBus->oState = cState::eDriving;
                 pBus->CloseDoors();
+                SetDoorIcon(pBus->pbDoorOpen);
             }
         }
         if (pBus->oState == cState::eDriving) {
@@ -282,4 +284,19 @@ bool cGameLogicHandler::LoadMission(string sKey, cScene* pScene)
 void cGameLogicHandler::SetGameOverlay(cInGame *oGameOverlay)
 {
     poInGameOverlay = oGameOverlay;
+}
+
+void cGameLogicHandler::SetDoorIcon(bool bDoorOpen)
+{
+    if(poInGameOverlay != nullptr)
+    {
+        if(bDoorOpen)
+        {
+            poInGameOverlay->ShowDoorOpen();
+        }
+        else
+        {
+            poInGameOverlay->ShowDoorClosed();
+        }
+    }
 }

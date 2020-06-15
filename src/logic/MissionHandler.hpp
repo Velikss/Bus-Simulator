@@ -1,8 +1,8 @@
 #pragma once
 
 #include <pch.hpp>
-#include <objects/cBusStop.hpp>
-#include <entities/cPassenger.hpp>
+#include <objects/BusStop.hpp>
+#include <entities/Passenger.hpp>
 
 const glm::vec3 C_DEFAULT_PASSENGER_LOCATION = glm::vec3(200.0f, 0.15f, -200.0f);
 const float C_RADIUS = 4;

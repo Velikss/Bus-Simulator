@@ -103,13 +103,13 @@ set(Headers
         ${PROJECT_SOURCE_DIR}/src/vulkan/texture/TextureSampler.hpp
         ${PROJECT_SOURCE_DIR}/vendor/tiny_obj_loader.h
         ${PROJECT_SOURCE_DIR}/vendor/stb_image.h
-        ${PROJECT_SOURCE_DIR}/src/scripting/cScriptingEngine.hpp
+        ${PROJECT_SOURCE_DIR}/src/scripting/ScriptingEngine.hpp
         ${PROJECT_SOURCE_DIR}/src/scripting/functions/JavaScriptBaseFunctions.hpp
         ${PROJECT_SOURCE_DIR}/src/scripting/functions/JavaScriptEntityFunctions.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/IEntity.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cEntity.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cEntityGroup.hpp
-        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/cBehaviourHandler.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/BaseEntity.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/Entity.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/EntityGroup.hpp
+        ${PROJECT_SOURCE_DIR}/src/vulkan/entities/BehaviourHandler.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/collision/Collider.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/collision/CollisionHelper.hpp
         ${PROJECT_SOURCE_DIR}/src/vulkan/collision/ColliderSet.hpp

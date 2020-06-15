@@ -19,11 +19,15 @@ public:
     void SetNextStopName(string sNextStop);
     void ShowMissionStatus();
     void HideMissionStatus();
+    void ShowDoorOpen();
+    void ShowDoorClosed();
 protected:
     void LoadTextures(cTextureHandler* pTextureHandler) override
     {
         pmpTextures["overlay"] = pTextureHandler->LoadFromFile("resources/textures/overlay.png");
         pmpTextures["overlay-inv"] = pTextureHandler->LoadFromFile("resources/textures/overlay-inv.png");
+        pmpTextures["door-open"] = pTextureHandler->LoadFromFile("resources/textures/door-open.png");
+        pmpTextures["door-closed"] = pTextureHandler->LoadFromFile("resources/textures/door-closed.png");
     }
 
     void ConstructElements() override
@@ -77,6 +81,20 @@ protected:
         oKmh->RemoveY(30);
         pmpOverlay.push_back({"Kmh", oKmh});
 
+        // Door
+        cStaticElement* oDoorOpenIcon = new cStaticElement({100, 100}, pmpTextures["door-open"]);
+        oDoorOpenIcon->AlignBottom();
+        oDoorOpenIcon->CenterHorizontal();
+        oDoorOpenIcon->AddX(900);
+        oDoorOpenIcon->Hide();
+        pmpOverlay.push_back({"DoorOpenIcon", oDoorOpenIcon});
+
+        cStaticElement* oDoorClosedIcon = new cStaticElement({100, 100}, pmpTextures["door-closed"]);
+        oDoorClosedIcon->AlignBottom();
+        oDoorClosedIcon->CenterHorizontal();
+        oDoorClosedIcon->AddX(900);
+        pmpOverlay.push_back({"DoorClosedIcon", oDoorClosedIcon});
+
         cTextElement* oFPS = new cTextElement();
         oFPS->SetFont(6, cOverlayRenderModule::FONT,
                       glm::vec3(0, 1, 0));
@@ -106,6 +124,18 @@ void cInGame::ShowMissionStatus()
     GetElement("NextStopName")->Show();
     GetElement("NextStop")->Show();
     GetElement("MissionOverlay")->Show();
+}
+
+void cInGame::ShowDoorClosed()
+{
+    GetElement("DoorOpenIcon")->Hide();
+    GetElement("DoorClosedIcon")->Show();
+}
+
+void cInGame::ShowDoorOpen()
+{
+    GetElement("DoorOpenIcon")->Show();
+    GetElement("DoorClosedIcon")->Hide();
 }
 
 void cInGame::SetNextStopName(string sNextStop)
