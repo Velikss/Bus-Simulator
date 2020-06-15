@@ -95,32 +95,6 @@ protected:
         oDoorClosedIcon->AddX(900);
         pmpOverlay.push_back({"DoorClosedIcon", oDoorClosedIcon});
 
-//        cStaticElement* oDoorOverlay = new cStaticElement({600, 140}, pmpTextures["overlay-inv"]);
-//        oDoorOverlay->AlignBottom();
-//        oDoorOverlay->CenterHorizontal();
-//        oDoorOverlay->AddX(650);
-//        pmpOverlay.push_back({"DoorOverlay", oDoorOverlay});
-//
-//        cTextElement* oDoorValue = new cTextElement();
-//        oDoorValue->SetFont(25, cOverlayRenderModule::FONT,
-//                           glm::vec3(1, 1, 1));
-//        oDoorValue->UpdateText("Closed");
-//        oDoorValue->AlignBottom();
-//        oDoorValue->CenterHorizontal();
-//        oDoorValue->RemoveY(30);
-//        oDoorValue->AddX(650);
-//        pmpOverlay.push_back({"DoorValue", oDoorValue});
-
-//        cTextElement* oDoor = new cTextElement();
-//        oKmh->SetFont(5, cOverlayRenderModule::FONT,
-//                      glm::vec3(1, 1, 1));
-//        oDoor->UpdateText("Door");
-//        oDoor->AlignBottom();
-//        oDoor->CenterHorizontal();
-//        oDoor->AddX(290);
-//        oDoor->RemoveY(30);
-//        pmpOverlay.push_back({"Door", oKmh});
-
         cTextElement* oFPS = new cTextElement();
         oFPS->SetFont(6, cOverlayRenderModule::FONT,
                       glm::vec3(0, 1, 0));
