@@ -200,9 +200,15 @@ void cBusWorldScene::HandleKey(uint uiKeyCode, uint uiAction)
     {
         cBus* bus = dynamic_cast<cBus*>(pmpObjects["bus"]);
         if (!bus->pbDoorOpen)
+        {
             bus->OpenDoors();
+            (*pGameLogicHandler)->SetDoorIcon(bus->pbDoorOpen);
+        }
         else
+        {
             bus->CloseDoors();
+            (*pGameLogicHandler)->SetDoorIcon(bus->pbDoorOpen);
+        }
     }
 }
 
